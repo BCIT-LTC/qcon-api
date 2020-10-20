@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta8
+kind: Config
+metadata:
+  name: qcon
+build:
+  artifacts:
+  - image: qcon
+deploy:
+  kubectl:
+    manifests:
+    - storage.yaml
+    - deployment.yaml
+    - service.yaml
+    - ingress.yaml

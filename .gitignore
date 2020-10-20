@@ -1,0 +1,7 @@
+*.cpython-36.pyc
+__pycache__/
+
+node_modules
+package-lock.json
+
+.vscode

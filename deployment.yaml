@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qcon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qcon
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: qcon
+    spec:
+      containers:
+      - image: qcon
+        name: qcon-container
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - mountPath: /code
+          name: qcon-volume
+      imagePullSecrets:
+        - name: qcon-secrets
+      volumes:
+      - name: qcon-volume
+        persistentVolumeClaim:
+          claimName: qcon-volume-claim
+status: {}
