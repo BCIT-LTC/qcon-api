@@ -9,8 +9,9 @@ logger = logging.getLogger(__name__)
 class TestEndpoint(APIView):
     def post(self, request, format=None):
 
-        logger.warning("helloo thi is warning")
+        logger.info(request.data['filename'])
 
-        logger.error("hthisi is info")
+        
+
 
         return Response("test")
