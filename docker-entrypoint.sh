@@ -8,6 +8,9 @@ echo "--------------------------------------------------------------------------
 # nginx -g 'daemon off;'
 # nginx
 
+>&2 echo "create logging directory"
+mkdir log
+
 #Start django dev server
 >&2 echo "Starting Django runserver..."
 python manage.py runserver 0.0.0.0:8000

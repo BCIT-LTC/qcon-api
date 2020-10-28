@@ -16,7 +16,7 @@ services:
   app:
     build: .
     # command: python manage.py runserver 0.0.0.0:9000
-    image: qconImage
+    image: qcon
     restart: always
     tty: true
     volumes:
@@ -25,13 +25,13 @@ services:
       - "8000:8000"
     # depends_on:
     #   - db
-    # working_dir: /code
-    # networks:
-    #   - app-network
+    working_dir: /code
+    networks:
+      - app-network
 
 # volumes:
 #   db-volume: 
 
-# networks:
-#   app-network:
-#     driver: bridge
+networks:
+  app-network:
+    driver: bridge
