@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 class TestEndpoint(APIView):
     def post(self, request, format=None):
 
-        logger.info(request.data['filename'])
+        # logger.info(request.data['filename'])
+
+        logger.info(request.session.get())
 
         
 
