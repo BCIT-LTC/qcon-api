@@ -32,16 +32,52 @@ listanswer
 
 // ================================ TOKENS
 
+fragment DIGIT
+    :   [0-9]
+    ;
+
+fragment LOWERCASE
+    : [a-z]
+    ;
+
+fragment UPPERCASE
+    : [A-Z]
+    ;
+
+fragment BACKSLASH
+    : '\\'
+    ;
+
+fragment DOT
+    : '.'
+    ;
+
+fragment CLOSING_PARENTHESIS
+    : ')'
+    ;
+
+fragment ASTERISK
+    : '*'
+    ;
+
+ANSWER_MARKER
+    : BACKSLASH ASTERISK
+    ;
+
+DECIMAL
+    : DIGIT+ ([.,] DIGIT+)?
+    ;
+
 NUMBER
-    :   [0-9]+
+    :   DIGIT+ (DIGIT+)?
     ;
 
 CHAR
-    :   [A-Za-z0-9\\]+
+    :   (LOWERCASE | UPPERCASE | NUMBER | DECIMAL)+
     ;   
 
 LIST_PREFIX
-    :   CHAR+  '\\'[.)]
+    :   CHAR+  '\\' (DOT | CLOSING_PARENTHESIS)
     ;
 
 WHITESPACE
@@ -53,9 +89,9 @@ NEWLINE
     ;
 
 RIGHT_ANSWER_AFTER
-    :   CHAR+ WHITESPACE* [.)] WHITESPACE* '\\*'
+    :   CHAR+ BACKSLASH WHITESPACE* (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER
     ;
 
 RIGHT_ANSWER_BEFORE
-    :  '\\*' WHITESPACE* CHAR+ WHITESPACE* [.)]
+    :  ANSWER_MARKER WHITESPACE* CHAR+ WHITESPACE* BACKSLASH (DOT | CLOSING_PARENTHESIS)
     ;
