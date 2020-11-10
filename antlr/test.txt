@@ -1,21 +1,21 @@
 
-a\. \*one british
-a\.\*two British
-a \. \*Three British
+a\. one british
+b\.\*two British
+c \. Three British
 
 a.\*four @bcit.ca British 
 @thepub
-a) \*five British
-a. \* six British @ the pub
+b) five British
+c.  six British @ the pub
 @feedback: 
 man my email is ltcv@bcit.ca
 \*a\. seven british
-\*a\.eight British
-\*a \. nine British
+\*b\.eight British
+\*c \. nine British
 @Feedback:
 hello there 
 \*a\.ten British
-\*a\) eleven British
-\*a\. twelve British
+\*b\) eleven British
+\*c\. twelve British
 
 

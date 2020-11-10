@@ -8,16 +8,32 @@ grammar Grammar;
 // }
 
 prog
-    :   answeritem* EOF
+    :   list* EOF
+    ;
+
+list
+    :   listitem
+    |   answeritem
+    ;
+
+listitem
+    :   listprefix content answerfeedback
+    |   listprefix content
     ;
 
 answeritem
     :   answerprefix content answerfeedback
     |   answerprefix content 
     ;
+
 content
     :   ALL_CHARACTER+
     ;
+
+listprefix
+    :   LIST_PREFIX
+    ;
+
 answerprefix
     :   RIGHT_ANSWER_AFTER
     |   RIGHT_ANSWER_BEFORE
@@ -34,35 +50,36 @@ fragment DIGIT
     ;
 
 fragment LOWERCASE
-    : [a-z]
+    :   [a-z]
     ;
 
 fragment UPPERCASE
-    : [A-Z]
+    :   [A-Z]
     ;
 
 fragment BACKSLASH
-    : '\\'
+    :   '\\'
     ;
 
 fragment DOT
-    : '.'
+    :   '.'
     ;
 
 fragment CLOSING_PARENTHESIS
-    : ')'
+    :   ')'
     ;
 
 fragment ASTERISK
-    : '*'
+    :   '*'
     ;
 
 fragment WHITESPACE
     :   ' '
     ;
 
-fragment CHAR:
-    ~('')
+fragment CHAR
+    // ☢ BIOHAZARD SYMBOL HEX
+    :   ~([\u{2622}])
     ;
 
 fragment NUMBER
@@ -82,7 +99,7 @@ fragment NEWLINE
     ;
 
 fragment ANSWER_MARKER
-    : BACKSLASH ASTERISK
+    :   BACKSLASH ASTERISK
     ;
 
 
@@ -92,13 +109,13 @@ FEEDBACKMARKER
     ;
 
 ALL_CHARACTER
-    : CHAR
+    :   CHAR
     ;
     
 ALPHANUMERIC
     :   (LOWERCASE | UPPERCASE | NUMBER)
     ;
-
+    
 
 RIGHT_ANSWER_AFTER
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER WHITESPACE*
@@ -108,6 +125,6 @@ RIGHT_ANSWER_BEFORE
     :   NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
-LIST_ITEM
+LIST_PREFIX
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
