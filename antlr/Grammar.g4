@@ -1,33 +1,30 @@
 grammar Grammar;
 
+// options 
+// {
+// output=AST;
+// backtrack=true;
+// memoize=true;
+// }
+
 prog
-    :   list* EOF
+    :   answeritem* EOF
     ;
 
-list
-    : listitem+
+answeritem
+    :   answerprefix content answerfeedback
+    |   answerprefix content 
     ;
-
-listitem
-    :   listprefix sentence
-    |   rightanswer sentence
+content
+    :   ALL_CHARACTER+
     ;
-
-sentence
-    :   (CHAR | WHITESPACE)+
-    ;
-
-listprefix
-    :   LIST_PREFIX
-    ;
-
-rightanswer
+answerprefix
     :   RIGHT_ANSWER_AFTER
-        | RIGHT_ANSWER_BEFORE
+    |   RIGHT_ANSWER_BEFORE
     ;
 
-listanswer
-    :   rightanswer sentence
+answerfeedback
+    :   FEEDBACKMARKER content
     ;
 
 // ================================ TOKENS
@@ -60,38 +57,57 @@ fragment ASTERISK
     : '*'
     ;
 
-ANSWER_MARKER
-    : BACKSLASH ASTERISK
-    ;
-
-DECIMAL
-    : DIGIT+ ([.,] DIGIT+)?
-    ;
-
-NUMBER
-    :   DIGIT+ (DIGIT+)?
-    ;
-
-CHAR
-    :   (LOWERCASE | UPPERCASE | NUMBER | DECIMAL)+
-    ;   
-
-LIST_PREFIX
-    :   CHAR+  '\\' (DOT | CLOSING_PARENTHESIS)
-    ;
-
-WHITESPACE
+fragment WHITESPACE
     :   ' '
     ;
 
-NEWLINE
-    :   ('r'? 'n' | 'r')+ -> skip
+fragment CHAR:
+    ~('')
     ;
 
+fragment NUMBER
+    :   DIGIT+ (DIGIT+)?
+    ;
+
+fragment ATSYMBOL
+    :   '@'
+    ;
+
+fragment COLON
+    :   ':'
+    ;
+
+fragment NEWLINE
+    :   ('\n')
+    ;
+
+fragment ANSWER_MARKER
+    : BACKSLASH ASTERISK
+    ;
+
+
+FEEDBACKMARKER
+    // :   ATSYMBOL WHITESPACE* ('Feedback'|'feedback') WHITESPACE* COLON
+    :   NEWLINE+ WHITESPACE* ATSYMBOL WHITESPACE*
+    ;
+
+ALL_CHARACTER
+    : CHAR
+    ;
+    
+ALPHANUMERIC
+    :   (LOWERCASE | UPPERCASE | NUMBER)
+    ;
+
+
 RIGHT_ANSWER_AFTER
-    :   CHAR+ BACKSLASH WHITESPACE* (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER
+    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER WHITESPACE*
     ;
 
 RIGHT_ANSWER_BEFORE
-    :  ANSWER_MARKER WHITESPACE* CHAR+ WHITESPACE* BACKSLASH (DOT | CLOSING_PARENTHESIS)
+    :   NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH (DOT | CLOSING_PARENTHESIS) WHITESPACE*
+    ;
+
+LIST_ITEM
+    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
