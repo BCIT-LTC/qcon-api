@@ -1,21 +1,34 @@
 
-a\. one british
-b\.\*two British
-c \. Three British
+31.  What do Mio's breath sounds indicate?
+     A.    1, 2, 3
+	B.    \*1, 3, 5
+	C.    1, 5, 6
+	D.    1, 4, 5
 
-a.\*four @bcit.ca British 
-@thepub
-b) five British
-c.  six British @ the pub
-@feedback: 
-man my email is ltcv@bcit.ca
-\*a\. seven british
-\*b\.eight British
-\*c \. nine British
-@Feedback:
-hello there 
-\*a\.ten British
-\*b\) eleven British
-\*c\. twelve British
+32.  Mio has an arterial blood gas drawn at the same time the assessment is completed.  You anticipate the ABG will show: 
+A.   low pO2 due to deadspace V/Q mismatch, evidenced by fine crackles throughout all 
+                 lung fields.
+B.   low pO2 due to decreased compliance and increased work of breathing
+C.   pO2 normal or slightly elevated due to rapid respiratory rate, which increased 
+                 ventilation and gas exchange
+D.   low pO2 due to shunt V/Q mismatch, evidenced by fine crackles throughout all 
+                 lung fields
 
+33.  You anticipate that the ABG will show that Mio’s pCO2 is:
+A.   \*unchanged, or slightly low, because she is breathing rapidly
+B.   low, because she is experiencing a shunt V/Q mismatch
+C.   high, because she has a gas exchange problem evidenced by rapid respiratory rate, 
+              increased work of breathing, and decreased compliance.
+D.   high, because she is experiencing deadspace V/Q mismatch
 
+34.  Mio’s assessment findings show low urine output over several hours (90 ml dark amber urine in 6 hours).  This indicates that:
+A.  her renal oxygen supply and demand are balanced as she is producing urine
+B.  she is hypovolemic and requires fluids
+C.  there is decreased oxygen supply to the kidneys due to decreased afterload
+D.  \*there is decreased oxygen supply to the kidneys due to poor perfusion
+
+35.   Assessment findings that indicate the gastrointestinal system is not receiving enough oxygen supply relative to its oxygen demand include:
+A.   nausea, hyperactive bowel sounds, and diarrhea
+B.   hypoactive bowel sounds, nausea, hyperresonance of the intestine
+C.   \*nausea, hypoactive bowel sounds, loss of appetite
+D.   absent bowel sounds, distention, constipation
