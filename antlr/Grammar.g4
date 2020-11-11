@@ -7,25 +7,37 @@ grammar Grammar;
 // memoize=true;
 // }
 
+@parser::members{
+public class Question {
+
+    
+    }
+}
+
 prog
     :   question* EOF
     ;
 
 question
     :   questionbody answerlist feedback?
+    {
+        System.out.println("QUESTIONBODY    : " + $questionbody.text);
+        System.out.println("ANSWERLIST      : " + $answerlist.text);
+     }
     ;
+    
 
 questionbody
     :   questionprefix content feedback?
-    |   type? title? point? questionprefix content feedback?
-    |   type? point? title? questionprefix content feedback?
-    |   title? type? point? questionprefix content feedback?
-    |   title? point? type? questionprefix content feedback?
-    |   point? type? title? questionprefix content feedback?
-    |   point? title? type? questionprefix content feedback?
+    |   questiontype? title? point? questionprefix content feedback?
+    |   questiontype? point? title? questionprefix content feedback?
+    |   title? questiontype? point? questionprefix content feedback?
+    |   title? point? questiontype? questionprefix content feedback?
+    |   point? questiontype? title? questionprefix content feedback?
+    |   point? title? questiontype? questionprefix content feedback?
     ;
 
-type
+questiontype
     :   TYPE
     ;
 
@@ -41,9 +53,9 @@ content
     :   ALL_CHARACTER+
     ;
 
-list
-    :   (listitem)+ (list+)?
-    ;
+// list
+//     :   (listitem)+ (list+)?
+//     ;
 
 answerlist
     :   (listitem|answeritem)+ (answerlist+)?
