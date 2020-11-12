@@ -1,4 +1,4 @@
-grammar Grammar;
+grammar Qcon;
 
 // options 
 // {
@@ -7,23 +7,19 @@ grammar Grammar;
 // memoize=true;
 // }
 
-@parser::members{
-public class Question {
+// @parser::members{
+// public class Question {
 
     
-    }
-}
+//     }
+// }
 
-prog
+qcon
     :   question* EOF
     ;
 
 question
     :   questionbody answerlist feedback?
-    {
-        System.out.println("QUESTIONBODY    : " + $questionbody.text);
-        System.out.println("ANSWERLIST      : " + $answerlist.text);
-     }
     ;
     
 
