@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
+import sys
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,6 +123,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'api/resource/')
+#Qcon config
+QCON = {
+    'TEMP_FOLDER': os.path.join(BASE_DIR,'api','resource','tempfile') + os.path.sep,
+    'TEMP_IMAGE_ROOT': os.path.join(BASE_DIR,'api', 'resource', 'tempfile', 'media') + os.path.sep,
+    'RESPONDUS_XML_ROOT': os.path.join(BASE_DIR,'api','resource', 'xml') + os.path.sep,
+    'XML_QUESTION_URL': '/ql/',
+    'XML_QUESTION_ROOT': os.path.join(BASE_DIR, 'api','resource', 'xml') + os.path.sep,
+    'DEFAULT_IMAGE_FOLDER': '/assessment-assets/',
+    'QCON_INSTALL_SCRIPT_ROOT': os.path.join(BASE_DIR, 'scripts','production') + os.path.sep,
+}
+
 
 LOGGING = {
     'version': 1,

@@ -9,6 +9,7 @@ import sys
 import logging
 import json
 
+from api_v1.scorm.XmlWriter import XmlWriter
 
 logger = logging.getLogger(__name__)
 
@@ -20,17 +21,15 @@ def main(test) :
     stream = CommonTokenStream(lexer)
     parser = QconParser(stream)
     tree = parser.qcon()
-    # print(parserjson)
-    # output = open("output.html","w")
 
     printer = QconListener()
     walker = ParseTreeWalker()
     walker.walk(printer, tree)
-    # print(tree.getChild(1))
-    # print(tree.toStringTree(recog=parser))
-    # output.close()
 
-    # return printer
+    parsedQuestions = printer.getresults()
+
+    # parsedXml = XmlWriter(parsedQuestions)
+    # parsedXml.getXml()
 
 class TestEndpoint(APIView):
     def post(self, request, format=None):
