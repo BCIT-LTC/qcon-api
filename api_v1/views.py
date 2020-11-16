@@ -8,7 +8,8 @@ from antlr.QconParser import QconParser
 import sys
 import logging
 import json
-
+import pypandoc
+from zipfile import *
 from api_v1.scorm.XmlWriter import XmlWriter
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 def main(test) :
-    input = FileStream(test)
+    input = InputStream(test)
+    
     lexer = QconLexer(input)
     stream = CommonTokenStream(lexer)
     parser = QconParser(stream)
@@ -25,21 +27,32 @@ def main(test) :
     printer = QconListener()
     walker = ParseTreeWalker()
     walker.walk(printer, tree)
-
+    # print(tree.toStringTree(recog=parser))
     parsedQuestions = printer.getresults()
 
-    # parsedXml = XmlWriter(parsedQuestions)
+    parsedXml = XmlWriter(parsedQuestions)
     # parsedXml.getXml()
 
 class TestEndpoint(APIView):
     def post(self, request, format=None):
-
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
+       
         # logger.info(request.data['filename'])
-
         # logger.info(request.session.get())
 
-        lex = main("./antlr/test3.txt")
+        # tempPath = './antlr/test3.txt'
+        # with open(tempPath,"r") as file:
+        #     fileText = file.read()
+        #     pandocstring = pypandoc.convert_text(fileText, format='rst', to='gfm+fancy_lists+emoji', extra_args=['--preserve-tabs', '--wrap=preserve'])
 
+        filePath = './antlr/test6.docx'
+        pandocstring = pypandoc.convert_file(filePath, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
+        print(pandocstring)
+        
+        with open("./antlr/test4.txt","w+") as file:
+            file.write("\n" + pandocstring)
+            file.close()
+        
+        lex = main("\n" + pandocstring)
 
-
-        return Response('lex')
+        return Response('DONE')
