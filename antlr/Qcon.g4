@@ -54,15 +54,27 @@ content
 //     ;
 
 answerlist
-    :   (listitem|answeritem)+ (answerlist+)?
-    ;
-
-listitem
-    :   listprefix content feedback?
+    :   answeritem+ (answerlist+)?
+    // :   (listitem|answeritem) answerlist
+    // |   listitem
+    // |   answerlist
     ;
 
 answeritem
-    :   answerprefix content feedback?
+    :   listitem
+    |   listansweritem
+    ;
+
+listitem
+    // :   listprefix content feedback?
+    :   listprefix content feedback
+    |   listprefix content
+    ;
+
+listansweritem
+    // :   answerprefix content feedback?
+    :   answerprefix content feedback
+    |   answerprefix content
     ;
 
 
@@ -140,7 +152,7 @@ fragment COLON
     ;
 
 fragment NEWLINE
-    :   ('\n')
+    :   ('\r'? '\n' | '\r')
     ;
 
 fragment ANSWER_MARKER
@@ -211,6 +223,7 @@ QUESTION_PREFIX
 LIST_PREFIX
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
+
 ALL_CHARACTER
     :   CHAR
     ;

@@ -12,76 +12,83 @@ else:
 def serializedATN():
     with StringIO() as buf:
         buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\13")
-        buf.write("\u00b2\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\u00bf\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
-        buf.write("\t\16\4\17\t\17\3\2\7\2 \n\2\f\2\16\2#\13\2\3\2\3\2\3")
-        buf.write("\3\3\3\3\3\5\3*\n\3\3\4\3\4\3\4\5\4/\n\4\3\4\5\4\62\n")
-        buf.write("\4\3\4\5\4\65\n\4\3\4\5\48\n\4\3\4\3\4\3\4\5\4=\n\4\3")
-        buf.write("\4\5\4@\n\4\3\4\5\4C\n\4\3\4\5\4F\n\4\3\4\3\4\3\4\5\4")
-        buf.write("K\n\4\3\4\5\4N\n\4\3\4\5\4Q\n\4\3\4\5\4T\n\4\3\4\3\4\3")
-        buf.write("\4\5\4Y\n\4\3\4\5\4\\\n\4\3\4\5\4_\n\4\3\4\5\4b\n\4\3")
-        buf.write("\4\3\4\3\4\5\4g\n\4\3\4\5\4j\n\4\3\4\5\4m\n\4\3\4\5\4")
-        buf.write("p\n\4\3\4\3\4\3\4\5\4u\n\4\3\4\5\4x\n\4\3\4\5\4{\n\4\3")
-        buf.write("\4\5\4~\n\4\3\4\3\4\3\4\5\4\u0083\n\4\5\4\u0085\n\4\3")
-        buf.write("\5\3\5\3\6\3\6\3\7\3\7\3\b\6\b\u008e\n\b\r\b\16\b\u008f")
-        buf.write("\3\t\3\t\6\t\u0094\n\t\r\t\16\t\u0095\3\t\6\t\u0099\n")
-        buf.write("\t\r\t\16\t\u009a\5\t\u009d\n\t\3\n\3\n\3\n\5\n\u00a2")
-        buf.write("\n\n\3\13\3\13\3\13\5\13\u00a7\n\13\3\f\3\f\3\r\3\r\3")
-        buf.write("\16\3\16\3\17\3\17\3\17\3\17\2\2\20\2\4\6\b\n\f\16\20")
-        buf.write("\22\24\26\30\32\34\2\3\3\2\n\13\2\u00cb\2!\3\2\2\2\4&")
-        buf.write("\3\2\2\2\6\u0084\3\2\2\2\b\u0086\3\2\2\2\n\u0088\3\2\2")
-        buf.write("\2\f\u008a\3\2\2\2\16\u008d\3\2\2\2\20\u0093\3\2\2\2\22")
-        buf.write("\u009e\3\2\2\2\24\u00a3\3\2\2\2\26\u00a8\3\2\2\2\30\u00aa")
-        buf.write("\3\2\2\2\32\u00ac\3\2\2\2\34\u00ae\3\2\2\2\36 \5\4\3\2")
-        buf.write("\37\36\3\2\2\2 #\3\2\2\2!\37\3\2\2\2!\"\3\2\2\2\"$\3\2")
-        buf.write("\2\2#!\3\2\2\2$%\7\2\2\3%\3\3\2\2\2&\'\5\6\4\2\')\5\20")
-        buf.write("\t\2(*\5\34\17\2)(\3\2\2\2)*\3\2\2\2*\5\3\2\2\2+,\5\26")
-        buf.write("\f\2,.\5\16\b\2-/\5\34\17\2.-\3\2\2\2./\3\2\2\2/\u0085")
-        buf.write("\3\2\2\2\60\62\5\b\5\2\61\60\3\2\2\2\61\62\3\2\2\2\62")
-        buf.write("\64\3\2\2\2\63\65\5\n\6\2\64\63\3\2\2\2\64\65\3\2\2\2")
-        buf.write("\65\67\3\2\2\2\668\5\f\7\2\67\66\3\2\2\2\678\3\2\2\28")
-        buf.write("9\3\2\2\29:\5\26\f\2:<\5\16\b\2;=\5\34\17\2<;\3\2\2\2")
-        buf.write("<=\3\2\2\2=\u0085\3\2\2\2>@\5\b\5\2?>\3\2\2\2?@\3\2\2")
-        buf.write("\2@B\3\2\2\2AC\5\f\7\2BA\3\2\2\2BC\3\2\2\2CE\3\2\2\2D")
-        buf.write("F\5\n\6\2ED\3\2\2\2EF\3\2\2\2FG\3\2\2\2GH\5\26\f\2HJ\5")
-        buf.write("\16\b\2IK\5\34\17\2JI\3\2\2\2JK\3\2\2\2K\u0085\3\2\2\2")
-        buf.write("LN\5\n\6\2ML\3\2\2\2MN\3\2\2\2NP\3\2\2\2OQ\5\b\5\2PO\3")
-        buf.write("\2\2\2PQ\3\2\2\2QS\3\2\2\2RT\5\f\7\2SR\3\2\2\2ST\3\2\2")
-        buf.write("\2TU\3\2\2\2UV\5\26\f\2VX\5\16\b\2WY\5\34\17\2XW\3\2\2")
-        buf.write("\2XY\3\2\2\2Y\u0085\3\2\2\2Z\\\5\n\6\2[Z\3\2\2\2[\\\3")
-        buf.write("\2\2\2\\^\3\2\2\2]_\5\f\7\2^]\3\2\2\2^_\3\2\2\2_a\3\2")
-        buf.write("\2\2`b\5\b\5\2a`\3\2\2\2ab\3\2\2\2bc\3\2\2\2cd\5\26\f")
-        buf.write("\2df\5\16\b\2eg\5\34\17\2fe\3\2\2\2fg\3\2\2\2g\u0085\3")
-        buf.write("\2\2\2hj\5\f\7\2ih\3\2\2\2ij\3\2\2\2jl\3\2\2\2km\5\b\5")
-        buf.write("\2lk\3\2\2\2lm\3\2\2\2mo\3\2\2\2np\5\n\6\2on\3\2\2\2o")
-        buf.write("p\3\2\2\2pq\3\2\2\2qr\5\26\f\2rt\5\16\b\2su\5\34\17\2")
-        buf.write("ts\3\2\2\2tu\3\2\2\2u\u0085\3\2\2\2vx\5\f\7\2wv\3\2\2")
-        buf.write("\2wx\3\2\2\2xz\3\2\2\2y{\5\n\6\2zy\3\2\2\2z{\3\2\2\2{")
-        buf.write("}\3\2\2\2|~\5\b\5\2}|\3\2\2\2}~\3\2\2\2~\177\3\2\2\2\177")
-        buf.write("\u0080\5\26\f\2\u0080\u0082\5\16\b\2\u0081\u0083\5\34")
-        buf.write("\17\2\u0082\u0081\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0085")
-        buf.write("\3\2\2\2\u0084+\3\2\2\2\u0084\61\3\2\2\2\u0084?\3\2\2")
-        buf.write("\2\u0084M\3\2\2\2\u0084[\3\2\2\2\u0084i\3\2\2\2\u0084")
-        buf.write("w\3\2\2\2\u0085\7\3\2\2\2\u0086\u0087\7\4\2\2\u0087\t")
-        buf.write("\3\2\2\2\u0088\u0089\7\5\2\2\u0089\13\3\2\2\2\u008a\u008b")
-        buf.write("\7\6\2\2\u008b\r\3\2\2\2\u008c\u008e\7\t\2\2\u008d\u008c")
-        buf.write("\3\2\2\2\u008e\u008f\3\2\2\2\u008f\u008d\3\2\2\2\u008f")
-        buf.write("\u0090\3\2\2\2\u0090\17\3\2\2\2\u0091\u0094\5\22\n\2\u0092")
-        buf.write("\u0094\5\24\13\2\u0093\u0091\3\2\2\2\u0093\u0092\3\2\2")
-        buf.write("\2\u0094\u0095\3\2\2\2\u0095\u0093\3\2\2\2\u0095\u0096")
-        buf.write("\3\2\2\2\u0096\u009c\3\2\2\2\u0097\u0099\5\20\t\2\u0098")
-        buf.write("\u0097\3\2\2\2\u0099\u009a\3\2\2\2\u009a\u0098\3\2\2\2")
-        buf.write("\u009a\u009b\3\2\2\2\u009b\u009d\3\2\2\2\u009c\u0098\3")
-        buf.write("\2\2\2\u009c\u009d\3\2\2\2\u009d\21\3\2\2\2\u009e\u009f")
-        buf.write("\5\30\r\2\u009f\u00a1\5\16\b\2\u00a0\u00a2\5\34\17\2\u00a1")
-        buf.write("\u00a0\3\2\2\2\u00a1\u00a2\3\2\2\2\u00a2\23\3\2\2\2\u00a3")
-        buf.write("\u00a4\5\32\16\2\u00a4\u00a6\5\16\b\2\u00a5\u00a7\5\34")
-        buf.write("\17\2\u00a6\u00a5\3\2\2\2\u00a6\u00a7\3\2\2\2\u00a7\25")
-        buf.write("\3\2\2\2\u00a8\u00a9\7\7\2\2\u00a9\27\3\2\2\2\u00aa\u00ab")
-        buf.write("\7\b\2\2\u00ab\31\3\2\2\2\u00ac\u00ad\t\2\2\2\u00ad\33")
-        buf.write("\3\2\2\2\u00ae\u00af\7\3\2\2\u00af\u00b0\5\16\b\2\u00b0")
-        buf.write("\35\3\2\2\2%!).\61\64\67<?BEJMPSX[^afilotwz}\u0082\u0084")
-        buf.write("\u008f\u0093\u0095\u009a\u009c\u00a1\u00a6")
+        buf.write("\t\16\4\17\t\17\4\20\t\20\3\2\7\2\"\n\2\f\2\16\2%\13\2")
+        buf.write("\3\2\3\2\3\3\3\3\3\3\5\3,\n\3\3\4\3\4\3\4\5\4\61\n\4\3")
+        buf.write("\4\5\4\64\n\4\3\4\5\4\67\n\4\3\4\5\4:\n\4\3\4\3\4\3\4")
+        buf.write("\5\4?\n\4\3\4\5\4B\n\4\3\4\5\4E\n\4\3\4\5\4H\n\4\3\4\3")
+        buf.write("\4\3\4\5\4M\n\4\3\4\5\4P\n\4\3\4\5\4S\n\4\3\4\5\4V\n\4")
+        buf.write("\3\4\3\4\3\4\5\4[\n\4\3\4\5\4^\n\4\3\4\5\4a\n\4\3\4\5")
+        buf.write("\4d\n\4\3\4\3\4\3\4\5\4i\n\4\3\4\5\4l\n\4\3\4\5\4o\n\4")
+        buf.write("\3\4\5\4r\n\4\3\4\3\4\3\4\5\4w\n\4\3\4\5\4z\n\4\3\4\5")
+        buf.write("\4}\n\4\3\4\5\4\u0080\n\4\3\4\3\4\3\4\5\4\u0085\n\4\5")
+        buf.write("\4\u0087\n\4\3\5\3\5\3\6\3\6\3\7\3\7\3\b\6\b\u0090\n\b")
+        buf.write("\r\b\16\b\u0091\3\t\6\t\u0095\n\t\r\t\16\t\u0096\3\t\6")
+        buf.write("\t\u009a\n\t\r\t\16\t\u009b\5\t\u009e\n\t\3\n\3\n\5\n")
+        buf.write("\u00a2\n\n\3\13\3\13\3\13\3\13\3\13\3\13\3\13\5\13\u00ab")
+        buf.write("\n\13\3\f\3\f\3\f\3\f\3\f\3\f\3\f\5\f\u00b4\n\f\3\r\3")
+        buf.write("\r\3\16\3\16\3\17\3\17\3\20\3\20\3\20\3\20\2\2\21\2\4")
+        buf.write("\6\b\n\f\16\20\22\24\26\30\32\34\36\2\3\3\2\n\13\2\u00d7")
+        buf.write("\2#\3\2\2\2\4(\3\2\2\2\6\u0086\3\2\2\2\b\u0088\3\2\2\2")
+        buf.write("\n\u008a\3\2\2\2\f\u008c\3\2\2\2\16\u008f\3\2\2\2\20\u0094")
+        buf.write("\3\2\2\2\22\u00a1\3\2\2\2\24\u00aa\3\2\2\2\26\u00b3\3")
+        buf.write("\2\2\2\30\u00b5\3\2\2\2\32\u00b7\3\2\2\2\34\u00b9\3\2")
+        buf.write("\2\2\36\u00bb\3\2\2\2 \"\5\4\3\2! \3\2\2\2\"%\3\2\2\2")
+        buf.write("#!\3\2\2\2#$\3\2\2\2$&\3\2\2\2%#\3\2\2\2&\'\7\2\2\3\'")
+        buf.write("\3\3\2\2\2()\5\6\4\2)+\5\20\t\2*,\5\36\20\2+*\3\2\2\2")
+        buf.write("+,\3\2\2\2,\5\3\2\2\2-.\5\30\r\2.\60\5\16\b\2/\61\5\36")
+        buf.write("\20\2\60/\3\2\2\2\60\61\3\2\2\2\61\u0087\3\2\2\2\62\64")
+        buf.write("\5\b\5\2\63\62\3\2\2\2\63\64\3\2\2\2\64\66\3\2\2\2\65")
+        buf.write("\67\5\n\6\2\66\65\3\2\2\2\66\67\3\2\2\2\679\3\2\2\28:")
+        buf.write("\5\f\7\298\3\2\2\29:\3\2\2\2:;\3\2\2\2;<\5\30\r\2<>\5")
+        buf.write("\16\b\2=?\5\36\20\2>=\3\2\2\2>?\3\2\2\2?\u0087\3\2\2\2")
+        buf.write("@B\5\b\5\2A@\3\2\2\2AB\3\2\2\2BD\3\2\2\2CE\5\f\7\2DC\3")
+        buf.write("\2\2\2DE\3\2\2\2EG\3\2\2\2FH\5\n\6\2GF\3\2\2\2GH\3\2\2")
+        buf.write("\2HI\3\2\2\2IJ\5\30\r\2JL\5\16\b\2KM\5\36\20\2LK\3\2\2")
+        buf.write("\2LM\3\2\2\2M\u0087\3\2\2\2NP\5\n\6\2ON\3\2\2\2OP\3\2")
+        buf.write("\2\2PR\3\2\2\2QS\5\b\5\2RQ\3\2\2\2RS\3\2\2\2SU\3\2\2\2")
+        buf.write("TV\5\f\7\2UT\3\2\2\2UV\3\2\2\2VW\3\2\2\2WX\5\30\r\2XZ")
+        buf.write("\5\16\b\2Y[\5\36\20\2ZY\3\2\2\2Z[\3\2\2\2[\u0087\3\2\2")
+        buf.write("\2\\^\5\n\6\2]\\\3\2\2\2]^\3\2\2\2^`\3\2\2\2_a\5\f\7\2")
+        buf.write("`_\3\2\2\2`a\3\2\2\2ac\3\2\2\2bd\5\b\5\2cb\3\2\2\2cd\3")
+        buf.write("\2\2\2de\3\2\2\2ef\5\30\r\2fh\5\16\b\2gi\5\36\20\2hg\3")
+        buf.write("\2\2\2hi\3\2\2\2i\u0087\3\2\2\2jl\5\f\7\2kj\3\2\2\2kl")
+        buf.write("\3\2\2\2ln\3\2\2\2mo\5\b\5\2nm\3\2\2\2no\3\2\2\2oq\3\2")
+        buf.write("\2\2pr\5\n\6\2qp\3\2\2\2qr\3\2\2\2rs\3\2\2\2st\5\30\r")
+        buf.write("\2tv\5\16\b\2uw\5\36\20\2vu\3\2\2\2vw\3\2\2\2w\u0087\3")
+        buf.write("\2\2\2xz\5\f\7\2yx\3\2\2\2yz\3\2\2\2z|\3\2\2\2{}\5\n\6")
+        buf.write("\2|{\3\2\2\2|}\3\2\2\2}\177\3\2\2\2~\u0080\5\b\5\2\177")
+        buf.write("~\3\2\2\2\177\u0080\3\2\2\2\u0080\u0081\3\2\2\2\u0081")
+        buf.write("\u0082\5\30\r\2\u0082\u0084\5\16\b\2\u0083\u0085\5\36")
+        buf.write("\20\2\u0084\u0083\3\2\2\2\u0084\u0085\3\2\2\2\u0085\u0087")
+        buf.write("\3\2\2\2\u0086-\3\2\2\2\u0086\63\3\2\2\2\u0086A\3\2\2")
+        buf.write("\2\u0086O\3\2\2\2\u0086]\3\2\2\2\u0086k\3\2\2\2\u0086")
+        buf.write("y\3\2\2\2\u0087\7\3\2\2\2\u0088\u0089\7\4\2\2\u0089\t")
+        buf.write("\3\2\2\2\u008a\u008b\7\5\2\2\u008b\13\3\2\2\2\u008c\u008d")
+        buf.write("\7\6\2\2\u008d\r\3\2\2\2\u008e\u0090\7\t\2\2\u008f\u008e")
+        buf.write("\3\2\2\2\u0090\u0091\3\2\2\2\u0091\u008f\3\2\2\2\u0091")
+        buf.write("\u0092\3\2\2\2\u0092\17\3\2\2\2\u0093\u0095\5\22\n\2\u0094")
+        buf.write("\u0093\3\2\2\2\u0095\u0096\3\2\2\2\u0096\u0094\3\2\2\2")
+        buf.write("\u0096\u0097\3\2\2\2\u0097\u009d\3\2\2\2\u0098\u009a\5")
+        buf.write("\20\t\2\u0099\u0098\3\2\2\2\u009a\u009b\3\2\2\2\u009b")
+        buf.write("\u0099\3\2\2\2\u009b\u009c\3\2\2\2\u009c\u009e\3\2\2\2")
+        buf.write("\u009d\u0099\3\2\2\2\u009d\u009e\3\2\2\2\u009e\21\3\2")
+        buf.write("\2\2\u009f\u00a2\5\24\13\2\u00a0\u00a2\5\26\f\2\u00a1")
+        buf.write("\u009f\3\2\2\2\u00a1\u00a0\3\2\2\2\u00a2\23\3\2\2\2\u00a3")
+        buf.write("\u00a4\5\32\16\2\u00a4\u00a5\5\16\b\2\u00a5\u00a6\5\36")
+        buf.write("\20\2\u00a6\u00ab\3\2\2\2\u00a7\u00a8\5\32\16\2\u00a8")
+        buf.write("\u00a9\5\16\b\2\u00a9\u00ab\3\2\2\2\u00aa\u00a3\3\2\2")
+        buf.write("\2\u00aa\u00a7\3\2\2\2\u00ab\25\3\2\2\2\u00ac\u00ad\5")
+        buf.write("\34\17\2\u00ad\u00ae\5\16\b\2\u00ae\u00af\5\36\20\2\u00af")
+        buf.write("\u00b4\3\2\2\2\u00b0\u00b1\5\34\17\2\u00b1\u00b2\5\16")
+        buf.write("\b\2\u00b2\u00b4\3\2\2\2\u00b3\u00ac\3\2\2\2\u00b3\u00b0")
+        buf.write("\3\2\2\2\u00b4\27\3\2\2\2\u00b5\u00b6\7\7\2\2\u00b6\31")
+        buf.write("\3\2\2\2\u00b7\u00b8\7\b\2\2\u00b8\33\3\2\2\2\u00b9\u00ba")
+        buf.write("\t\2\2\2\u00ba\35\3\2\2\2\u00bb\u00bc\7\3\2\2\u00bc\u00bd")
+        buf.write("\5\16\b\2\u00bd\37\3\2\2\2%#+\60\63\669>ADGLORUZ]`chk")
+        buf.write("nqvy|\177\u0084\u0086\u0091\u0096\u009b\u009d\u00a1\u00aa")
+        buf.write("\u00b3")
         return buf.getvalue()
 
 
@@ -109,16 +116,18 @@ class QconParser ( Parser ):
     RULE_point = 5
     RULE_content = 6
     RULE_answerlist = 7
-    RULE_listitem = 8
-    RULE_answeritem = 9
-    RULE_questionprefix = 10
-    RULE_listprefix = 11
-    RULE_answerprefix = 12
-    RULE_feedback = 13
+    RULE_answeritem = 8
+    RULE_listitem = 9
+    RULE_listansweritem = 10
+    RULE_questionprefix = 11
+    RULE_listprefix = 12
+    RULE_answerprefix = 13
+    RULE_feedback = 14
 
     ruleNames =  [ "qcon", "question", "questionbody", "questiontype", "title", 
-                   "point", "content", "answerlist", "listitem", "answeritem", 
-                   "questionprefix", "listprefix", "answerprefix", "feedback" ]
+                   "point", "content", "answerlist", "answeritem", "listitem", 
+                   "listansweritem", "questionprefix", "listprefix", "answerprefix", 
+                   "feedback" ]
 
     EOF = Token.EOF
     FEEDBACKMARKER=1
@@ -177,17 +186,17 @@ class QconParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 31
+            self.state = 33
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QconParser.TYPE) | (1 << QconParser.TITLE) | (1 << QconParser.POINT) | (1 << QconParser.QUESTION_PREFIX))) != 0):
-                self.state = 28
+                self.state = 30
                 self.question()
-                self.state = 33
+                self.state = 35
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 34
+            self.state = 36
             self.match(QconParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -237,15 +246,15 @@ class QconParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 36
+            self.state = 38
             self.questionbody()
-            self.state = 37
-            self.answerlist()
             self.state = 39
+            self.answerlist()
+            self.state = 41
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==QconParser.FEEDBACKMARKER:
-                self.state = 38
+                self.state = 40
                 self.feedback()
 
 
@@ -308,20 +317,20 @@ class QconParser ( Parser ):
         self.enterRule(localctx, 4, self.RULE_questionbody)
         self._la = 0 # Token type
         try:
-            self.state = 130
+            self.state = 132
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,27,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 41
+                self.state = 43
                 self.questionprefix()
-                self.state = 42
-                self.content()
                 self.state = 44
+                self.content()
+                self.state = 46
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 43
+                    self.state = 45
                     self.feedback()
 
 
@@ -329,39 +338,39 @@ class QconParser ( Parser ):
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 47
+                self.state = 49
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TYPE:
-                    self.state = 46
+                    self.state = 48
                     self.questiontype()
 
 
-                self.state = 50
+                self.state = 52
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TITLE:
-                    self.state = 49
+                    self.state = 51
                     self.title()
 
 
-                self.state = 53
+                self.state = 55
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.POINT:
-                    self.state = 52
+                    self.state = 54
                     self.point()
 
 
-                self.state = 55
+                self.state = 57
                 self.questionprefix()
-                self.state = 56
-                self.content()
                 self.state = 58
+                self.content()
+                self.state = 60
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 57
+                    self.state = 59
                     self.feedback()
 
 
@@ -369,39 +378,39 @@ class QconParser ( Parser ):
 
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 61
+                self.state = 63
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TYPE:
-                    self.state = 60
+                    self.state = 62
                     self.questiontype()
 
 
-                self.state = 64
+                self.state = 66
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.POINT:
-                    self.state = 63
+                    self.state = 65
                     self.point()
 
 
-                self.state = 67
+                self.state = 69
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TITLE:
-                    self.state = 66
+                    self.state = 68
                     self.title()
 
 
-                self.state = 69
+                self.state = 71
                 self.questionprefix()
-                self.state = 70
-                self.content()
                 self.state = 72
+                self.content()
+                self.state = 74
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 71
+                    self.state = 73
                     self.feedback()
 
 
@@ -409,39 +418,39 @@ class QconParser ( Parser ):
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 75
+                self.state = 77
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TITLE:
-                    self.state = 74
+                    self.state = 76
                     self.title()
 
 
-                self.state = 78
+                self.state = 80
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TYPE:
-                    self.state = 77
+                    self.state = 79
                     self.questiontype()
 
 
-                self.state = 81
+                self.state = 83
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.POINT:
-                    self.state = 80
+                    self.state = 82
                     self.point()
 
 
-                self.state = 83
+                self.state = 85
                 self.questionprefix()
-                self.state = 84
-                self.content()
                 self.state = 86
+                self.content()
+                self.state = 88
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 85
+                    self.state = 87
                     self.feedback()
 
 
@@ -449,39 +458,39 @@ class QconParser ( Parser ):
 
             elif la_ == 5:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 89
+                self.state = 91
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TITLE:
-                    self.state = 88
+                    self.state = 90
                     self.title()
 
 
-                self.state = 92
+                self.state = 94
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.POINT:
-                    self.state = 91
+                    self.state = 93
                     self.point()
 
 
-                self.state = 95
+                self.state = 97
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TYPE:
-                    self.state = 94
+                    self.state = 96
                     self.questiontype()
 
 
-                self.state = 97
+                self.state = 99
                 self.questionprefix()
-                self.state = 98
-                self.content()
                 self.state = 100
+                self.content()
+                self.state = 102
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 99
+                    self.state = 101
                     self.feedback()
 
 
@@ -489,39 +498,39 @@ class QconParser ( Parser ):
 
             elif la_ == 6:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 103
+                self.state = 105
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.POINT:
-                    self.state = 102
+                    self.state = 104
                     self.point()
 
 
-                self.state = 106
+                self.state = 108
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TYPE:
-                    self.state = 105
+                    self.state = 107
                     self.questiontype()
 
 
-                self.state = 109
+                self.state = 111
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TITLE:
-                    self.state = 108
+                    self.state = 110
                     self.title()
 
 
-                self.state = 111
+                self.state = 113
                 self.questionprefix()
-                self.state = 112
-                self.content()
                 self.state = 114
+                self.content()
+                self.state = 116
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 113
+                    self.state = 115
                     self.feedback()
 
 
@@ -529,39 +538,39 @@ class QconParser ( Parser ):
 
             elif la_ == 7:
                 self.enterOuterAlt(localctx, 7)
-                self.state = 117
+                self.state = 119
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.POINT:
-                    self.state = 116
+                    self.state = 118
                     self.point()
 
 
-                self.state = 120
+                self.state = 122
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TITLE:
-                    self.state = 119
+                    self.state = 121
                     self.title()
 
 
-                self.state = 123
+                self.state = 125
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.TYPE:
-                    self.state = 122
+                    self.state = 124
                     self.questiontype()
 
 
-                self.state = 125
+                self.state = 127
                 self.questionprefix()
-                self.state = 126
-                self.content()
                 self.state = 128
+                self.content()
+                self.state = 130
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==QconParser.FEEDBACKMARKER:
-                    self.state = 127
+                    self.state = 129
                     self.feedback()
 
 
@@ -606,7 +615,7 @@ class QconParser ( Parser ):
         self.enterRule(localctx, 6, self.RULE_questiontype)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 132
+            self.state = 134
             self.match(QconParser.TYPE)
         except RecognitionException as re:
             localctx.exception = re
@@ -646,7 +655,7 @@ class QconParser ( Parser ):
         self.enterRule(localctx, 8, self.RULE_title)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 134
+            self.state = 136
             self.match(QconParser.TITLE)
         except RecognitionException as re:
             localctx.exception = re
@@ -686,7 +695,7 @@ class QconParser ( Parser ):
         self.enterRule(localctx, 10, self.RULE_point)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 136
+            self.state = 138
             self.match(QconParser.POINT)
         except RecognitionException as re:
             localctx.exception = re
@@ -730,13 +739,13 @@ class QconParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 139 
+            self.state = 141 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 138
+                self.state = 140
                 self.match(QconParser.ALL_CHARACTER)
-                self.state = 141 
+                self.state = 143 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==QconParser.ALL_CHARACTER):
@@ -756,13 +765,6 @@ class QconParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
-
-        def listitem(self, i:int=None):
-            if i is None:
-                return self.getTypedRuleContexts(QconParser.ListitemContext)
-            else:
-                return self.getTypedRuleContext(QconParser.ListitemContext,i)
-
 
         def answeritem(self, i:int=None):
             if i is None:
@@ -798,51 +800,97 @@ class QconParser ( Parser ):
         self.enterRule(localctx, 14, self.RULE_answerlist)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 145 
+            self.state = 146 
             self._errHandler.sync(self)
             _alt = 1
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt == 1:
                     self.state = 145
-                    self._errHandler.sync(self)
-                    token = self._input.LA(1)
-                    if token in [QconParser.LIST_PREFIX]:
-                        self.state = 143
-                        self.listitem()
-                        pass
-                    elif token in [QconParser.RIGHT_ANSWER_AFTER, QconParser.RIGHT_ANSWER_BEFORE]:
-                        self.state = 144
-                        self.answeritem()
-                        pass
-                    else:
-                        raise NoViableAltException(self)
-
+                    self.answeritem()
 
                 else:
                     raise NoViableAltException(self)
-                self.state = 147 
+                self.state = 148 
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,30,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,29,self._ctx)
 
-            self.state = 154
+            self.state = 155
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,32,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,31,self._ctx)
             if la_ == 1:
-                self.state = 150 
+                self.state = 151 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 149
+                        self.state = 150
                         self.answerlist()
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 152 
+                    self.state = 153 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,31,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,30,self._ctx)
 
 
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class AnsweritemContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def listitem(self):
+            return self.getTypedRuleContext(QconParser.ListitemContext,0)
+
+
+        def listansweritem(self):
+            return self.getTypedRuleContext(QconParser.ListansweritemContext,0)
+
+
+        def getRuleIndex(self):
+            return QconParser.RULE_answeritem
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterAnsweritem" ):
+                listener.enterAnsweritem(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitAnsweritem" ):
+                listener.exitAnsweritem(self)
+
+
+
+
+    def answeritem(self):
+
+        localctx = QconParser.AnsweritemContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 16, self.RULE_answeritem)
+        try:
+            self.state = 159
+            self._errHandler.sync(self)
+            token = self._input.LA(1)
+            if token in [QconParser.LIST_PREFIX]:
+                self.enterOuterAlt(localctx, 1)
+                self.state = 157
+                self.listitem()
+                pass
+            elif token in [QconParser.RIGHT_ANSWER_AFTER, QconParser.RIGHT_ANSWER_BEFORE]:
+                self.enterOuterAlt(localctx, 2)
+                self.state = 158
+                self.listansweritem()
+                pass
+            else:
+                raise NoViableAltException(self)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -888,19 +936,28 @@ class QconParser ( Parser ):
     def listitem(self):
 
         localctx = QconParser.ListitemContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 16, self.RULE_listitem)
+        self.enterRule(localctx, 18, self.RULE_listitem)
         try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 156
-            self.listprefix()
-            self.state = 157
-            self.content()
-            self.state = 159
+            self.state = 168
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,33,self._ctx)
             if la_ == 1:
-                self.state = 158
+                self.enterOuterAlt(localctx, 1)
+                self.state = 161
+                self.listprefix()
+                self.state = 162
+                self.content()
+                self.state = 163
                 self.feedback()
+                pass
+
+            elif la_ == 2:
+                self.enterOuterAlt(localctx, 2)
+                self.state = 165
+                self.listprefix()
+                self.state = 166
+                self.content()
+                pass
 
 
         except RecognitionException as re:
@@ -912,7 +969,7 @@ class QconParser ( Parser ):
         return localctx
 
 
-    class AnsweritemContext(ParserRuleContext):
+    class ListansweritemContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -931,35 +988,44 @@ class QconParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return QconParser.RULE_answeritem
+            return QconParser.RULE_listansweritem
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAnsweritem" ):
-                listener.enterAnsweritem(self)
+            if hasattr( listener, "enterListansweritem" ):
+                listener.enterListansweritem(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAnsweritem" ):
-                listener.exitAnsweritem(self)
+            if hasattr( listener, "exitListansweritem" ):
+                listener.exitListansweritem(self)
 
 
 
 
-    def answeritem(self):
+    def listansweritem(self):
 
-        localctx = QconParser.AnsweritemContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 18, self.RULE_answeritem)
+        localctx = QconParser.ListansweritemContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 20, self.RULE_listansweritem)
         try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 161
-            self.answerprefix()
-            self.state = 162
-            self.content()
-            self.state = 164
+            self.state = 177
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,34,self._ctx)
             if la_ == 1:
-                self.state = 163
+                self.enterOuterAlt(localctx, 1)
+                self.state = 170
+                self.answerprefix()
+                self.state = 171
+                self.content()
+                self.state = 172
                 self.feedback()
+                pass
+
+            elif la_ == 2:
+                self.enterOuterAlt(localctx, 2)
+                self.state = 174
+                self.answerprefix()
+                self.state = 175
+                self.content()
+                pass
 
 
         except RecognitionException as re:
@@ -997,10 +1063,10 @@ class QconParser ( Parser ):
     def questionprefix(self):
 
         localctx = QconParser.QuestionprefixContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 20, self.RULE_questionprefix)
+        self.enterRule(localctx, 22, self.RULE_questionprefix)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 166
+            self.state = 179
             self.match(QconParser.QUESTION_PREFIX)
         except RecognitionException as re:
             localctx.exception = re
@@ -1037,10 +1103,10 @@ class QconParser ( Parser ):
     def listprefix(self):
 
         localctx = QconParser.ListprefixContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 22, self.RULE_listprefix)
+        self.enterRule(localctx, 24, self.RULE_listprefix)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 168
+            self.state = 181
             self.match(QconParser.LIST_PREFIX)
         except RecognitionException as re:
             localctx.exception = re
@@ -1080,11 +1146,11 @@ class QconParser ( Parser ):
     def answerprefix(self):
 
         localctx = QconParser.AnswerprefixContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 24, self.RULE_answerprefix)
+        self.enterRule(localctx, 26, self.RULE_answerprefix)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 170
+            self.state = 183
             _la = self._input.LA(1)
             if not(_la==QconParser.RIGHT_ANSWER_AFTER or _la==QconParser.RIGHT_ANSWER_BEFORE):
                 self._errHandler.recoverInline(self)
@@ -1130,12 +1196,12 @@ class QconParser ( Parser ):
     def feedback(self):
 
         localctx = QconParser.FeedbackContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_feedback)
+        self.enterRule(localctx, 28, self.RULE_feedback)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 172
+            self.state = 185
             self.match(QconParser.FEEDBACKMARKER)
-            self.state = 173
+            self.state = 186
             self.content()
         except RecognitionException as re:
             localctx.exception = re
