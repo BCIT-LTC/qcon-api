@@ -112,9 +112,9 @@ class QconListener(ParseTreeListener):
         # print("exitQuestion===>")
         # self.question.printquestion()
         # TODO INSERT LOGIC HEREEEEEEEEEEEEE
-        self.processQuestion(self.question)
 
         self.question.answers = self.temp_answers
+        self.processQuestion(self.question)
         self.questions.append(self.question)
         pass
 
@@ -244,7 +244,10 @@ class QconListener(ParseTreeListener):
     
     def isTrueFalse(self, question):
         if question.countCorrectAnswers == 1:
+            print("question.countCorrectAnswers == 1")
+            print(len(question.answers))
             if len(question.answers) == 2:
+                print("len(question.answers) == 2")
                 isTrueExist = False
                 isFalseExist = False
 
@@ -256,6 +259,11 @@ class QconListener(ParseTreeListener):
                 
                 if isTrueExist == True:
                     if isFalseExist == True:
+                        for answer in question.answers:
+                            if "true" in answer.answer_body.lower():
+                                answer.answer_body = "True"
+                            elif "false" in answer.answer_body.lower():
+                                answer.answer_body = "False"
                         return True
                     else:
                         return False
