@@ -6,10 +6,10 @@ from os.path import basename
 from os import makedirs, path, walk
 from shutil import rmtree
 from django.conf import settings
-from api.library.respondus.xmlcdata import CDATA
-from api.library.respondus.model.entity.manifest import ManifestEntity, ManifestResourceEntity
-from api.library.respondus.model.entity.questionlibrary import QuestionLibraryResponseEntity
-from api.library.respondus.questionlibrary import QuestionLibrary
+# from api.library.respondus.xmlcdata import CDATA
+# from api.library.respondus.model.entity.manifest import ManifestEntity, ManifestResourceEntity
+# from api.library.respondus.model.entity.questionlibrary import QuestionLibraryResponseEntity
+# from api.library.respondus.questionlibrary import QuestionLibrary
 
 class RespondusLibrary():
 

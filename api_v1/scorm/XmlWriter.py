@@ -5,8 +5,12 @@ import re
 import xml.etree.cElementTree as ET
 from uuid import UUID
 from api_v1.scorm.xmlcdata import CDATA
+from os import makedirs, path, walk
+from os.path import basename
 from django.conf import settings
 from xml.dom.minidom import parseString
+from zipfile import *
+from api_v1.scorm.Zipper import RespondusLibrary
 
 class XmlWriter():
 
@@ -31,22 +35,62 @@ class XmlWriter():
 		self.questions = questions
 		self.parseQuestion(questions)
 
-		# self.questionFolder = questionLibraryEntity.questionFolder
-		# self.imageFolder = questionLibraryEntity.imageFolder
-		# self.imageLocalFolder = questionLibraryEntity.imageLocalFolder
+		# questionLibraryEntity = QuestionLibraryEntity("quiz1.docx", "", "", "")
+		try:
+			folderPath = settings.QCON['RESPONDUS_XML_ROOT'] + "quiz1"
+			zipPath = settings.QCON['RESPONDUS_XML_ROOT'] + "quiz1" + '.zip'
 
-		# self.root = ET.Element("questestinterop")
-		# self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		# self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': self.questionFolder})
-		# self.sectionPresentationMaterial()
-		# self.sectionProcExtension()
+			if not path.exists(folderPath):
+				makedirs(folderPath)
+		
+			questionXMLPath = folderPath + '/questiondb.xml'
+			manifestXMLPath = folderPath + '/imsmanifest.xml'
+			
+			manifestEntity = self.ManifestEntity()
+			manifestResource = self.ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
+			manifestEntity.addResource(manifestResource)
+			RespondusLibrary.createManifest(manifestEntity, folderPath)
 
-		# self.questions = questions
-		# self.parseQuestion(questions)
+			# print(self.getXml())
+			# print(ET.tostring(self.root, "utf-8"))
+			tree = ET.ElementTree(self.root)
+			tree.write(questionXMLPath, encoding="utf-8", xml_declaration=True)
+
+
+			with ZipFile(zipPath, 'w') as myzip:
+				myzip.write(questionXMLPath, basename(questionXMLPath))
+				myzip.write(manifestXMLPath, basename(manifestXMLPath))
+				imageLocalFolder = ""
+				for root, dirs, files in walk(imageLocalFolder) :
+					for filename in files :
+						myzip.write(path.join(root, filename), imageFolder + '/' + filename)
+		except Exception as e:
+			# TODO CREATE ERROR MESSAGE FOR ZIPPING ERROR
+			return None
+
+
+	class ManifestResourceEntity(object):
+		def __init__(self, identifier, resourceType, materialType, href, title = '', linkTarget = ''):
+			self.identifier = identifier
+			self.resourceType = resourceType
+			self.materialType = materialType
+			self.href = href
+			self.title = title
+			self.linkTarget = linkTarget
+
+	class ManifestEntity(object):
+		resources = []
+
+		def __init__(self):
+			del self.resources[:]
+			
+		def addResource(self, manifestResourceEntity):
+			self.resources.append(manifestResourceEntity)
+
 
 	def getXml(self) :
-		self.debug()
-		return None
+		# self.debug()
+		return self.root
 
 	def debug(self) :
 		rough_string = ET.tostring(self.root, 'utf-8')
@@ -74,7 +118,7 @@ class XmlWriter():
 			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': questionIdent, 'd2l_2p0:page': '1', 'title': title})
 
 			if questionEntity.question_type == 'MC':
-				self.multipleChoice(it, questionIdent, questionEntity)
+				self.generateMultipleChoice(it, questionIdent, questionEntity)
 			# elif questionEntity.question_type == questionEntity.QUESTION_TYPE_MULTI_SELECT:
 			# 	self.multiSelect(it, questionIdent, questionEntity)
 			# elif questionEntity.question_type == questionEntity.QUESTION_TYPE_FILL_IN_BLANK:
@@ -85,8 +129,8 @@ class XmlWriter():
 			# 	self.longAnswer(it, questionIdent, questionEntity)	
 			# elif questionEntity.question_type == questionEntity.QUESTION_TYPE_MATCHING:
 			# 	self.matching(it, questionIdent, questionEntity)
-			# elif questionEntity.question_type == questionEntity.QUESTION_TYPE_TRUE_FALSE:
-			# 	self.trueFalse(it, questionIdent, questionEntity)
+			elif questionEntity.question_type == 'TF':
+				self.generateTrueFalse(it, questionIdent, questionEntity)
 
 			self.section.append(it)
 			index +=1
@@ -163,7 +207,7 @@ class XmlWriter():
 		itHintMatFlowText.append(CDATA(hint))
 
 
-	def multipleChoice(self, it, questionIdent, questionEntity) :
+	def generateMultipleChoice(self, it, questionIdent, questionEntity) :
 		self.itemDataNode(it, 'Multiple Choice', questionEntity)
 		self.itemprocExtension(it)
 
@@ -232,3 +276,67 @@ class XmlWriter():
 			self.generateFeedback(it, questionFeedBackIdent + str(index), questionAnswerEntity.feedback)
 			index += 1
 
+
+	def generateTrueFalse(self, it, questionIdent, questionEntity) :
+		
+		self.itemDataNode(it, 'True/False', questionEntity)
+		self.itemprocExtension(it)
+
+		questionLid = questionIdent + '_LID'
+		questionAnswerIdent = questionIdent + '_A'
+		questionFeedBackIdent = questionIdent + '_IF'
+
+		#Presentation Node
+		itPre = ET.SubElement(it, "presentation")
+		itPreFlow = ET.SubElement(itPre, "flow")
+
+		#Presentation -> Flow
+		itPreFlowMat = ET.SubElement(itPreFlow, "material")
+
+		#Presentation -> Material
+		itPreFlowMatText = ET.SubElement(itPreFlowMat, "mattext", {'texttype': 'text/html'})
+		questionText = questionEntity.questionbody #+ self.getElementImage(questionEntity)
+		itPreFlowMatText.append(CDATA(questionText))
+
+		#Presentation -> Flow -> Response_extension
+		itPreFlowRes = ET.SubElement(itPreFlow, "response_extension")
+		itPreFlowResDisplayStyle = ET.SubElement(itPreFlowRes, "d2l_2p0:display_style")
+		itPreFlowResDisplayStyle.text = '2'
+		itPreFlowResEnumeration = ET.SubElement(itPreFlowRes, "d2l_2p0:enumeration")
+		itPreFlowResEnumeration.text = '6'
+		itPreFlowResGradingType = ET.SubElement(itPreFlowRes, "d2l_2p0:grading_type")
+		itPreFlowResGradingType.text = '0'
+
+		#Presentation -> Flow -> Response_lid
+		itPreFlowLid = ET.SubElement(itPreFlow, "response_lid", {'ident': questionLid, 'rcardinality': 'Single'})
+		itPreFlowLidRen = ET.SubElement(itPreFlowLid, "render_choice", {'shuffle': ('yes' if questionEntity.randomizeAnswers else 'no')})	
+
+		#Reprocessing
+		itRes = ET.SubElement(it, "resprocessing")
+
+		#Add General feedback
+		self.generateFeedback(it, questionIdent, questionEntity.feedback)
+
+		index = 1
+		for questionAnswerEntity in questionEntity.answers:
+
+			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
+			flow = ET.SubElement(itPreFlowLidRen, "flow_label", {'class': 'Block'})
+			responseLabel = ET.SubElement(flow, "response_label", {'ident': questionAnswerIdent + str(index)})
+			flowMat = ET.SubElement(responseLabel, "flow_mat")
+			material = ET.SubElement(flowMat, "material")
+			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
+			mattext.text = questionAnswerEntity.answer_body.replace("<p>", "").replace("</p>", "").strip()
+
+			#Reprocessing -> Respcondition
+			itResCon = ET.SubElement(itRes, "respcondition", {'title': 'Response Condition' + str(index)})
+			itResConVar = ET.SubElement(itResCon, "conditionvar")
+			itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'respident': questionLid})
+			itResConVarEqual.text = questionAnswerIdent + str(index)
+			itResSetVar = ET.SubElement(itResCon, "setvar", {'action' : 'Set'})
+			itResSetVar.text = '100.0000' if questionAnswerEntity.isCorrect == True else '0.0000'
+			itResDis = ET.SubElement(itResCon, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': questionFeedBackIdent + str(index)})
+
+			#Add Answer specific feedback
+			self.generateFeedback(it, questionFeedBackIdent + str(index), questionAnswerEntity.feedback)
+			index += 1
