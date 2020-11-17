@@ -233,7 +233,18 @@ class QconListener(ParseTreeListener):
                     print("NOT MC/TF/MS")
                     pass
         else:
-            print("NO QUESTION TYPE")
+            is_TF = self.isTrueFalse(question)
+            is_MC = self.isMultipleChoice(question)
+            is_MS = self.isMultiSelect(question)
+
+            if is_TF == True:
+                question.question_type = "TF"
+            elif is_MC == True:
+                question.question_type = "MC"
+            elif is_MS == True:
+                question.question_type = "MS"
+
+            print(question.question_type)
 
 
     def isMultipleChoice(self, question):
@@ -244,10 +255,7 @@ class QconListener(ParseTreeListener):
     
     def isTrueFalse(self, question):
         if question.countCorrectAnswers == 1:
-            print("question.countCorrectAnswers == 1")
-            print(len(question.answers))
             if len(question.answers) == 2:
-                print("len(question.answers) == 2")
                 isTrueExist = False
                 isFalseExist = False
 
