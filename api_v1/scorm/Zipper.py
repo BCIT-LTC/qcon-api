@@ -6,17 +6,13 @@ from os.path import basename
 from os import makedirs, path, walk
 from shutil import rmtree
 from django.conf import settings
-# from api.library.respondus.xmlcdata import CDATA
-# from api.library.respondus.model.entity.manifest import ManifestEntity, ManifestResourceEntity
-# from api.library.respondus.model.entity.questionlibrary import QuestionLibraryResponseEntity
-# from api.library.respondus.questionlibrary import QuestionLibrary
+from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
 class RespondusLibrary():
 
 	def createManifest(manifestEntity, folderPath):
 
 		path = folderPath + '/imsmanifest.xml'
-
 		root = ET.Element("manifest", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1', 'identifier': 'MANIFEST_1'})
 		doc = ET.SubElement(root, "resources")
 
@@ -29,10 +25,9 @@ class RespondusLibrary():
 		tree.write(path)
 
 
-	def createQuestionLibrary(questionLibraryEntity, questions):
+	def createQuestionLibrary(questionLibraryEntity, parsedQuestionsXml):
 
 		try:
-
 			folderPath = settings.QCON['RESPONDUS_XML_ROOT'] + questionLibraryEntity.zipFileName
 			zipPath = settings.QCON['RESPONDUS_XML_ROOT'] + questionLibraryEntity.zipFileName + '.zip'
 
@@ -43,14 +38,13 @@ class RespondusLibrary():
 			manifestXMLPath = folderPath + '/imsmanifest.xml'
 
 			manifestEntity = ManifestEntity()
+
 			manifestResource = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
 			manifestEntity.addResource(manifestResource)
 			RespondusLibrary.createManifest(manifestEntity, folderPath)
-
-			xmlFile = QuestionLibrary(questionLibraryEntity, questions)
-
-			tree = ET.ElementTree(xmlFile.getXml())
-			tree.write(questionXMLPath, "utf-8")
+			
+			tree = ET.ElementTree(parsedQuestionsXml)
+			tree.write(questionXMLPath, encoding="utf-8", xml_declaration=True)
 			
 			with ZipFile(zipPath, 'w') as myzip:
 				myzip.write(questionXMLPath, basename(questionXMLPath))
@@ -65,8 +59,9 @@ class RespondusLibrary():
 			if path.exists(questionLibraryEntity.imageLocalFolder):	
 				rmtree(questionLibraryEntity.imageLocalFolder)
 
-			return QuestionLibraryResponseEntity(status=True, zipUrl=questionLibraryEntity.zipFileName + '.zip')
+			# return QuestionLibraryResponseEntity(status=True, zipUrl=questionLibraryEntity.zipFileName + '.zip')
 
 		except Exception as e:
-			logging.error(str(e))
-			return QuestionLibraryResponseEntity(status=False, message=str(e))
+			pass
+			# TODO CREATE ERROR MESSAGE FOR ZIPPING ERROR
+			# return QuestionLibraryResponseEntity(status=False, message=str(e))

@@ -30,8 +30,23 @@ def main(test) :
     # print(tree.toStringTree(recog=parser))
     parsedQuestions = printer.getresults()
 
-    parsedXml = XmlWriter(parsedQuestions)
+    fileName = "EXAM-1"
+    sectionFolderName = "Section_EXAM-1"
+    imageFolder = ""
+    imageLocalFolder = ""
+
+    questionLibraryEntity = QuestionLibraryEntity(fileName, sectionFolderName, imageFolder, imageLocalFolder)
+    parsedXml = XmlWriter(questionLibraryEntity, parsedQuestions)
     # parsedXml.getXml()
+
+
+class QuestionLibraryEntity(object):
+    def __init__(self, fileName, sectionFolderName, imageFolder, imageLocalFolder) :
+        self.zipFileName = fileName
+        self.sectionFolderName = sectionFolderName if sectionFolderName else self.zipFileName
+        self.imageFolder = imageFolder if imageFolder else ''
+        self.imageLocalFolder = imageLocalFolder
+
 
 class TestEndpoint(APIView):
     def post(self, request, format=None):

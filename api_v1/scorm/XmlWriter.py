@@ -14,78 +14,22 @@ from api_v1.scorm.Zipper import RespondusLibrary
 
 class XmlWriter():
 
-
-	def __init__(self, questions) :
+	def __init__(self, questionLibraryEntity, questions) :
 
 		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 		sectionIdent = 'SECT_' + ident
 		questionLibraryIdent = 'QLIB_' + ident
 
-
-		self.questionFolder = "questionFolder"
-		self.imageFolder = "imageFolder"
-		self.imageLocalFolder = "imageLocalFolder"
-
 		self.root = ET.Element("questestinterop")
 		self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': self.questionFolder})
+		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': questionLibraryEntity.sectionFolderName})
 		self.sectionPresentationMaterial()
 		self.sectionProcExtension()
 
 		self.questions = questions
 		self.parseQuestion(questions)
 
-		# questionLibraryEntity = QuestionLibraryEntity("quiz1.docx", "", "", "")
-		try:
-			folderPath = settings.QCON['RESPONDUS_XML_ROOT'] + "quiz1"
-			zipPath = settings.QCON['RESPONDUS_XML_ROOT'] + "quiz1" + '.zip'
-
-			if not path.exists(folderPath):
-				makedirs(folderPath)
-		
-			questionXMLPath = folderPath + '/questiondb.xml'
-			manifestXMLPath = folderPath + '/imsmanifest.xml'
-			
-			manifestEntity = self.ManifestEntity()
-			manifestResource = self.ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
-			manifestEntity.addResource(manifestResource)
-			RespondusLibrary.createManifest(manifestEntity, folderPath)
-
-			# print(self.getXml())
-			# print(ET.tostring(self.root, "utf-8"))
-			tree = ET.ElementTree(self.root)
-			tree.write(questionXMLPath, encoding="utf-8", xml_declaration=True)
-
-
-			with ZipFile(zipPath, 'w') as myzip:
-				myzip.write(questionXMLPath, basename(questionXMLPath))
-				myzip.write(manifestXMLPath, basename(manifestXMLPath))
-				imageLocalFolder = ""
-				for root, dirs, files in walk(imageLocalFolder) :
-					for filename in files :
-						myzip.write(path.join(root, filename), imageFolder + '/' + filename)
-		except Exception as e:
-			# TODO CREATE ERROR MESSAGE FOR ZIPPING ERROR
-			return None
-
-
-	class ManifestResourceEntity(object):
-		def __init__(self, identifier, resourceType, materialType, href, title = '', linkTarget = ''):
-			self.identifier = identifier
-			self.resourceType = resourceType
-			self.materialType = materialType
-			self.href = href
-			self.title = title
-			self.linkTarget = linkTarget
-
-	class ManifestEntity(object):
-		resources = []
-
-		def __init__(self):
-			del self.resources[:]
-			
-		def addResource(self, manifestResourceEntity):
-			self.resources.append(manifestResourceEntity)
+		RespondusLibrary.createQuestionLibrary(questionLibraryEntity, self.root)
 
 
 	def getXml(self) :
