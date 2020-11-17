@@ -1,9 +1,0 @@
-
-Title: Bananas     
-Type: TF
-1.  What do Mio's breath sounds indicate?
-     A.    1, 2, 3
-	B.    \*1, 3, 5
-	C.    1, 5, 6
-	D.    1, 4, 5
-

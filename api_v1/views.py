@@ -45,11 +45,11 @@ class TestEndpoint(APIView):
         #     fileText = file.read()
         #     pandocstring = pypandoc.convert_text(fileText, format='rst', to='gfm+fancy_lists+emoji', extra_args=['--preserve-tabs', '--wrap=preserve'])
 
-        filePath = './antlr/test6.docx'
+        filePath = './temp/test6.docx'
         pandocstring = pypandoc.convert_file(filePath, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
         print(pandocstring)
         
-        with open("./antlr/test4.txt","w+") as file:
+        with open("./temp/test4.txt","w+") as file:
             file.write("\n" + pandocstring)
             file.close()
         
