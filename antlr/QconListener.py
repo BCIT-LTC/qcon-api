@@ -5,7 +5,7 @@ if __name__ is not None and "." in __name__:
 else:
     from QconParser import QconParser
 import re
-
+import pypandoc
 
 class Question(object):
     def __init__(self):
@@ -126,23 +126,29 @@ class QconListener(ParseTreeListener):
 
     # Exit a parse tree produced by QconParser#questionbody.
     def exitQuestionbody(self, ctx:QconParser.QuestionbodyContext):
-        self.question.questionbody = ctx.content().getText()
+        questionBody = self.trimText(ctx.content().getText())
+        questionBody = self.markdownToHtml(questionBody)
+        self.question.questionbody = questionBody
 
         if ctx.questiontype() != None:
-            questionType = ctx.questiontype().getText().split(":")[1]
-            self.question.question_type = self.trimText(questionType)
+            questionType = self.trimText(ctx.questiontype().getText()).split(":")[1]
+            questionType = self.markdownToHtml(questionType)
+            self.question.question_type = questionType
         
         if ctx.title() != None:
-            title = ctx.title().getText().split(":")[1]
-            self.question.title = self.trimText(title)
+            title = self.trimText(ctx.title().getText()).split(":")[1]
+            title = self.markdownToPlainText(title)
+            self.question.title = title
 
         if ctx.point() != None:
-            points = ctx.point().getText().split(":")[1]
-            self.question.points = self.trimText(points)
+            points = self.trimText(ctx.point().getText()).split(":")[1]
+            points = self.markdownToPlainText(points)
+            self.question.points = points
 
         if ctx.feedback() != None:
-            feedback = self.trimText(ctx.feedback().getText())
-            self.question.feedback = feedback[1:]
+            feedback = self.trimText(ctx.feedback().getText())[1:]
+            feedback = self.markdownToHtml(feedback)
+            self.question.feedback = feedback
         # print("exitQuestionbody===>")
         pass
 
@@ -181,10 +187,15 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#listitem.
     def exitListitem(self, ctx:QconParser.ListitemContext):
         # print("exitListitem===>")
-        self.answer.answer_body = ctx.content().getText()
+        answer_body = self.trimText(ctx.content().getText())
+        answer_body = self.markdownToHtml(answer_body)
+        self.answer.answer_body = answer_body
+
         self.answer.isCorrect = False
         if ctx.feedback() != None:
-            self.answer.feedback = ctx.feedback().getText()
+            feedback = self.trimText(ctx.feedback().getText())[1:]
+            feedback = self.markdownToHtml(feedback)
+            self.answer.feedback = feedback
         pass
 
     # Enter a parse tree produced by QconParser#listansweritem.
@@ -195,12 +206,16 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#listansweritem.
     def exitListansweritem(self, ctx:QconParser.ListansweritemContext):
         # print("exitListansweritem===>")
-        self.answer.answer_body = ctx.content().getText()
+        answer_body = self.trimText(ctx.content().getText())
+        answer_body = self.markdownToHtml(answer_body)
+        self.answer.answer_body = answer_body
+
         self.answer.isCorrect = True
         self.question.countCorrectAnswers += 1
         if ctx.feedback() != None:
-            feedback = self.trimText(ctx.feedback().getText())
-            self.answer.feedback = feedback[1:]
+            feedback = self.trimText(ctx.feedback().getText())[1:]
+            feedback = self.markdownToHtml(feedback)
+            self.answer.feedback = feedback
         pass
 
     def processQuestion(self, question):
@@ -298,5 +313,12 @@ class QconListener(ParseTreeListener):
         text = re.sub(' +', ' ', text)
         return text
     
+    def markdownToHtml(self, text):
+        htmlText = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
+        return htmlText
+
+    def markdownToPlainText(self, text):
+        plainText = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain").replace('\n', ' ')
+        return plainText
 
 del QconParser

@@ -11,6 +11,7 @@ from django.conf import settings
 from xml.dom.minidom import parseString
 from zipfile import *
 from api_v1.scorm.Zipper import RespondusLibrary
+import pypandoc
 
 class XmlWriter():
 
@@ -56,8 +57,8 @@ class XmlWriter():
 			questionText = questionEntity.questionbody
 			if isinstance(questionEntity.questionbody, list) :
 				questionText = " ".join(questionEntity.questionbody)
-
-			title = titlePrefix + str(questionEntity.title if questionEntity.title is not None else questionText)
+			plainText = pypandoc.convert_text(questionText, format="html", to="plain").replace('\n', ' ')
+			title = titlePrefix + str(questionEntity.title if questionEntity.title is not None else plainText)
 			
 			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': questionIdent, 'd2l_2p0:page': '1', 'title': title})
 
