@@ -12,59 +12,44 @@ class Question(object):
         self.question_type = None
         self.question_number = None 
         self.title = None
-        self.questionbody = None
-        self.feedback = None
+        self.question_body = None
+        self.question_feedback = None
         self.hint = None
-        self.randomizeAnswers = None
+        self.randomize_answers = None
         self.points = None
         self.image = []
         self.answers = [] #ctx.getChildCount()
         self.answer_index = 0
-        self.countCorrectAnswers = 0
+        self.correct_answers_length = 0
         self.preview = ''
         self.messages = {}
 
-        # =============
-        # self.answerindex = 0
 
-    def printquestion(self):
+    def print_question(self):
         # print ( 
         # "=================" +
         # "\nquestion_type: " + str(self.question_type) + 
         # "\nquestion_number: " + str(self.question_number) + 
         # "\ntitle: " + str(self.title) + 
-        # "\nquestionbody: " + str(self.questionbody)  +
+        # "\nquestionbody: " + str(self.question_body)  +
         # "\nfeedback: " + str(self.feedback) + 
         # "\nhint: " + str(self.hint) + 
-        # "\nrandomizeAnswers: " + str(self.randomizeAnswers) +
+        # "\nrandomizeAnswers: " + str(self.randomize_answers) +
         # "\npoints: " + str(self.points) +
         # "\n=================")
         pass
 
-    def pushAnswer(self, answer):
-
-        self.answers.append(answer)
-
-        return None
 
 class Answer(object):
     def __init__(self): # answer_index, answer_body, feedback, isCorrect, matchLeft, matchRight, order
         self.answer_body = None
-        self.feedback = None
-        self.isCorrect = None
-        self.matchLeft = None
-        self.matchRight = None
+        self.answer_feedback = None
+        self.is_correct = None
+        self.match_left = None
+        self.match_right = None
         self.order = None
 
-        return None
 
-    def showtitle():
-        return None
-
-    def findType():
-        return None
-    
-    
 # This class defines a complete listener for a parse tree produced by QconParser.
 class QconListener(ParseTreeListener):
     def __init__(self):
@@ -72,32 +57,19 @@ class QconListener(ParseTreeListener):
         self.question = None
         self.temp_answers = []
         self.answer = None
-        self.testvariable = "empty"
-        # self.isready = False
 
     # TODO Add logic to populate and check the fields (e.g: questionType)
-    def getresults(self):
-        # if self.isready == True:
-        #     print(len(self.questions[0]))
-        # else:
-        #     print("NOT REEADY")
-        print("##########################################################################################")
+    def get_results(self):
         return self.questions
 
     # Enter a parse tree produced by QconParser#qcon.
     def enterQcon(self, ctx:QconParser.QconContext):
-
-        # print(self.testvariable)
-        # self.testvariable = "I chjanged this"
-        # self.questions.append(self.testvariable)
+        # print("enterQcon===>")
         pass
 
     # Exit a parse tree produced by QconParser#qcon.
     def exitQcon(self, ctx:QconParser.QconContext):  
-        # print(self.questions[0].title)
         # print("exitQcon===>")
-        # print(len(self.temp_answers))
-        # self.isready = True
         pass
 
 
@@ -110,11 +82,11 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#question.
     def exitQuestion(self, ctx:QconParser.QuestionContext):
         # print("exitQuestion===>")
-        # self.question.printquestion()
+        # self.question.print_question()
         # TODO INSERT LOGIC HEREEEEEEEEEEEEE
 
         self.question.answers = self.temp_answers
-        self.processQuestion(self.question)
+        self.process_question(self.question)
         self.questions.append(self.question)
         pass
 
@@ -126,29 +98,29 @@ class QconListener(ParseTreeListener):
 
     # Exit a parse tree produced by QconParser#questionbody.
     def exitQuestionbody(self, ctx:QconParser.QuestionbodyContext):
-        questionBody = self.trimText(ctx.content().getText())
-        questionBody = self.markdownToHtml(questionBody)
-        self.question.questionbody = questionBody
+        question_body = self.trim_text(ctx.content().getText())
+        question_body = self.markdown_to_html(question_body)
+        self.question.question_body = question_body
 
         if ctx.questiontype() != None:
-            questionType = self.trimText(ctx.questiontype().getText()).split(":")[1]
-            questionType = self.markdownToHtml(questionType)
+            questionType = self.trim_text(ctx.questiontype().getText()).split(":")[1]
+            questionType = self.markdown_to_html(questionType)
             self.question.question_type = questionType
         
         if ctx.title() != None:
-            title = self.trimText(ctx.title().getText()).split(":")[1]
-            title = self.markdownToPlainText(title)
+            title = self.trim_text(ctx.title().getText()).split(":")[1]
+            title = self.markdown_to_plain_text(title)
             self.question.title = title
 
         if ctx.point() != None:
-            points = self.trimText(ctx.point().getText()).split(":")[1]
-            points = self.markdownToPlainText(points)
+            points = self.trim_text(ctx.point().getText()).split(":")[1]
+            points = self.markdown_to_plain_text(points)
             self.question.points = points
 
         if ctx.feedback() != None:
-            feedback = self.trimText(ctx.feedback().getText())[1:]
-            feedback = self.markdownToHtml(feedback)
-            self.question.feedback = feedback
+            question_feedback = self.trim_text(ctx.feedback().getText())[1:]
+            question_feedback = self.markdown_to_html(question_feedback)
+            self.question.question_feedback = question_feedback
         # print("exitQuestionbody===>")
         pass
 
@@ -187,15 +159,15 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#listitem.
     def exitListitem(self, ctx:QconParser.ListitemContext):
         # print("exitListitem===>")
-        answer_body = self.trimText(ctx.content().getText())
-        answer_body = self.markdownToHtml(answer_body)
+        answer_body = self.trim_text(ctx.content().getText())
+        answer_body = self.markdown_to_html(answer_body)
         self.answer.answer_body = answer_body
 
-        self.answer.isCorrect = False
+        self.answer.is_correct = False
         if ctx.feedback() != None:
-            feedback = self.trimText(ctx.feedback().getText())[1:]
-            feedback = self.markdownToHtml(feedback)
-            self.answer.feedback = feedback
+            answer_feedback = self.trim_text(ctx.feedback().getText())[1:]
+            answer_feedback = self.markdown_to_html(answer_feedback)
+            self.answer.answer_feedback = answer_feedback
         pass
 
     # Enter a parse tree produced by QconParser#listansweritem.
@@ -206,42 +178,42 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#listansweritem.
     def exitListansweritem(self, ctx:QconParser.ListansweritemContext):
         # print("exitListansweritem===>")
-        answer_body = self.trimText(ctx.content().getText())
-        answer_body = self.markdownToHtml(answer_body)
+        answer_body = self.trim_text(ctx.content().getText())
+        answer_body = self.markdown_to_html(answer_body)
         self.answer.answer_body = answer_body
 
-        self.answer.isCorrect = True
-        self.question.countCorrectAnswers += 1
+        self.answer.is_correct = True
+        self.question.correct_answers_length += 1
         if ctx.feedback() != None:
-            feedback = self.trimText(ctx.feedback().getText())[1:]
-            feedback = self.markdownToHtml(feedback)
-            self.answer.feedback = feedback
+            answer_feedback = self.trim_text(ctx.feedback().getText())[1:]
+            answer_feedback = self.markdown_to_html(answer_feedback)
+            self.answer.answer_feedback = answer_feedback
         pass
 
-    def processQuestion(self, question):
+    def process_question(self, question):
         if question.question_type != None:
             if question.question_type == 'MC':
-                if self.isMultipleChoice(question) == True:
+                if self.is_multiple_choice(question) == True:
                     # BUILD MC
-                    print("isMultipleChoice")
+                    print("is_multiple_choice")
                     pass
                 else:
                     # TODO PRINT WRONG QUESTION FORMAT
                     print("Wrong question Format: MC")
                     pass
             elif question.question_type == 'TF':
-                if self.isTrueFalse(question) == True:
+                if self.is_true_false(question) == True:
                     # BUILD TF
-                    print("isTrueFalse")
+                    print("is_true_false")
                     pass
                 else:
                     # TODO PRINT WRONG QUESTION FORMAT
                     print("Wrong question Format: TF")
                     pass
             elif question.question_type == 'MS':
-                if self.isMultiSelect(question) == True:
+                if self.is_multi_select(question) == True:
                     # BUILD MS
-                    print("isMultiSelect")   
+                    print("is_multi_select")   
                     pass
                 else:
                     # TODO PRINT WRONG QUESTION FORMAT
@@ -253,9 +225,9 @@ class QconListener(ParseTreeListener):
                     print("NOT MC/TF/MS")
                     pass
         else:
-            is_TF = self.isTrueFalse(question)
-            is_MC = self.isMultipleChoice(question)
-            is_MS = self.isMultiSelect(question)
+            is_TF = self.is_true_false(question)
+            is_MC = self.is_multiple_choice(question)
+            is_MS = self.is_multi_select(question)
 
             if is_TF == True:
                 question.question_type = "TF"
@@ -267,26 +239,26 @@ class QconListener(ParseTreeListener):
             print(question.question_type)
 
 
-    def isMultipleChoice(self, question):
-        if question.countCorrectAnswers == 1:
+    def is_multiple_choice(self, question):
+        if question.correct_answers_length == 1:
             return True
         else:
             return False
     
-    def isTrueFalse(self, question):
-        if question.countCorrectAnswers == 1:
+    def is_true_false(self, question):
+        if question.correct_answers_length == 1:
             if len(question.answers) == 2:
-                isTrueExist = False
-                isFalseExist = False
+                is_true_exist = False
+                is_false_exist = False
 
                 for answer in question.answers:
                     if "true" in answer.answer_body.lower():
-                        isTrueExist = True
+                        is_true_exist = True
                     elif "false" in answer.answer_body.lower():
-                        isFalseExist = True
+                        is_false_exist = True
                 
-                if isTrueExist == True:
-                    if isFalseExist == True:
+                if is_true_exist == True:
+                    if is_false_exist == True:
                         for answer in question.answers:
                             if "true" in answer.answer_body.lower():
                                 answer.answer_body = "True"
@@ -302,23 +274,23 @@ class QconListener(ParseTreeListener):
         else:
             return False
 
-    def isMultiSelect(self, question):
+    def is_multi_select(self, question):
         if len(question.answers) >= 1:
             return True
         else:
             return False
     
-    def trimText(self, txt):
+    def trim_text(self, txt):
         text = txt.strip()
         text = re.sub(' +', ' ', text)
         return text
     
-    def markdownToHtml(self, text):
-        htmlText = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
-        return htmlText
+    def markdown_to_html(self, text):
+        html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
+        return html_text
 
-    def markdownToPlainText(self, text):
-        plainText = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain").replace('\n', ' ')
-        return plainText
+    def markdown_to_plain_text(self, text):
+        plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain").replace('\n', ' ')
+        return plain_text
 
 del QconParser

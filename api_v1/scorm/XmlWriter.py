@@ -54,11 +54,11 @@ class XmlWriter():
 			titlePrefix = ''
 
 			
-			questionText = questionEntity.questionbody
-			if isinstance(questionEntity.questionbody, list) :
-				questionText = " ".join(questionEntity.questionbody)
-			plainText = pypandoc.convert_text(questionText, format="html", to="plain").replace('\n', ' ')
-			title = titlePrefix + str(questionEntity.title if questionEntity.title is not None else plainText)
+			questionText = questionEntity.question_body
+			if isinstance(questionEntity.question_body, list) :
+				questionText = " ".join(questionEntity.question_body)
+			plain_text = pypandoc.convert_text(questionText, format="html", to="plain").replace('\n', ' ')
+			title = titlePrefix + str(questionEntity.title if questionEntity.title is not None else plain_text)
 			
 			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': questionIdent, 'd2l_2p0:page': '1', 'title': title})
 
@@ -169,7 +169,7 @@ class XmlWriter():
 
 		#Presentation -> Material
 		itPreFlowMatText = ET.SubElement(itPreFlowMat, "mattext", {'texttype': 'text/html'})
-		questionText = questionEntity.questionbody #+ self.getElementImage(questionEntity)
+		questionText = questionEntity.question_body #+ self.getElementImage(questionEntity)
 		itPreFlowMatText.append(CDATA(questionText))
 
 		#Presentation -> Flow -> Response_extension
@@ -185,7 +185,7 @@ class XmlWriter():
 		itPreFlowLid = ET.SubElement(itPreFlow, "response_lid", {'ident': questionLid, 'rcardinality': 'Multiple'})
 
 		# Commented this to deactivate MC randomized answer order
-		itPreFlowLidRen = ET.SubElement(itPreFlowLid, "render_choice", {'shuffle': ('yes' if questionEntity.randomizeAnswers else 'no')})
+		itPreFlowLidRen = ET.SubElement(itPreFlowLid, "render_choice", {'shuffle': ('yes' if questionEntity.randomize_answers else 'no')})
 
 		#Add hint
 		if questionEntity.hint is not None:
@@ -195,7 +195,7 @@ class XmlWriter():
 		itRes = ET.SubElement(it, "resprocessing")
 
 		#Add General feedback
-		self.generateFeedback(it, questionIdent, questionEntity.feedback)
+		self.generateFeedback(it, questionIdent, questionEntity.question_feedback)
 
 		index = 1
 		for questionAnswerEntity in questionEntity.answers:
@@ -214,11 +214,11 @@ class XmlWriter():
 			itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'respident': questionLid})
 			itResConVarEqual.text = questionAnswerIdent + str(index)
 			itResSetVar = ET.SubElement(itResCon, "setvar", {'action' : 'Set'})
-			itResSetVar.text = '100.0000' if questionAnswerEntity.isCorrect == True else '0.0000'
+			itResSetVar.text = '100.0000' if questionAnswerEntity.is_correct == True else '0.0000'
 			itResDis = ET.SubElement(itResCon, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': questionFeedBackIdent + str(index)})
 
 			#Add Answer specific feedback
-			self.generateFeedback(it, questionFeedBackIdent + str(index), questionAnswerEntity.feedback)
+			self.generateFeedback(it, questionFeedBackIdent + str(index), questionAnswerEntity.answer_feedback)
 			index += 1
 
 
@@ -240,7 +240,7 @@ class XmlWriter():
 
 		#Presentation -> Material
 		itPreFlowMatText = ET.SubElement(itPreFlowMat, "mattext", {'texttype': 'text/html'})
-		questionText = questionEntity.questionbody #+ self.getElementImage(questionEntity)
+		questionText = questionEntity.question_body #+ self.getElementImage(questionEntity)
 		itPreFlowMatText.append(CDATA(questionText))
 
 		#Presentation -> Flow -> Response_extension
@@ -254,13 +254,13 @@ class XmlWriter():
 
 		#Presentation -> Flow -> Response_lid
 		itPreFlowLid = ET.SubElement(itPreFlow, "response_lid", {'ident': questionLid, 'rcardinality': 'Single'})
-		itPreFlowLidRen = ET.SubElement(itPreFlowLid, "render_choice", {'shuffle': ('yes' if questionEntity.randomizeAnswers else 'no')})	
+		itPreFlowLidRen = ET.SubElement(itPreFlowLid, "render_choice", {'shuffle': ('yes' if questionEntity.randomize_answers else 'no')})	
 
 		#Reprocessing
 		itRes = ET.SubElement(it, "resprocessing")
 
 		#Add General feedback
-		self.generateFeedback(it, questionIdent, questionEntity.feedback)
+		self.generateFeedback(it, questionIdent, questionEntity.question_feedback)
 
 		index = 1
 		for questionAnswerEntity in questionEntity.answers:
@@ -279,9 +279,9 @@ class XmlWriter():
 			itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'respident': questionLid})
 			itResConVarEqual.text = questionAnswerIdent + str(index)
 			itResSetVar = ET.SubElement(itResCon, "setvar", {'action' : 'Set'})
-			itResSetVar.text = '100.0000' if questionAnswerEntity.isCorrect == True else '0.0000'
+			itResSetVar.text = '100.0000' if questionAnswerEntity.is_correct == True else '0.0000'
 			itResDis = ET.SubElement(itResCon, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': questionFeedBackIdent + str(index)})
 
 			#Add Answer specific feedback
-			self.generateFeedback(it, questionFeedBackIdent + str(index), questionAnswerEntity.feedback)
+			self.generateFeedback(it, questionFeedBackIdent + str(index), questionAnswerEntity.answer_feedback)
 			index += 1
