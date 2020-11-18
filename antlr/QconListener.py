@@ -129,16 +129,20 @@ class QconListener(ParseTreeListener):
         self.question.questionbody = ctx.content().getText()
 
         if ctx.questiontype() != None:
-            self.question.question_type = self.trimText(ctx.questiontype().getText())
+            questionType = ctx.questiontype().getText().split(":")[1]
+            self.question.question_type = self.trimText(questionType)
         
         if ctx.title() != None:
-            self.question.title = self.trimText(ctx.title().getText())
+            title = ctx.title().getText().split(":")[1]
+            self.question.title = self.trimText(title)
 
         if ctx.point() != None:
-            self.question.points = self.trimText(ctx.point().getText())
+            points = ctx.point().getText().split(":")[1]
+            self.question.points = self.trimText(points)
 
         if ctx.feedback() != None:
-            self.question.feedback = self.trimText(ctx.feedback().getText())
+            feedback = self.trimText(ctx.feedback().getText())
+            self.question.feedback = feedback[1:]
         # print("exitQuestionbody===>")
         pass
 
@@ -190,12 +194,13 @@ class QconListener(ParseTreeListener):
 
     # Exit a parse tree produced by QconParser#listansweritem.
     def exitListansweritem(self, ctx:QconParser.ListansweritemContext):
+        # print("exitListansweritem===>")
         self.answer.answer_body = ctx.content().getText()
         self.answer.isCorrect = True
         self.question.countCorrectAnswers += 1
         if ctx.feedback() != None:
-            self.answer.feedback = ctx.feedback().getText()
-        # print("exitListansweritem===>")
+            feedback = self.trimText(ctx.feedback().getText())
+            self.answer.feedback = feedback[1:]
         pass
 
     def processQuestion(self, question):
@@ -289,8 +294,7 @@ class QconListener(ParseTreeListener):
             return False
     
     def trimText(self, txt):
-        text = txt.split(":")[1]
-        text = text.strip()
+        text = txt.strip()
         text = re.sub(' +', ' ', text)
         return text
     
