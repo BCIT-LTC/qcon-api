@@ -41,6 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+# Third-Party Apps
+    'rest_framework',
+    'rest_framework.authtoken',
+# Local Apps 
     'api_v1.apps.ApiV1Config',
 ]
 
@@ -193,4 +198,15 @@ LOGGING = {
             # 'filters': ['special']
         }
     },
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        # 'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  
+    ],
 }
