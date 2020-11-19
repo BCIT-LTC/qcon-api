@@ -3,5 +3,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    path('api', views.TestEndpoint.as_view()),
+    path('api', views.Upload.as_view()),
+    path('api/<int:session>', views.Download),
+    path('api/download', views.DownloadTest),
+    path('api/cli', views.CliUpload.as_view(), name='cli'),
 ]
