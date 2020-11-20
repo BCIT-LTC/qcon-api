@@ -11,7 +11,7 @@ import pypandoc
 from zipfile import *
 from api_v1.scorm.XmlWriter import XmlWriter
 from django.http import FileResponse
-from api_v1.scorm.Zipper import XmlZipper
+from api_v1.scorm.XmlZipper import XmlZipper
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser

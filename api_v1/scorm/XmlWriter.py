@@ -10,7 +10,6 @@ from os.path import basename
 from django.conf import settings
 from xml.dom.minidom import parseString
 from zipfile import *
-from api_v1.scorm.Zipper import RespondusLibrary
 import pypandoc
 
 class XmlWriter():
@@ -30,17 +29,14 @@ class XmlWriter():
 		self.questions = questions
 		self.parseQuestion(questions)
 
-		RespondusLibrary.createQuestionLibrary(questionLibraryEntity, self.root)
+		self.xml_string = self.xml_to_string(self.root)
 
 
-	def getXml(self) :
-		# self.debug()
-		return self.root
-
-	def debug(self) :
-		rough_string = ET.tostring(self.root, 'utf-8')
+	def xml_to_string(self, xml) :
+		rough_string = ET.tostring(xml, 'utf-8')
 		reparsed = parseString(rough_string)
-		print(reparsed.toprettyxml(indent="\t"))
+		pretty_xml = reparsed.toprettyxml(indent="\t")
+		return pretty_xml
 		# sys.exit()
 		
 	def parseQuestion(self, questions) :
