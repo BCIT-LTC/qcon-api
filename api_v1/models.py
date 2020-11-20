@@ -9,7 +9,9 @@ from os import makedirs, path
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    print('{0}/{1}'.format(instance.id, file_name))
     return '{0}/{1}'.format(instance.id, file_name)
+
 
 
 class Quiz(models.Model):   
@@ -18,8 +20,10 @@ class Quiz(models.Model):
     folder_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     pandoc_string = models.TextField(blank=True, null=True)
-    xml_string = models.TextField(blank=True, null=True)
-    xml_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
+    imsmanifest_string = models.TextField(blank=True, null=True)
+    imsmanifest_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
+    questiondb_string = models.TextField(blank=True, null=True)
+    questiondb_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     zip_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     # tempfile = models.FileField(upload_to='file_newww', blank=True, null=True)
     # JSON = models.JSONField(encoder=None, decoder=None, blank=True, null=True)
