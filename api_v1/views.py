@@ -11,9 +11,15 @@ import pypandoc
 from zipfile import *
 from api_v1.scorm.XmlWriter import XmlWriter
 from django.http import FileResponse
+from api_v1.scorm.Zipper import XmlZipper
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
+
+from os.path import basename
+from os import makedirs, path, walk
+
+from django.core.files.base import ContentFile
 
 from .models import Quiz
 
@@ -21,9 +27,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def main(test) :
-    input = InputStream(test)
-    
+def parse_questions(new_quiz) :
+    input = InputStream(new_quiz.pandoc_string)
     lexer = QconLexer(input)
     stream = CommonTokenStream(lexer)
     parser = QconParser(stream)
@@ -33,21 +38,14 @@ def main(test) :
     walker = ParseTreeWalker()
     walker.walk(printer, tree)
     # print(tree.toStringTree(recog=parser))
-    parsedQuestions = printer.getresults()
+    parsed_questions = printer.get_results()
 
-    fileName = "EXAM-1"
-    sectionFolderName = "Section_EXAM-1"
-    imageFolder = ""
-    imageLocalFolder = ""
-
-    questionLibraryEntity = QuestionLibraryEntity(fileName, sectionFolderName, imageFolder, imageLocalFolder)
-    parsedXml = XmlWriter(questionLibraryEntity, parsedQuestions)
-    # parsedXml.getXml()
+    return parsed_questions
 
 
 class QuestionLibraryEntity(object):
-    def __init__(self, fileName, sectionFolderName, imageFolder, imageLocalFolder) :
-        self.zipFileName = fileName
+    def __init__(self, file_name, sectionFolderName, imageFolder, imageLocalFolder) :
+        self.zipFileName = file_name
         self.sectionFolderName = sectionFolderName if sectionFolderName else self.zipFileName
         self.imageFolder = imageFolder if imageFolder else ''
         self.imageLocalFolder = imageLocalFolder
@@ -102,18 +100,66 @@ class CliUpload(APIView):
         file_obj = request.FILES.get('file')
 
         print(file_obj)
-        # print(file_obj.name)
 
+        file_name = "EXAM-1"
+        section_name = "Section_EXAM-1"
+        imageFolder = ""
+        imageLocalFolder = ""
         # newQuiz = Quiz.objects.create(tempfile=file_obj)
-        newQuiz = Quiz.objects.create()
-        newQuiz.tempfile=file_obj
-        newQuiz.save()
+        new_quiz = Quiz.objects.create()
+        new_quiz.folder_path = '/code/temp/' + str(new_quiz.id)
+        new_quiz.save()
 
-        # newQuiz.tempfile=file_obj
-        # newQuiz.save()
+        new_quiz.create_directory()
+        new_quiz.temp_file=file_obj
+        new_quiz.save()
 
-        # pandocstring = pypandoc.convert_file(filePath, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
-        # print(request.data.file)
+        pandocstring = pypandoc.convert_file(new_quiz.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
+
+        # append newline for a quickfix for antler
+        # pandocstring = "\n" + pandocstring
+        new_quiz.pandoc_string = "\n" + pandocstring
+        new_quiz.save()
+        # Starting Antler AST conversion
+        parsed_questions = parse_questions(new_quiz)
+
+ 
+        questionLibraryEntity = QuestionLibraryEntity(file_name, section_name, imageFolder, imageLocalFolder)
+        parsedXml = XmlWriter(questionLibraryEntity, parsed_questions)
+
+        #TODO REMOVE createQuestionLibrary
+        # XmlZipper.createQuestionLibrary(questionLibraryEntity, parsedXml.root)
+        # print(parsedXml)
+
+        new_quiz.xml_string = parsedXml.xml_string
+        new_quiz.save()
+
+        # new_quiz.zip_file = 
+        content_file = ContentFile(new_quiz.xml_string, name="temp_file.xml")
+        new_quiz.xml_file = content_file
+        new_quiz.save()
+
+        # new_quiz.zip_file = content_file
+        # new_quiz.save()
+
+        # new_quiz.save("xmlfilename", testfile)
+
+    
+        # if os.path.exists('/code/DATA/'):
+            
+        print(new_quiz.xml_file.path)
+        # print(basename(new_quiz.zip_file.path))
+        
+        
+
+        with ZipFile('/code/temp/' + str(new_quiz.id) + '/' + str(new_quiz.id) + '.zip', 'w') as myzip:
+            myzip.write(new_quiz.xml_file.path, basename(new_quiz.xml_file.path))
+		# 	myzip.write(questionXMLPath, basename(questionXMLPath))
+			# 	myzip.write(manifestXMLPath, basename(manifestXMLPath))
+            for root, dirs, files in walk(questionLibraryEntity.imageLocalFolder) :
+                for filename in files :
+                    myzip.write(path.join(root, filename), questionLibraryEntity.imageFolder + '/' + filename)
+
 
         content = {'name': 'pandas died'}
 
@@ -125,26 +171,26 @@ class CliUpload(APIView):
 
 
 
-def Download(request, session):
+# def Download(request, session):
 
-    print("----THIS WORKS----")
-    print(session)
+#     print("----THIS WORKS----")
+#     print(session)
 
-    ZIPFILE = './temp/EXAM-1.zip'
+#     ZIPFILE = './temp/EXAM-1.zip'
 
-    file_response = FileResponse(open(ZIPFILE, 'rb'))
+#     file_response = FileResponse(open(ZIPFILE, 'rb'))
 
-    return file_response
+#     return file_response
 
-def DownloadTest(request):
+# def DownloadTest(request):
 
-    print("----Downloadtest----")
-    # print(session)
+#     print("----Downloadtest----")
+#     # print(session)
 
-    print(request)
+#     print(request)
 
-    ZIPFILE = './temp/EXAM-1.zip'
-    file_response = FileResponse(open(ZIPFILE, 'rb'))
+#     ZIPFILE = './temp/EXAM-1.zip'
+#     file_response = FileResponse(open(ZIPFILE, 'rb'))
 
-    return file_response
+#     return file_response
 

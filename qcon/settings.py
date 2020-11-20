@@ -131,7 +131,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'temp/resource/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'temp/')
 #Qcon config
 QCON = {
     'TEMP_FOLDER': os.path.join(BASE_DIR,'temp','resource','tempfile') + os.path.sep,
