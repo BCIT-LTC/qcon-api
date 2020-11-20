@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('api', views.Upload.as_view()),
-    path('api/<int:session>', views.Download),
-    path('api/download', views.DownloadTest),
+    # path('api/<int:session>', views.Download),
+    # path('api/download', views.DownloadTest),
     path('api/cli', views.CliUpload.as_view(), name='cli'),
 ]
