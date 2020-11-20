@@ -11,17 +11,20 @@ import pypandoc
 from zipfile import *
 from api_v1.scorm.XmlWriter import XmlWriter
 from django.http import FileResponse
-from api_v1.scorm.XmlZipper import XmlZipper
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 
 from os.path import basename
 from os import makedirs, path, walk
-
+from xml.dom.minidom import parseString
 from django.core.files.base import ContentFile
+from django.core.files import File
 
 from .models import Quiz
+from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
+
+import xml.etree.cElementTree as ET
 
 import logging
 logger = logging.getLogger(__name__)
@@ -127,39 +130,46 @@ class CliUpload(APIView):
         questionLibraryEntity = QuestionLibraryEntity(file_name, section_name, imageFolder, imageLocalFolder)
         parsedXml = XmlWriter(questionLibraryEntity, parsed_questions)
 
-        #TODO REMOVE createQuestionLibrary
-        # XmlZipper.createQuestionLibrary(questionLibraryEntity, parsedXml.root)
-        # print(parsedXml)
+        manifestEntity = ManifestEntity()
+        manifestResource = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
+        manifestEntity.addResource(manifestResource)
 
-        new_quiz.xml_string = parsedXml.xml_string
+        manifest = parsedXml.createManifest(manifestEntity, new_quiz.folder_path)
+        parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
+        parsed_imsmanifest = parseString(parsed_imsmanifest)
+        parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
+        new_quiz.imsmanifest_string = parsed_imsmanifest
+
         new_quiz.save()
 
-        # new_quiz.zip_file = 
-        content_file = ContentFile(new_quiz.xml_string, name="temp_file.xml")
-        new_quiz.xml_file = content_file
+        new_quiz.questiondb_string = parsedXml.questiondb_string
         new_quiz.save()
 
-        # new_quiz.zip_file = content_file
-        # new_quiz.save()
+        imsmanifest_file = ContentFile(new_quiz.imsmanifest_string, name="imsmanifest.xml")
+        new_quiz.imsmanifest_file = imsmanifest_file
+        new_quiz.save()
 
-        # new_quiz.save("xmlfilename", testfile)
+        questiondb_file = ContentFile(new_quiz.questiondb_string, name="questiondb.xml")
+        new_quiz.questiondb_file = questiondb_file
+        new_quiz.save()
 
-    
-        # if os.path.exists('/code/DATA/'):
-            
-        print(new_quiz.xml_file.path)
-        # print(basename(new_quiz.zip_file.path))
-        
-        
 
-        with ZipFile('/code/temp/' + str(new_quiz.id) + '/' + str(new_quiz.id) + '.zip', 'w') as myzip:
-            myzip.write(new_quiz.xml_file.path, basename(new_quiz.xml_file.path))
-		# 	myzip.write(questionXMLPath, basename(questionXMLPath))
-			# 	myzip.write(manifestXMLPath, basename(manifestXMLPath))
+        with ZipFile(new_quiz.folder_path + '.zip', 'w') as myzip:
+            myzip.write(new_quiz.questiondb_file.path, "questiondb.xml")
+            myzip.write(new_quiz.imsmanifest_file.path, "imsmanifest.xml")
+            # myzip.write(questionXMLPath, basename(questionXMLPath))
+            # myzip.write(manifestXMLPath, basename(manifestXMLPath))
             for root, dirs, files in walk(questionLibraryEntity.imageLocalFolder) :
                 for filename in files :
                     myzip.write(path.join(root, filename), questionLibraryEntity.imageFolder + '/' + filename)
 
+
+        with open(new_quiz.folder_path + '.zip', 'rb') as f:
+            print("------------------------")
+            print(new_quiz.folder_path + '.zip')
+            
+            new_quiz.zip_file.save(name=str(new_quiz.id) + '.zip',content=File(f))
+            # new_quiz.save()
 
         content = {'name': 'pandas died'}
 
@@ -171,16 +181,16 @@ class CliUpload(APIView):
 
 
 
-# def Download(request, session):
+def Download(request, session, filename):
 
-#     print("----THIS WORKS----")
-#     print(session)
+    FILE = './temp/' + str(session) + '/' + filename
 
-#     ZIPFILE = './temp/EXAM-1.zip'
+    file_response = FileResponse(open(FILE, 'rb'))
 
-#     file_response = FileResponse(open(ZIPFILE, 'rb'))
+    return file_response
 
-#     return file_response
+
+    # return file_response
 
 # def DownloadTest(request):
 
