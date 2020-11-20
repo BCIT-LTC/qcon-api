@@ -29,7 +29,7 @@ class XmlWriter():
 		self.questions = questions
 		self.parseQuestion(questions)
 
-		self.xml_string = self.xml_to_string(self.root)
+		self.questiondb_string = self.xml_to_string(self.root)
 
 
 	def xml_to_string(self, xml) :
@@ -77,7 +77,20 @@ class XmlWriter():
 			index +=1
 		pass
 
+	
+	def createManifest(self, manifestEntity, folderPath):
+		path = folderPath + '/imsmanifest.xml'
+		root = ET.Element("manifest", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1', 'identifier': 'MANIFEST_1'})
+		doc = ET.SubElement(root, "resources")
 
+		for resource in manifestEntity.resources:
+			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resourceType, 'd2l_2p0:material_type': resource.materialType, 
+				'href': resource.href, 'd2l_2p0:link_target' : resource.linkTarget,
+				'title' : resource.title})
+
+		tree = ET.ElementTree(root)
+		# tree.write(path)
+		return tree
 
 	def sectionPresentationMaterial(self) :
 		#presentation_material Node
