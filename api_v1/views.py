@@ -1,20 +1,21 @@
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from antlr4 import *
-from antlr.QconLexer import QconLexer
-from antlr.QconListener import QconListener
-from antlr.QconParser import QconParser
-import sys
-import json
-import pypandoc
-from zipfile import *
-from api_v1.scorm.XmlWriter import XmlWriter
 from django.http import FileResponse
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 
+
+from antlr.QconLexer import QconLexer
+from antlr.QconListener import QconListener
+from antlr.QconParser import QconParser
+from api_v1.scorm.XmlWriter import XmlWriter
+
+from antlr4 import *
+import json
+import sys
+import pypandoc
+from zipfile import *
 from os.path import basename
 from os import makedirs, path, walk
 from xml.dom.minidom import parseString
@@ -23,8 +24,10 @@ from django.core.files import File
 
 from .models import QuestionLibrary
 from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
-
 import xml.etree.cElementTree as ET
+
+
+from django_q.tasks import async_task
 
 import logging
 logger = logging.getLogger(__name__)
@@ -90,7 +93,7 @@ class Upload(APIView):
 
         return Response('Reference number')
 
-class CliUpload(APIView):
+class CliRun(APIView):
 
     permission_classes = (IsAuthenticated,)
 
@@ -102,14 +105,10 @@ class CliUpload(APIView):
 
         file_obj = request.FILES.get('file')
 
-        print(file_obj)
 
-        file_name = "EXAM-1"
-        section_name = "Section_EXAM-1"
-        imageFolder = ""
-        imageLocalFolder = ""
         # newQuiz = Quiz.objects.create(tempfile=file_obj)
         question_library = QuestionLibrary.objects.create()
+        
         question_library.folder_path = '/code/temp/' + str(question_library.id)
         question_library.save()
 
@@ -126,6 +125,12 @@ class CliUpload(APIView):
         # Starting Antler AST conversion
         parsed_questions = parse_questions(question_library)
 
+
+
+        file_name = "EXAM-1"
+        section_name = "Section_EXAM-1"
+        imageFolder = ""
+        imageLocalFolder = ""
  
         questionLibraryEntity = QuestionLibraryEntity(file_name, section_name, imageFolder, imageLocalFolder)
         
@@ -173,13 +178,36 @@ class CliUpload(APIView):
             question_library.zip_file.save(name=str(question_library.id) + '.zip',content=File(f))
             # question_library.save()
 
-        content = {'name': 'pandas died'}
 
         return Response("content")
 
 # class QuerySession(APIView):
 #     def post()
 #         return "JSON object of the quiz including errors and state"
+
+
+class CliUpload(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+
+        file_obj = request.FILES.get('file')
+
+        print("CLIUPLOAD")
+        question_library = QuestionLibrary.objects.create()
+        question_library.folder_path = '/code/temp/' + str(question_library.id)
+        question_library.save()
+
+        question_library.create_directory()
+        question_library.temp_file=file_obj
+        question_library.save()
+
+        async_task('api_v1.tasks.runconversion', question_library)
+
+        return Response("CliUpload")
 
 
 

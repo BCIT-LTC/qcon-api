@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 # Third-Party Apps
     'rest_framework',
     'rest_framework.authtoken',
+    'django_q',
 # Local Apps 
     'api_v1.apps.ApiV1Config',
 ]
@@ -209,4 +210,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  
     ],
+}
+
+
+Q_CLUSTER = {
+    'name': 'myproject',
+    'workers': 8,
+    'recycle': 500,
+    'timeout': 60,
+    'compress': True,
+    'save_limit': 250,
+    'queue_limit': 500,
+    'cpu_affinity': 1,
+    'label': 'Django Q',
+    'orm': 'default'
 }
