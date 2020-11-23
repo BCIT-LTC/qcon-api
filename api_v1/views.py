@@ -21,7 +21,7 @@ from xml.dom.minidom import parseString
 from django.core.files.base import ContentFile
 from django.core.files import File
 
-from .models import Quiz
+from .models import QuestionLibrary
 from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
 import xml.etree.cElementTree as ET
@@ -30,14 +30,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def parse_questions(new_quiz) :
-    input = InputStream(new_quiz.pandoc_string)
+def parse_questions(question_library) :
+    input = InputStream(question_library.pandoc_string)
     lexer = QconLexer(input)
     stream = CommonTokenStream(lexer)
     parser = QconParser(stream)
     tree = parser.qcon()
     # 
-    printer = QconListener()
+    printer = QconListener(question_library)
     walker = ParseTreeWalker()
     walker.walk(printer, tree)
     # print(tree.toStringTree(recog=parser))
@@ -109,54 +109,56 @@ class CliUpload(APIView):
         imageFolder = ""
         imageLocalFolder = ""
         # newQuiz = Quiz.objects.create(tempfile=file_obj)
-        new_quiz = Quiz.objects.create()
-        new_quiz.folder_path = '/code/temp/' + str(new_quiz.id)
-        new_quiz.save()
+        question_library = QuestionLibrary.objects.create()
+        question_library.folder_path = '/code/temp/' + str(question_library.id)
+        question_library.save()
 
-        new_quiz.create_directory()
-        new_quiz.temp_file=file_obj
-        new_quiz.save()
+        question_library.create_directory()
+        question_library.temp_file=file_obj
+        question_library.save()
 
-        pandocstring = pypandoc.convert_file(new_quiz.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
+        pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
 
         # append newline for a quickfix for antler
         # pandocstring = "\n" + pandocstring
-        new_quiz.pandoc_string = "\n" + pandocstring
-        new_quiz.save()
+        question_library.pandoc_string = "\n" + pandocstring
+        question_library.save()
         # Starting Antler AST conversion
-        parsed_questions = parse_questions(new_quiz)
+        parsed_questions = parse_questions(question_library)
 
  
         questionLibraryEntity = QuestionLibraryEntity(file_name, section_name, imageFolder, imageLocalFolder)
+        
+        # TODO pass QuestionLibrary model
         parsedXml = XmlWriter(questionLibraryEntity, parsed_questions)
 
         manifestEntity = ManifestEntity()
         manifestResource = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
         manifestEntity.addResource(manifestResource)
 
-        manifest = parsedXml.createManifest(manifestEntity, new_quiz.folder_path)
+        manifest = parsedXml.createManifest(manifestEntity, question_library.folder_path)
         parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
         parsed_imsmanifest = parseString(parsed_imsmanifest)
         parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
-        new_quiz.imsmanifest_string = parsed_imsmanifest
+        question_library.imsmanifest_string = parsed_imsmanifest
 
-        new_quiz.save()
+        question_library.save()
 
-        new_quiz.questiondb_string = parsedXml.questiondb_string
-        new_quiz.save()
+        question_library.questiondb_string = parsedXml.questiondb_string
+        question_library.save()
 
-        imsmanifest_file = ContentFile(new_quiz.imsmanifest_string, name="imsmanifest.xml")
-        new_quiz.imsmanifest_file = imsmanifest_file
-        new_quiz.save()
+        imsmanifest_file = ContentFile(question_library.imsmanifest_string, name="imsmanifest.xml")
+        question_library.imsmanifest_file = imsmanifest_file
+        question_library.save()
 
-        questiondb_file = ContentFile(new_quiz.questiondb_string, name="questiondb.xml")
-        new_quiz.questiondb_file = questiondb_file
-        new_quiz.save()
+        questiondb_file = ContentFile(question_library.questiondb_string, name="questiondb.xml")
+        question_library.questiondb_file = questiondb_file
+        question_library.save()
 
 
-        with ZipFile(new_quiz.folder_path + '.zip', 'w') as myzip:
-            myzip.write(new_quiz.questiondb_file.path, "questiondb.xml")
-            myzip.write(new_quiz.imsmanifest_file.path, "imsmanifest.xml")
+        with ZipFile(question_library.folder_path + '.zip', 'w') as myzip:
+            myzip.write(question_library.questiondb_file.path, "questiondb.xml")
+            myzip.write(question_library.imsmanifest_file.path, "imsmanifest.xml")
             # myzip.write(questionXMLPath, basename(questionXMLPath))
             # myzip.write(manifestXMLPath, basename(manifestXMLPath))
             for root, dirs, files in walk(questionLibraryEntity.imageLocalFolder) :
@@ -164,12 +166,12 @@ class CliUpload(APIView):
                     myzip.write(path.join(root, filename), questionLibraryEntity.imageFolder + '/' + filename)
 
 
-        with open(new_quiz.folder_path + '.zip', 'rb') as f:
+        with open(question_library.folder_path + '.zip', 'rb') as f:
             print("------------------------")
-            print(new_quiz.folder_path + '.zip')
+            print(question_library.folder_path + '.zip')
             
-            new_quiz.zip_file.save(name=str(new_quiz.id) + '.zip',content=File(f))
-            # new_quiz.save()
+            question_library.zip_file.save(name=str(question_library.id) + '.zip',content=File(f))
+            # question_library.save()
 
         content = {'name': 'pandas died'}
 

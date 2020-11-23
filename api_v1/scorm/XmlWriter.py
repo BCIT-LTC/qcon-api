@@ -207,7 +207,7 @@ class XmlWriter():
 		self.generateFeedback(it, questionIdent, questionEntity.question_feedback)
 
 		index = 1
-		for questionAnswerEntity in questionEntity.answers:
+		for questionAnswerEntity in questionEntity.get_answers():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(itPreFlowLidRen, "flow_label", {'class': 'Block'})
@@ -272,7 +272,7 @@ class XmlWriter():
 		self.generateFeedback(it, questionIdent, questionEntity.question_feedback)
 
 		index = 1
-		for questionAnswerEntity in questionEntity.answers:
+		for questionAnswerEntity in questionEntity.get_answers():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(itPreFlowLidRen, "flow_label", {'class': 'Block'})
