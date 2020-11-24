@@ -41,6 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+# Third-Party Apps
+    'rest_framework',
+    'rest_framework.authtoken',
+    'django_q',
+# Local Apps 
     'api_v1.apps.ApiV1Config',
 ]
 
@@ -126,7 +132,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'temp/resource/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'temp/')
 #Qcon config
 QCON = {
     'TEMP_FOLDER': os.path.join(BASE_DIR,'temp','resource','tempfile') + os.path.sep,
@@ -193,4 +199,31 @@ LOGGING = {
             # 'filters': ['special']
         }
     },
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        # 'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  
+    ],
+}
+
+
+Q_CLUSTER = {
+    'name': 'myproject',
+    'workers': 8,
+    'recycle': 500,
+    'timeout': 300,
+    'retry': 301,
+    'max_attempts': 1,
+    'compress': True,
+    'save_limit': 250,
+    'queue_limit': 500,
+    'cpu_affinity': 1,
+    'label': 'Django Q',
+    'orm': 'default'
 }

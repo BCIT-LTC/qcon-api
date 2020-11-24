@@ -6,57 +6,18 @@ else:
     from QconParser import QconParser
 import re
 import pypandoc
-
-class Question(object):
-    def __init__(self):
-        self.question_type = None
-        self.question_number = None 
-        self.title = None
-        self.question_body = None
-        self.question_feedback = None
-        self.hint = None
-        self.randomize_answers = None
-        self.points = None
-        self.image = []
-        self.answers = [] #ctx.getChildCount()
-        self.answer_index = 0
-        self.correct_answers_length = 0
-        self.preview = ''
-        self.messages = {}
-
-
-    def print_question(self):
-        # print ( 
-        # "=================" +
-        # "\nquestion_type: " + str(self.question_type) + 
-        # "\nquestion_number: " + str(self.question_number) + 
-        # "\ntitle: " + str(self.title) + 
-        # "\nquestionbody: " + str(self.question_body)  +
-        # "\nfeedback: " + str(self.feedback) + 
-        # "\nhint: " + str(self.hint) + 
-        # "\nrandomizeAnswers: " + str(self.randomize_answers) +
-        # "\npoints: " + str(self.points) +
-        # "\n=================")
-        pass
-
-
-class Answer(object):
-    def __init__(self): # answer_index, answer_body, feedback, isCorrect, matchLeft, matchRight, order
-        self.answer_body = None
-        self.answer_feedback = None
-        self.is_correct = None
-        self.match_left = None
-        self.match_right = None
-        self.order = None
+from api_v1.models import Question, Answer
+from datetime import datetime
 
 
 # This class defines a complete listener for a parse tree produced by QconParser.
 class QconListener(ParseTreeListener):
-    def __init__(self):
+    def __init__(self, question_library):
         self.questions = []
         self.question = None
         self.temp_answers = []
         self.answer = None
+        self.question_library = question_library
 
     # TODO Add logic to populate and check the fields (e.g: questionType)
     def get_results(self):
@@ -76,17 +37,23 @@ class QconListener(ParseTreeListener):
     # Enter a parse tree produced by QconParser#question.
     def enterQuestion(self, ctx:QconParser.QuestionContext):
         # print("enterQuestion===>")
+        print(datetime.now().strftime("%H:%M:%S"), "Processing question", len(self.questions)+1)
         self.question = Question()
+        self.question.question_library = self.question_library
+        self.question.save()
+
         pass
 
     # Exit a parse tree produced by QconParser#question.
     def exitQuestion(self, ctx:QconParser.QuestionContext):
         # print("exitQuestion===>")
-        # self.question.print_question()
+
         # TODO INSERT LOGIC HEREEEEEEEEEEEEE
 
-        self.question.answers = self.temp_answers
+        # self.question.answers = self.temp_answers
+        self.question.save()
         self.process_question(self.question)
+        self.question.save()
         self.questions.append(self.question)
         pass
 
@@ -141,13 +108,15 @@ class QconListener(ParseTreeListener):
     def enterAnsweritem(self, ctx:QconParser.AnsweritemContext):
         # print("enterAnsweritem===>")
         self.answer = Answer()
-        self.question.answer_index += 1
+        # self.question.answer_index += 1
         pass
 
     # Exit a parse tree produced by QconParser#answeritem.
     def exitAnsweritem(self, ctx:QconParser.AnsweritemContext):
         # print("exitAnsweritem===>")
-        self.temp_answers.append(self.answer)   
+        self.answer.question = self.question
+        self.answer.save()
+        self.temp_answers.append(self.answer)
         pass
 
 
@@ -191,7 +160,7 @@ class QconListener(ParseTreeListener):
         pass
 
     def process_question(self, question):
-        if question.question_type != None:
+        if question.question_type != '':
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:
                     # BUILD MC
@@ -222,6 +191,7 @@ class QconListener(ParseTreeListener):
                     pass
             else:
                     # TODO PRINT WRONG QUESTION FORMAT
+                    print(question.question_type)
                     print("NOT MC/TF/MS")
                     pass
         else:
@@ -236,7 +206,7 @@ class QconListener(ParseTreeListener):
             elif is_MS == True:
                 question.question_type = "MS"
 
-            print(question.question_type)
+            print(datetime.now().strftime("%H:%M:%S"), question.question_type)
 
 
     def is_multiple_choice(self, question):
@@ -247,11 +217,11 @@ class QconListener(ParseTreeListener):
     
     def is_true_false(self, question):
         if question.correct_answers_length == 1:
-            if len(question.answers) == 2:
+            if len(question.get_answers()) == 2:
                 is_true_exist = False
                 is_false_exist = False
 
-                for answer in question.answers:
+                for answer in question.get_answers():
                     if "true" in answer.answer_body.lower():
                         is_true_exist = True
                     elif "false" in answer.answer_body.lower():
@@ -259,7 +229,7 @@ class QconListener(ParseTreeListener):
                 
                 if is_true_exist == True:
                     if is_false_exist == True:
-                        for answer in question.answers:
+                        for answer in question.get_answers():
                             if "true" in answer.answer_body.lower():
                                 answer.answer_body = "True"
                             elif "false" in answer.answer_body.lower():
@@ -275,7 +245,7 @@ class QconListener(ParseTreeListener):
             return False
 
     def is_multi_select(self, question):
-        if len(question.answers) >= 1:
+        if len(question.get_answers()) >= 1:
             return True
         else:
             return False

@@ -10,12 +10,11 @@ from os.path import basename
 from django.conf import settings
 from xml.dom.minidom import parseString
 from zipfile import *
-from api_v1.scorm.Zipper import RespondusLibrary
 import pypandoc
 
 class XmlWriter():
 
-	def __init__(self, questionLibraryEntity, questions) :
+	def __init__(self, question_library, questions) :
 
 		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 		sectionIdent = 'SECT_' + ident
@@ -23,24 +22,21 @@ class XmlWriter():
 
 		self.root = ET.Element("questestinterop")
 		self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': questionLibraryEntity.sectionFolderName})
+		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': question_library.section_name})
 		self.sectionPresentationMaterial()
 		self.sectionProcExtension()
 
 		self.questions = questions
 		self.parseQuestion(questions)
 
-		RespondusLibrary.createQuestionLibrary(questionLibraryEntity, self.root)
+		self.questiondb_string = self.xml_to_string(self.root)
 
 
-	def getXml(self) :
-		# self.debug()
-		return self.root
-
-	def debug(self) :
-		rough_string = ET.tostring(self.root, 'utf-8')
+	def xml_to_string(self, xml) :
+		rough_string = ET.tostring(xml, 'utf-8')
 		reparsed = parseString(rough_string)
-		print(reparsed.toprettyxml(indent="\t"))
+		pretty_xml = reparsed.toprettyxml(indent="\t")
+		return pretty_xml
 		# sys.exit()
 		
 	def parseQuestion(self, questions) :
@@ -81,7 +77,20 @@ class XmlWriter():
 			index +=1
 		pass
 
+	
+	def createManifest(self, manifestEntity, folderPath):
+		path = folderPath + '/imsmanifest.xml'
+		root = ET.Element("manifest", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1', 'identifier': 'MANIFEST_1'})
+		doc = ET.SubElement(root, "resources")
 
+		for resource in manifestEntity.resources:
+			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resourceType, 'd2l_2p0:material_type': resource.materialType, 
+				'href': resource.href, 'd2l_2p0:link_target' : resource.linkTarget,
+				'title' : resource.title})
+
+		tree = ET.ElementTree(root)
+		# tree.write(path)
+		return tree
 
 	def sectionPresentationMaterial(self) :
 		#presentation_material Node
@@ -198,7 +207,7 @@ class XmlWriter():
 		self.generateFeedback(it, questionIdent, questionEntity.question_feedback)
 
 		index = 1
-		for questionAnswerEntity in questionEntity.answers:
+		for questionAnswerEntity in questionEntity.get_answers():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(itPreFlowLidRen, "flow_label", {'class': 'Block'})
@@ -263,7 +272,7 @@ class XmlWriter():
 		self.generateFeedback(it, questionIdent, questionEntity.question_feedback)
 
 		index = 1
-		for questionAnswerEntity in questionEntity.answers:
+		for questionAnswerEntity in questionEntity.get_answers():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(itPreFlowLidRen, "flow_label", {'class': 'Block'})

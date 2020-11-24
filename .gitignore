@@ -8,3 +8,7 @@ log
 .DS_Store
 .vscode
 temp
+
+db.sqlite3
+
+migrations
