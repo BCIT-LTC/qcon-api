@@ -50,7 +50,9 @@ def runconversion(question_library):
     # Pandoc string create ===================================================================================
 
     try:
-        pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--resource-path='+ question_library.folder_path, '--extract-media='+ question_library.folder_path, '--preserve-tabs', '--wrap=preserve'])
+        pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables', extra_args=['--extract-media='+ question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
+        pandocstring = pandocstring.replace('<u>', '_')
+        pandocstring = pandocstring.replace('</u>', '_')
         question_library.pandoc_string = "\n" + pandocstring
         question_library.save()
 
