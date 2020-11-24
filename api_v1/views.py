@@ -49,12 +49,6 @@ def parse_questions(question_library) :
     return parsed_questions
 
 
-class QuestionLibraryEntity(object):
-    def __init__(self, file_name, sectionFolderName, imageFolder, imageLocalFolder) :
-        self.zipFileName = file_name
-        self.sectionFolderName = sectionFolderName if sectionFolderName else self.zipFileName
-        self.imageFolder = imageFolder if imageFolder else ''
-        self.imageLocalFolder = imageLocalFolder
 
 
 class Upload(APIView):
@@ -199,11 +193,17 @@ class CliUpload(APIView):
         print("CLIUPLOAD")
         question_library = QuestionLibrary.objects.create()
         question_library.folder_path = '/code/temp/' + str(question_library.id)
+        question_library.image_path = question_library.folder_path + '/media/'
+
+        # TODO get section name from CLI/Web
+        # If no section name, use file name
+        question_library.section_name = path.splitext(str(file_obj.name))[0]
         question_library.save()
 
         question_library.create_directory()
         question_library.temp_file=file_obj
         question_library.save()
+
 
         async_task('api_v1.tasks.runconversion', question_library)
 

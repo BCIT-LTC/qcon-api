@@ -14,7 +14,7 @@ import pypandoc
 
 class XmlWriter():
 
-	def __init__(self, questionLibraryEntity, questions) :
+	def __init__(self, question_library, questions) :
 
 		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 		sectionIdent = 'SECT_' + ident
@@ -22,7 +22,7 @@ class XmlWriter():
 
 		self.root = ET.Element("questestinterop")
 		self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': questionLibraryEntity.sectionFolderName})
+		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': question_library.section_name})
 		self.sectionPresentationMaterial()
 		self.sectionProcExtension()
 

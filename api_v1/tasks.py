@@ -19,12 +19,6 @@ from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
 import xml.etree.cElementTree as ET
 
 
-class QuestionLibraryEntity(object):
-    def __init__(self, file_name, sectionFolderName, imageFolder, imageLocalFolder) :
-        self.zipFileName = file_name
-        self.sectionFolderName = sectionFolderName if sectionFolderName else self.zipFileName
-        self.imageFolder = imageFolder if imageFolder else ''
-        self.imageLocalFolder = imageLocalFolder
 
 
 def parse_questions(question_library) :
@@ -45,17 +39,16 @@ def parse_questions(question_library) :
 
 def runconversion(question_library):
 
-    print("This is the task boiiiiii")
-    print(question_library)
+    print("Starting task ID:", question_library.id)
+    print()
 
 
     # Pandoc string create ===================================================================================
 
-    pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
+    pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--resource-path='+ question_library.folder_path, '--extract-media='+ question_library.folder_path, '--preserve-tabs', '--wrap=preserve'])
     question_library.pandoc_string = "\n" + pandocstring
     question_library.save()
     # Starting Antler AST conversion
-
 
     # Antler parsing  ===================================================================================
 
@@ -70,9 +63,8 @@ def runconversion(question_library):
     imageFolder = ""
     imageLocalFolder = ""
 
-    questionLibraryEntity = QuestionLibraryEntity(file_name, section_name, imageFolder, imageLocalFolder)
     
-    parsedXml = XmlWriter(questionLibraryEntity, parsed_questions)
+    parsedXml = XmlWriter(question_library, parsed_questions)
 
     manifestEntity = ManifestEntity()
     manifestResource = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
@@ -103,21 +95,16 @@ def runconversion(question_library):
     question_library.save()
 
     # Questiondb string create ===================================================================================
-
-    with ZipFile(question_library.folder_path + '.zip', 'w') as myzip:
+    
+    with ZipFile(question_library.folder_path + "/" + str(question_library.id) + '.zip', 'w') as myzip:
         myzip.write(question_library.questiondb_file.path, "questiondb.xml")
         myzip.write(question_library.imsmanifest_file.path, "imsmanifest.xml")
-        # for root, dirs, files in walk(questionLibraryEntity.imageLocalFolder) :
-        #     for filename in files :
-        #         myzip.write(path.join(root, filename), questionLibraryEntity.imageFolder + '/' + filename)
+        for root, dirs, files in walk(question_library.image_path) :
+            for filename in files :
+                myzip.write(path.join(root, filename), '/media/' + filename)
 
-    print(question_library.folder_path)
-
-    with open(question_library.folder_path + '.zip', 'rb') as f:
-        print("------------------------")
-        print(question_library.folder_path + '.zip')
-        
-        question_library.zip_file.save(name=str(question_library.id) + '.zip',content=File(f))
-
+    print(question_library.folder_path + "/" + str(question_library.id) +'.zip')
+    question_library.zip_file.name = question_library.folder_path + "/" + str(question_library.id) + '.zip'
+    question_library.save()
 
     return None

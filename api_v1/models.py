@@ -12,11 +12,14 @@ def format_file_path(instance, file_name):
     print('{0}/{1}'.format(instance.id, file_name))
     return '{0}/{1}'.format(instance.id, file_name)
 
+# TODO format_media_path for custom media folder
+
 class QuestionLibrary(models.Model):   
     id = models.AutoField(primary_key=True)
     # session = models.CharField(max_length=100, null=True)
     folder_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
+    section_name = models.TextField(blank=True, null=True)
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     pandoc_string = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
