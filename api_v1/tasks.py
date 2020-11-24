@@ -7,6 +7,7 @@ from antlr4 import *
 import json
 import sys
 import pypandoc
+import re
 from zipfile import *
 from os.path import basename
 from os import makedirs, path, walk
@@ -80,8 +81,15 @@ def runconversion(question_library):
 
     # ImsManifest Save File ===================================================================================
 
+    questiondb_string = parsedXml.questiondb_string
+    img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
-    question_library.questiondb_string = parsedXml.questiondb_string
+    for idx, img in enumerate(img_elements):
+        element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
+        new_img = '<img src="{0}" alt="{1}" />'.format('./media/' + basename(element[0]), basename(element[0]))
+        questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
+
+    question_library.questiondb_string = questiondb_string
     question_library.save()
 
     imsmanifest_file = ContentFile(question_library.imsmanifest_string, name="imsmanifest.xml")
