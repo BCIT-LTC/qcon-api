@@ -58,6 +58,8 @@ class Question(models.Model):
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
     
+    def __str__(self):
+        return str(self.question_body)
     # messages = {}
     # images = []
 
@@ -72,7 +74,8 @@ class Answer(models.Model):
     match_right = models.TextField(blank=True, null=True)
     order = models.PositiveBigIntegerField(blank=True, null=True)
 
-
+    def __str__(self):
+        return str(self.answer_body)
 # ======================== Signals 
 
 
