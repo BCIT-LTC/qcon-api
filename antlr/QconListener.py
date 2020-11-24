@@ -7,6 +7,7 @@ else:
 import re
 import pypandoc
 from api_v1.models import Question, Answer
+from datetime import datetime
 
 
 # This class defines a complete listener for a parse tree produced by QconParser.
@@ -36,6 +37,7 @@ class QconListener(ParseTreeListener):
     # Enter a parse tree produced by QconParser#question.
     def enterQuestion(self, ctx:QconParser.QuestionContext):
         # print("enterQuestion===>")
+        print(datetime.now().strftime("%H:%M:%S"), "Processing question", len(self.questions)+1)
         self.question = Question()
         self.question.question_library = self.question_library
         self.question.save()
@@ -204,7 +206,7 @@ class QconListener(ParseTreeListener):
             elif is_MS == True:
                 question.question_type = "MS"
 
-            print(question.question_type)
+            print(datetime.now().strftime("%H:%M:%S"), question.question_type)
 
 
     def is_multiple_choice(self, question):

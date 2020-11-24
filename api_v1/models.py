@@ -9,7 +9,7 @@ from os import makedirs, path
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    print('{0}/{1}'.format(instance.id, file_name))
+    # print('{0}/{1}'.format(instance.id, file_name))
     return '{0}/{1}'.format(instance.id, file_name)
 
 # TODO format_media_path for custom media folder
