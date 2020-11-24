@@ -50,8 +50,6 @@ def runconversion(question_library):
     print(datetime.now().strftime("%H:%M:%S"), "Pandoc processing...")
     try:
         pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables', extra_args=['--extract-media='+ question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
-        pandocstring = pandocstring.replace('<u>', '_')
-        pandocstring = pandocstring.replace('</u>', '_')
         question_library.pandoc_string = "\n" + pandocstring
         question_library.save()
 
@@ -80,11 +78,6 @@ def runconversion(question_library):
     # ImsManifest string create ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
     try:
-        file_name = "EXAM-1"
-        section_name = "Section_EXAM-1"
-        imageFolder = ""
-        imageLocalFolder = ""
-        
         parsedXml = XmlWriter(question_library, parsed_questions)
 
         manifestEntity = ManifestEntity()
@@ -149,14 +142,14 @@ def runconversion(question_library):
     # Questiondb string create ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Creating scorm zip file...")
     try:
-        with ZipFile(question_library.folder_path + "/" + str(question_library.id) + '.zip', 'w') as myzip:
+        with ZipFile(question_library.folder_path + "/" + question_library.section_name + '.zip', 'w') as myzip:
             myzip.write(question_library.questiondb_file.path, "questiondb.xml")
             myzip.write(question_library.imsmanifest_file.path, "imsmanifest.xml")
             for root, dirs, files in walk(question_library.image_path) :
                 for filename in files :
                     myzip.write(path.join(root, filename), '/media/' + filename)
 
-        question_library.zip_file.name = question_library.folder_path + "/" + str(question_library.id) + '.zip'
+        question_library.zip_file.name = question_library.folder_path + "/" + question_library.section_name + '.zip'
         question_library.save()
 
         end = time.time()
