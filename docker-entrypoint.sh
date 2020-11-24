@@ -1,6 +1,9 @@
+>&2 echo "make Database migrations"
+python manage.py makemigrations api_v1
+echo "-------------------------------------------------------------------------------------------\n"
+
 >&2 echo "Run Database migrations"
 python manage.py migrate
-
 echo "-------------------------------------------------------------------------------------------\n"
 
 #Start NGINX
@@ -17,6 +20,12 @@ mkdir log
 
 echo "-------------------------------------------------------------------------------------------\n"
 
+
+>&2 echo "Create temporary superuser"
+
+echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python /code/manage.py shell
+
+echo "-------------------------------------------------------------------------------------------\n"
 
 #Start django dev server
 >&2 echo "Starting Django runserver..."
