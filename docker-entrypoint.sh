@@ -16,7 +16,7 @@ mkdir log
 
 
 >&2 echo "Start Django Q task scheduler"
-# python manage.py qcluster &
+python manage.py qcluster &
 
 echo "-------------------------------------------------------------------------------------------\n"
 
