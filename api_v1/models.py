@@ -17,7 +17,7 @@ def format_file_path(instance, file_name):
 class QuestionLibrary(models.Model):   
     id = models.AutoField(primary_key=True)
     # session = models.CharField(max_length=100, null=True)
-    folder_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
+    folder_path = models.FilePathField(path="/code", match=None, recursive=False, max_length=None)
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     section_name = models.TextField(blank=True, null=True)
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
@@ -30,6 +30,9 @@ class QuestionLibrary(models.Model):
     # tempfile = models.FileField(upload_to='file_newww', blank=True, null=True)
     # JSON = models.JSONField(encoder=None, decoder=None, blank=True, null=True)
     # state = models.DecimalField(unique=False, max_digits=2, decimal_places=0, blank=True, null=True)
+    checkpoint = models.IntegerField(blank=True, null=True)
+    checkpoint_failed  = models.IntegerField(blank=True, null=True)
+    time_delta = models.IntegerField(blank=True, null=True)
     last_updated = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
