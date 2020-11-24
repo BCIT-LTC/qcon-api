@@ -40,7 +40,6 @@ def parse_questions(question_library) :
 def runconversion(question_library):
 
     print("Starting task ID:", question_library.id)
-    print()
 
     start = time.time()
     question_library.checkpoint = 0
@@ -48,7 +47,7 @@ def runconversion(question_library):
     question_library.save()
 
     # Pandoc string create ===================================================================================
-
+    print("Pandoc processing...")
     try:
         pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables', extra_args=['--extract-media='+ question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
         pandocstring = pandocstring.replace('<u>', '_')
@@ -58,7 +57,7 @@ def runconversion(question_library):
 
         question_library.checkpoint = 1
         question_library.save()
-
+        print("Pandoc Done!")
     except:
         question_library.checkpoint_failed = 1
         question_library.save()
@@ -67,18 +66,19 @@ def runconversion(question_library):
 
     # Starting Antler AST conversion
     # Antler parsing  ===================================================================================
-
+    print("Antlr processing...")
     try:
         parsed_questions = parse_questions(question_library)
         question_library.checkpoint = 2
         question_library.save()
+        print("Antlr Done!")
     except:
         question_library.checkpoint_failed = 2
         question_library.save()
         return None
 
     # ImsManifest string create ===================================================================================
-
+    print("Creating imsmanifext string...")
     try:
         file_name = "EXAM-1"
         section_name = "Section_EXAM-1"
@@ -100,6 +100,7 @@ def runconversion(question_library):
 
         question_library.checkpoint = 3
         question_library.save()
+        print("imsmanifext string created!")
     except:
         question_library.checkpoint_failed = 3
         question_library.save()
@@ -108,6 +109,7 @@ def runconversion(question_library):
     # ImsManifest Save File ===================================================================================
 
     try:
+        print("Creating questiondb string...")
         questiondb_string = parsedXml.questiondb_string
         img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
@@ -125,12 +127,14 @@ def runconversion(question_library):
 
         question_library.checkpoint = 4;
         question_library.save()
+        print("questiondb string created!")
     except:
         question_library.checkpoint_failed = 4
         question_library.save()
         return None
     # Questiondb string create ===================================================================================
 
+    print("Creating imsmanifest.xml and questiondb.xml...")
     try:        
         questiondb_file = ContentFile(question_library.questiondb_string, name="questiondb.xml")
         question_library.questiondb_file = questiondb_file
@@ -138,13 +142,14 @@ def runconversion(question_library):
 
         question_library.checkpoint = 5;
         question_library.save()
+        print("imsmanifest.xml and questiondb.xml created!")
     except:
         question_library.checkpoint_failed = 5
         question_library.save()
         return None
 
     # Questiondb string create ===================================================================================
-    
+    print("Creating scorm zip file...")
     try:
         with ZipFile(question_library.folder_path + "/" + str(question_library.id) + '.zip', 'w') as myzip:
             myzip.write(question_library.questiondb_file.path, "questiondb.xml")
@@ -153,7 +158,6 @@ def runconversion(question_library):
                 for filename in files :
                     myzip.write(path.join(root, filename), '/media/' + filename)
 
-        print(question_library.folder_path + "/" + str(question_library.id) +'.zip')
         question_library.zip_file.name = question_library.folder_path + "/" + str(question_library.id) + '.zip'
         question_library.save()
 
@@ -161,7 +165,8 @@ def runconversion(question_library):
         question_library.checkpoint = 6;
         question_library.time_delta = end-start
         question_library.save()
-
+        print("Scorm zip file created!")
+        print("\n")
     except:
         question_library.checkpoint_failed = 6
         question_library.save()
