@@ -33,10 +33,8 @@ class QuestionLibrary(models.Model):
     checkpoint = models.IntegerField(blank=True, null=True)
     checkpoint_failed  = models.IntegerField(blank=True, null=True)
     time_delta = models.IntegerField(blank=True, null=True)
-    last_updated = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
-
     def create_directory(self):
         # self.folder_path('/code/temp/' + str(self.id))
         if not path.exists(self.folder_path):
@@ -44,7 +42,6 @@ class QuestionLibrary(models.Model):
     
     def __str__(self):
         return str(self.id)
-
 
 class Question(models.Model):
     id = models.AutoField(primary_key=True) 

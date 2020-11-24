@@ -61,7 +61,7 @@ def runconversion(question_library):
     except:
         question_library.checkpoint_failed = 1
         question_library.save()
-        return None
+        return "Error at Checkpoint 1"
    
 
     # Starting Antler AST conversion
@@ -75,7 +75,7 @@ def runconversion(question_library):
     except:
         question_library.checkpoint_failed = 2
         question_library.save()
-        return None
+        return "Error at Checkpoint 2"
 
     # ImsManifest string create ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
@@ -102,9 +102,8 @@ def runconversion(question_library):
         question_library.save()
         print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
     except:
-        question_library.checkpoint_failed = 3
         question_library.save()
-        return None
+        return "Error at Checkpoint 3"
 
     # ImsManifest Save File ===================================================================================
 
@@ -129,9 +128,8 @@ def runconversion(question_library):
         question_library.save()
         print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
     except:
-        question_library.checkpoint_failed = 4
         question_library.save()
-        return None
+        return "Error at Checkpoint 4"
     # Questiondb string create ===================================================================================
 
     print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifest.xml and questiondb.xml...")
@@ -146,7 +144,7 @@ def runconversion(question_library):
     except:
         question_library.checkpoint_failed = 5
         question_library.save()
-        return None
+        return "Error at Checkpoint 5"
 
     # Questiondb string create ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Creating scorm zip file...")
@@ -170,4 +168,6 @@ def runconversion(question_library):
     except:
         question_library.checkpoint_failed = 6
         question_library.save()
-        return None
+        return "Error at Checkpoint 6"
+    
+    return "Task {} Finished successfully".format(question_library.id) 

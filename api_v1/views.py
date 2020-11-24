@@ -179,6 +179,9 @@ class CliRun(APIView):
 #     def post()
 #         return "JSON object of the quiz including errors and state"
 
+def print_result(task):
+
+    print(task.result)
 
 class CliUpload(APIView):
 
@@ -204,8 +207,7 @@ class CliUpload(APIView):
         question_library.temp_file=file_obj
         question_library.save()
 
-
-        async_task('api_v1.tasks.runconversion', question_library)
+        async_task('api_v1.tasks.runconversion', question_library, hook='api_v1.views.print_result')
 
         return Response("CliUpload")
 
