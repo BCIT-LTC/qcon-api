@@ -84,7 +84,7 @@ def runconversion(question_library):
         manifestResource = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
         manifestEntity.addResource(manifestResource)
 
-        manifest = parsedXml.createManifest(manifestEntity, question_library.folder_path)
+        manifest = parsedXml.create_manifest(manifestEntity, question_library.folder_path)
         parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
         parsed_imsmanifest = parseString(parsed_imsmanifest)
         parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
