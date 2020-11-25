@@ -68,7 +68,7 @@ class XmlWriter():
 			# 	self.generate_ordering(it, question_ident, question)
 			# elif question.question_type == question.QUESTION_TYPE_LONG_ANSWER:
 			# 	self.generate_written_response(it, question_ident, question)	
-			# elif question.question_type == question.QUESTION_TYPE_MATCHING:
+			# elif question.question_type == question.QUESTION_TYPE_matCHING:
 			# 	self.generate_matching(it, question_ident, question)
 			elif question.question_type == 'TF':
 				self.generate_true_false(it, question_ident, question)
@@ -78,14 +78,14 @@ class XmlWriter():
 		pass
 
 	
-	def create_manifest(self, manifestEntity, folder_path):
+	def create_manifest(self, manifest_entity, folder_path):
 		path = folder_path + '/imsmanifest.xml'
 		root = ET.Element("manifest", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1', 'identifier': 'MANIFEST_1'})
 		doc = ET.SubElement(root, "resources")
 
-		for resource in manifestEntity.resources:
-			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resourceType, 'd2l_2p0:material_type': resource.materialType, 
-				'href': resource.href, 'd2l_2p0:link_target' : resource.linkTarget,
+		for resource in manifest_entity.resources:
+			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type, 
+				'href': resource.href, 'd2l_2p0:link_target' : resource.link_target,
 				'title' : resource.title})
 
 		tree = ET.ElementTree(root)
@@ -94,43 +94,43 @@ class XmlWriter():
 
 	def presentation_material(self) :
 		#presentation_material Node
-		secPresMat = ET.SubElement(self.section, "presentation_material")
-		secPresMatFlo = ET.SubElement(secPresMat, "flow_mat")
-		secPresMatFloFlo = ET.SubElement(secPresMatFlo, "flow_mat")
-		secPresMatFloFloMat = ET.SubElement(secPresMatFloFlo, "material")
-		secPresMatFloFloMatText = ET.SubElement(secPresMatFloFlo, "mattext", {'texttype': 'text/html'})
+		sec_pres_mat = ET.SubElement(self.section, "presentation_material")
+		sec_pres_mat_flo = ET.SubElement(sec_pres_mat, "flow_mat")
+		sec_pres_mat_flo_flo = ET.SubElement(sec_pres_mat_flo, "flow_mat")
+		sec_pres_mat_flo_flo_mat = ET.SubElement(sec_pres_mat_flo_flo, "material")
+		sec_pres_mat_flo_flo_mat_text = ET.SubElement(sec_pres_mat_flo_flo, "mattext", {'texttype': 'text/html'})
 
 
 	def sectionproc_extension(self) :
 		#presentation_material Node
-		secProc = ET.SubElement(self.section, "sectionproc_extension")
-		secProcDisName = ET.SubElement(secProc, "d2l_2p0:display_section_name")
-		secProcDisName.text = 'yes'
-		secProcDisLine = ET.SubElement(secProc, "d2l_2p0:display_section_line")
-		secProcDisLine.text = 'no'
-		secProcDisSec = ET.SubElement(secProc, "d2l_2p0:type_display_section")
-		secProcDisSec.text = '1'
+		sec_proc = ET.SubElement(self.section, "sectionproc_extension")
+		sec_proc_dis_name = ET.SubElement(sec_proc, "d2l_2p0:display_section_name")
+		sec_proc_dis_name.text = 'yes'
+		sec_proc_dis_line = ET.SubElement(sec_proc, "d2l_2p0:display_section_line")
+		sec_proc_dis_line.text = 'no'
+		sec_proc_dis_sec = ET.SubElement(sec_proc, "d2l_2p0:type_display_section")
+		sec_proc_dis_sec.text = '1'
 
 
-	def itemetadata(self, it, questionType, question) :
+	def itemetadata(self, it, question_type, question) :
 		#ItemData Node
-		itMetadata = ET.SubElement(it, "itemmetadata")
-		itTimedata = ET.SubElement(itMetadata, "qtimetadata")
-		itComputerScored = ET.SubElement(itTimedata, "qti_metadatafield")
-		itComputerScoredLabel = ET.SubElement(itComputerScored, "fieldlabel")
-		itComputerScoredLabel.text = 'qmd_computerscored'
-		itComputerScoredEntry = ET.SubElement(itComputerScored, "fieldentry")
-		itComputerScoredEntry.text = 'yes'
-		itQuestionType = ET.SubElement(itTimedata, "qti_metadatafield")
-		itQuestionTypeLabel = ET.SubElement(itQuestionType, "fieldlabel")
-		itQuestionTypeLabel.text = 'qmd_questiontype'
-		itQuestionTypeEntry = ET.SubElement(itQuestionType, "fieldentry")
-		itQuestionTypeEntry.text = questionType
-		itWeighting = ET.SubElement(itTimedata, "qti_metadatafield")
-		itWeightingLabel = ET.SubElement(itWeighting, "fieldlabel")
-		itWeightingLabel.text = 'qmd_weighting'
-		itWeightingEntry = ET.SubElement(itWeighting, "fieldentry")
-		itWeightingEntry.text = "{:.4f}".format(float(question.points)) if question.points else "1"
+		it_metadata = ET.SubElement(it, "itemmetadata")
+		it_metadata_qtidata = ET.SubElement(it_metadata, "qtimetadata")
+		it_computer_scored = ET.SubElement(it_metadata_qtidata, "qti_metadatafield")
+		it_computer_scored_label = ET.SubElement(it_computer_scored, "fieldlabel")
+		it_computer_scored_label.text = 'qmd_computerscored'
+		it_computer_scored_entry = ET.SubElement(it_computer_scored, "fieldentry")
+		it_computer_scored_entry.text = 'yes'
+		it_question_type = ET.SubElement(it_metadata_qtidata, "qti_metadatafield")
+		it_question_type_label = ET.SubElement(it_question_type, "fieldlabel")
+		it_question_type_label.text = 'qmd_questiontype'
+		it_question_type_entry = ET.SubElement(it_question_type, "fieldentry")
+		it_question_type_entry.text = question_type
+		it_weighting = ET.SubElement(it_metadata_qtidata, "qti_metadatafield")
+		it_weighting_label = ET.SubElement(it_weighting, "fieldlabel")
+		it_weighting_label.text = 'qmd_weighting'
+		it_weighting_entry = ET.SubElement(it_weighting, "fieldentry")
+		it_weighting_entry.text = "{:.4f}".format(float(question.points)) if question.points else "1"
 
 
 	def itemproc_extension(self, it) :
@@ -153,12 +153,12 @@ class XmlWriter():
 
 
 	def generate_hint(self, it, hint) :
-		itHint = ET.SubElement(it, "hint")
-		itHintMat = ET.SubElement(itHint, "hintmaterial")
-		itHintMatFlow = ET.SubElement(itHintMat, "flow_mat")
-		itHintMatFlowMat = ET.SubElement(itHintMatFlow, "material")
-		itHintMatFlowText = ET.SubElement(itHintMatFlowMat, "mattext", {'texttype': 'text/html'})
-		itHintMatFlowText.append(CDATA(hint))
+		it_hint = ET.SubElement(it, "hint")
+		it_hint_mat = ET.SubElement(it_hint, "hintmaterial")
+		it_hint_mat_flow = ET.SubElement(it_hint_mat, "flow_mat")
+		it_hint_mat_flow_mat = ET.SubElement(it_hint_mat_flow, "material")
+		it_hint_mat_flow_text = ET.SubElement(it_hint_mat_flow_mat, "mattext", {'texttype': 'text/html'})
+		it_hint_mat_flow_text.append(CDATA(hint))
 
 
 	def generate_multiple_choice(self, it, question_ident, question) :
@@ -201,7 +201,7 @@ class XmlWriter():
 			self.generate_hint(it, question.hint)
 
 		#Reprocessing
-		itRes = ET.SubElement(it, "resprocessing")
+		it_res = ET.SubElement(it, "resprocessing")
 
 		#Add General feedback
 		self.generate_feedback(it, question_ident, question.question_feedback)
@@ -211,20 +211,20 @@ class XmlWriter():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
-			responseLabel = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
-			flowMat = ET.SubElement(responseLabel, "flow_mat")
-			material = ET.SubElement(flowMat, "material")
+			response_label = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
+			flow_mat = ET.SubElement(response_label, "flow_mat")
+			material = ET.SubElement(flow_mat, "material")
 			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
 			mattext.append(CDATA(answer.answer_body))
 
 			#Reprocessing -> Respcondition
-			itResCon = ET.SubElement(itRes, "respcondition", {'title': 'Response Condition' + str(index)})
-			itResConVar = ET.SubElement(itResCon, "conditionvar")
-			itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'respident': question_lid})
-			itResConVarEqual.text = question_ident_answer + str(index)
-			itResSetVar = ET.SubElement(itResCon, "setvar", {'action' : 'Set'})
-			itResSetVar.text = '100.0000' if answer.is_correct == True else '0.0000'
-			itResDis = ET.SubElement(itResCon, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(index)})
+			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition' + str(index)})
+			it_res_con_var = ET.SubElement(it_res_con, "conditionvar")
+			it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'respident': question_lid})
+			it_res_con_var_equal.text = question_ident_answer + str(index)
+			it_res_set_var = ET.SubElement(it_res_con, "setvar", {'action' : 'Set'})
+			it_res_set_var.text = '100.0000' if answer.is_correct == True else '0.0000'
+			it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(index)})
 
 			#Add Answer specific feedback
 			self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
@@ -266,7 +266,7 @@ class XmlWriter():
 		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})	
 
 		#Reprocessing
-		itRes = ET.SubElement(it, "resprocessing")
+		it_res = ET.SubElement(it, "resprocessing")
 
 		#Add General feedback
 		self.generate_feedback(it, question_ident, question.question_feedback)
@@ -276,20 +276,20 @@ class XmlWriter():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
-			responseLabel = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
-			flowMat = ET.SubElement(responseLabel, "flow_mat")
-			material = ET.SubElement(flowMat, "material")
+			response_label = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
+			flow_mat = ET.SubElement(response_label, "flow_mat")
+			material = ET.SubElement(flow_mat, "material")
 			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
 			mattext.text = answer.answer_body.replace("<p>", "").replace("</p>", "").strip()
 
 			#Reprocessing -> Respcondition
-			itResCon = ET.SubElement(itRes, "respcondition", {'title': 'Response Condition' + str(index)})
-			itResConVar = ET.SubElement(itResCon, "conditionvar")
-			itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'respident': question_lid})
-			itResConVarEqual.text = question_ident_answer + str(index)
-			itResSetVar = ET.SubElement(itResCon, "setvar", {'action' : 'Set'})
-			itResSetVar.text = '100.0000' if answer.is_correct == True else '0.0000'
-			itResDis = ET.SubElement(itResCon, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(index)})
+			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition' + str(index)})
+			it_res_con_var = ET.SubElement(it_res_con, "conditionvar")
+			it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'respident': question_lid})
+			it_res_con_var_equal.text = question_ident_answer + str(index)
+			it_res_set_var = ET.SubElement(it_res_con, "setvar", {'action' : 'Set'})
+			it_res_set_var.text = '100.0000' if answer.is_correct == True else '0.0000'
+			it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(index)})
 
 			#Add Answer specific feedback
 			self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
@@ -333,11 +333,11 @@ class XmlWriter():
 			self.generate_hint(it, question.hint)
 
 		#Reprocessing
-		itRes = ET.SubElement(it, "resprocessing")
-		itOut = ET.SubElement(itRes, "outcomes")
-		itOutScore = ET.SubElement(itOut, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'que_score', 'minvalue': '0', 'maxvalue': '100'})
-		itOutCorrect = ET.SubElement(itOut, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Correct', 'minvalue': '0'})
-		itOutIncorrect = ET.SubElement(itOut, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Incorrect', 'minvalue': '0'})
+		it_res = ET.SubElement(it, "resprocessing")
+		it_out = ET.SubElement(it_res, "outcomes")
+		it_out_score = ET.SubElement(it_out, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'que_score', 'minvalue': '0', 'maxvalue': '100'})
+		it_out_correct = ET.SubElement(it_out, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Correct', 'minvalue': '0'})
+		it_out_incorrect = ET.SubElement(it_out, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Incorrect', 'minvalue': '0'})
 
 		#Add General feedback
 		self.generate_feedback(it, question_ident, question.question_feedback)
@@ -347,31 +347,31 @@ class XmlWriter():
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
-			responseLabel = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
-			flowMat = ET.SubElement(responseLabel, "flow_mat")
-			material = ET.SubElement(flowMat, "material")
+			response_label = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
+			flow_mat = ET.SubElement(response_label, "flow_mat")
+			material = ET.SubElement(flow_mat, "material")
 			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
 			mattext.text = answer.answer_body
 
 			#Reprocessing -> Respcondition
-			itResCon = ET.SubElement(itRes, "respcondition", {'title': 'Response Condition', 'continue': 'yes'})
-			itResConVar = ET.SubElement(itResCon, "conditionvar")
-			itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'respident': question_lid})
-			itResConVarEqual.text = question_ident_answer
+			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition', 'continue': 'yes'})
+			it_res_con_var = ET.SubElement(it_res_con, "conditionvar")
+			it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'respident': question_lid})
+			it_res_con_var_equal.text = question_ident_answer
 
-			itResConVarEqual.text = question_ident_answer + str(index)
+			it_res_con_var_equal.text = question_ident_answer + str(index)
 			if answer.is_correct == True :
-				itResSetVar = ET.SubElement(itResCon, "setvar", {'varname':'D2L_Correct', 'action' : 'Add'})
+				it_res_set_var = ET.SubElement(it_res_con, "setvar", {'varname':'D2L_Correct', 'action' : 'Add'})
 			else :
-				itResSetVar = ET.SubElement(itResCon, "setvar", {'varname':'D2L_Incorrect', 'action' : 'Add'})
+				it_res_set_var = ET.SubElement(it_res_con, "setvar", {'varname':'D2L_Incorrect', 'action' : 'Add'})
 
 			#Add Answer specific feedback
 			self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
 			index += 1
 
-		itResCon = ET.SubElement(itRes, "respcondition")
-		itResSetVar = ET.SubElement(itResCon, "setvar", {'varname':'que_score', 'action' : 'Set'})
-		itResSetVar.text = 'D2L_Correct'
+		it_res_con = ET.SubElement(it_res, "respcondition")
+		it_res_set_var = ET.SubElement(it_res_con, "setvar", {'varname':'que_score', 'action' : 'Set'})
+		it_res_set_var.text = 'D2L_Correct'
 
 	def generate_fill_in_the_blanks(self, it, question_ident, question) :	
 		self.itemetadata(it, 'Fill in the Blanks', question)
@@ -384,13 +384,13 @@ class XmlWriter():
 		
 		idx = 1
 		for question_text in question.question_body:
-			questionStr = question_ident + str(idx) + '_STR'
-			questionAns = question_ident + str(idx) + '_ANS'
+			question_str = question_ident + str(idx) + '_STR'
+			question_ans = question_ident + str(idx) + '_ANS'
 			if question_text == '##ANSWER##':
     			#Presentation -> Flow -> Response_str
-				it_pre_flow_str = ET.SubElement(it_pre_flow, "response_str", {'rcardinality': 'Single', 'ident': questionStr})
+				it_pre_flow_str = ET.SubElement(it_pre_flow, "response_str", {'rcardinality': 'Single', 'ident': question_str})
 				it_pre_flow_str_render = ET.SubElement(it_pre_flow_str, "render_fib", {'fibtype': 'String', 'prompt': 'Box', 'columns': '30', 'rows': '1'})
-				it_pre_flow_str_render_label = ET.SubElement(it_pre_flow_str_render, "response_label", {'ident': questionAns})
+				it_pre_flow_str_render_label = ET.SubElement(it_pre_flow_str_render, "response_label", {'ident': question_ans})
 				idx += 1
 			else:
 				#Presentation -> Flow -> Material
@@ -404,25 +404,25 @@ class XmlWriter():
 			self.generate_hint(it, question.hint)
 
 		#Resprocessing
-		itRes = ET.SubElement(it, "resprocessing")
-		itOut = ET.SubElement(itRes, "outcomes")
+		it_res = ET.SubElement(it, "resprocessing")
+		it_out = ET.SubElement(it_res, "outcomes")
 
 		index = 1
 		for answer in question.get_answers():
 			match = re.search(r"^(\s{0,}?\<p\>)(.*)(<\/p>\s{0,}?)$", answer.answer_body)
 			answers = [a.strip() for a in match.group(2).split(',')]
 			
-			answerWeight = str(100.0 / len(answers))
-			questionAns = question_ident + str(index) + '_ANS'
+			answer_weight = str(100.0 / len(answers))
+			question_ans = question_ident + str(index) + '_ANS'
 			for answer in answers:
-				itResCon = ET.SubElement(itRes, "respcondition")
-				itResConVar = ET.SubElement(itResCon, "conditionvar")
-				itResConVarEqual = ET.SubElement(itResConVar, "varequal", {'case': 'no', 'respident': questionAns})
-				itResConVarEqual.text = answer
-				itResSetVar = ET.SubElement(itResCon, "setvar", {'action' : 'Set'})
-				itResSetVar.text = answerWeight
+				it_res_con = ET.SubElement(it_res, "respcondition")
+				it_res_con_var = ET.SubElement(it_res_con, "conditionvar")
+				it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'case': 'no', 'respident': question_ans})
+				it_res_con_var_equal.text = answer
+				it_res_set_var = ET.SubElement(it_res_con, "setvar", {'action' : 'Set'})
+				it_res_set_var.text = answer_weight
 			
-			itOutScore = ET.SubElement(itOut, "decvar", {'varname': 'Blank_'+ str(index), 'maxvalue': '100', 'minvalue': '0', 'vartype': 'Integer'})
+			it_out_score = ET.SubElement(it_out, "decvar", {'varname': 'Blank_'+ str(index), 'maxvalue': '100', 'minvalue': '0', 'vartype': 'Integer'})
 
 			index += 1
 
@@ -434,7 +434,7 @@ class XmlWriter():
 		self.itemetadata(it, 'Ordering', question)
 		self.itemproc_extension(it)
 
-		questionO = question_ident + '_O'
+		question_o = question_ident + '_O'
 		question_ident_feedback = question_ident + '_IF'
 
 		#Presentation Node
@@ -452,11 +452,11 @@ class XmlWriter():
 		#Presentation -> Flow -> Response_extension
 		it_pre_flow_res_ext = ET.SubElement(it_pre_flow, "response_extension")
 		it_pre_flow_res_ext_grading = ET.SubElement(it_pre_flow_res_ext, "d2l_2p0:grading_type")
-		gradingType = 0 #Equally weighted, All or nothing, Right minus wrong
-		it_pre_flow_res_ext_grading.append(CDATA(gradingType))
+		grading_type = 0 #Equally weighted, All or nothing, Right minus wrong
+		it_pre_flow_res_ext_grading.append(CDATA(grading_type))
 
 		#Presentation -> Flow -> Response_grp
-		it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'ident': questionO, 'rcardinality': 'Ordered'})
+		it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'ident': question_o, 'rcardinality': 'Ordered'})
 		it_pre_flow_res_grp_render = ET.SubElement(it_pre_flow_res_grp, "render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})
 		it_pre_flow_res_grp_render_flow = ET.SubElement(it_pre_flow_res_grp_render, "flow_label", {'class': 'Block'}) #populated in the loop
 
@@ -465,27 +465,27 @@ class XmlWriter():
 			self.generate_hint(it, question.hint)
 
 		#Resprocessing
-		itRes = ET.SubElement(it, "resprocessing") #populated in the loop
-		itOut = ET.SubElement(itRes, "outcomes")
+		it_res = ET.SubElement(it, "resprocessing") #populated in the loop
+		it_out = ET.SubElement(it_res, "outcomes")
 		
-		itOutCorrect = ET.SubElement(itOut, "decvar", {'maxvalue': '100', 'minvalue': '0', 'varname': 'D2L_Correct', 'defaultval': '0', 'vartype': 'Integer'})
-		itOutIncorrect = ET.SubElement(itOut, "decvar", {'minvalue': '0', 'varname': 'D2L_Incorrect', 'defaultval': '0', 'vartype': 'Integer'})
-		itOutQueScore = ET.SubElement(itOut, "decvar", {'minvalue': '0', 'varname': 'que_score', 'defaultval': '0', 'vartype': 'Integer'})
+		it_out_correct = ET.SubElement(it_out, "decvar", {'maxvalue': '100', 'minvalue': '0', 'varname': 'D2L_Correct', 'defaultval': '0', 'vartype': 'Integer'})
+		it_out_incorrect = ET.SubElement(it_out, "decvar", {'minvalue': '0', 'varname': 'D2L_Incorrect', 'defaultval': '0', 'vartype': 'Integer'})
+		it_out_que_score = ET.SubElement(it_out, "decvar", {'minvalue': '0', 'varname': 'que_score', 'defaultval': '0', 'vartype': 'Integer'})
 
-		itResConOther = ET.SubElement(itRes, "respcondition")
-		itResConOtherVar = ET.SubElement(itResConOther, "conditionvar")
-		itResConOtherVarOther = ET.SubElement(itResConOtherVar, "other")
-		itResConOtherSetVar = ET.SubElement(itResConOther, "setvar", {'varname': "que_score", 'action': 'Set'})
-		itResConOtherSetVar.text = "D2L_Correct"
+		it_res_con_other = ET.SubElement(it_res, "respcondition")
+		it_res_con_other_var = ET.SubElement(it_res_con_other, "conditionvar")
+		it_res_con_other_var_other = ET.SubElement(it_res_con_other_var, "other")
+		it_res_con_other_setvar = ET.SubElement(it_res_con_other, "setvar", {'varname': "que_score", 'action': 'Set'})
+		it_res_con_other_setvar.text = "D2L_Correct"
 
 		#Add General feedback
 		self.generate_feedback(it, question_ident, question.question_feedback)
 			
 		index = 1
 		for answer in question.get_answers():
-			identNum = questionO + str(index)
+			ident_num = question_o + str(index)
 			#Presentation -> Flow -> Response_grp -> response_label
-			it_pre_flow_res_grp_render_flow_res = ET.SubElement(it_pre_flow_res_grp_render_flow, "response_label", {'ident': identNum})
+			it_pre_flow_res_grp_render_flow_res = ET.SubElement(it_pre_flow_res_grp_render_flow, "response_label", {'ident': ident_num})
 			it_pre_flow_res_grp_render_flow_res_flow = ET.SubElement(it_pre_flow_res_grp_render_flow_res, "flow_mat")
 			it_pre_flow_res_grp_render_flow_res_flow_mat = ET.SubElement(it_pre_flow_res_grp_render_flow_res_flow, "material")
 			it_pre_flow_res_grp_render_flow_res_flow_mat_text = ET.SubElement(it_pre_flow_res_grp_render_flow_res_flow_mat, "mattext", {'texttype': 'text/html'})
@@ -493,20 +493,20 @@ class XmlWriter():
 			it_pre_flow_res_grp_render_flow_res_flow_mat_text.append(CDATA(question_text))
 
 			#Resprocessing -> Respcondition
-			itResConCorrect = ET.SubElement(itRes, "respcondition", {'title': 'Correct Condition'})
-			itResConCorrectVar = ET.SubElement(itResConCorrect, "conditionvar")
-			itResConCorrectVarEqual = ET.SubElement(itResConCorrectVar, "varequal", {'respident': identNum})
-			itResConCorrectVarEqual.text = str(index)
-			itResConCorrectSetVar = ET.SubElement(itResConCorrect, "setvar", {'varname': "D2L_Correct", 'action': 'Add'})
-			itResConCorrectSetVar.text = str(1)
+			it_res_con_correct = ET.SubElement(it_res, "respcondition", {'title': 'Correct Condition'})
+			it_res_con_correct_var = ET.SubElement(it_res_con_correct, "conditionvar")
+			it_res_con_correct_var_equal = ET.SubElement(it_res_con_correct_var, "varequal", {'respident': ident_num})
+			it_res_con_correct_var_equal.text = str(index)
+			it_res_con_correct_setvar = ET.SubElement(it_res_con_correct, "setvar", {'varname': "D2L_Correct", 'action': 'Add'})
+			it_res_con_correct_setvar.text = str(1)
 
-			itResConIncorrect = ET.SubElement(itRes, "respcondition", {'title': 'Incorrect Condition'})
-			itResConIncorrectVar = ET.SubElement(itResConIncorrect, "conditionvar")
-			itResConIncorrectVarNot = ET.SubElement(itResConIncorrectVar, "not")
-			itResConIncorrectVarNotEqual = ET.SubElement(itResConIncorrectVarNot, "varequal", {'respident': identNum})
-			itResConIncorrectVarNotEqual.text = str(index)
-			itResConIncorrectSetVar = ET.SubElement(itResConIncorrect, "setvar", {'varname': "D2L_Incorrect", 'action': 'Add'})
-			itResConIncorrectSetVar.text = str(1)
+			it_res_con_incorrect = ET.SubElement(it_res, "respcondition", {'title': 'Incorrect Condition'})
+			it_res_con_incorrect_var = ET.SubElement(it_res_con_incorrect, "conditionvar")
+			it_res_con_incorrect_var_not = ET.SubElement(it_res_con_incorrect_var, "not")
+			it_res_con_incorrect_var_not_equal = ET.SubElement(it_res_con_incorrect_var_not, "varequal", {'respident': ident_num})
+			it_res_con_incorrect_var_not_equal.text = str(index)
+			it_res_con_incorrect_setvar = ET.SubElement(it_res_con_incorrect, "setvar", {'varname': "D2L_Incorrect", 'action': 'Add'})
+			it_res_con_incorrect_setvar.text = str(1)
 
 			#Add Answer specific feedback
 			self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
@@ -554,19 +554,19 @@ class XmlWriter():
 		self.generate_feedback(it, question_ident, question.question_feedback)
 
 		#Initial_text
-		itInitText = ET.SubElement(it, "initial_text")
-		itInitTextMat = ET.SubElement(it, "initial_text_material")
-		itInitTextMatFlow = ET.SubElement(itInitTextMat, "flow_mat")
-		itInitTextMatFlowMat = ET.SubElement(itInitTextMatFlow, "material")
-		itInitTextMatFlowMatText = ET.SubElement(itInitTextMatFlowMat, "mattext", {'texttype': 'text/html'})
+		it_init_text = ET.SubElement(it, "initial_text")
+		it_init_text_mat = ET.SubElement(it, "initial_text_material")
+		it_init_text_mat_flow = ET.SubElement(it_init_text_mat, "flow_mat")
+		it_init_text_mat_flow_mat = ET.SubElement(it_init_text_mat_flow, "material")
+		it_init_text_mat_flow_mat_text = ET.SubElement(it_init_text_mat_flow_mat, "mattext", {'texttype': 'text/html'})
 
 		#Answer_key
-		itAns = ET.SubElement(it, "answer_key")
-		itAnsMat = ET.SubElement(itAns, "answer_key_material")
-		itAnsMatFlow = ET.SubElement(itAnsMat, "flow_mat")
-		itAnsMatFlowMat = ET.SubElement(itAnsMatFlow, "material")
-		itAnsMatFlowMatText = ET.SubElement(itAnsMatFlowMat, "mattext", {'texttype': 'text/html'})
-		itAnsMatFlowMatText.append(CDATA(question.get_answers()[0].text))
+		it_ans = ET.SubElement(it, "answer_key")
+		it_ans_mat = ET.SubElement(it_ans, "answer_key_material")
+		it_ans_mat_flow = ET.SubElement(it_ans_mat, "flow_mat")
+		it_ans_mat_flow_mat = ET.SubElement(it_ans_mat_flow, "material")
+		it_ans_mat_flow_mat_text = ET.SubElement(it_ans_mat_flow_mat, "mattext", {'texttype': 'text/html'})
+		it_ans_mat_flow_mat_text.append(CDATA(question.get_answers()[0].text))
 
 	def generate_matching(self, it, question_ident, question) :
 		
@@ -586,13 +586,13 @@ class XmlWriter():
 			self.generate_hint(it, question.hint)
 
 		#Resprocessing Node
-		itRes = ET.SubElement(it, "resprocessing")
+		it_res = ET.SubElement(it, "resprocessing")
 
 		#Resprocessing -> Outcomes
-		itResOut = ET.SubElement(itRes, "outcomes")
-		itResOutDecCorrect = ET.SubElement(itResOut, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Correct', 'minvalue': '0', 'maxvalue': '100'})
-		itResOutDecIncorrect = ET.SubElement(itResOut, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Incorrect', 'minvalue': '0', 'maxvalue': '100'})
-		itResOutDecScore = ET.SubElement(itResOut, "decvar", {'vartype': 'Decimal', 'defaultval': '0', 'varname': 'que_score', 'minvalue': '0', 'maxvalue': '100'})
+		it_res_out = ET.SubElement(it_res, "outcomes")
+		it_res_out_dec_correct = ET.SubElement(it_res_out, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Correct', 'minvalue': '0', 'maxvalue': '100'})
+		it_res_out_dec_incorrect = ET.SubElement(it_res_out, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Incorrect', 'minvalue': '0', 'maxvalue': '100'})
+		it_res_out_dec_score = ET.SubElement(it_res_out, "decvar", {'vartype': 'Decimal', 'defaultval': '0', 'varname': 'que_score', 'minvalue': '0', 'maxvalue': '100'})
 
 		#Presentation -> Flow
 		it_pre_flow_mat = ET.SubElement(it_pre_flow, "material")
@@ -611,39 +611,39 @@ class XmlWriter():
 		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})
 		it_pre_flow_res_grp_ren_flow = ET.SubElement(it_pre_flow_res_grp_ren, "flow_label", {'class': 'Block'})
 
-		respconditionString = "<group>"
+		respcondition_string = "<group>"
 
 		index = 1
 		for answer in question.get_answers():
 
-			questionAnswerIndex = question_ident_answer + str(index) 
+			question_answer_index = question_ident_answer + str(index) 
 
-			itGrpRenFlowLab = ET.SubElement(it_pre_flow_res_grp_ren_flow, "response_label", {'ident': questionAnswerIndex })
-			itGrpRenFlowLabFlow = ET.SubElement(itGrpRenFlowLab, "flow_mat")
-			itGrpRenFlowLabFlowMat = ET.SubElement(itGrpRenFlowLabFlow, "material")
-			itGrpRenFlowLabFlowMatText = ET.SubElement(itGrpRenFlowLabFlowMat, "mattext", {'texttype': 'text/html'})
-			itGrpRenFlowLabFlowMatText.append(CDATA(answer.match_right))
+			it_grp_ren_flow_lab = ET.SubElement(it_pre_flow_res_grp_ren_flow, "response_label", {'ident': question_answer_index })
+			it_grp_ren_flow_lab_flow = ET.SubElement(it_grp_ren_flow_lab, "flow_mat")
+			it_grp_ren_flow_lab_flow_mat = ET.SubElement(it_grp_ren_flow_lab_flow, "material")
+			it_grp_ren_flow_lab_flow_mat_text = ET.SubElement(it_grp_ren_flow_lab_flow_mat, "mattext", {'texttype': 'text/html'})
+			it_grp_ren_flow_lab_flow_mat_text.append(CDATA(answer.match_right))
 			index +=1
 
-			itRespcondition = ET.Element("respcondition")
-			itRespconditionvar = ET.SubElement(itRespcondition, "conditionvar")
-			itRespconditionvarqual = ET.SubElement(itRespconditionvar, "varequal", {'respident': '##question_lid##'})
-			itRespconditionvarqual.text = questionAnswerIndex
-			itRespsetvar = ET.SubElement(itRespcondition, "setvar", {'varname': 'D2L_Incorrect', 'action': 'Add'})
-			itRespsetvar.text = "1"
+			it_respcondition = ET.Element("respcondition")
+			it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
+			it_respcondition_varequal = ET.SubElement(it_respcondition_var, "varequal", {'respident': '##question_lid##'})
+			it_respcondition_varequal.text = question_answer_index
+			it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'D2L_Incorrect', 'action': 'Add'})
+			it_resp_setvar.text = "1"
 
-			respconditionString += ET.tostring(itRespcondition, 'utf-8').decode("utf-8") + "\n"
+			respcondition_string += ET.tostring(it_respcondition, 'utf-8').decode("utf-8") + "\n"
 
-		respconditionString += "</group>"
+		respcondition_string += "</group>"
 
 		index = 1
 		for answer in question.get_answers():
 
-			questionIndex = question_lid + str(index)
-			questionAnswerIndex = question_ident_answer + str(index)
+			question_index = question_lid + str(index)
+			question_answer_index = question_ident_answer + str(index)
 
 			#Presentation -> Flow -> Response_grp
-			it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'respident': questionIndex, 'rcardinality': 'Single'})
+			it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'respident': question_index, 'rcardinality': 'Single'})
 			
 			#Presentation -> Flow -> Response_grp -> Material
 			it_pre_flow_res_grp_mat = ET.SubElement(it_pre_flow_res_grp, "material")
@@ -653,20 +653,20 @@ class XmlWriter():
 			#Presentation -> Flow -> Response_grp -> Render_choice
 			it_pre_flow_res_grp.append(it_pre_flow_res_grp_ren)
 
-			respconditionElemString = respconditionString.replace("##question_lid##", questionIndex)
-			respconditionElemString = re.sub(r'(<respcondition.*?' + questionAnswerIndex + r'.*?)(D2L_Incorrect)(.*?<\/respcondition>)', r'\1D2L_Correct\3', respconditionElemString, re.MULTILINE)
-			respconditionElemString = respconditionElemString.replace("\n", "")
+			respcondition_elem_string = respcondition_string.replace("##question_lid##", question_index)
+			respcondition_elem_string = re.sub(r'(<respcondition.*?' + question_answer_index + r'.*?)(D2L_Incorrect)(.*?<\/respcondition>)', r'\1D2L_Correct\3', respcondition_elem_string, re.MULTILINE)
+			respcondition_elem_string = respcondition_elem_string.replace("\n", "")
 			
-			elem = ET.fromstring(respconditionElemString)
-			itRes.extend(list(elem))
+			elem = ET.fromstring(respcondition_elem_string)
+			it_res.extend(list(elem))
 			index +=1
 
 
-		itRespcondition = ET.SubElement(itRes, "respcondition")
-		itRespconditionvar = ET.SubElement(itRespcondition, "conditionvar")
-		itRespconditionvarother = ET.SubElement(itRespconditionvar, "other")
-		itRespsetvar = ET.SubElement(itRespcondition, "setvar", {'varname': 'que_score', 'action': 'Set'})
-		itRespsetvar.text = "D2L_Correct"
+		it_respcondition = ET.SubElement(it_res, "respcondition")
+		it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
+		it_respcondition_var_other = ET.SubElement(it_respcondition_var, "other")
+		it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'que_score', 'action': 'Set'})
+		it_resp_setvar.text = "D2L_Correct"
 
 
 		#Add General feedback

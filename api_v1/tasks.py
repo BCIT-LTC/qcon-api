@@ -78,13 +78,13 @@ def runconversion(question_library):
     # ImsManifest string create ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
     try:
-        parsedXml = XmlWriter(question_library, parsed_questions)
+        parsed_xml = XmlWriter(question_library, parsed_questions)
 
-        manifestEntity = ManifestEntity()
-        manifestResource = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
-        manifestEntity.addResource(manifestResource)
+        manifest_entity = ManifestEntity()
+        manifest_resource_entity = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
+        manifest_entity.add_resource(manifest_resource_entity)
 
-        manifest = parsedXml.create_manifest(manifestEntity, question_library.folder_path)
+        manifest = parsed_xml.create_manifest(manifest_entity, question_library.folder_path)
         parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
         parsed_imsmanifest = parseString(parsed_imsmanifest)
         parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
@@ -102,7 +102,7 @@ def runconversion(question_library):
 
     try:
         print(datetime.now().strftime("%H:%M:%S"), "Creating questiondb string...")
-        questiondb_string = parsedXml.questiondb_string
+        questiondb_string = parsed_xml.questiondb_string
         img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
         for idx, img in enumerate(img_elements):
