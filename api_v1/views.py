@@ -98,7 +98,7 @@ def print_result(task):
 
 class CliUpload(APIView):
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     parser_classes = [MultiPartParser]
 
@@ -122,7 +122,7 @@ class CliUpload(APIView):
 
         async_task('api_v1.tasks.runconversion', question_library, hook='api_v1.views.print_result')
 
-        return Response("CliUpload")
+        return Response("File uploaded successfully!")
 
 
 
