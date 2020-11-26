@@ -48,52 +48,7 @@ def parse_questions(question_library) :
 
     return parsed_questions
 
-
-
-
-class Upload(APIView):
-    def post(self, request, format=None):
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
-       
-        # logger.info(request.data['filename'])
-        # logger.info(request.session.get())
-
-        # tempPath = './antlr/test3.txt'
-        # with open(tempPath,"r") as file:
-        #     fileText = file.read()
-        #     pandocstring = pypandoc.convert_text(fileText, format='rst', to='gfm+fancy_lists+emoji', extra_args=['--preserve-tabs', '--wrap=preserve'])
-
-        #  Starting Document validation
-        # TODO Check if valid DOCx file
-
-        # Creating Model instance
-        # TODO create new model instance
-
-        #  Starting Markdown conversion
-        filePath = './temp/test6.docx'
-        pandocstring = pypandoc.convert_file(filePath, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks', extra_args=['--preserve-tabs', '--wrap=preserve'])
-        print(pandocstring)        
-        #  Finished Markdown conversion 
-
-        # model.state = "markdown finished"
-
-        # Creating Temp file
-        with open("./temp/test4.txt","w+") as file:
-            file.write("\n" + pandocstring)
-            file.close()
-        
-        # Starting Antler AST conversion
-        lex = main("\n" + pandocstring)
-
-        return Response('Reference number')
-
-
-# class QuerySession(APIView):
-#     def post()
-#         return "JSON object of the quiz including errors and state"
-
 def print_result(task):
-
     print(task.result)
 
 class CliUpload(APIView):
@@ -122,9 +77,17 @@ class CliUpload(APIView):
 
         async_task('api_v1.tasks.runconversion', question_library, hook='api_v1.views.print_result')
 
-        return Response("File uploaded successfully!")
+        return Response(question_library.id)
 
+class GetStatus(APIView):
 
+    def post(self, request):
+
+        # question_library = QuestionLibrary.objects.get()
+        # print(request.data['id'])
+        question_library = QuestionLibrary.objects.get(id=request.data['id'])
+
+        return Response(str(question_library.checkpoint))
 
 def Download(request, session, filename):
 
@@ -133,19 +96,4 @@ def Download(request, session, filename):
     file_response = FileResponse(open(FILE, 'rb'))
 
     return file_response
-
-
-    # return file_response
-
-# def DownloadTest(request):
-
-#     print("----Downloadtest----")
-#     # print(session)
-
-#     print(request)
-
-#     ZIPFILE = './temp/EXAM-1.zip'
-#     file_response = FileResponse(open(ZIPFILE, 'rb'))
-
-#     return file_response
 

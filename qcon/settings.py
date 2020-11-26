@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_q',
 # Local Apps 
     'api_v1.apps.ApiV1Config',
+    'apiweb.apps.ApiwebConfig',
 ]
 
 MIDDLEWARE = [

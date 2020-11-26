@@ -51,10 +51,9 @@ def runconversion(question_library):
     try:
         pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables', extra_args=['--extract-media='+ question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
         question_library.pandoc_string = "\n" + pandocstring
-        question_library.save()
-
         question_library.checkpoint = 1
         question_library.save()
+
         print(datetime.now().strftime("%H:%M:%S"), "Pandoc Done!")
     except:
         question_library.checkpoint_failed = 1
@@ -67,9 +66,9 @@ def runconversion(question_library):
     print(datetime.now().strftime("%H:%M:%S"), "Antlr processing...")
     try:
         parsed_questions = parse_questions(question_library)
+        print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
         question_library.checkpoint = 2
         question_library.save()
-        print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
     except:
         question_library.checkpoint_failed = 2
         question_library.save()
@@ -89,10 +88,9 @@ def runconversion(question_library):
         parsed_imsmanifest = parseString(parsed_imsmanifest)
         parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
         question_library.imsmanifest_string = parsed_imsmanifest
-        question_library.save()
-
         question_library.checkpoint = 3
         question_library.save()
+
         print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
     except:
         question_library.save()
@@ -115,10 +113,9 @@ def runconversion(question_library):
 
         imsmanifest_file = ContentFile(question_library.imsmanifest_string, name="imsmanifest.xml")
         question_library.imsmanifest_file = imsmanifest_file
-        question_library.save()
-
         question_library.checkpoint = 4;
         question_library.save()
+
         print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
     except:
         question_library.save()
@@ -129,10 +126,9 @@ def runconversion(question_library):
     try:        
         questiondb_file = ContentFile(question_library.questiondb_string, name="questiondb.xml")
         question_library.questiondb_file = questiondb_file
-        question_library.save()
-
         question_library.checkpoint = 5;
         question_library.save()
+
         print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
     except:
         question_library.checkpoint_failed = 5
