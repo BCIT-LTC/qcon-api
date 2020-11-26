@@ -190,7 +190,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['warning', 'console'],
-            # 'level': 'WARNING',
+            'level': 'WARNING',
             'propagate': True,
         },
         'api_v1': {
