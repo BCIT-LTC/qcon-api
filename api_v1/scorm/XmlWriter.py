@@ -48,20 +48,17 @@ class XmlWriter():
 			question_ident = 'QUES_' + ident
 
 			title_prefix = ''
-
-			
 			question_text = question.question_body
 			if isinstance(question.question_body, list) :
 				question_text = " ".join(question.question_body)
 			plain_text = pypandoc.convert_text(question_text, format="html", to="plain").replace('\n', ' ')
-			title = title_prefix + str(question.title if question.title is not None else plain_text)
+			title = title_prefix + str(question.title if question.title is not "" else plain_text)
 			
-			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': title})
-
+			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': title})	
 			if question.question_type == 'MC':
 				self.generate_multiple_choice(it, question_ident, question)
-			# elif question.question_type == question.QUESTION_TYPE_MULTI_SELECT:
-			# 	self.generate_multi_select(it, question_ident, question)
+			elif question.question_type == 'MS' or question.question_type == 'MR':
+				self.generate_multi_select(it, question_ident, question)
 			# elif question.question_type == question.QUESTION_TYPE_FILL_IN_BLANK:
 			# 	self.generate_fill_in_the_blanks(it, question_ident, question)
 			# elif question.question_type == question.QUESTION_TYPE_ORDERING:
@@ -148,7 +145,7 @@ class XmlWriter():
 		it_fb = ET.SubElement(it, "itemfeedback", {'ident': ident})
 		it_fb_mat = ET.SubElement(it_fb, "material")
 		it_fb_mat_text = ET.SubElement(it_fb_mat, "mattext", {'texttype' : 'text/html'})
-		if feedback is not None:
+		if feedback != None or feedback != "":
 			it_fb_mat_text.append(CDATA(feedback))
 
 
@@ -197,7 +194,7 @@ class XmlWriter():
 		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})
 
 		#Add hint
-		if question.hint is not None:
+		if question.hint != None or question.hint != "":
 			self.generate_hint(it, question.hint)
 
 		#Reprocessing
@@ -329,7 +326,7 @@ class XmlWriter():
 		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})
 
 		#Add hint
-		if question.hint is not None:
+		if question.hint != None or question.hint != "":
 			self.generate_hint(it, question.hint)
 
 		#Reprocessing
@@ -400,7 +397,7 @@ class XmlWriter():
 				it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Add hint
-		if question.hint is not None:
+		if question.hint != None or question.hint != "":
 			self.generate_hint(it, question.hint)
 
 		#Resprocessing
@@ -461,7 +458,7 @@ class XmlWriter():
 		it_pre_flow_res_grp_render_flow = ET.SubElement(it_pre_flow_res_grp_render, "flow_label", {'class': 'Block'}) #populated in the loop
 
 		#Add hint
-		if question.hint is not None:
+		if question.hint != None or question.hint != "":
 			self.generate_hint(it, question.hint)
 
 		#Resprocessing
@@ -547,7 +544,7 @@ class XmlWriter():
 		it_pre_flow_mat_res_str_render_label_mat_text = ET.SubElement(it_pre_flow_mat_res_str_render_label_mat, "mattext", {'texttype': 'text/html'})
 
 		#Add hint
-		if question.hint is not None:
+		if question.hint != None or question.hint != "":
 			self.generate_hint(it, question.hint)
 		
 		#Add General feedback
@@ -582,7 +579,7 @@ class XmlWriter():
 		it_pre_flow = ET.SubElement(it_pre, "flow")
 
 		#Add hint
-		if question.hint is not None:
+		if question.hint != None or question.hint != "":
 			self.generate_hint(it, question.hint)
 
 		#Resprocessing Node
