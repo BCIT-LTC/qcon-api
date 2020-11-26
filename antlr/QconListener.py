@@ -70,23 +70,27 @@ class QconListener(ParseTreeListener):
         self.question.question_body = question_body
 
         if ctx.questiontype() != None:
-            questionType = self.trim_text(ctx.questiontype().getText()).split(":")[1]
-            questionType = self.markdown_to_html(questionType)
-            self.question.question_type = questionType
+            question_type = self.trim_text(ctx.questiontype().getText()).split(":")[1]
+            question_type = self.markdown_to_plain_text(question_type)
+            question_type = self.trim_text(question_type)
+            self.question.question_type = question_type
         
         if ctx.title() != None:
             title = self.trim_text(ctx.title().getText()).split(":")[1]
             title = self.markdown_to_plain_text(title)
+            title = self.trim_text(title)
             self.question.title = title
 
         if ctx.point() != None:
             points = self.trim_text(ctx.point().getText()).split(":")[1]
             points = self.markdown_to_plain_text(points)
+            points = self.trim_text(points)
             self.question.points = points
 
         if ctx.feedback() != None:
             question_feedback = self.trim_text(ctx.feedback().getText())[1:]
             question_feedback = self.markdown_to_html(question_feedback)
+            question_feedback = self.trim_text(question_feedback)
             self.question.question_feedback = question_feedback
         # print("exitQuestionbody===>")
         pass
@@ -130,12 +134,14 @@ class QconListener(ParseTreeListener):
         # print("exitListitem===>")
         answer_body = self.trim_text(ctx.content().getText())
         answer_body = self.markdown_to_html(answer_body)
+        answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
 
         self.answer.is_correct = False
         if ctx.feedback() != None:
             answer_feedback = self.trim_text(ctx.feedback().getText())[1:]
             answer_feedback = self.markdown_to_html(answer_feedback)
+            answer_feedback = self.trim_text(answer_feedback)
             self.answer.answer_feedback = answer_feedback
         pass
 
@@ -149,6 +155,7 @@ class QconListener(ParseTreeListener):
         # print("exitListansweritem===>")
         answer_body = self.trim_text(ctx.content().getText())
         answer_body = self.markdown_to_html(answer_body)
+        answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
 
         self.answer.is_correct = True
@@ -156,6 +163,7 @@ class QconListener(ParseTreeListener):
         if ctx.feedback() != None:
             answer_feedback = self.trim_text(ctx.feedback().getText())[1:]
             answer_feedback = self.markdown_to_html(answer_feedback)
+            answer_feedback = self.trim_text(answer_feedback)
             self.answer.answer_feedback = answer_feedback
         pass
 
@@ -179,7 +187,7 @@ class QconListener(ParseTreeListener):
                     # TODO PRINT WRONG QUESTION FORMAT
                     print("Wrong question Format: TF")
                     pass
-            elif question.question_type == 'MS':
+            elif question.question_type == 'MS' or question.question_type == 'MR':
                 if self.is_multi_select(question) == True:
                     # BUILD MS
                     print("is_multi_select")   
