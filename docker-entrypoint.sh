@@ -1,3 +1,5 @@
+#!/bin/sh
+set -e
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v1
 echo "-------------------------------------------------------------------------------------------\n"
@@ -12,7 +14,9 @@ echo "--------------------------------------------------------------------------
 # nginx
 
 >&2 echo "create logging directory"
-mkdir log
+if [ ! -d "log" ]; then
+    mkdir log
+fi
 
 
 >&2 echo "Start Django Q task scheduler"
@@ -29,5 +33,4 @@ echo "--------------------------------------------------------------------------
 
 #Start django dev server
 >&2 echo "Starting Django runserver..."
-python manage.py runserver 0.0.0.0:8000
-
+exec "$@"
