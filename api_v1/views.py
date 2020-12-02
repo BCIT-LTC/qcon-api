@@ -33,21 +33,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def parse_questions(question_library) :
-    input = InputStream(question_library.pandoc_string)
-    lexer = QconLexer(input)
-    stream = CommonTokenStream(lexer)
-    parser = QconParser(stream)
-    tree = parser.qcon()
-    # 
-    printer = QconListener(question_library)
-    walker = ParseTreeWalker()
-    walker.walk(printer, tree)
-    # print(tree.toStringTree(recog=parser))
-    parsed_questions = printer.get_results()
-
-    return parsed_questions
-
 def print_result(task):
     print(task.result)
 
