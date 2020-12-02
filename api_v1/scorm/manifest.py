@@ -1,18 +1,18 @@
-class ManifestResourceEntity(object):
-    def __init__(self, identifier, resourceType, materialType, href, title = '', linkTarget = ''):
-        self.identifier = identifier
-        self.resourceType = resourceType
-        self.materialType = materialType
-        self.href = href
-        self.title = title
-        self.linkTarget = linkTarget
-
 class ManifestEntity(object):
     resources = []
 
     def __init__(self):
         del self.resources[:]
         
-    def addResource(self, manifestResourceEntity):
-        self.resources.append(manifestResourceEntity)
+    def add_resource(self, manifest_resource_entity):
+        self.resources.append(manifest_resource_entity)
 
+
+class ManifestResourceEntity(object):
+    def __init__(self, identifier, resource_type, material_type, href, title = '', link_target = ''):
+        self.identifier = identifier
+        self.resource_type = resource_type
+        self.material_type = material_type
+        self.href = href
+        self.title = title
+        self.link_target = link_target

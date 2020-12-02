@@ -19,7 +19,8 @@ qcon
     ;
 
 question
-    :   questionbody answerlist feedback?
+    :   questionbody answerlist?
+    |   fibquestionbody
     ;
     
 
@@ -31,6 +32,25 @@ questionbody
     |   title? point? questiontype? questionprefix content feedback?
     |   point? questiontype? title? questionprefix content feedback?
     |   point? title? questiontype? questionprefix content feedback?
+    ;
+
+fibquestionbody
+    :   questionprefix fibcontent+ feedback?
+    |   fibtype? title? point? questionprefix fibcontent+ feedback?
+    |   fibtype? point? title? questionprefix fibcontent+ feedback?
+    |   title? fibtype? point? questionprefix fibcontent+ feedback?
+    |   title? point? fibtype? questionprefix fibcontent+ feedback?
+    |   point? fibtype? title? questionprefix fibcontent+ feedback?
+    |   point? title? fibtype? questionprefix fibcontent+ feedback?
+    ;
+
+fibcontent
+    :   fibanswer 
+    |   content
+    ;
+
+fibtype
+    :   FIB_TYPE
     ;
 
 questiontype
@@ -45,6 +65,10 @@ point
     :   POINT
     ;
 
+fibanswer
+    :   FIB_OPEN_BRACKET ALL_CHARACTER+ FIB_CLOSE_BRACKET
+    ;
+
 content
     :   ALL_CHARACTER+
     ;
@@ -55,9 +79,6 @@ content
 
 answerlist
     :   answeritem+ (answerlist+)?
-    // :   (listitem|answeritem) answerlist
-    // |   listitem
-    // |   answerlist
     ;
 
 answeritem
@@ -66,15 +87,11 @@ answeritem
     ;
 
 listitem
-    // :   listprefix content feedback?
-    :   listprefix content feedback
-    |   listprefix content
+    :   listprefix content feedback?
     ;
 
 listansweritem
-    // :   answerprefix content feedback?
-    :   answerprefix content feedback
-    |   answerprefix content
+    :   answerprefix content feedback?
     ;
 
 
@@ -159,15 +176,28 @@ fragment ANSWER_MARKER
     :   BACKSLASH ASTERISK
     ;
 
+fragment B
+    :   'B' | 'b'
+    ;
+
 fragment E
     :   'E' | 'e'
     ;
+
+fragment F
+    :   'F' | 'f'
+    ;
+
 fragment I
     :   'I' | 'i'
     ;
 
 fragment L
     :   'L' | 'l'
+    ;
+
+fragment M
+    :   'M' | 'm'
     ;
 
 fragment N
@@ -194,6 +224,14 @@ fragment Y
     :   'Y' | 'y'
     ;  
 
+fragment OPEN_BRACKET
+    :   '['
+    ;
+
+ fragment CLOSE_BRACKET
+    :   ']'
+    ;
+
 fragment ALPHANUMERIC
     :   (LOWERCASE | UPPERCASE | NUMBER)
     ;
@@ -206,6 +244,10 @@ FEEDBACKMARKER
     
 TYPE
     :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (UPPERCASE | LOWERCASE)+ WHITESPACE*
+    ;
+
+FIB_TYPE
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (F I B | F M B) WHITESPACE*
     ;
 
 TITLE
@@ -236,4 +278,10 @@ RIGHT_ANSWER_BEFORE
     :   NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
+FIB_OPEN_BRACKET
+    :   WHITESPACE* BACKSLASH? OPEN_BRACKET WHITESPACE*
+    ;
 
+FIB_CLOSE_BRACKET
+    :   WHITESPACE* BACKSLASH? CLOSE_BRACKET WHITESPACE*
+    ;
