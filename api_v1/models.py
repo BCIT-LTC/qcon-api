@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import signals
 # Create your models here.
 
 import logging
@@ -57,6 +56,12 @@ class Question(models.Model):
     
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
+
+    def get_fib(self):
+        return Fib.objects.filter(question=self.id)
+
+    def get_fib_answers(self):
+        return Fib.objects.filter(question=self.id, type='answer')
     
     def __str__(self):
         return str(self.question_body)
@@ -65,8 +70,9 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    id = models.AutoField(primary_key=True) 
+    id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    prefix = models.CharField(max_length=5, null=False)
     answer_body = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
@@ -76,7 +82,11 @@ class Answer(models.Model):
 
     def __str__(self):
         return str(self.answer_body)
-# ======================== Signals 
 
 
 
+class Fib(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    type = models.CharField(max_length=7, null=False)
+    text = models.TextField(blank=True, null=True)
