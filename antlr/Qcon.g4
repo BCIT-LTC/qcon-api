@@ -15,14 +15,17 @@ grammar Qcon;
 // }
 
 qcon
-    :   question* EOF
+    :   question* endanswers? EOF
     ;
 
 question
     :   questionbody answerlist?
     |   fibquestionbody
     ;
-    
+
+endanswers
+    :   endanswerstart endanswerlistitem+
+    ;
 
 questionbody
     :   questionprefix content feedback?
@@ -94,6 +97,9 @@ listansweritem
     :   answerprefix content feedback?
     ;
 
+endanswerlistitem
+    :   questionprefix content feedback?
+    ;
 
 questionprefix
     :   QUESTION_PREFIX
@@ -110,6 +116,10 @@ answerprefix
 
 feedback
     :   FEEDBACKMARKER content
+    ;
+
+endanswerstart
+    :   END_ANSWERS
     ;
 
 // ================================ TOKENS
@@ -176,6 +186,10 @@ fragment ANSWER_MARKER
     :   BACKSLASH ASTERISK
     ;
 
+fragment A
+    :   'A' | 'a'
+    ;
+
 fragment B
     :   'B' | 'b'
     ;
@@ -212,12 +226,20 @@ fragment P
     :   'P' | 'p'
     ;
 
+fragment R
+    :   'R' | 'r'
+    ;
+
 fragment S
     :   'S' | 's'
     ;
 
 fragment T
     :   'T' | 't'
+    ;
+
+fragment W
+    :   'W' | 'w'
     ;
 
 fragment Y
@@ -241,7 +263,10 @@ FEEDBACKMARKER
     :   NEWLINE+ WHITESPACE* ATSYMBOL WHITESPACE*
     ;
     
-    
+END_ANSWERS
+    :   NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE*
+    ;
+
 TYPE
     :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (UPPERCASE | LOWERCASE)+ WHITESPACE*
     ;
