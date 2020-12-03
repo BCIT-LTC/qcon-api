@@ -17,6 +17,7 @@ class QconListener(ParseTreeListener):
         self.question = None
         self.answer = None
         self.question_library = question_library
+        self.end_answers = None
 
     # TODO Add logic to populate and check the fields (e.g: questionType)
     def get_results(self):
@@ -210,6 +211,17 @@ class QconListener(ParseTreeListener):
             answer_feedback = self.trim_text(answer_feedback)
             self.answer.answer_feedback = answer_feedback
         pass
+
+    # Enter a parse tree produced by QconParser#endanswerstart.
+    def enterEndanswers(self, ctx:QconParser.EndanswerstartContext):
+        print("enterEndanswerstart===>")
+        pass
+
+    # Exit a parse tree produced by QconParser#endanswerstart.
+    def exitEndanswers(self, ctx:QconParser.EndanswerstartContext):
+        print("exitEndanswerstart===>")
+        pass
+        print("-----------------------------------------")
 
     def process_question(self, question):
         if question.question_type != '':
