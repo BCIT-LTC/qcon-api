@@ -26,7 +26,6 @@ from .models import QuestionLibrary
 from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
 import xml.etree.cElementTree as ET
 
-
 from django_q.tasks import async_task
 
 import logging
