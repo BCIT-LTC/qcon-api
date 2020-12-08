@@ -31,8 +31,36 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#qcon.
     def exitQcon(self, ctx:QconParser.QconContext):  
         # print("exitQcon===>")
-        pass
-
+        if self.end_answers == None:
+            for question in self.questions:
+                self.process_question(question)
+                self.question.save()
+        else:
+            for idx, question in enumerate(self.questions):
+                
+                print(question.question_type)
+                end_answer = self.end_answers[idx]['answer']
+                if question.question_type == 'FIB':
+                    fib_answers = question.get_fib_answers()
+                    if ';' in end_answer:
+                        # Multi FIB
+                        end_answers = end_answer.split(";")
+                        for answer_index, answer_text in enumerate(end_answers):
+                            fib_answer = fib_answers[answer_index]
+                            fib_answer.type = "answer"
+                            fib_answer.text = answer_text
+                            fib_answer.save()
+                    else:
+                        # only one FIB
+                        fib_answer = question.get_fib_answers()[0]
+                        fib_answer.type = "answer"
+                        fib_answer.text = end_answer
+                        fib_answer.save()
+                        print(end_answer, fib_answer.text)
+                else:
+                    # TODO INSERT OTHER TYPE OF END ANSWERS
+                    pass
+                    
 
     # Enter a parse tree produced by QconParser#question.
     def enterQuestion(self, ctx:QconParser.QuestionContext):
@@ -47,8 +75,6 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#question.
     def exitQuestion(self, ctx:QconParser.QuestionContext):
         # print("exitQuestion===>")
-        self.question.save()
-        self.process_question(self.question)
         self.question.save()
         self.questions.append(self.question)
         pass
@@ -214,14 +240,27 @@ class QconListener(ParseTreeListener):
 
     # Enter a parse tree produced by QconParser#endanswerstart.
     def enterEndanswers(self, ctx:QconParser.EndanswerstartContext):
-        print("enterEndanswerstart===>")
+        # print("enterEndanswerstart===>")
         pass
 
     # Exit a parse tree produced by QconParser#endanswerstart.
     def exitEndanswers(self, ctx:QconParser.EndanswerstartContext):
-        print("exitEndanswerstart===>")
-        pass
-        print("-----------------------------------------")
+        # print("exitEndanswerstart===>")
+        if len(self.questions) == len(ctx.endanswerlistitem()) :
+            self.end_answers = []
+            for idx, endanswerlistitem_context in enumerate(ctx.endanswerlistitem()):
+                answer = {}
+                answer['answer'] = endanswerlistitem_context.content().getText()
+                answer['feedback'] = None
+                
+                try:
+                  answer['feedback'] = endanswerlistitem_context.feedback().content().getText()
+                except:
+                    # NO FEEDBACK
+                    pass
+
+                self.end_answers.append(answer)
+
 
     def process_question(self, question):
         if question.question_type != '':
