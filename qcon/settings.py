@@ -49,8 +49,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
 
     # Local Apps
-    'api_v1.apps.ApiV1Config',
-    'apiweb.apps.ApiwebConfig',
+    'api_v1.apps.ApiV1Config'
 ]
 
 MIDDLEWARE = [
