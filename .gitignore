@@ -9,6 +9,6 @@ log
 .vscode
 temp
 
-db.sqlite3
+database
 
 migrations

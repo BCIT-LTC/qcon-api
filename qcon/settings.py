@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 import sys
 from pathlib import Path
-from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,12 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-# Third-Party Apps
+    # Third-Party Apps
+    'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
     'django_q',
-# Local Apps 
-    'api_v1.apps.ApiV1Config',
+    'drf_spectacular',
+
+    # Local Apps
+    'api_v1.apps.ApiV1Config'
 ]
 
 MIDDLEWARE = [
@@ -87,7 +89,7 @@ WSGI_APPLICATION = 'qcon.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'database',
     }
 }
 
@@ -133,15 +135,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'temp/')
-#Qcon config
+# Qcon config
 QCON = {
-    'TEMP_FOLDER': os.path.join(BASE_DIR,'temp','resource','tempfile') + os.path.sep,
-    'TEMP_IMAGE_ROOT': os.path.join(BASE_DIR,'temp', 'resource', 'tempfile', 'media') + os.path.sep,
-    'RESPONDUS_XML_ROOT': os.path.join(BASE_DIR,'temp','resource', 'xml') + os.path.sep,
+    'TEMP_FOLDER': os.path.join(BASE_DIR, 'temp', 'resource', 'tempfile') + os.path.sep,
+    'TEMP_IMAGE_ROOT': os.path.join(BASE_DIR, 'temp', 'resource', 'tempfile', 'media') + os.path.sep,
+    'RESPONDUS_XML_ROOT': os.path.join(BASE_DIR, 'temp', 'resource', 'xml') + os.path.sep,
     'XML_QUESTION_URL': '/ql/',
-    'XML_QUESTION_ROOT': os.path.join(BASE_DIR, 'temp','resource', 'xml') + os.path.sep,
+    'XML_QUESTION_ROOT': os.path.join(BASE_DIR, 'temp', 'resource', 'xml') + os.path.sep,
     'DEFAULT_IMAGE_FOLDER': '/assessment-assets/',
-    'QCON_INSTALL_SCRIPT_ROOT': os.path.join(BASE_DIR, 'scripts','production') + os.path.sep,
+    'QCON_INSTALL_SCRIPT_ROOT': os.path.join(BASE_DIR, 'scripts', 'production') + os.path.sep,
 }
 
 
@@ -190,7 +192,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['warning', 'console'],
-            # 'level': 'WARNING',
+            'level': 'WARNING',
             'propagate': True,
         },
         'api_v1': {
@@ -208,8 +210,9 @@ REST_FRAMEWORK = {
         # 'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  
+        'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -226,4 +229,18 @@ Q_CLUSTER = {
     'cpu_affinity': 1,
     'label': 'Django Q',
     'orm': 'default'
+}
+
+
+SPECTACULAR_SETTINGS = {
+
+    'VERSION': '1.0.0',
+    'TITLE': 'Qcon API',
+    'DESCRIPTION': 'RESTful API to convert word documents to LMS compliant format',
+
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True
+    }
 }
