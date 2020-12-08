@@ -61,7 +61,32 @@ class QconListener(ParseTreeListener):
                     # TODO INSERT OTHER TYPE OF END ANSWERS
                     answers = question.get_answers()
                     print(len(answers))
-                    if len(answers) == 0:
+                    if len(answers) != 0:
+                        is_true_exist = False
+                        is_false_exist = False
+                        for answer in answers:
+                            answer_body = self.html_to_plain(answer.answer_body).lower().strip()
+                            if "true" == answer_body:
+                                is_true_exist = True
+                            elif "false" == answer_body:
+                                is_false_exist = True
+                        
+                        if is_true_exist == True:
+                            if is_false_exist == True:
+                                question.question_type = 'TF'
+                                question.save()
+                                for answer in answers:
+                                    answer_body = self.html_to_plain(answer.answer_body).lower().strip()
+                                    if "true" == answer_body:
+                                        answer.answer_body = "True"
+                                    elif "false" == answer_body:
+                                        answer.answer_body = "False"
+                                    
+                                    if end_answer[0] == answer.prefix[0]:
+                                        answer.is_correct = True
+                                    answer.save()
+
+                    elif len(answers) == 0:
                         # either ordering or written response
                         is_wr = False
                         if ';' in end_answer:
@@ -287,7 +312,7 @@ class QconListener(ParseTreeListener):
             self.end_answers = []
             for idx, endanswerlistitem_context in enumerate(ctx.endanswerlistitem()):
                 answer = {}
-                answer['answer'] = endanswerlistitem_context.content().getText()
+                answer['answer'] = self.trim_text(endanswerlistitem_context.content().getText())
                 answer['feedback'] = None
                 
                 try:
@@ -459,5 +484,9 @@ class QconListener(ParseTreeListener):
     def markdown_to_plain_text(self, text):
         plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain").replace('\n', ' ')
         return plain_text
+
+    def html_to_plain(self, text):
+        html_text = pypandoc.convert_text(text, format='html', to="plain")
+        return html_text
 
 del QconParser
