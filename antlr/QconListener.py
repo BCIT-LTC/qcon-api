@@ -44,8 +44,8 @@ class QconListener(ParseTreeListener):
                     fib_answers = question.get_fib_answers()
                     if ';' in end_answer:
                         # Multi FIB
-                        end_answers = end_answer.split(";")
-                        for answer_index, answer_text in enumerate(end_answers):
+                        end_answers_split = end_answer.split(";")
+                        for answer_index, answer_text in enumerate(end_answers_split):
                             fib_answer = fib_answers[answer_index]
                             fib_answer.type = "answer"
                             fib_answer.text = answer_text
@@ -56,10 +56,32 @@ class QconListener(ParseTreeListener):
                         fib_answer.type = "answer"
                         fib_answer.text = end_answer
                         fib_answer.save()
-                        print(end_answer, fib_answer.text)
+
                 else:
                     # TODO INSERT OTHER TYPE OF END ANSWERS
-                    pass
+                    answers = question.get_answers()
+                    print(len(answers))
+                    if len(answers) == 0:
+                        # either ordering or matching
+                        if ';' in end_answer:
+                            end_answers_split = end_answer.split(";")
+                            
+                            count_matching = 0
+                            for answer_text in end_answers_split:
+                                if '=' in answer_text:
+                                    count_matching = count_matching + 1
+
+                            if count_matching == len(end_answers_split):
+                                question.question_type = 'MT'
+                                question.save()
+                                for answer_text in end_answers_split:
+                                    matching_answer = Answer()
+                                    matching_answer.question = question
+                                    matching_answer.answer_body = answer_text
+                                    matching_answer.save()
+
+                    self.process_question(question)
+                    self.question.save()
                     
 
     # Enter a parse tree produced by QconParser#question.
