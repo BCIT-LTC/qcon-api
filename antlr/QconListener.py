@@ -62,7 +62,8 @@ class QconListener(ParseTreeListener):
                     answers = question.get_answers()
                     print(len(answers))
                     if len(answers) == 0:
-                        # either ordering or matching
+                        # either ordering or written response
+                        is_wr = False
                         if ';' in end_answer:
                             end_answers_split = end_answer.split(";")
                             
@@ -79,7 +80,21 @@ class QconListener(ParseTreeListener):
                                     matching_answer.question = question
                                     matching_answer.answer_body = answer_text
                                     matching_answer.save()
+                            else:
+                                is_wr = True
+                        else:
+                            is_wr = True
 
+                        if is_wr == True:
+                            question.question_type = 'WR'
+                            question.save()
+                            wr_answer = Answer()
+                            wr_answer.question = question
+                            wr_answer.answer_body = end_answer
+                            wr_answer.save()
+                                
+                            
+                        
                     self.process_question(question)
                     self.question.save()
                     
