@@ -31,15 +31,15 @@ class QconListener(ParseTreeListener):
     # Exit a parse tree produced by QconParser#qcon.
     def exitQcon(self, ctx:QconParser.QconContext):  
         # print("exitQcon===>")
+        print('')
         if self.end_answers == None:
-            for question in self.questions:
+            for question_index, question in enumerate(self.questions):
                 self.process_question(question)
                 self.question.save()
+                print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
         else:
-            for idx, question in enumerate(self.questions):
-                
-                print(question.question_type)
-                end_answer = self.end_answers[idx]['answer']
+            for question_index, question in enumerate(self.questions):
+                end_answer = self.end_answers[question_index]['answer']
                 if question.question_type == 'FIB':
                     fib_answers = question.get_fib_answers()
                     if ';' in end_answer:
@@ -58,33 +58,89 @@ class QconListener(ParseTreeListener):
                         fib_answer.save()
 
                 else:
-                    # TODO INSERT OTHER TYPE OF END ANSWERS
                     answers = question.get_answers()
-                    print(len(answers))
-                    if len(answers) != 0:
-                        is_true_exist = False
-                        is_false_exist = False
-                        for answer in answers:
-                            answer_body = self.html_to_plain(answer.answer_body).lower().strip()
-                            if "true" == answer_body:
-                                is_true_exist = True
-                            elif "false" == answer_body:
-                                is_false_exist = True
-                        
-                        if is_true_exist == True:
-                            if is_false_exist == True:
-                                question.question_type = 'TF'
-                                question.save()
-                                for answer in answers:
-                                    answer_body = self.html_to_plain(answer.answer_body).lower().strip()
-                                    if "true" == answer_body:
-                                        answer.answer_body = "True"
-                                    elif "false" == answer_body:
-                                        answer.answer_body = "False"
+
+                    if len(answers) > 0:
+                        if len(answers) == 2:
+                            is_true_exist = False
+                            is_false_exist = False
+                            for answer_obj in answers:
+                                answer_body = self.html_to_plain(answer_obj.answer_body).lower().strip()
+                                if "true" == answer_body:
+                                    is_true_exist = True
+                                elif "false" == answer_body:
+                                    is_false_exist = True
+                            
+                            if is_true_exist == True:
+                                if is_false_exist == True:
+                                    # TF
+                                    question.question_type = 'TF'
+                                    question.correct_answers_length = 1
+                                    question.save()
+                                    for answer_obj in answers:
+                                        answer_body = self.html_to_plain(answer_obj.answer_body).lower().strip()
+                                        if "true" == answer_body:
+                                            answer_obj.answer_body = "True"
+                                        elif "false" == answer_body:
+                                            answer_obj.answer_body = "False"
+                                        
+                                        if end_answer[0] == answer_obj.prefix[0]:
+                                            answer_obj.is_correct = True
+                                        answer_obj.save()
+
+                        if question.question_type == None:
+                            if ';' in end_answer:
+                                end_answers_split = end_answer.split(";")
+                                if len(answers) == len(end_answers_split):
+                                    count_ordering = 0
                                     
-                                    if end_answer[0] == answer.prefix[0]:
-                                        answer.is_correct = True
-                                    answer.save()
+                                    for answer_obj in answers:
+                                        answer_obj_text = self.html_to_plain(answer_obj.answer_body).lower().strip()
+                                        for end_answer in end_answers_split:
+                                            end_answer_text = end_answer.lower().strip()
+                                            if end_answer_text == answer_obj_text:
+                                                count_ordering = count_ordering + 1
+                                    
+                                    if count_ordering == len(end_answers_split):
+                                        # ORD
+                                        question.question_type = 'ORD'
+                                        question.save()
+                                        for ordering_index, answer in enumerate(answers):
+                                            answer.answer_body = end_answers_split[ordering_index]
+                                            answer.save()
+                            elif ',' in end_answer:
+                                end_answers_split = end_answer.split(",")
+                                count_ms = 0
+                                for answer_obj in answers:
+                                    answer_obj_prefix = answer_obj.prefix[0].lower()
+                                    for answer_text in end_answers_split:
+                                        end_answer_text = answer_text.lower().strip()
+                                        if end_answer_text == answer_obj_prefix:
+                                            count_ms = count_ms + 1
+
+                                if count_ms == len(end_answers_split):
+                                    # MS
+                                    question.question_type = 'MS'
+                                    question.correct_answers_length = count_ms
+                                    question.save()
+                                    for answer_obj in answers:
+                                        answer_obj_prefix = answer_obj.prefix[0].lower()
+                                        for answer_text in end_answers_split:
+                                            end_answer_text = answer_text.lower().strip()
+                                            if end_answer_text == answer_obj_prefix:
+                                                answer_obj.is_correct = True
+                                                answer_obj.save()
+                            else:
+                                for answer_obj in answers:
+                                    answer_obj_prefix = answer_obj.prefix[0].lower()
+                                    end_answer_text = end_answer.lower().strip()
+                                    if end_answer_text == answer_obj_prefix:
+                                        # MC
+                                        question.question_type = 'MC'
+                                        question.correct_answers_length = 1
+                                        question.save()
+                                        answer_obj.is_correct = True
+                                        answer_obj.save()
 
                     elif len(answers) == 0:
                         # either ordering or written response
@@ -98,6 +154,7 @@ class QconListener(ParseTreeListener):
                                     count_matching = count_matching + 1
 
                             if count_matching == len(end_answers_split):
+                                # MT
                                 question.question_type = 'MT'
                                 question.save()
                                 for answer_text in end_answers_split:
@@ -111,6 +168,7 @@ class QconListener(ParseTreeListener):
                             is_wr = True
 
                         if is_wr == True:
+                            # WR
                             question.question_type = 'WR'
                             question.save()
                             wr_answer = Answer()
@@ -118,16 +176,15 @@ class QconListener(ParseTreeListener):
                             wr_answer.answer_body = end_answer
                             wr_answer.save()
                                 
-                            
-                        
                     self.process_question(question)
                     self.question.save()
+                    print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
+        print('')
                     
 
     # Enter a parse tree produced by QconParser#question.
     def enterQuestion(self, ctx:QconParser.QuestionContext):
         # print("enterQuestion===>")
-        print(datetime.now().strftime("%H:%M:%S"), "Processing question", len(self.questions)+1)
         self.question = Question()
         self.question.question_library = self.question_library
         self.question.save()
@@ -325,11 +382,10 @@ class QconListener(ParseTreeListener):
 
 
     def process_question(self, question):
-        if question.question_type != '':
+        if question.question_type != None:
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:
                     # BUILD MC
-                    print("is_multiple_choice")
                     pass
                 else:
                     # TODO PRINT WRONG QUESTION FORMAT
@@ -338,7 +394,6 @@ class QconListener(ParseTreeListener):
             elif question.question_type == 'TF':
                 if self.is_true_false(question) == True:
                     # BUILD TF
-                    print("is_true_false")
                     pass
                 else:
                     # TODO PRINT WRONG QUESTION FORMAT
@@ -347,7 +402,7 @@ class QconListener(ParseTreeListener):
             elif question.question_type == 'MS' or question.question_type == 'MR':
                 if self.is_multi_select(question) == True:
                     # BUILD MS
-                    print("is_multi_select")
+                    pass
                 elif self.is_ordering(question) == True:
                     print("is_multi_select with no answer")
                     pass
@@ -358,25 +413,27 @@ class QconListener(ParseTreeListener):
             elif question.question_type == 'MT':
                 if self.is_matching(question) == True:
                     # BUILD MT
-                    print("is_matching")
+                    pass
+                else:
+                    print("Wrong question Format: MT")
                     pass
             elif question.question_type == 'ORD':
                 if self.is_ordering(question) == True:
                     # BUILD ORD
-                    print("is_ordering")
+                    pass
+                else:
+                    print("Wrong question Format: ORD")
                     pass
             elif question.question_type == 'FIB' or question.question_type == 'FMB':
                 # if self.is_fill_in_the_blanks(question) == True:
-                    # BUILD FIB
-                print("is_fill_in_the_blanks")
+                # BUILD FIB
                 pass
             elif question.question_type == 'WR' or question.question_type == 'E':
-                # TRUST USERT & BUILD WR
-                print("is_WR")
+                # TRUST USER & BUILD WR
+                pass
             else:
-                    # TODO PRINT WRONG QUESTION FORMAT
-                    print(question.question_type)
-                    print("NOT MC/TF/MS/WR")
+                    # TODO LOG WRONG QUESTION FORMAT
+                    print("UNKNOWN QUESTION FORMAT")
                     pass
         else:
             is_TF = self.is_true_false(question)
@@ -402,7 +459,7 @@ class QconListener(ParseTreeListener):
             # elif is_FIB == True:
             #     question.question_type = "FIB"
 
-            print(datetime.now().strftime("%H:%M:%S"), question.question_type)
+            # print(datetime.now().strftime("%H:%M:%S"), question.question_type)
 
 
     def is_multiple_choice(self, question):
