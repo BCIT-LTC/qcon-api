@@ -145,7 +145,7 @@ def runconversion(question_library):
                 for filename in files :
                     myzip.write(path.join(root, filename), '/media/' + filename)
 
-        question_library.zip_file.name = question_library.folder_path + "/" + question_library.section_name + '.zip'
+        question_library.zip_file.name = str(question_library.id) + "/" + question_library.section_name + '.zip'
         question_library.save()
 
         end = time.time()
