@@ -51,8 +51,7 @@ class SectionSerializer(serializers.Serializer):
         return instance
 
 
-class DownloadSerializer(serializers.Serializer):
-
+class StatusSerializer(serializers.Serializer):
     class Meta:
             model = QuestionLibrary
-            fields = ['zip_file']
+            fields = ['checkpoint']
