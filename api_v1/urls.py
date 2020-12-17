@@ -9,7 +9,7 @@ urlpatterns = [
     # path('media/<int:id>/<filename>', views.Download),
     path('api/cli', views.CliUpload.as_view(), name='cli'),
 
-    # path('api/status', views.GetStatus.as_view(), name='status'),
+    path('api/status/<int:id>', views.GetStatus.as_view(), name='status'),
     path('api/upload', views.Upload.as_view(), name='upload'),
     path('api/setsection', views.SetSection.as_view(), name='setsection'),
     path('media/<int:id>/<filename>', views.Download.as_view()),
@@ -24,6 +24,6 @@ urlpatterns = [
     # PATTERNS
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # UI:
-    path('api/doc1/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/doc2/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    # path('api/doc2/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
