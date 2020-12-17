@@ -76,9 +76,8 @@ def runconversion(question_library):
 
     # ImsManifest string create ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
-    try:
+    try:              
         parsed_xml = XmlWriter(question_library, parsed_questions)
-
         manifest_entity = ManifestEntity()
         manifest_resource_entity = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
         manifest_entity.add_resource(manifest_resource_entity)
@@ -115,7 +114,7 @@ def runconversion(question_library):
         question_library.imsmanifest_file = imsmanifest_file
         question_library.checkpoint = 4;
         question_library.save()
-
+        print(question_library.imsmanifest_file.name)
         print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
     except:
         question_library.save()
@@ -144,10 +143,9 @@ def runconversion(question_library):
             for root, dirs, files in walk(question_library.image_path) :
                 for filename in files :
                     myzip.write(path.join(root, filename), '/media/' + filename)
-
-        question_library.zip_file.name = question_library.folder_path + "/" + question_library.section_name + '.zip'
+                    
+        question_library.zip_file.name = str(question_library.id) + "/" + question_library.section_name + '.zip'
         question_library.save()
-
         end = time.time()
         question_library.checkpoint = 6;
         question_library.time_delta = end-start
