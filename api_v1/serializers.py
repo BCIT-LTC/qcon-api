@@ -25,9 +25,6 @@ class UploadSerializer(serializers.Serializer):
         newconversion.save()
         async_task('api_v1.tasks.runconversion', newconversion)
 
-
-
-
         return newconversion
 
     def update(self, instance, validated_data):
@@ -37,16 +34,19 @@ class UploadSerializer(serializers.Serializer):
     
 class SectionSerializer(serializers.Serializer):
 
+    section_name = serializers.CharField(max_length=100,min_length=1)
+    id = serializers.DecimalField(max_digits=8,decimal_places=0)
 
-    def create(self, validated_data):
-        # newconversion = QuestionLibrary.objects.create(**validated_data)
-        newconversion = QuestionLibrary.objects.create()
-        newconversion.temp_file = validated_data.get('section_name', validated_data)
-        newconversion.save()
-        return newconversion
+    # def create(self, validated_data):
+    #     # newconversion = QuestionLibrary.objects.create(**validated_data)
+    #     newconversion = QuestionLibrary.objects.create()
+    #     newconversion.temp_file = validated_data.get('section_name', validated_data)
+    #     newconversion.save()
+    #     return newconversion
 
     def update(self, instance, validated_data):
-        instance.temp_file =validated_data.get('section_name', instance.temp_file)
+        instance.section_name =validated_data.get('section_name', instance.section_name)
+        instance.id =validated_data.get('id', instance.id)
         instance.save()
         return instance
 

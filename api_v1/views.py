@@ -131,6 +131,7 @@ class DownloadAPI(APIView):
         return file_response
 class SetSection(APIView):
 
+    parser_classes = [MultiPartParser]
     serializer_class = SectionSerializer
 
     @extend_schema(
@@ -146,10 +147,13 @@ class SetSection(APIView):
     )
     def post(self, request, format=None):
 
-        serializer = SectionSerializer(data={'section_name': request.data['section_name']})
+        QuestionModel = QuestionLibrary.objects.get(id=request.data['id'])
+        serializer = SectionSerializer(QuestionModel, data={'section_name': request.data['section_name'], 'id': request.data['id']}, partial=True)
 
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+        # return Response("heheh")
 
