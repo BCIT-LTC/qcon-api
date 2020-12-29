@@ -475,17 +475,19 @@ class QconListener(ParseTreeListener):
                 is_false_exist = False
 
                 for answer in question.get_answers():
-                    if "true" == answer.answer_body.lower().strip():
+                    text_answer = self.html_to_plain(answer.answer_body.lower()).strip()
+                    if "true" == text_answer:
                         is_true_exist = True
-                    elif "false" == answer.answer_body.lower().strip():
+                    elif "false" == text_answer:
                         is_false_exist = True
                 
                 if is_true_exist == True:
                     if is_false_exist == True:
+                        text_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                         for answer in question.get_answers():
-                            if "true" == answer.answer_body.lower().strip():
+                            if "true" == text_answer:
                                 answer.answer_body = "True"
-                            elif "false" == answer.answer_body.lower().strip():
+                            elif "false" == text_answer:
                                 answer.answer_body = "False"
                             answer.save()
                         return True
