@@ -45,7 +45,7 @@ class QuestionLibrary(models.Model):
 class Question(models.Model):
     id = models.AutoField(primary_key=True) 
     question_library = models.ForeignKey(QuestionLibrary, on_delete=models.CASCADE)
-    question_type = models.CharField(max_length=100, null=False)
+    question_type = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=250, null=False)
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
