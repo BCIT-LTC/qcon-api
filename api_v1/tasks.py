@@ -1,6 +1,6 @@
-from antlr.QconLexer import QconLexer
-from antlr.QconListener import QconListener
-from antlr.QconParser import QconParser
+from api_v1.antlr.QconLexer import QconLexer
+from api_v1.antlr.QconListener import QconListener
+from api_v1.antlr.QconParser import QconParser
 from api_v1.scorm.XmlWriter import XmlWriter
 
 from antlr4 import *
