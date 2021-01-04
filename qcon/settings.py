@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
     # Local Apps
     'api_v1.apps.ApiV1Config'
+    # 'django-api_v1.api_v1.apps.ApiV1Config'
 ]
 
 MIDDLEWARE = [
