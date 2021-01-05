@@ -36,7 +36,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . /code
 
-RUN pip install --user django-api_v1/dist/django-qcon-0.1.tar.gz
+RUN pip install --user django_api_v1/dist/django-qcon-0.1.tar.gz
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh

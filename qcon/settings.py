@@ -49,8 +49,9 @@ INSTALLED_APPS = [
     'drf_spectacular',
 
     # Local Apps
-    'api_v1.apps.ApiV1Config'
-    # 'django-api_v1.api_v1.apps.ApiV1Config'
+    # 'api_v1.apps.ApiV1Config'
+    'api_v1'
+    # 'django_api_v1.api_v1.apps.ApiV1Config'
 ]
 
 MIDDLEWARE = [
