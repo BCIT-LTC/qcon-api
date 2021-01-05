@@ -4,7 +4,7 @@ import datetime
 import re
 import xml.etree.cElementTree as ET
 from uuid import UUID
-from api_v1.scorm.xmlcdata import CDATA
+from .xmlcdata import CDATA
 from os import makedirs, path, walk
 from os.path import basename
 from django.conf import settings

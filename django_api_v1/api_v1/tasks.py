@@ -1,7 +1,8 @@
-from api_v1.antlr.QconLexer import QconLexer
-from api_v1.antlr.QconListener import QconListener
-from api_v1.antlr.QconParser import QconParser
-from api_v1.scorm.XmlWriter import XmlWriter
+from .QconLexer import QconLexer
+from .QconListener import QconListener
+from .QconParser import QconParser
+from .XmlWriter import XmlWriter
+from .manifest import ManifestEntity, ManifestResourceEntity
 
 from antlr4 import *
 import json
@@ -15,7 +16,6 @@ from xml.dom.minidom import parseString
 from django.core.files.base import ContentFile
 from django.core.files import File
 from datetime import datetime
-from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
 import xml.etree.cElementTree as ET
 
 import time
