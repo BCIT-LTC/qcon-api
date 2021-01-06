@@ -48,10 +48,11 @@ INSTALLED_APPS = [
     'django_q',
     'drf_spectacular',
 
+    #Qcon package
+    # 'api_v1',
+
     # Local Apps
-    # 'api_v1.apps.ApiV1Config'
-    'api_v1'
-    # 'django_api_v1.api_v1.apps.ApiV1Config'
+    'api_v1.apps.ApiV1Config'
 ]
 
 MIDDLEWARE = [
