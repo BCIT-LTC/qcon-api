@@ -483,11 +483,11 @@ class QconListener(ParseTreeListener):
                 
                 if is_true_exist == True:
                     if is_false_exist == True:
-                        text_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                         for answer in question.get_answers():
-                            if "true" == text_answer:
+                            current_answer = self.html_to_plain(answer.answer_body.lower()).strip()
+                            if "true" == current_answer:
                                 answer.answer_body = "True"
-                            elif "false" == text_answer:
+                            elif "false" == current_answer:
                                 answer.answer_body = "False"
                             answer.save()
                         return True
