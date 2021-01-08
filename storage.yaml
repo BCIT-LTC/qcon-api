@@ -4,8 +4,28 @@ metadata:
   name: qcon-volume-claim
 spec:
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteMany
   resources:
     requests:
-      storage: 1024Mi
+      storage: 2048Mi
+status: {}
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qcon-volume
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: slow
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /tmp
+    server: 172.17.0.2
 status: {}
