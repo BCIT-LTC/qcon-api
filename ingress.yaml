@@ -6,8 +6,8 @@ spec:
   rules:
   - http:
       paths:
-      - path: /
-        pathType: Exact
+      - path: /api/
+        pathType: Prefix
         backend:
           serviceName: qcon-service
           servicePort: 8000
