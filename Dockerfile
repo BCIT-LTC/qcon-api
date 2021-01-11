@@ -17,9 +17,9 @@ RUN pip install --upgrade pip && \
 CMD ["tail", "-f"]
 
 # EXPOSE 8000
-# RUN chmod +x docker-entrypoint.sh
+# RUN chmod +x ./docker-entrypoint.sh
 # ENTRYPOINT ["/code/docker-entrypoint.sh"]
-
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 
 
