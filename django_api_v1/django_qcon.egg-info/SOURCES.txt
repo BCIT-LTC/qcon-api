@@ -1,0 +1,17 @@
+MANIFEST.in
+README.rst
+setup.cfg
+setup.py
+api_v1/__init__.py
+api_v1/admin.py
+api_v1/apps.py
+api_v1/models.py
+api_v1/serializers.py
+api_v1/tasks.py
+api_v1/tests.py
+api_v1/urls.py
+api_v1/views.py
+django_qcon.egg-info/PKG-INFO
+django_qcon.egg-info/SOURCES.txt
+django_qcon.egg-info/dependency_links.txt
+django_qcon.egg-info/top_level.txt

@@ -9,3 +9,4 @@ pypandoc==1.5
 requests>=2.24.0
 antlr4-python3-runtime==4.8
 six==1.15.0
+setuptools==51.1.1

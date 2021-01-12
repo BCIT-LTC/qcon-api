@@ -1,11 +1,11 @@
 FROM python:3.9.0-slim
 ENV PYTHONUNBUFFERED 1
-ENV VIRTUAL_ENV=/opt/venv
+# ENV VIRTUAL_ENV=/opt/venv
 WORKDIR /code
 
 
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# RUN python3 -m venv $VIRTUAL_ENV
+# ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 
 # RUN apt-get update && apt-get upgrade -y
@@ -35,6 +35,8 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . /code
+
+RUN pip install --user django_api_v1/dist/django-qcon-0.1.tar.gz
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh

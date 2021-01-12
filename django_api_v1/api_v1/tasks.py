@@ -20,7 +20,6 @@ import xml.etree.cElementTree as ET
 
 import time
 
-
 def parse_questions(question_library) :
     input = InputStream(question_library.pandoc_string)
     lexer = QconLexer(input)
