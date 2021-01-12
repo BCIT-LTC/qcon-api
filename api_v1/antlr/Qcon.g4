@@ -7,45 +7,45 @@ qcon
     ;
 
 question
-    : fibquestionbody           # FibQuestion
-    | questionbody answerlist   # QuestionWithAnswers
-    | questionbody              # QuestionWithoutAnswers
+    : fib_question_body           # FibQuestion
+    | question_body answerlist   # QuestionWithAnswers
+    | question_body              # QuestionWithoutAnswers
     ;
 
 endanswers
-    :   endanswerstart endanswerlistitem+
+    :   end_answers_start end_answers_list_item+
     ;
 
-questionbody
-    :   questionprefix content+ feedback?
-    |   questiontype? title? point? questionprefix content feedback?
-    |   questiontype? point? title? questionprefix content feedback?
-    |   title? questiontype? point? questionprefix content feedback?
-    |   title? point? questiontype? questionprefix content feedback?
-    |   point? questiontype? title? questionprefix content feedback?
-    |   point? title? questiontype? questionprefix content feedback?
+question_body
+    :   question_prefix content+ feedback?
+    |   question_type? title? point? question_prefix content feedback?
+    |   question_type? point? title? question_prefix content feedback?
+    |   title? question_type? point? question_prefix content feedback?
+    |   title? point? question_type? question_prefix content feedback?
+    |   point? question_type? title? question_prefix content feedback?
+    |   point? title? question_type? question_prefix content feedback?
     ;
 
-fibquestionbody
-    :   questionprefix fibcontent+ feedback?
-    |   fibtype? title? point? questionprefix fibcontent+ feedback?
-    |   fibtype? point? title? questionprefix fibcontent+ feedback?
-    |   title? fibtype? point? questionprefix fibcontent+ feedback?
-    |   title? point? fibtype? questionprefix fibcontent+ feedback?
-    |   point? fibtype? title? questionprefix fibcontent+ feedback?
-    |   point? title? fibtype? questionprefix fibcontent+ feedback?
+fib_question_body
+    :   question_prefix fib_content+ feedback?
+    |   fib_type? title? point? question_prefix fib_content+ feedback?
+    |   fib_type? point? title? question_prefix fib_content+ feedback?
+    |   title? fib_type? point? question_prefix fib_content+ feedback?
+    |   title? point? fib_type? question_prefix fib_content+ feedback?
+    |   point? fib_type? title? question_prefix fib_content+ feedback?
+    |   point? title? fib_type? question_prefix fib_content+ feedback?
     ;
 
-fibcontent
-    :   fibanswer 
+fib_content
+    :   fib_answer 
     |   content
     ;
 
-fibtype
+fib_type
     :   FIB_TYPE
     ;
 
-questiontype
+question_type
     :   TYPE
     ;
 
@@ -57,7 +57,7 @@ point
     :   POINT
     ;
 
-fibanswer
+fib_answer
     :   FIB_OPEN_BRACKET ALL_CHARACTER+ FIB_CLOSE_BRACKET
     ;
 
@@ -72,8 +72,8 @@ content
 
 answerlist
     :   // answeritem+ (answerlist+)?
-    listitem+                         # NoAnswerExist
-    | (listansweritem | listitem)+    # AnswerExist
+    list_item+                         # NoAnswerExist
+    | (list_answer_item | list_item)+    # AnswerExist
     ;
 
 // answeritem
@@ -81,27 +81,27 @@ answerlist
 //     |   listansweritem
 //     ;
 
-listitem
-    :   listprefix content feedback?
+list_item
+    :   list_prefix content feedback?
     ;
 
-listansweritem
-    :   answerprefix content feedback?
+list_answer_item
+    :   answer_prefix content feedback?
     ;
 
-endanswerlistitem
-    :   questionprefix content feedback?
+end_answers_list_item
+    :   question_prefix content feedback?
     ;
 
-questionprefix
+question_prefix
     :   QUESTION_PREFIX
     ;
 
-listprefix
+list_prefix
     :   LIST_PREFIX
     ;
 
-answerprefix
+answer_prefix
     :   RIGHT_ANSWER_AFTER
     |   RIGHT_ANSWER_BEFORE
     ;
@@ -110,7 +110,7 @@ feedback
     :   FEEDBACKMARKER content
     ;
 
-endanswerstart
+end_answers_start
     :   END_ANSWERS
     ;
 
