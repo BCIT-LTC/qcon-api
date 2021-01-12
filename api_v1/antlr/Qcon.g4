@@ -1,26 +1,15 @@
 grammar Qcon;
 
-// options 
-// {
-// output=AST;
-// backtrack=true;
-// memoize=true;
-// }
 
-// @parser::members{
-// public class Question {
-
-    
-//     }
-// }
 
 qcon
     :   question* endanswers? EOF
     ;
 
 question
-    :   questionbody answerlist?
-    |   fibquestionbody
+    : fibquestionbody           # FibQuestion
+    | questionbody answerlist   # QuestionWithAnswers
+    | questionbody              # QuestionWithoutAnswers
     ;
 
 endanswers
@@ -28,7 +17,7 @@ endanswers
     ;
 
 questionbody
-    :   questionprefix content feedback?
+    :   questionprefix content+ feedback?
     |   questiontype? title? point? questionprefix content feedback?
     |   questiontype? point? title? questionprefix content feedback?
     |   title? questiontype? point? questionprefix content feedback?
@@ -73,7 +62,8 @@ fibanswer
     ;
 
 content
-    :   ALL_CHARACTER+
+    : HYPERLINK
+    | ALL_CHARACTER+
     ;
 
 // list
@@ -81,13 +71,15 @@ content
 //     ;
 
 answerlist
-    :   answeritem+ (answerlist+)?
+    :   // answeritem+ (answerlist+)?
+    listitem+                         # NoAnswerExist
+    | (listansweritem | listitem)+    # AnswerExist
     ;
 
-answeritem
-    :   listitem
-    |   listansweritem
-    ;
+// answeritem
+//     :   listitem
+//     |   listansweritem
+//     ;
 
 listitem
     :   listprefix content feedback?
@@ -158,8 +150,7 @@ fragment WHITESPACE
     ;
 
 fragment CHAR
-    // ☢ BIOHAZARD SYMBOL (HEX)
-    :   ~([\u{2622}])
+    :   .
     ;
 
 fragment NUMBER
@@ -295,6 +286,16 @@ LIST_PREFIX
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
+HYPERLINK: WHITESPACE* '!' OPEN_BRACKET CHAR* CLOSE_BRACKET '(' CHAR* ')' ;
+
+FIB_OPEN_BRACKET
+    :   WHITESPACE* BACKSLASH? OPEN_BRACKET WHITESPACE*
+    ;
+
+FIB_CLOSE_BRACKET
+    :   WHITESPACE* BACKSLASH? CLOSE_BRACKET WHITESPACE*
+    ;
+
 ALL_CHARACTER
     :   CHAR
     ;
@@ -307,10 +308,3 @@ RIGHT_ANSWER_BEFORE
     :   NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
-FIB_OPEN_BRACKET
-    :   WHITESPACE* BACKSLASH? OPEN_BRACKET WHITESPACE*
-    ;
-
-FIB_CLOSE_BRACKET
-    :   WHITESPACE* BACKSLASH? CLOSE_BRACKET WHITESPACE*
-    ;
