@@ -5,8 +5,8 @@ qcon
     ;
 
 question
-    :   question_header question_body answerlist   # QuestionWithAnswers
-    |   question_header question_body              # QuestionWithoutAnswers
+    :   question_header question_body answers_list      # QuestionWithAnswers
+    |   question_header question_body                   # QuestionWithoutAnswers
     ;
 
 end_answers
@@ -14,13 +14,7 @@ end_answers
     ;
 
 question_body
-    :   question_prefix content+ feedback?      # RegularQuestion
-    |   question_prefix fib_content+ feedback?  # FibQuestion
-    ;
-
-fib_content
-    :   fib_answer 
-    |   content
+    :   question_prefix content+ feedback?
     ;
 
 question_header
@@ -48,32 +42,29 @@ point
     :   POINT
     ;
 
-fib_answer
-    :   FIB_OPEN_BRACKET ALL_CHARACTER+ FIB_CLOSE_BRACKET
-    ;
-
 content
-    :   HYPERLINK
-    |   ALL_CHARACTER+
+    :   MEDIA                                       # Media
+    |   '\\[' ALL_CHARACTER+ '\\]'                  # FibAnswer
+    |   HYPERLINK                                   # Hyperlink
+    |   ALL_CHARACTER+                              # ContentCharacters
     ;
 
 
-answerlist
+answers_list
     :   list_item+                          # NoAnswerExist
     |   (list_answer_item | list_item)+     # AnswerExist
     ;
 
-
 list_item
-    :   list_prefix content feedback?
+    :   list_prefix content+ feedback?
     ;
 
 list_answer_item
-    :   answer_prefix content feedback?
+    :   answer_prefix content+ feedback?
     ;
 
 end_answers_list_item
-    :   question_prefix content feedback?
+    :   question_prefix content+ feedback?
     ;
 
 question_prefix
@@ -90,7 +81,7 @@ answer_prefix
     ;
 
 feedback
-    :   FEEDBACK_MARKER content
+    :   FEEDBACK_MARKER content+
     ;
 
 end_answers_start
@@ -244,6 +235,7 @@ fragment BLOCKQUOTE
     :   '>'
     ;
 
+
 FEEDBACK_MARKER
     :   NEWLINE+ BLOCKQUOTE? WHITESPACE* ATSYMBOL WHITESPACE*
     ;
@@ -300,16 +292,12 @@ LIST_PREFIX
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
+MEDIA
+    :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
+    ;
+
 HYPERLINK
-    : WHITESPACE* '!' OPEN_BRACKET CHAR* CLOSE_BRACKET '(' CHAR* ')'
-    ;
-
-FIB_OPEN_BRACKET
-    :   WHITESPACE* BACKSLASH? OPEN_BRACKET WHITESPACE*
-    ;
-
-FIB_CLOSE_BRACKET
-    :   WHITESPACE* BACKSLASH? CLOSE_BRACKET WHITESPACE*
+    :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
     ;
 
 ALL_CHARACTER
