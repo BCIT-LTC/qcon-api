@@ -1,39 +1,21 @@
 grammar Qcon;
 
-
-
 qcon
-    :   question* endanswers? EOF
+    :   question* end_answers? EOF
     ;
 
 question
-    : fib_question_body           # FibQuestion
-    | question_body answerlist   # QuestionWithAnswers
-    | question_body              # QuestionWithoutAnswers
+    :   question_header question_body answerlist   # QuestionWithAnswers
+    |   question_header question_body              # QuestionWithoutAnswers
     ;
 
-endanswers
+end_answers
     :   end_answers_start end_answers_list_item+
     ;
 
 question_body
-    :   question_prefix content+ feedback?
-    |   question_type? title? point? question_prefix content feedback?
-    |   question_type? point? title? question_prefix content feedback?
-    |   title? question_type? point? question_prefix content feedback?
-    |   title? point? question_type? question_prefix content feedback?
-    |   point? question_type? title? question_prefix content feedback?
-    |   point? title? question_type? question_prefix content feedback?
-    ;
-
-fib_question_body
-    :   question_prefix fib_content+ feedback?
-    |   fib_type? title? point? question_prefix fib_content+ feedback?
-    |   fib_type? point? title? question_prefix fib_content+ feedback?
-    |   title? fib_type? point? question_prefix fib_content+ feedback?
-    |   title? point? fib_type? question_prefix fib_content+ feedback?
-    |   point? fib_type? title? question_prefix fib_content+ feedback?
-    |   point? title? fib_type? question_prefix fib_content+ feedback?
+    :   question_prefix content+ feedback?      # RegularQuestion
+    |   question_prefix fib_content+ feedback?  # FibQuestion
     ;
 
 fib_content
@@ -41,12 +23,21 @@ fib_content
     |   content
     ;
 
-fib_type
-    :   FIB_TYPE
+question_header
+    :   question_type? title? point?
+    |   title? question_type? point?
+    |   point? question_type? title?
     ;
 
 question_type
-    :   TYPE
+    :   TYPE_MC         # TypeMc
+    |   TYPE_TF         # TypeTf
+    |   TYPE_MS         # TypeMs
+    |   TYPE_MT         # TypeMt
+    |   TYPE_ORD        # TypeOrd
+    |   TYPE_FIB        # TypeFib
+    |   TYPE_WR         # TypeWr
+    |   TYPE_OTHER      # TypeOther
     ;
 
 title
@@ -62,24 +53,16 @@ fib_answer
     ;
 
 content
-    : HYPERLINK
-    | ALL_CHARACTER+
+    :   HYPERLINK
+    |   ALL_CHARACTER+
     ;
 
-// list
-//     :   (listitem)+ (list+)?
-//     ;
 
 answerlist
-    :   // answeritem+ (answerlist+)?
-    list_item+                         # NoAnswerExist
-    | (list_answer_item | list_item)+    # AnswerExist
+    :   list_item+                          # NoAnswerExist
+    |   (list_answer_item | list_item)+     # AnswerExist
     ;
 
-// answeritem
-//     :   listitem
-//     |   listansweritem
-//     ;
 
 list_item
     :   list_prefix content feedback?
@@ -107,7 +90,7 @@ answer_prefix
     ;
 
 feedback
-    :   FEEDBACKMARKER content
+    :   FEEDBACK_MARKER content
     ;
 
 end_answers_start
@@ -185,6 +168,14 @@ fragment B
     :   'B' | 'b'
     ;
 
+fragment C
+    :   'C' | 'c'
+    ;
+
+fragment D
+    :   'D' | 'd'
+    ;
+
 fragment E
     :   'E' | 'e'
     ;
@@ -253,8 +244,7 @@ fragment BLOCKQUOTE
     :   '>'
     ;
 
-FEEDBACKMARKER
-    // :   ATSYMBOL WHITESPACE* ('Feedback'|'feedback') WHITESPACE* COLON
+FEEDBACK_MARKER
     :   NEWLINE+ BLOCKQUOTE? WHITESPACE* ATSYMBOL WHITESPACE*
     ;
     
@@ -262,12 +252,36 @@ END_ANSWERS
     :   NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE*
     ;
 
-TYPE
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (UPPERCASE | LOWERCASE)+ WHITESPACE*
+TYPE_MC
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* M C WHITESPACE*
     ;
 
-FIB_TYPE
+TYPE_TF
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* T F WHITESPACE*
+    ;
+
+TYPE_MS
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (M S | M R) WHITESPACE*
+    ;
+
+TYPE_MT
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* M T WHITESPACE*
+    ;
+
+TYPE_ORD
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* O R D WHITESPACE*
+    ;
+
+TYPE_FIB
     :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (F I B | F M B) WHITESPACE*
+    ;
+
+TYPE_WR
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (W R | E) WHITESPACE*
+    ;
+
+TYPE_OTHER
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (UPPERCASE | LOWERCASE)+ WHITESPACE*
     ;
 
 TITLE
@@ -286,7 +300,9 @@ LIST_PREFIX
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
-HYPERLINK: WHITESPACE* '!' OPEN_BRACKET CHAR* CLOSE_BRACKET '(' CHAR* ')' ;
+HYPERLINK
+    : WHITESPACE* '!' OPEN_BRACKET CHAR* CLOSE_BRACKET '(' CHAR* ')'
+    ;
 
 FIB_OPEN_BRACKET
     :   WHITESPACE* BACKSLASH? OPEN_BRACKET WHITESPACE*
