@@ -1,11 +1,6 @@
 #!/bin/sh
 set -e
 
->&2 echo "create logging directory"
-if [ ! -d "log" ]; then
-    mkdir log
-    touch log/error.log
-fi
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v1
 echo "-------------------------------------------------------------------------------------------\n"
