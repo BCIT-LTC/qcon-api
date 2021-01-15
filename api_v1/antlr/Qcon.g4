@@ -1,37 +1,63 @@
 grammar Qcon;
 
+// options 
+// {
+// output=AST;
+// backtrack=true;
+// memoize=true;
+// }
+
+// @parser::members{
+// public class Question {
+
+    
+//     }
+// }
+
 qcon
-    :   question* end_answers? EOF
+    :   question* endanswers? EOF
     ;
 
 question
-    :   question_header question_body answers_list      # QuestionWithAnswers
-    |   question_header question_body                   # QuestionWithoutAnswers
+    :   questionbody answerlist?
+    |   fibquestionbody
     ;
 
-end_answers
-    :   end_answers_start end_answers_list_item+
+endanswers
+    :   endanswerstart endanswerlistitem+
     ;
 
-question_body
-    :   question_prefix content+ feedback?
+questionbody
+    :   questionprefix content feedback?
+    |   questiontype? title? point? questionprefix content feedback?
+    |   questiontype? point? title? questionprefix content feedback?
+    |   title? questiontype? point? questionprefix content feedback?
+    |   title? point? questiontype? questionprefix content feedback?
+    |   point? questiontype? title? questionprefix content feedback?
+    |   point? title? questiontype? questionprefix content feedback?
     ;
 
-question_header
-    :   question_type? title? point?
-    |   title? question_type? point?
-    |   point? question_type? title?
+fibquestionbody
+    :   questionprefix fibcontent+ feedback?
+    |   fibtype? title? point? questionprefix fibcontent+ feedback?
+    |   fibtype? point? title? questionprefix fibcontent+ feedback?
+    |   title? fibtype? point? questionprefix fibcontent+ feedback?
+    |   title? point? fibtype? questionprefix fibcontent+ feedback?
+    |   point? fibtype? title? questionprefix fibcontent+ feedback?
+    |   point? title? fibtype? questionprefix fibcontent+ feedback?
     ;
 
-question_type
-    :   TYPE_MC         # TypeMc
-    |   TYPE_TF         # TypeTf
-    |   TYPE_MS         # TypeMs
-    |   TYPE_MT         # TypeMt
-    |   TYPE_ORD        # TypeOrd
-    |   TYPE_FIB        # TypeFib
-    |   TYPE_WR         # TypeWr
-    |   TYPE_OTHER      # TypeOther
+fibcontent
+    :   fibanswer 
+    |   content
+    ;
+
+fibtype
+    :   FIB_TYPE
+    ;
+
+questiontype
+    :   TYPE
     ;
 
 title
@@ -42,49 +68,57 @@ point
     :   POINT
     ;
 
+fibanswer
+    :   FIB_OPEN_BRACKET ALL_CHARACTER+ FIB_CLOSE_BRACKET
+    ;
+
 content
-    :   MEDIA                                       # Media
-    |   '\\[' ALL_CHARACTER+ '\\]'                  # FibAnswer
-    |   HYPERLINK                                   # Hyperlink
-    |   ALL_CHARACTER+                              # ContentCharacters
+    :   ALL_CHARACTER+
     ;
 
+// list
+//     :   (listitem)+ (list+)?
+//     ;
 
-answers_list
-    :   list_item+                          # NoAnswerExist
-    |   (list_answer_item | list_item)+     # AnswerExist
+answerlist
+    :   answeritem+ (answerlist+)?
     ;
 
-list_item
-    :   list_prefix content+ feedback?
+answeritem
+    :   listitem
+    |   listansweritem
     ;
 
-list_answer_item
-    :   answer_prefix content+ feedback?
+listitem
+    :   listprefix content feedback?
     ;
 
-end_answers_list_item
-    :   question_prefix content+ feedback?
+listansweritem
+    :   answerprefix content feedback?
     ;
 
-question_prefix
+endanswerlistitem
+    :   questionprefix content feedback?
+    ;
+
+questionprefix
     :   QUESTION_PREFIX
     ;
 
-list_prefix
+listprefix
     :   LIST_PREFIX
     ;
 
-answer_prefix
+answerprefix
     :   RIGHT_ANSWER_AFTER
     |   RIGHT_ANSWER_BEFORE
     ;
 
 feedback
-    :   FEEDBACK_MARKER content+
+    :   FEEDBACKMARKER content
     ;
 
-end_answers_start
+endanswerstart
     :   END_ANSWERS
     ;
 
@@ -124,7 +158,8 @@ fragment WHITESPACE
     ;
 
 fragment CHAR
-    :   .
+    // ☢ BIOHAZARD SYMBOL (HEX)
+    :   ~([\u{2622}])
     ;
 
 fragment NUMBER
@@ -157,14 +192,6 @@ fragment A
 
 fragment B
     :   'B' | 'b'
-    ;
-
-fragment C
-    :   'C' | 'c'
-    ;
-
-fragment D
-    :   'D' | 'd'
     ;
 
 fragment E
@@ -235,8 +262,8 @@ fragment BLOCKQUOTE
     :   '>'
     ;
 
-
-FEEDBACK_MARKER
+FEEDBACKMARKER
+    // :   ATSYMBOL WHITESPACE* ('Feedback'|'feedback') WHITESPACE* COLON
     :   NEWLINE+ BLOCKQUOTE? WHITESPACE* ATSYMBOL WHITESPACE*
     ;
     
@@ -244,36 +271,12 @@ END_ANSWERS
     :   NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE*
     ;
 
-TYPE_MC
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* M C WHITESPACE*
-    ;
-
-TYPE_TF
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* T F WHITESPACE*
-    ;
-
-TYPE_MS
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (M S | M R) WHITESPACE*
-    ;
-
-TYPE_MT
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* M T WHITESPACE*
-    ;
-
-TYPE_ORD
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* O R D WHITESPACE*
-    ;
-
-TYPE_FIB
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (F I B | F M B) WHITESPACE*
-    ;
-
-TYPE_WR
-    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (W R | E) WHITESPACE*
-    ;
-
-TYPE_OTHER
+TYPE
     :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (UPPERCASE | LOWERCASE)+ WHITESPACE*
+    ;
+
+FIB_TYPE
+    :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (F I B | F M B) WHITESPACE*
     ;
 
 TITLE
@@ -292,14 +295,6 @@ LIST_PREFIX
     :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
-MEDIA
-    :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
-    ;
-
-HYPERLINK
-    :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
-    ;
-
 ALL_CHARACTER
     :   CHAR
     ;
@@ -312,3 +307,10 @@ RIGHT_ANSWER_BEFORE
     :   NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
+FIB_OPEN_BRACKET
+    :   WHITESPACE* BACKSLASH? OPEN_BRACKET WHITESPACE*
+    ;
+
+FIB_CLOSE_BRACKET
+    :   WHITESPACE* BACKSLASH? CLOSE_BRACKET WHITESPACE*
+    ;
