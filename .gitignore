@@ -9,6 +9,7 @@ log
 .vscode
 temp
 tests
+test
 database
 
 migrations
