@@ -1,0 +1,44 @@
+pandoc ../ideal-standard-m-s-qcon-plain-end.txt -t markdown -s -o ideal-standard-m-s-qcon-plain-end.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-m-s-qcon-plain-inline.txt -t markdown -s -o ideal-standard-m-s-qcon-plain-inline.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-m-s-qcon-word-end.docx -f docx -t markdown -s -o ideal-standard-m-s-qcon-word-end.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-m-s-qcon-word-inline.docx -f docx -t markdown -s -o ideal-standard-m-s-qcon-word-inline.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-m-s-respondus-plain-end.txt -t markdown -s -o ideal-standard-m-s-respondus-plain-end.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-m-s-respondus-plain-inline.txt -t markdown -s -o ideal-standard-m-s-respondus-plain-inline.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-m-s-respondus-word-end.docx -f docx -t markdown -s -o ideal-standard-m-s-respondus-word-end.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-qcon-plain-end.txt -t markdown -s -o ideal-standard-mc-qcon-plain-end.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-qcon-plain-inline.txt -t markdown -s -o ideal-standard-mc-qcon-plain-inline.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-qcon-word-end.docx -f docx -t markdown -s -o ideal-standard-mc-qcon-word-end.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-qcon-word-inline.docx -f docx -t markdown -s -o ideal-standard-mc-qcon-word-inline.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-respondus-plain-end.txt -t markdown -s -o ideal-standard-mc-respondus-plain-end.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-respondus-plain-inline.txt -t markdown -s -o ideal-standard-mc-respondus-plain-inline.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-mc-respondus-word-end.docx -f docx -t markdown -s -o ideal-standard-mc-respondus-word-end.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings 
+
+pandoc ../ideal-standard-wr-qcon-plain-end.txt -t markdown -s -o ideal-standard-wr-qcon-plain-end.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-wr-qcon-plain-inline.txt -t markdown -s -o ideal-standard-wr-qcon-plain-inline.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-wr-qcon-word-end.docx -f docx -t markdown -s -o ideal-standard-wr-qcon-word-end.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings 
+
+pandoc ../ideal-standard-wr-qcon-word-inline.docx -f docx -t markdown -s -o ideal-standard-wr-qcon-word-inline.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings 
+
+pandoc ../ideal-standard-wr-respondus-plain-end.txt -t markdown -s -o ideal-standard-wr-respondus-plain-end.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-wr-respondus-plain-inline.txt -t markdown -s -o ideal-standard-wr-respondus-plain-inline.md --wrap preserve --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings
+
+pandoc ../ideal-standard-wr-respondus-word-end.docx -f docx -t markdown -s -o ideal-standard-wr-respondus-word-end.md --wrap none --extract-media=. --mathml --strip-comments -s -p --no-highlight --self-contained --atx-headers --listings 
+
+
+
