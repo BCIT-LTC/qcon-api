@@ -8,7 +8,7 @@ log
 .DS_Store
 .vscode
 temp
-
+tests
 database
 
 migrations
