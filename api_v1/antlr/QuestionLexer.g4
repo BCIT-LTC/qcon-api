@@ -45,10 +45,6 @@ fragment DECIMAL
     :    DIGIT+ DOT? (DIGIT+)?
     ;
 
-fragment ATSYMBOL
-    :   '@'
-    ;
-
 fragment COLON
     :   ':'
     ;
@@ -121,12 +117,20 @@ fragment T
     :   'T' | 't'
     ;
 
+fragment U
+    :   'U' | 'u'
+    ;
+
 fragment W
     :   'W' | 'w'
     ;
 
 fragment Y
     :   'Y' | 'y'
+    ;  
+
+fragment Z
+    :   'Z' | 'z'
     ;  
 
 fragment OPEN_BRACKET
@@ -141,16 +145,20 @@ fragment ALPHANUMERIC
     :   (LOWERCASE | UPPERCASE | NUMBER)
     ;
 
-fragment BLOCKQUOTE
-    :   '>'
-    ;
-
 TITLE
     :   NEWLINE+ WHITESPACE* T I T L E S? WHITESPACE* COLON WHITESPACE* ~('\n')+ WHITESPACE*
     ;
 
 POINTS
     :   NEWLINE+ WHITESPACE* P O I N T S? WHITESPACE* COLON WHITESPACE* DECIMAL WHITESPACE*
+    ;
+
+RANDOMIZE_TRUE
+    :   NEWLINE+ WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE* COLON WHITESPACE* (T R U E | Y E S) WHITESPACE*
+    ;
+
+RANDOMIZE_FALSE
+    :   NEWLINE+ WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE* COLON WHITESPACE* (F A L S E | N O) WHITESPACE*
     ;
 
 TYPE_MC
@@ -193,14 +201,14 @@ QUESTION_PREFIX
 // --------------------- Everything AFTER question number ---------------------
 mode QUESTION_CONTENT;
 
-FEEDBACK_MARKER
-    :   NEWLINE+ BLOCKQUOTE? WHITESPACE* ATSYMBOL WHITESPACE*
-    ;
-    
-LIST_PREFIX
-    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
+START_ANSWER
+    :   '##########_START_ANSWER_##########' -> pushMode(ANSWER_CONTENT)
     ;
 
+FEEDBACK_MARKER
+    :   NEWLINE+ WHITESPACE* '@' WHITESPACE*
+    ;
+    
 MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
     ;
@@ -213,18 +221,49 @@ ALL_CHARACTER
     :   CHAR
     ;
 
-RIGHT_ANSWER_AFTER
-    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER WHITESPACE*
-    ;
-
-RIGHT_ANSWER_BEFORE
-    :   NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
-    ;
-
 ESCAPED_OPEN_BRACKET
     :   BACKSLASH OPEN_BRACKET
     ;
 
 ESCAPED_CLOSE_BRACKET
     :   BACKSLASH CLOSE_BRACKET
+    ;
+    
+// --------------------- Everything AFTER start answer marker ---------------------
+mode ANSWER_CONTENT;
+
+END_ANSWER
+    :   '##########_END_ANSWER_##########' NEWLINE*
+    ;
+
+RIGHT_ANSWER
+    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER WHITESPACE*
+    ;
+
+ANSWER_FEEDBACK_MARKER
+    :   FEEDBACK_MARKER             -> type(FEEDBACK_MARKER)
+    ;
+
+LIST_PREFIX
+    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
+    ;
+
+ANSWER_MEDIA
+    :   MEDIA                       -> type(MEDIA)
+    ;
+
+ANSWER_HYPERLINK
+    :   HYPERLINK                   -> type(HYPERLINK)
+    ;
+
+ALL_CHAR
+    :   ALL_CHARACTER               -> type(ALL_CHARACTER)
+    ;
+
+FIB_OPEN_BRACKET
+    :   ESCAPED_OPEN_BRACKET        -> type(ESCAPED_OPEN_BRACKET)
+    ;
+
+FIB_CLOSE_BRACKET
+    :   ESCAPED_CLOSE_BRACKET       -> type(ESCAPED_CLOSE_BRACKET)
     ;
