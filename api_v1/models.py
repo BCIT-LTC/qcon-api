@@ -18,6 +18,7 @@ class QuestionLibrary(models.Model):
     # session = models.CharField(max_length=100, null=True)
     folder_path = models.FilePathField(path="/code", match=None, recursive=False, max_length=None)
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
+    randomize_answer = models.BooleanField(blank=True, null=True)
     section_name = models.TextField(blank=True, null=True)
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     pandoc_string = models.TextField(blank=True, null=True)
