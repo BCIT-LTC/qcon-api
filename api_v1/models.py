@@ -50,7 +50,7 @@ class Question(models.Model):
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
-    randomize_answers = models.BooleanField(blank=True, null=True)
+    randomize_answer = models.BooleanField(blank=True, null=True)
     points = models.DecimalField(unique=False, max_digits=2, decimal_places=1, blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
     
@@ -78,7 +78,7 @@ class Answer(models.Model):
     is_correct = models.BooleanField(blank=True, null=True)
     match_left = models.TextField(blank=True, null=True)
     match_right = models.TextField(blank=True, null=True)
-    order = models.PositiveBigIntegerField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
 
     def __str__(self):
         return str(self.answer_body)
@@ -90,3 +90,4 @@ class Fib(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     type = models.CharField(max_length=7, null=False)
     text = models.TextField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
