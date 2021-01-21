@@ -1,5 +1,7 @@
 lexer grammar QuestionLexer;
 
+tokens {FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
+
 fragment DIGIT
     :   [0-9]
     ;
@@ -202,68 +204,68 @@ QUESTION_PREFIX
 mode QUESTION_CONTENT;
 
 START_ANSWER
-    :   '##########_START_ANSWER_##########' -> pushMode(ANSWER_CONTENT)
+    :  NEWLINE+  '##########_START_ANSWER_##########'                        -> pushMode(ANSWER_CONTENT)
     ;
 
-FEEDBACK_MARKER
-    :   NEWLINE+ WHITESPACE* '@' WHITESPACE*
+QUESTION_FEEDBACK_MARKER
+    :   NEWLINE+ WHITESPACE* '@' WHITESPACE*                        -> type(FEEDBACK_MARKER)
     ;
     
-MEDIA
-    :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
+QUESTION_MEDIA
+    :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
     ;
 
-HYPERLINK
-    :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'
+QUESTION_HYPERLINK
+    :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'          -> type(HYPERLINK)
     ;
 
-ALL_CHARACTER
-    :   CHAR
+QUESTION_ALL_CHARACTER
+    :   CHAR                                                        -> type(ALL_CHARACTER)
     ;
 
-ESCAPED_OPEN_BRACKET
-    :   BACKSLASH OPEN_BRACKET
+QUESTION_ESCAPED_OPEN_BRACKET
+    :   BACKSLASH OPEN_BRACKET                                      -> type(ESCAPED_OPEN_BRACKET)
     ;
 
-ESCAPED_CLOSE_BRACKET
-    :   BACKSLASH CLOSE_BRACKET
+QUESTION_ESCAPED_CLOSE_BRACKET
+    :   BACKSLASH CLOSE_BRACKET                                     -> type(ESCAPED_CLOSE_BRACKET)
     ;
     
 // --------------------- Everything AFTER start answer marker ---------------------
 mode ANSWER_CONTENT;
 
 END_ANSWER
-    :   '##########_END_ANSWER_##########' NEWLINE*
+    :   NEWLINE+ '##########_END_ANSWER_##########'
     ;
 
 RIGHT_ANSWER
-    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER WHITESPACE*
-    ;
-
-ANSWER_FEEDBACK_MARKER
-    :   FEEDBACK_MARKER             -> type(FEEDBACK_MARKER)
+    :   NEWLINE+ WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* ANSWER_MARKER WHITESPACE*
     ;
 
 LIST_PREFIX
-    :   NEWLINE WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
+    :   NEWLINE+ WHITESPACE* ALPHANUMERIC ALPHANUMERIC? WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*
     ;
 
+ANSWER_FEEDBACK_MARKER
+    :   NEWLINE+ WHITESPACE* '@' WHITESPACE*                        -> type(FEEDBACK_MARKER)
+    ;
+    
 ANSWER_MEDIA
-    :   MEDIA                       -> type(MEDIA)
+    :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
     ;
 
 ANSWER_HYPERLINK
-    :   HYPERLINK                   -> type(HYPERLINK)
+    :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'          -> type(HYPERLINK)
     ;
 
-ALL_CHAR
-    :   ALL_CHARACTER               -> type(ALL_CHARACTER)
+ANSWER_ALL_CHARACTER
+    :   CHAR                                                        -> type(ALL_CHARACTER)
     ;
 
-FIB_OPEN_BRACKET
-    :   ESCAPED_OPEN_BRACKET        -> type(ESCAPED_OPEN_BRACKET)
+ANSWER_ESCAPED_OPEN_BRACKET
+    :   BACKSLASH OPEN_BRACKET                                      -> type(ESCAPED_OPEN_BRACKET)
     ;
 
-FIB_CLOSE_BRACKET
-    :   ESCAPED_CLOSE_BRACKET       -> type(ESCAPED_CLOSE_BRACKET)
+ANSWER_ESCAPED_CLOSE_BRACKET
+    :   BACKSLASH CLOSE_BRACKET                                     -> type(ESCAPED_CLOSE_BRACKET)
     ;

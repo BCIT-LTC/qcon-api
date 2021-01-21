@@ -8,12 +8,8 @@ parse_question
     ;
 
 question
-    :   question_header question_body answers_list                      # QuestionWithAnswers
+    :   question_header question_body answer_list                      # QuestionWithAnswers
     |   question_header question_body                                   # QuestionWithoutAnswers
-    ;
-
-question_body
-    :   question_prefix content+ feedback?
     ;
 
 question_header
@@ -67,6 +63,14 @@ randomize
     |   RANDOMIZE_FALSE     # RandomFalse
     ;
 
+question_body
+    :   question_prefix content+ feedback?
+    ;
+
+question_prefix
+    :   QUESTION_PREFIX
+    ;
+    
 content
     :   MEDIA                                                           # Media
     |   HYPERLINK                                                       # Hyperlink
@@ -74,7 +78,11 @@ content
     |   ALL_CHARACTER+                                                  # ContentCharacters
     ;
 
-answers_list
+feedback
+    :   FEEDBACK_MARKER content+
+    ;
+    
+answer_list
     :   START_ANSWER list_item+ END_ANSWER                              # ListNoAnswer  
     |   START_ANSWER (list_answer_item | list_item)+ END_ANSWER         # ListWithAnswer
     ;
@@ -83,22 +91,14 @@ list_item
     :   list_prefix content+ feedback?
     ;
 
-list_answer_item
-    :   answer_prefix content+ feedback?
-    ;
-
-question_prefix
-    :   QUESTION_PREFIX
-    ;
-
 list_prefix
     :   LIST_PREFIX
     ;
 
-answer_prefix
-    :   RIGHT_ANSWER
+list_answer_item
+    :   answer_prefix content+ feedback?
     ;
 
-feedback
-    :   FEEDBACK_MARKER content+
+answer_prefix
+    :   RIGHT_ANSWER
     ;
