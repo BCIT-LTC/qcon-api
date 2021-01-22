@@ -4,12 +4,16 @@ options {
 }
 
 parse_question
-    :   question EOF
+    :   question* EOF
     ;
 
 question
-    :   question_header question_body answer_list                      # QuestionWithAnswers
-    |   question_header question_body                                   # QuestionWithoutAnswers
+    :   start_question question_header question_body answer_list
+    |   start_question question_header question_body
+    ;
+
+start_question
+    :   START_QUESTION
     ;
 
 question_header
@@ -83,8 +87,8 @@ feedback
     ;
     
 answer_list
-    :   START_ANSWER list_item+ END_ANSWER                              # ListNoAnswer  
-    |   START_ANSWER (list_answer_item | list_item)+ END_ANSWER         # ListWithAnswer
+    :   START_ANSWER list_item+                              # ListNoAnswer
+    |   START_ANSWER (list_answer_item | list_item)+         # ListWithAnswer
     ;
 
 list_item

@@ -1,6 +1,6 @@
 lexer grammar QuestionLexer;
 
-tokens {FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
+tokens {START_QUESTION, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
 
 fragment DIGIT
     :   [0-9]
@@ -147,6 +147,12 @@ fragment ALPHANUMERIC
     :   (LOWERCASE | UPPERCASE | NUMBER)
     ;
 
+// --------------------- DEFAULT MODE ---------------------
+
+DEFAULT_START_QUESTION
+    :   NEWLINE+ '##########_START_QUESTION_##########'             -> type(START_QUESTION)
+    ;
+
 TITLE
     :   NEWLINE+ WHITESPACE* T I T L E S? WHITESPACE* COLON WHITESPACE* ~('\n')+ WHITESPACE*
     ;
@@ -196,15 +202,19 @@ TYPE_OTHER
     ;
 
 QUESTION_PREFIX
-    :   NEWLINE+ WHITESPACE* NUMBER WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* -> pushMode(QUESTION_CONTENT)
+    :   NEWLINE+ WHITESPACE* NUMBER WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*  -> mode(QUESTION_CONTENT)
     ;
 
 
 // --------------------- Everything AFTER question number ---------------------
 mode QUESTION_CONTENT;
 
+CONTENT_START_QUESTION
+    :   NEWLINE+ '##########_START_QUESTION_##########'             -> type(START_QUESTION), mode(DEFAULT_MODE)
+    ;
+
 START_ANSWER
-    :  NEWLINE+  '##########_START_ANSWER_##########'                        -> pushMode(ANSWER_CONTENT)
+    :   NEWLINE+ '##########_START_ANSWER_##########'               -> mode(ANSWER_CONTENT)
     ;
 
 QUESTION_FEEDBACK_MARKER
@@ -233,9 +243,8 @@ QUESTION_ESCAPED_CLOSE_BRACKET
     
 // --------------------- Everything AFTER start answer marker ---------------------
 mode ANSWER_CONTENT;
-
-END_ANSWER
-    :   NEWLINE+ '##########_END_ANSWER_##########'
+ANSWER_START_QUESTION
+    :   NEWLINE+ '##########_START_QUESTION_##########'             -> type(START_QUESTION), mode(DEFAULT_MODE)
     ;
 
 RIGHT_ANSWER
