@@ -43,7 +43,6 @@ class XmlWriter():
 		ident_prefix = int(datetime.date.today().strftime("%y%m%d")) + int(UUID(int=0x12345678123456781234567812345678))
 		index = 1
 		for question in questions:
-			
 			ident = str(ident_prefix + index)
 			question_ident = 'QUES_' + ident
 
@@ -57,13 +56,13 @@ class XmlWriter():
 			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': title})	
 			if question.question_type == 'MC':
 				self.generate_multiple_choice(it, question_ident, question)
-			elif question.question_type == 'MS' or question.question_type == 'MR':
+			elif question.question_type == 'MS':
 				self.generate_multi_select(it, question_ident, question)
-			elif question.question_type == 'FIB' or question.question_type == 'FMB':
+			elif question.question_type == 'FIB':
 				self.generate_fill_in_the_blanks(it, question_ident, question)
 			elif question.question_type == 'ORD':
 				self.generate_ordering(it, question_ident, question)
-			elif question.question_type == 'WR' or question.question_type == 'E':
+			elif question.question_type == 'WR':
 				self.generate_written_response(it, question_ident, question)
 			elif question.question_type == 'MT':
 				self.generate_matching(it, question_ident, question)
@@ -261,7 +260,7 @@ class XmlWriter():
 
 		#Presentation -> Flow -> Response_lid
 		it_pre_flow_lid = ET.SubElement(it_pre_flow, "response_lid", {'ident': question_lid, 'rcardinality': 'Single'})
-		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})	
+		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': 'no'})	
 
 		#Reprocessing
 		it_res = ET.SubElement(it, "resprocessing")
@@ -459,7 +458,7 @@ class XmlWriter():
 
 		#Presentation -> Flow -> Response_grp
 		it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'ident': question_o, 'rcardinality': 'Ordered'})
-		it_pre_flow_res_grp_render = ET.SubElement(it_pre_flow_res_grp, "render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})
+		it_pre_flow_res_grp_render = ET.SubElement(it_pre_flow_res_grp, "render_choice", {'shuffle': 'yes'})
 		it_pre_flow_res_grp_render_flow = ET.SubElement(it_pre_flow_res_grp_render, "flow_label", {'class': 'Block'}) #populated in the loop
 
 		#Add hint
@@ -615,7 +614,7 @@ class XmlWriter():
 		it_pre_flow_res_grading_type.text = '0'
 
 		#Presentation -> Flow -> Response_grp -> Render_choice
-		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': ('yes' if question.randomize_answers else 'no')})
+		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': 'no'})
 		it_pre_flow_res_grp_ren_flow = ET.SubElement(it_pre_flow_res_grp_ren, "flow_label", {'class': 'Block'})
 
 		respcondition_string = "<group>"

@@ -532,7 +532,7 @@ class QuestionParserListener(ParseTreeListener):
                 except:
                     # NO FEEDBACK
                     pass
-                
+
                 self.end_answers.append(answer)
         else:
             print("Number of Questions and End Answers is not the same")
@@ -570,6 +570,10 @@ class QuestionParserListener(ParseTreeListener):
         if question.question_type != None:
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:
+                    if self.question_library.randomize_answer != None:
+                        if question.randomize_answer == None:
+                            question.randomize_answer = self.question_library.randomize_answer
+                            question.save()
                     # BUILD MC
                     pass
                 else:
@@ -582,6 +586,10 @@ class QuestionParserListener(ParseTreeListener):
                     print("Wrong question Format: TF")
             elif question.question_type == 'MS':
                 if self.is_multi_select(question) == True:
+                    if self.question_library.randomize_answer != None:
+                        if question.randomize_answer == None:
+                            question.randomize_answer = self.question_library.randomize_answer
+                            question.save()
                     # BUILD MS
                     pass
                 else:
