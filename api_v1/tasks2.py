@@ -138,8 +138,6 @@ def parse_questions(question_library) :
     # TODO: pass the split questions to the L2 grammar
 
 
-
-
     return None
 
 def normalize_prefix_and_grab_indent(prefix):
@@ -158,7 +156,6 @@ def normalize_prefix_and_grab_indent(prefix):
 def normalize_content(content):
     # TODO: function to clean up extra characters on the content
     return content
-
 
 
 def question_separate(data,index,question):
@@ -188,6 +185,7 @@ def question_separate(data,index,question):
             print("found next increment")
             if check_fib(data[index].content):
                 print("FIB found")
+                data[index].questionseparator = True
                 return question_separate(data, index+1,question+1)
             else:
                 # print("NO FIB")
@@ -227,62 +225,6 @@ def question_separate(data,index,question):
     else:
         return question_separate(data, index+1, question)
 
-'''
-                #check if the one after it is also increment of this one
-                indexofnextnum = find_index_of_next_number(data,index)
-                # EOL
-                print(indexofnextnum)
-                if indexofnextnum == 0:
-                    return question_separate(data, index+1,question+1)
-
-                if int(data[indexofnextnum].prefix) == int(data[index].prefix) + 1:
-                    # if true got to next iteration
-                    print("next one also increment")
-                    print(str(indexofnextnum) + " " + str(index + 1))
-                    # if the index of nextnum is the next one of this one 
-                    # then it means it is a regular list so skip it 
-                    if int(indexofnextnum) == int(index + 1):
-                        #skip it
-                        print("is subsequent to last one")
-                        return question_separate(data, index+1, question)
-                    else:
-                        # means it has some content inside it 
-                        print("content inside ")
-                        data[index].questionseparator = True
-                        print("================================================")
-                        return question_separate(data, indexofnextnum,question+1)
-
-                    # return question_separate(data, index+1,question)
-                else:
-                    #check if the next one is same as this one
-                    print("check if same as this")
-
-                    indexofnextnum = find_index_of_next_number(data,index)
-                    # print(data[indexofnextnum].prefix)
-                    if int(data[indexofnextnum].prefix) == int(data[index].prefix):
-                        print("new question found")
-                        data[indexofnextnum].questionseparator = True
-                        print("================================================")
-                        return question_separate(data, indexofnextnum,question+1)
-                    else:
-                        indexofpreviousnum = find_index_of_previous_number(data,index)
-
-                        print("found compare" + str(data[indexofpreviousnum].prefix) + " " + str(data[index].prefix))
-                        #check if previous one is greater than this one
-                        if int(data[indexofpreviousnum].prefix) > int(data[index].prefix):
-                            print("previous one is greater than this one")
-                            data[index].questionseparator = True
-                            print("================================================")
-                            return question_separate(data, index+1,question+1)
-                        else:
-                            # check if previous one is smaller than this one 
-                            if int(data[indexofpreviousnum].prefix) < int(data[index].prefix):
-                                print("previous one is smaller than this one")
-                                data[index].questionseparator = True
-                                print("================================================")
-                                return question_separate(data, index+1,question+1)
-'''
-
 def find_index_of_next_number(data, startindex):
     index = int(startindex)+1
     while data[index].prefix.isnumeric() == False:
@@ -303,7 +245,7 @@ def find_index_of_previous_number(data, startindex):
     return index
 
 def check_fib(content):
-    x = re.search("\[[[a-zA-Z0-9 ]*,[a-zA-Z0-9 ]*\]", content)
+    x = re.search("\[.*,.*\]", content)
     if x:
         return True
     else:
