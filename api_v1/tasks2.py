@@ -185,9 +185,9 @@ def question_separate(data,index,question):
         # try to find the next increment 
         if int(data[index].prefix) == int(question+1):
             #is this one FIB
-            # print("found next increment")
+            print("found next increment")
             if check_fib(data[index].content):
-                # print("FIB found")
+                print("FIB found")
                 return question_separate(data, index+1,question+1)
             else:
                 # print("NO FIB")
@@ -303,9 +303,11 @@ def find_index_of_previous_number(data, startindex):
     return index
 
 def check_fib(content):
-    # TODO check if FIB
-    return False
-
+    x = re.search("\[[[a-zA-Z0-9 ]*,[a-zA-Z0-9 ]*\]", content)
+    if x:
+        return True
+    else:
+        return False
 # def backtrack_analyze_previous(data,start,stop)
 
 
