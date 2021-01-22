@@ -108,9 +108,9 @@ answer_prefix
     ;
 
 end_answers
-    :   END_ANSWERS answer_key_list+
+    :   END_ANSWERS end_answers_item+
     ;
 
-answer_key_list
+end_answers_item
     :   question_prefix content+ feedback?
     ;

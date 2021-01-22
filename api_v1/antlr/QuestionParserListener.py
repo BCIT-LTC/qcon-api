@@ -514,6 +514,39 @@ class QuestionParserListener(ParseTreeListener):
     def exitAnswer_prefix(self, ctx:QuestionParser.Answer_prefixContext):
         pass
 
+ # Enter a parse tree produced by QuestionParser#end_answers.
+    def enterEnd_answers(self, ctx:QuestionParser.End_answersContext):
+        pass
+
+    # Exit a parse tree produced by QuestionParser#end_answers.
+    def exitEnd_answers(self, ctx:QuestionParser.End_answersContext):
+        if len(self.questions) == len(ctx.end_answers_item()) :
+            self.end_answers = []
+            for idx, ctx_end_answers_item in enumerate(ctx.end_answers_item()):
+                answer = {}
+                answer['answer'] = self.trim_text(ctx_end_answers_item.content().getText())
+                answer['feedback'] = None
+                
+                try:
+                  answer['feedback'] = ctx_end_answers_item.feedback().content().getText()
+                except:
+                    # NO FEEDBACK
+                    pass
+                
+                self.end_answers.append(answer)
+        else:
+            print("Number of Questions and End Answers is not the same")
+            print("\tQuestions:", len(self.questions))
+            print("\tEnd Answers:", len(ctx.end_answers_item()))
+        pass
+
+    # Enter a parse tree produced by QuestionParser#end_answers_item.
+    def enterEnd_answers_item(self, ctx:QuestionParser.End_answers_itemContext):
+        pass
+
+    # Exit a parse tree produced by QuestionParser#end_answers_item.
+    def exitEnd_answers_item(self, ctx:QuestionParser.End_answers_itemContext):
+        pass
 
     def trim_text(self, txt):
         text = txt.strip()
