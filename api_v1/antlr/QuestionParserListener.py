@@ -9,7 +9,6 @@ import pypandoc
 from api_v1.models import Question, Answer, Fib
 from datetime import datetime
 
-
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
@@ -34,26 +33,24 @@ class QuestionParserListener(ParseTreeListener):
     def exitParse_question(self, ctx:QuestionParser.Parse_questionContext):
         self.question.save()
         self.process_question(self.question)
+        pass
+
+    # Enter a parse tree produced by QuestionParser#question.
+    def enterQuestion(self, ctx:QuestionParser.QuestionContext):
+        pass
+
+    # Exit a parse tree produced by QuestionParser#question.
+    def exitQuestion(self, ctx:QuestionParser.QuestionContext):
         self.questions.append(self.question)
         pass
 
-    # Enter a parse tree produced by QuestionParser#QuestionWithAnswers.
-    def enterQuestionWithAnswers(self, ctx:QuestionParser.QuestionWithAnswersContext):
+
+    # Enter a parse tree produced by QuestionParser#start_question.
+    def enterStart_question(self, ctx:QuestionParser.Start_questionContext):
         pass
 
-    # Exit a parse tree produced by QuestionParser#QuestionWithAnswers.
-    def exitQuestionWithAnswers(self, ctx:QuestionParser.QuestionWithAnswersContext):
-        pass
-
-
-    # Enter a parse tree produced by QuestionParser#QuestionWithoutAnswers.
-    def enterQuestionWithoutAnswers(self, ctx:QuestionParser.QuestionWithoutAnswersContext):
-        pass
-
-    # Exit a parse tree produced by QuestionParser#QuestionWithoutAnswers.
-    def exitQuestionWithoutAnswers(self, ctx:QuestionParser.QuestionWithoutAnswersContext):
-        self.question.correct_answers_length = None
-        self.question.save()
+    # Exit a parse tree produced by QuestionParser#start_question.
+    def exitStart_question(self, ctx:QuestionParser.Start_questionContext):
         pass
 
     # Enter a parse tree produced by QuestionParser#question_header.
@@ -114,7 +111,6 @@ class QuestionParserListener(ParseTreeListener):
         self.question.save()
         pass
 
-
     # Enter a parse tree produced by QuestionParser#TypeFib.
     def enterTypeFib(self, ctx:QuestionParser.TypeFibContext):
         pass
@@ -135,7 +131,6 @@ class QuestionParserListener(ParseTreeListener):
         self.question.save()
         pass
 
-
     # Enter a parse tree produced by QuestionParser#TypeOther.
     def enterTypeOther(self, ctx:QuestionParser.TypeOtherContext):
         pass
@@ -145,7 +140,6 @@ class QuestionParserListener(ParseTreeListener):
         self.question.question_type = 'OTHER'
         self.question.save()
         pass
-
 
     # Enter a parse tree produced by QuestionParser#title.
     def enterTitle(self, ctx:QuestionParser.TitleContext):
@@ -535,7 +529,7 @@ class QuestionParserListener(ParseTreeListener):
 
     def is_fill_in_the_blanks(self, question):
         if len(self.answers) == 0:
-            if question.correct_answers_length == None:
+            if question.correct_answers_length == 0:
                 if len(question.get_fib_answers()) > 0:
                     question_text = question.question_body
                     question_fib_length = len(re.findall(r"(?<!!)(?=\[(.*?)\])(?!\()", question_text))
