@@ -4,7 +4,7 @@ options {
 }
 
 parse_question
-    :   question* EOF
+    :   question* end_answers? EOF
     ;
 
 question
@@ -105,4 +105,12 @@ list_answer_item
 
 answer_prefix
     :   RIGHT_ANSWER
+    ;
+
+end_answers
+    :   END_ANSWERS answer_key_list+
+    ;
+
+answer_key_list
+    :   question_prefix content+ feedback?
     ;
