@@ -18,7 +18,7 @@ class QuestionLibrary(models.Model):
     # session = models.CharField(max_length=100, null=True)
     folder_path = models.FilePathField(path="/code", match=None, recursive=False, max_length=None)
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
-    randomize_answer = models.BooleanField(blank=True, null=True)
+    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     section_name = models.TextField(blank=True, null=True)
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     pandoc_string = models.TextField(blank=True, null=True)
@@ -35,6 +35,9 @@ class QuestionLibrary(models.Model):
     time_delta = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
+    class Meta:
+        verbose_name_plural = "question libraries"
+
     def create_directory(self):
         # self.folder_path('/code/temp/' + str(self.id))
         if not path.exists(self.folder_path):
@@ -51,7 +54,7 @@ class Question(models.Model):
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
-    randomize_answer = models.BooleanField(blank=True, null=True)
+    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     points = models.DecimalField(unique=False, max_digits=2, decimal_places=1, blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
     
@@ -59,7 +62,7 @@ class Question(models.Model):
         return Answer.objects.filter(question=self.id)
 
     def get_fib(self):
-        return Fib.objects.filter(question=self.id)
+        return Fib.objects.filter(question=self.id).order_by('order')
 
     def get_fib_answers(self):
         return Fib.objects.filter(question=self.id, type='answer')

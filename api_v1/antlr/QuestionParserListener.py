@@ -13,6 +13,7 @@ from datetime import datetime
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
+        self.questions = []
         self.question = None
         self.answers = []
         self.answer = None
@@ -20,7 +21,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Return parsed question
     def get_results(self):
-        return self.question
+        return self.questions
 
     # Enter a parse tree produced by QuestionParser#parse_question.
     def enterParse_question(self, ctx:QuestionParser.Parse_questionContext):
@@ -32,8 +33,8 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#parse_question.
     def exitParse_question(self, ctx:QuestionParser.Parse_questionContext):
         self.question.save()
-        print("START PROCESS QUESTION")
         self.process_question(self.question)
+        self.questions.append(self.question)
         pass
 
     # Enter a parse tree produced by QuestionParser#QuestionWithAnswers.
@@ -534,7 +535,7 @@ class QuestionParserListener(ParseTreeListener):
 
     def is_fill_in_the_blanks(self, question):
         if len(self.answers) == 0:
-            if question.correct_answers_length == 0:
+            if question.correct_answers_length == None:
                 if len(question.get_fib_answers()) > 0:
                     question_text = question.question_body
                     question_fib_length = len(re.findall(r"(?<!!)(?=\[(.*?)\])(?!\()", question_text))
@@ -544,15 +545,17 @@ class QuestionParserListener(ParseTreeListener):
                             regex_pattern = r"\[\s?(" + re.escape(fib_answer.text) + ")\s?\]"
                             blank = re.search(regex_pattern, question_text)
                             if blank.group(1) != None:
-                                fib_order += 1
                                 reg = re.compile('(.+)'+ re.escape(blank.group(0)))
                                 fib_question_text = reg.search(question_text).group(1)
-                                fib = Fib()
-                                fib.question = question
-                                fib.type = "question"
-                                fib.text = fib_question_text
-                                fib.order = fib_order
-                                fib.save()
+                                trimmed_text = self.trim_text(self.html_to_plain(fib_question_text))
+                                if len(trimmed_text) > 0:
+                                    fib_order += 1
+                                    fib = Fib()
+                                    fib.question = question
+                                    fib.type = "question"
+                                    fib.text = fib_question_text
+                                    fib.order = fib_order
+                                    fib.save()
                                 fib_order += 1
                                 fib_answer.order = fib_order
                                 fib_answer.save()
@@ -561,14 +564,17 @@ class QuestionParserListener(ParseTreeListener):
                                 question.question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
                                 question.save()
                                 if(len(question.get_fib_answers()) == index+1):
-                                    fib_order += 1
-                                    fib = Fib()
-                                    fib.question = question
-                                    fib.type = "question"
-                                    fib.text = fib_question_text
-                                    fib.order = fib_order
-                                    fib.save()
-                                    return True
+                                    trimmed_text = self.trim_text(self.html_to_plain(question_text))
+                                    if len(trimmed_text) > 0:
+                                        fib_order += 1
+                                        fib = Fib()
+                                        fib.question = question
+                                        fib.type = "question"
+                                        fib.text = question_text
+                                        fib.order = fib_order
+                                        fib.save()
+                                        return True
+                            
                 return False
                 pass
 
