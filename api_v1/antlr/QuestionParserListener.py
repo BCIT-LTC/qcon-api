@@ -25,9 +25,6 @@ class QuestionParserListener(ParseTreeListener):
 
     # Enter a parse tree produced by QuestionParser#parse_question.
     def enterParse_question(self, ctx:QuestionParser.Parse_questionContext):
-        self.question = Question()
-        self.question.question_library = self.question_library
-        self.question.save()
         pass
 
     # Exit a parse tree produced by QuestionParser#parse_question.
@@ -180,9 +177,25 @@ class QuestionParserListener(ParseTreeListener):
                 print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
         print('')
         pass
+ 
+    # Enter a parse tree produced by QuestionParser#section_header.
+    def enterSection_header(self, ctx:QuestionParser.Section_headerContext):
+        pass
+
+    # Exit a parse tree produced by QuestionParser#section_header.
+    def exitSection_header(self, ctx:QuestionParser.Section_headerContext):
+        section_name = ctx.getText().replace('##########_END_SECTION_##########', '')
+        section_name = self.markdown_to_plain(section_name)
+        section_name = self.trim_text(section_name)
+        self.question_library.section_name = section_name
+        self.question_library.save()
+        pass
 
     # Enter a parse tree produced by QuestionParser#question.
     def enterQuestion(self, ctx:QuestionParser.QuestionContext):
+        self.question = Question()
+        self.question.question_library = self.question_library
+        self.question.save()
         pass
 
     # Exit a parse tree produced by QuestionParser#question.
@@ -477,8 +490,9 @@ class QuestionParserListener(ParseTreeListener):
         self.answer = Answer()
         self.answer.question = self.question
         self.answer.is_correct = True
-        self.question.correct_answers_length += 1
         self.answer.save()
+        self.question.correct_answers_length += 1
+        self.question.save()
         pass
 
     # Exit a parse tree produced by QuestionParser#list_answer_item.

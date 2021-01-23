@@ -54,7 +54,7 @@ class CliUpload(APIView):
         question_library.randomize_answer = is_random
         question_library.save()
 
-        async_task('api_v1.tasks.runconversion', question_library, hook='api_v1.views.print_result')
+        async_task('api_v1.tasks2.runconversion', question_library, hook='api_v1.views.print_result')
 
         return Response(question_library.id)
 

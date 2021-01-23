@@ -157,6 +157,11 @@ fragment ALPHANUMERIC
 
 // --------------------- DEFAULT MODE ---------------------
 
+
+SECTION_HEADER
+    :   NEWLINE+ CHAR* '##########_END_SECTION_##########'
+    ;
+
 DEFAULT_START_QUESTION
     :   NEWLINE+ START_QUESTION_MARKER                  -> type(START_QUESTION)
     ;

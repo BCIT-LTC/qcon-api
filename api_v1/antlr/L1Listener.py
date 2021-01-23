@@ -30,7 +30,7 @@ class L1Listener(ParseTreeListener):
     def exitSectionheading(self, ctx:L1Parser.SectionheadingContext):
         if ctx.content() != None:
             x = ctx.content().getText().replace("\n>", "")
-            x += '\n##########END_SECTION########'
+            x += '\n##########_END_SECTION_##########'
             self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
             pass
 

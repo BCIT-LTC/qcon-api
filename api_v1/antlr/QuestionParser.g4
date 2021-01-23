@@ -4,12 +4,16 @@ options {
 }
 
 parse_question
-    :   question* end_answers? EOF
+    :   section_header? question* end_answers? EOF
+    ;
+
+section_header
+    :   SECTION_HEADER
     ;
 
 question
-    :   start_question question_header question_body answer_list
-    |   start_question question_header question_body
+    :   question_header start_question question_body answer_list
+    |   question_header start_question question_body
     ;
 
 start_question
