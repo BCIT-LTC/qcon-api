@@ -14,16 +14,15 @@ grammar L1;
 //     }
 // }
 
-l1: sectionheading rootlist* EOF;
+l1: sectionheading? rootlist* EOF;
 
-sectionheading: content;
+sectionheading: BLOCKQUOTE? content;
 
 rootlist: BLOCKQUOTE? question_header? (numlist | letterlist) endoflist?;
 
 numlist: numlist_prefix content;
 letterlist: (letterlist_prefix_regular|letterlist_prefix_correct) content;
 
-content: ALL_CHARACTER+;
 numlist_prefix: NUMLIST_PREFIX;
 
 letterlist_prefix_regular: LETTERLIST_PREFIX;
@@ -31,11 +30,12 @@ letterlist_prefix_correct: STAR_AFTER_DOT|STAR_BEFORE_DOT|STAR_BEFORE_LETTER;
 
 endoflist: ENDOFLIST;
 
-question_header
-    :   title 
-    |   points
-    |   type  
-    |   randomize 
+question_header: question_header_parameter+;      
+
+
+question_header_parameter
+    :   BLOCKQUOTE? points content
+    |   BLOCKQUOTE? title content
     ;
 
 
@@ -45,6 +45,7 @@ points:   POINTS;
 type: TYPE;
 randomize:   RANDOMIZE;
 
+content: ALL_CHARACTER+;
 
 
 // ================================ TOKENS
@@ -86,6 +87,7 @@ ENDOFLIST: '<!-- -->' NEWLINE;
 
 // TODO
 // NEWLINE : NEWLINE;
+// BLOCKQUOTE: NEWLINE WHITESPACE* GREATER_THAN {setText("\n");}; 
 BLOCKQUOTE: NEWLINE WHITESPACE* GREATER_THAN; 
 
 NUMLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* WHITESPACE* DELIMITER WHITESPACE*;
@@ -100,9 +102,9 @@ STAR_BEFORE_LETTER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERIS
 // BOLDED_STAR_BEFORE_DOT: NEWLINE WHITESPACE* DOUBLE_ASTERISK LETTER LETTER? WHITESPACE* ANSWER_MARKER WHITESPACE* DELIMITER WHITESPACE*;
 // BOLDED_STAR_BEFORE_LETTER: NEWLINE WHITESPACE* DOUBLE_ASTERISK ANSWER_MARKER WHITESPACE* LETTER LETTER? WHITESPACE* DELIMITER WHITESPACE*;
 
-TITLE:  NEWLINE+ WHITESPACE* T I T L E S? WHITESPACE* ;
-POINTS:   NEWLINE+ WHITESPACE* P O I N T S? WHITESPACE* ;
-TYPE:   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE*;
+TITLE:  NEWLINE+ WHITESPACE* GREATER_THAN? T I T L E S? WHITESPACE* ;
+POINTS:   NEWLINE+ WHITESPACE* GREATER_THAN? P O I N T S? WHITESPACE*  ;
+TYPE:   NEWLINE+ WHITESPACE* GREATER_THAN? T Y P E S? WHITESPACE*;
 
 RANDOMIZE:   NEWLINE+ WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
 
