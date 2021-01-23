@@ -3,11 +3,11 @@ class L1Element:
         self.prefix = ""
         self.content = ""
         self.starmarked = False
-        self.listseparator = False
+        self.listitem = False
         self.questionseparator = False
         self.answerblockseparator = False
         self.indentlength = 0
 
     def __str__(self):
         # return "PREFIX: " + str(self.prefix) + " CONTENT:" + str(self.content) + " CORRECT:" + str(self.starmarked) + " SEPARATOR:" + str(self.questionseparator)
-        return "PREFIX: " + str(self.prefix) +" SEPARATOR:" + str(self.questionseparator) + " ANSWERBLOCK:" + str(self.answerblockseparator) + " LISTSEP:" + str(self.listseparator)
+        return "PREFIX: " + str(self.prefix) +" SEPARATOR:" + str(self.questionseparator) + " ANSWERBLOCK:" + str(self.answerblockseparator) + " LISTITEM:" + str(self.listitem)
