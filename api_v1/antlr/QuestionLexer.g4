@@ -2,6 +2,10 @@ lexer grammar QuestionLexer;
 
 tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, QUESTION_PREFIX, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
 
+fragment QUESTION_HEADER_MARKER
+    :   '##########_QUESTION_HEADER_##########'
+    ;
+
 fragment START_QUESTION_MARKER
     :   '##########_START_QUESTION_##########'
     ;
@@ -156,18 +160,28 @@ fragment ALPHANUMERIC
     ;
 
 // --------------------- DEFAULT MODE ---------------------
-
-
-SECTION_TITLE
-    :   NEWLINE+ CHAR* '##########_SECTION_##########'
-    ;
-
 DEFAULT_START_HEADER
-    :   '##########_START_QUESTION_##########'          -> type(START_QUESTION_HEADER)
+    :   NEWLINE+ QUESTION_HEADER_MARKER                 -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
     ;
 
 DEFAULT_START_QUESTION
-    :   NEWLINE+ START_QUESTION_MARKER                  -> type(START_QUESTION)
+    :   NEWLINE+ START_QUESTION_MARKER                  -> type(START_QUESTION), mode(QUESTION_CONTENT)
+    ;
+
+SECTION_TITLE
+    :   NEWLINE+ '##########_SECTION_##########'
+    ;
+
+DEFAULT_ALL_CHARACTER
+    :   CHAR                                            -> type(ALL_CHARACTER)
+    ;
+
+
+// --------------------- Everything AFTER QUESTION_HEADER marker ---------------------
+mode HEADER_CONTENT;
+
+HEADER_START_QUESTION
+    :   NEWLINE+ START_QUESTION_MARKER                  -> type(START_QUESTION), mode(QUESTION_CONTENT)
     ;
 
 TITLE
@@ -218,20 +232,17 @@ TYPE_OTHER
     :   NEWLINE+ WHITESPACE* T Y P E S? WHITESPACE* COLON WHITESPACE* (CHAR)+ WHITESPACE*
     ;
 
-DEFAULT_QUESTION_PREFIX
-    :   NEWLINE+ WHITESPACE* NUMBER WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*  -> type(QUESTION_PREFIX), mode(QUESTION_CONTENT)
-    ;
 
-
-// --------------------- Everything AFTER question number ---------------------
+// --------------------- Everything AFTER START_QUESTION marker ---------------------
 mode QUESTION_CONTENT;
 
 CONTENT_START_HEADER
-    :   '##########_START_QUESTION_##########'                      -> type(START_QUESTION_HEADER), mode(DEFAULT_MODE)
+    :   NEWLINE+ QUESTION_HEADER_MARKER                             -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
     ;
 
+// If a question after question
 CONTENT_START_QUESTION
-    :   NEWLINE+ START_QUESTION_MARKER                              -> type(START_QUESTION), mode(DEFAULT_MODE)
+    :   NEWLINE+ START_QUESTION_MARKER                              -> type(START_QUESTION)
     ;
 
 START_ANSWER
@@ -265,16 +276,20 @@ QUESTION_ESCAPED_OPEN_BRACKET
 QUESTION_ESCAPED_CLOSE_BRACKET
     :   BACKSLASH CLOSE_BRACKET                                     -> type(ESCAPED_CLOSE_BRACKET)
     ;
+
+QUESTION_QUESTION_PREFIX
+    :   NEWLINE+ WHITESPACE* NUMBER WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE*  -> type(QUESTION_PREFIX)
+    ;
     
-// --------------------- Everything AFTER start answer marker ---------------------
+// --------------------- Everything AFTER START_ANSWER marker ---------------------
 mode ANSWER_CONTENT;
 
 ANSWER_START_HEADER
-    :   '##########_START_QUESTION_##########' -> type(START_QUESTION_HEADER), mode(DEFAULT_MODE)
+    :   NEWLINE+ QUESTION_HEADER_MARKER                             -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
     ;
 
 ANSWER_START_QUESTION
-    :   NEWLINE+ START_QUESTION_MARKER                              -> type(START_QUESTION), mode(DEFAULT_MODE)
+    :   NEWLINE+ START_QUESTION_MARKER                              -> type(START_QUESTION), mode(QUESTION_CONTENT)
     ;
 
 ANSWER_END_ANSWERS
@@ -313,7 +328,7 @@ ANSWER_ESCAPED_CLOSE_BRACKET
     :   BACKSLASH CLOSE_BRACKET                                     -> type(ESCAPED_CLOSE_BRACKET)
     ;
 
-// --------------------- Everything AFTER end answer ---------------------
+// --------------------- Everything AFTER END_ANSWERS marker ---------------------
 mode ANSWER_KEY;
 
 KEY_QUESTION_PREFIX

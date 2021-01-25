@@ -8,7 +8,7 @@ parse_question
     ;
 
 section_title
-    :   SECTION_TITLE
+    :   SECTION_TITLE ALL_CHARACTER+
     ;
 
 question

@@ -306,7 +306,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#title.
     def exitTitle(self, ctx:QuestionParser.TitleContext):
-        title = self.trim_text(ctx.title().getText()).split(":")[1]
+        title = self.trim_text(ctx.getText()).split(":")[1]
         title = self.markdown_to_plain(title)
         title = self.trim_text(title)
         self.question.title = title
@@ -319,7 +319,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#points.
     def exitPoints(self, ctx:QuestionParser.PointsContext):
-        points = self.trim_text(ctx.point().getText()).split(":")[1]
+        points = self.trim_text(ctx.getText()).split(":")[1]
         points = self.markdown_to_plain(points)
         points = self.trim_text(points)
         self.question.points = points

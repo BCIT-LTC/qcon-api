@@ -292,6 +292,7 @@ def runconversion(question_library):
     print(datetime.now().strftime("%H:%M:%S"), "Antlr processing...")
     try:
         L1_result = L1Converter(question_library)
+        L1_result = "\n" + L1_result
         parsed_questions_result = question_parser(question_library, L1_result)
         print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
         question_library.checkpoint = 2
