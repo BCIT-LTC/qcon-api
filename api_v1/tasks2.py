@@ -155,9 +155,9 @@ def question_separate(data,index,question):
         # try to find the next increment 
         if int(data[index].prefix) == int(question+1):
             #is this one FIB
-            print("found next increment")
+            # print("found next increment")
             if check_fib(data[index].content):
-                print("FIB found")
+                # print("FIB found")
                 data[index].questionseparator = True
                 return question_separate(data, index+1,question+1)
             else:
