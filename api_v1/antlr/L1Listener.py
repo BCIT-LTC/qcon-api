@@ -24,13 +24,15 @@ class L1Listener(ParseTreeListener):
 
     # Enter a parse tree produced by L1Parser#sectionheading.
     def enterSectionheading(self, ctx:L1Parser.SectionheadingContext):
+
+        x = '##########_SECTION_##########'
+        self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
         pass
 
     # Exit a parse tree produced by L1Parser#sectionheading.
     def exitSectionheading(self, ctx:L1Parser.SectionheadingContext):
         if ctx.content() != None:
             x = ctx.content().getText().replace("\n>", "")
-            x += '\n##########_END_SECTION_##########'
             self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
             pass
 
@@ -80,11 +82,13 @@ class L1Listener(ParseTreeListener):
 
     # Enter a parse tree produced by L1Parser#question_header.
     def enterQuestion_header(self, ctx:L1Parser.Question_headerContext):
+        if ctx.question_header_parameter() != None:       
+            x = '\n##########_QUESTION_HEADER_##########'
+            self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
         pass
 
     # Exit a parse tree produced by L1Parser#question_header.
     def exitQuestion_header(self, ctx:L1Parser.Question_headerContext):
-        
         pass
 
 
