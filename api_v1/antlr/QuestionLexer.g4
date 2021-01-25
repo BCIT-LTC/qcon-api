@@ -1,6 +1,6 @@
 lexer grammar QuestionLexer;
 
-tokens {START_QUESTION, END_ANSWERS, QUESTION_PREFIX, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
+tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, QUESTION_PREFIX, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
 
 fragment START_QUESTION_MARKER
     :   '##########_START_QUESTION_##########'
@@ -158,8 +158,12 @@ fragment ALPHANUMERIC
 // --------------------- DEFAULT MODE ---------------------
 
 
-SECTION_HEADER
+SECTION_TITLE
     :   NEWLINE+ CHAR* '##########_END_SECTION_##########'
+    ;
+
+DEFAULT_START_HEADER
+    :   '##########_START_QUESTION_##########'          -> type(START_QUESTION_HEADER)
     ;
 
 DEFAULT_START_QUESTION
@@ -222,6 +226,10 @@ DEFAULT_QUESTION_PREFIX
 // --------------------- Everything AFTER question number ---------------------
 mode QUESTION_CONTENT;
 
+CONTENT_START_HEADER
+    :   '##########_START_QUESTION_##########'                      -> type(START_QUESTION_HEADER), mode(DEFAULT_MODE)
+    ;
+
 CONTENT_START_QUESTION
     :   NEWLINE+ START_QUESTION_MARKER                              -> type(START_QUESTION), mode(DEFAULT_MODE)
     ;
@@ -260,6 +268,11 @@ QUESTION_ESCAPED_CLOSE_BRACKET
     
 // --------------------- Everything AFTER start answer marker ---------------------
 mode ANSWER_CONTENT;
+
+ANSWER_START_HEADER
+    :   '##########_START_QUESTION_##########' -> type(START_QUESTION_HEADER), mode(DEFAULT_MODE)
+    ;
+
 ANSWER_START_QUESTION
     :   NEWLINE+ START_QUESTION_MARKER                              -> type(START_QUESTION), mode(DEFAULT_MODE)
     ;

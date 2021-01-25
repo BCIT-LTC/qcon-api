@@ -178,12 +178,12 @@ class QuestionParserListener(ParseTreeListener):
         print('')
         pass
  
-    # Enter a parse tree produced by QuestionParser#section_header.
-    def enterSection_header(self, ctx:QuestionParser.Section_headerContext):
+    # Enter a parse tree produced by QuestionParser#section_title.
+    def enterSection_title(self, ctx:QuestionParser.Section_titleContext):
         pass
 
-    # Exit a parse tree produced by QuestionParser#section_header.
-    def exitSection_header(self, ctx:QuestionParser.Section_headerContext):
+    # Exit a parse tree produced by QuestionParser#section_title.
+    def exitSection_title(self, ctx:QuestionParser.Section_titleContext):
         section_name = ctx.getText().replace('##########_END_SECTION_##########', '')
         section_name = self.markdown_to_plain(section_name)
         section_name = self.trim_text(section_name)
