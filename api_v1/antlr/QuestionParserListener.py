@@ -184,7 +184,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#section_title.
     def exitSection_title(self, ctx:QuestionParser.Section_titleContext):
-        section_name = ctx.getText().replace('##########_END_SECTION_##########', '')
+        section_name = ctx.getText().replace('##########_SECTION_##########', '')
         section_name = self.markdown_to_plain(section_name)
         section_name = self.trim_text(section_name)
         self.question_library.section_name = section_name

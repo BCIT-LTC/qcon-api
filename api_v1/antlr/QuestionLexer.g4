@@ -159,7 +159,7 @@ fragment ALPHANUMERIC
 
 
 SECTION_TITLE
-    :   NEWLINE+ CHAR* '##########_END_SECTION_##########'
+    :   NEWLINE+ CHAR* '##########_SECTION_##########'
     ;
 
 DEFAULT_START_HEADER
