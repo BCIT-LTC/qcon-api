@@ -34,7 +34,7 @@ from api_v1.L1Element import L1Element
 # =============================================================================================
 # =======================================L1 MAIN===============================================
 # =============================================================================================
-def parse_questions(question_library) :
+def L1Converter(question_library) :
     input = InputStream(question_library.pandoc_string)
     lexer = L1Lexer(input)
     stream = CommonTokenStream(lexer)
@@ -291,8 +291,8 @@ def runconversion(question_library):
     # Antler parsing  ===================================================================================
     print(datetime.now().strftime("%H:%M:%S"), "Antlr processing...")
     try:
-        parsed_questions = parse_questions(question_library)
-        parsed_questions_result = question_parser(question_library, parsed_questions)
+        L1_result = L1Converter(question_library)
+        parsed_questions_result = question_parser(question_library, L1_result)
         print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
         question_library.checkpoint = 2
         question_library.save()
