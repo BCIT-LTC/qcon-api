@@ -135,9 +135,16 @@ def question_separate(data,index,question):
     # print("++++++++++++++")
     # print("index: " + str(index))
     # print("question " + str(question))
+    # print("prefix " + str(data[index].prefix))
     # print("content " + str(data[index].content))
 
     if index == len(data) - 1:
+
+        if check_fib(data[index].content):
+            # print("FIB found at end")
+            data[index].questionseparator = True
+            return data
+
         print("END question_separate")
         return data
     # else:
@@ -223,6 +230,7 @@ def find_index_of_previous_number(data, startindex):
 
 def check_fib(content):
     x = re.search("[\[.*,.*\]]", content)
+    # x = re.search("(?<!!)(?=\[(.*?)\])(?!\()", content)
     if x:
         return True
     else:
