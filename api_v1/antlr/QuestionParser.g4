@@ -4,16 +4,16 @@ options {
 }
 
 parse_question
-    :   section_header? question* end_answers? EOF
+    :   section_title? question* end_answers? EOF
     ;
 
-section_header
-    :   SECTION_HEADER
+section_title
+    :   SECTION_TITLE
     ;
 
 question
-    :   question_header start_question question_body answer_list
-    |   question_header start_question question_body
+    :   question_header? start_question question_body answer_list
+    |   question_header? start_question question_body
     ;
 
 start_question
@@ -21,30 +21,30 @@ start_question
     ;
 
 question_header
-    :   question_type? title? points? randomize?
-    |   question_type? title? randomize? points?
-    |   question_type? points? title? randomize?
-    |   question_type? points? randomize? title?
-    |   question_type? randomize? title? points?
-    |   question_type? randomize? points? title?
-    |   title? question_type? points? randomize?
-    |   title? question_type? randomize? points?
-    |   title? points? question_type? randomize?
-    |   title? points? randomize? question_type?
-    |   title? randomize? question_type? points?
-    |   title? randomize? points? question_type?
-    |   points? question_type? title? randomize?
-    |   points? question_type? randomize? title?
-    |   points? title? question_type? randomize?
-    |   points? title? randomize? question_type?
-    |   points? randomize? question_type? title?
-    |   points? randomize? title? question_type?
-    |   randomize? question_type? title? points?
-    |   randomize? question_type? points? title?
-    |   randomize? title? question_type? points?
-    |   randomize? title? points? question_type?
-    |   randomize? points? question_type? title?
-    |   randomize? points? title? question_type?
+    :   START_QUESTION_HEADER question_type? title? points? randomize?
+    |   START_QUESTION_HEADER question_type? title? randomize? points?
+    |   START_QUESTION_HEADER question_type? points? title? randomize?
+    |   START_QUESTION_HEADER question_type? points? randomize? title?
+    |   START_QUESTION_HEADER question_type? randomize? title? points?
+    |   START_QUESTION_HEADER question_type? randomize? points? title?
+    |   START_QUESTION_HEADER title? question_type? points? randomize?
+    |   START_QUESTION_HEADER title? question_type? randomize? points?
+    |   START_QUESTION_HEADER title? points? question_type? randomize?
+    |   START_QUESTION_HEADER title? points? randomize? question_type?
+    |   START_QUESTION_HEADER title? randomize? question_type? points?
+    |   START_QUESTION_HEADER title? randomize? points? question_type?
+    |   START_QUESTION_HEADER points? question_type? title? randomize?
+    |   START_QUESTION_HEADER points? question_type? randomize? title?
+    |   START_QUESTION_HEADER points? title? question_type? randomize?
+    |   START_QUESTION_HEADER points? title? randomize? question_type?
+    |   START_QUESTION_HEADER points? randomize? question_type? title?
+    |   START_QUESTION_HEADER points? randomize? title? question_type?
+    |   START_QUESTION_HEADER randomize? question_type? title? points?
+    |   START_QUESTION_HEADER randomize? question_type? points? title?
+    |   START_QUESTION_HEADER randomize? title? question_type? points?
+    |   START_QUESTION_HEADER randomize? title? points? question_type?
+    |   START_QUESTION_HEADER randomize? points? question_type? title?
+    |   START_QUESTION_HEADER randomize? points? title? question_type?
     ;
 
 question_type
