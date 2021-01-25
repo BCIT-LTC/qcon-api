@@ -47,8 +47,6 @@ def parse_questions(question_library) :
     walker.walk(printer, tree)
     parsed_questions = printer.get_results()
 
-    print("L1 done")
-
     # Populate L1 
     # Normalize array and grab indentations
 
@@ -247,82 +245,9 @@ def normalize_content(content):
 def remove_prefix(text, prefix):
     return re.sub(r'^{0}'.format(re.escape(prefix)), '', text)
 
-'''
-def apply_question_separator(questionindex, listofL1Elements, mainindex, questions_separated, baselevel):
-
-    print("==========")
-    # print("MAIN INDEX: " + str(mainindex))
-    # print("QUESTION INDEX: " + str(questionindex))
-    print("CURRENT LINE: " + str(listofL1Elements[mainindex].prefix))
-    # print("CURRENT CONTENT: " + str(listofL1Elements[mainindex].content))
-    # print("INDENT: " + str(listofL1Elements[mainindex].indentlength))
-    print("++++++++++")
-    # base case
-    # check if end of list
-    if mainindex == len(listofL1Elements) - 1:
-        print("END check recursive")
-        L1 = L1Element()
-        # L1.prefix='##########END_QUESTION##########'
-        L1.questionseparator = True
-        questions_separated.append(L1) 
-        return questions_separated
-
-    if listofL1Elements[mainindex].listseparator:
-        print("SEPARTORO FOUNDD")    
-        print("Compare " + listofL1Elements[mainindex+1].prefix +" "+ str(questionindex+1))
-        
-        # Check if next element is number        
-        if listofL1Elements[mainindex+1].prefix.isnumeric():
-            # Check if next element is increment of lastquestion
-            if int(listofL1Elements[mainindex+1].prefix) == int(questionindex+1):
-        #     # listofL1Elements[mainindex].questionseparator = True;
-        #     questions_separated.append(listofL1Elements[mainindex])
-                print("SEPARTORO APPLIED")
-                L1 = L1Element()
-                L1.questionseparator = True
-                questions_separated.append(L1) 
-                return apply_question_separator(questionindex, listofL1Elements, mainindex+1, questions_separated, baselevel)
-            else:
-                print("SEPARTORO forward")
-                questions_separated.append(listofL1Elements[mainindex]) 
-                return apply_question_separator(questionindex, listofL1Elements, mainindex+1, questions_separated, baselevel)
-        return apply_question_separator(questionindex, listofL1Elements, mainindex+1, questions_separated, baselevel)
-
-    if listofL1Elements[mainindex].prefix.isnumeric():
-        print("nummber iss FOUNDD")
-        print("sep befpre "+ str(listofL1Elements[mainindex-1].listseparator))
-        if listofL1Elements[mainindex-1].listseparator:  # question seperator added before
-            print("check previous for separator")
-            print(str(listofL1Elements[mainindex].prefix) + " "+ str(questionindex+1))
-            if int(listofL1Elements[mainindex].prefix) == int(questionindex+1):
-                print("isincrment here ")
-                questions_separated.append(listofL1Elements[mainindex])
-                return apply_question_separator(int(listofL1Elements[mainindex].prefix), listofL1Elements, mainindex+1, questions_separated, baselevel)
-            else:
-                print("is not increment")
-                questions_separated.append(listofL1Elements[mainindex])
-                return apply_question_separator(questionindex, listofL1Elements, mainindex+1, questions_separated, baselevel)
-        else: # no question seperator added before
-
-            if listofL1Elements[mainindex].prefix == int(questionindex+1): # is increment
-                #check if previous element was number
-                if listofL1Elements[mainindex-1].prefix.isnumeric():
-                    #check if FIB
-
-                    # else 
-                    # do not increment question
-                    L1 = L1Element()
-                    L1.questionseparator = True
-                    questions_separated.append(L1) 
-                    return apply_question_separator(questionindex+1, listofL1Elements, mainindex+1, questions_separated, baselevel)
-            questions_separated.append(listofL1Elements[mainindex])
-            return apply_question_separator(questionindex, listofL1Elements, mainindex+1, questions_separated, baselevel)
-    else:
-        if listofL1Elements[mainindex].listseparator is not True:
-            print("letterrrrr")
-            questions_separated.append(listofL1Elements[mainindex])
-            return apply_question_separator(questionindex, listofL1Elements, mainindex+1, questions_separated, baselevel)
-'''
+# =============================================================================================
+# =================================RUN CONVERSION==============================================
+# =============================================================================================
 
 def question_parser(question_library, text_string) :
     input = InputStream(text_string)
