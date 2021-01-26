@@ -247,10 +247,12 @@ def find_index_of_previous_number(data, startindex):
     return index
 
 def check_fib(content):
-    x = re.search("\[.*,.*\]", content)
+    # x = re.search("\[.*,.*\]", content)
     # x = re.search("(?<!!)(?=\[(.*?)\])(?!\()", content)
-    if x:
-        print("FIB found in detector")
+
+    fiblength = len(re.findall(r"(?<!!)(?=\[(.*?)\])(?!\()", content))       
+    if fiblength > 0:
+        # print("FIB found in detector")
         return True
     else:
         return False
