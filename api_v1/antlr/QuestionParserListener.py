@@ -724,7 +724,7 @@ class QuestionParserListener(ParseTreeListener):
 
     def is_written_response(self, question):
         if len(question.get_answers()) == 1:
-            if question.correct_answers_length == 0:
+            if question.correct_answers_length == None:
                 return True
         return False
 
