@@ -21,6 +21,7 @@ class L1Listener(ParseTreeListener):
     def exitL1(self, ctx:L1Parser.L1Context):
         if ctx.end_answers() != None:
             content = ctx.end_answers().getText()
+            content = content.replace("\n>", "")
             self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'endanswer': True})
             pass
 
@@ -90,6 +91,7 @@ class L1Listener(ParseTreeListener):
             content = ""
             for element in ctx.question_header_parameter():
                 content += element.getText()                
+            content = content.replace("\n>", '\n')           
             # self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
             self.questions.append({'prefix':'', 'content':content, 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':True, 'endanswer': False})
         pass
