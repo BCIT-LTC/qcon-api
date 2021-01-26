@@ -50,8 +50,8 @@ def L1Converter(question_library) :
     # Populate L1 
     # Normalize array and grab indentations
 
-    for element in parsed_questions:        
-        print(str(element))
+    # for element in parsed_questions:        
+    #     print(str(element))
 
     listofL1Elements = []    
     for element in parsed_questions:        
@@ -65,6 +65,7 @@ def L1Converter(question_library) :
         L1.listitem = element['listitem']
         L1.questionheader = element['questionheader']
         L1.sectionheader = element['sectionheader']
+        L1.endanswers = element['endanswer']
         listofL1Elements.append(L1)
 
     # for element in listofL1Elements:
@@ -121,6 +122,9 @@ def L1Converter(question_library) :
 
         if questions_separated[i].answerblockseparator:
             collectionofstrings.append('##########_START_ANSWER_##########\n')
+        
+        if questions_separated[i].endanswers:
+            collectionofstrings.append('##########_END_ANSWERS_##########\n')
         
         # THIS IS FOR LIST ITEMS
         if questions_separated[i].listitem:

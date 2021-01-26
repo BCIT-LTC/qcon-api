@@ -8,6 +8,7 @@ class L1Element:
         self.answerblockseparator = False # this one is set by the splitter
         self.questionheader = False
         self.sectionheader = False
+        self.endanswers = False
         # self.indentlength = 0 # Not being used
 
     def __str__(self):
