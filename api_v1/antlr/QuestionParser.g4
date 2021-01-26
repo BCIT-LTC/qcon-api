@@ -72,11 +72,7 @@ randomize
     ;
 
 question_body
-    :   question_prefix content+ feedback?
-    ;
-
-question_prefix
-    :   QUESTION_PREFIX
+    :   content+ feedback?
     ;
     
 content
@@ -117,4 +113,8 @@ end_answers
 
 end_answers_item
     :   question_prefix content+ feedback?
+    ;
+
+question_prefix
+    :   QUESTION_PREFIX
     ;

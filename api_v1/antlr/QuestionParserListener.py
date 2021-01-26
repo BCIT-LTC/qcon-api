@@ -370,14 +370,6 @@ class QuestionParserListener(ParseTreeListener):
         self.question.save()
         pass
 
-    # Enter a parse tree produced by QuestionParser#question_prefix.
-    def enterQuestion_prefix(self, ctx:QuestionParser.Question_prefixContext):
-        pass
-
-    # Exit a parse tree produced by QuestionParser#question_prefix.
-    def exitQuestion_prefix(self, ctx:QuestionParser.Question_prefixContext):
-        pass
-
     # Enter a parse tree produced by QuestionParser#Media.
     def enterMedia(self, ctx:QuestionParser.MediaContext):
         pass
@@ -562,6 +554,14 @@ class QuestionParserListener(ParseTreeListener):
     def exitEnd_answers_item(self, ctx:QuestionParser.End_answers_itemContext):
         pass
 
+    # Enter a parse tree produced by QuestionParser#question_prefix.
+    def enterQuestion_prefix(self, ctx:QuestionParser.Question_prefixContext):
+        pass
+
+    # Exit a parse tree produced by QuestionParser#question_prefix.
+    def exitQuestion_prefix(self, ctx:QuestionParser.Question_prefixContext):
+        pass
+    
     def trim_text(self, txt):
         text = txt.strip()
         text = re.sub(' +', ' ', text)
@@ -768,7 +768,8 @@ class QuestionParserListener(ParseTreeListener):
                                         fib.text = question_text
                                         fib.order = fib_order
                                         fib.save()
-                                        return True
+
+                                    return True
                             
                 return False
                 pass
