@@ -654,10 +654,10 @@ class QuestionParserListener(ParseTreeListener):
                 question.question_type = "MC"
             elif is_MT == True:
                 question.question_type = "MT"
-            elif is_MS == True:
-                question.question_type = "MS"
             elif is_ORD == True:
                 question.question_type = "ORD"
+            elif is_MS == True:
+                question.question_type = "MS"
             elif is_FIB == True:
                 question.question_type = "FIB"
             elif is_WR == True:
@@ -671,11 +671,11 @@ class QuestionParserListener(ParseTreeListener):
     
     def is_true_false(self, question):
         if question.correct_answers_length == 1:
-            if len(self.answers) == 2:
+            if len(question.get_answers()) == 2:
                 is_true_exist = False
                 is_false_exist = False
 
-                for answer in self.answers:
+                for answer in question.get_answers():
                     text_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                     if "true" == text_answer:
                         is_true_exist = True
@@ -684,7 +684,7 @@ class QuestionParserListener(ParseTreeListener):
                 
                 if is_true_exist == True:
                     if is_false_exist == True:
-                        for answer in self.answers:
+                        for answer in question.get_answers():
                             current_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                             if "true" == current_answer:
                                 answer.answer_body = "True"
@@ -695,18 +695,18 @@ class QuestionParserListener(ParseTreeListener):
         return False
 
     def is_multi_select(self, question):
-        if len(self.answers) > 1:
+        if len(question.get_answers()) > 1:
             return True
         return False
 
     def is_matching(self, question):
         count_equal_sign = 0
-        if len(self.answers) >= 1:
-            for answer in self.answers:
+        if len(question.get_answers()) >= 1:
+            for answer in question.get_answers():
                 if "=" in answer.answer_body:
                     count_equal_sign = count_equal_sign + 1
-            if(len(self.answers) == count_equal_sign):
-                for answer in self.answers:
+            if(len(question.get_answers()) == count_equal_sign):
+                for answer in question.get_answers():
                     split_answer = answer.answer_body.split('=')
                     if len(split_answer) > 2:
                         return False
@@ -717,19 +717,19 @@ class QuestionParserListener(ParseTreeListener):
         return False
 
     def is_ordering(self, question):
-        if len(self.answers) > 1:
-            if question.correct_answers_length == 0:
+        if len(question.get_answers()) > 1:
+            if question.correct_answers_length == None:
                 return True
         return False 
 
     def is_written_response(self, question):
-        if len(self.answers) == 1:
+        if len(question.get_answers()) == 1:
             if question.correct_answers_length == 0:
                 return True
         return False
 
     def is_fill_in_the_blanks(self, question):
-        if len(self.answers) == 0:
+        if len(question.get_answers()) == 0:
             if question.correct_answers_length == 0:
                 if len(question.get_fib_answers()) > 0:
                     question_text = question.question_body
