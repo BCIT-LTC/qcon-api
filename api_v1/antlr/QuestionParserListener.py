@@ -355,7 +355,7 @@ class QuestionParserListener(ParseTreeListener):
         body_text = ""
         for question_content in ctx.content():
             body_text += question_content.getText()
-        print("--------------------------QUESTION-------------------------------")
+        print("\n--------------------------QUESTION-------------------------------")
         question_body = self.markdown_to_html(body_text)
         question_body = self.trim_text(question_body)
         self.question.question_body = question_body
@@ -452,7 +452,7 @@ class QuestionParserListener(ParseTreeListener):
         answer_text = ""
         for answer_content in ctx.content():
             answer_text += answer_content.getText()
-        print("--------------------------LIST ITEM-------------------------------")
+        print("\n--------------------------LIST ITEM-------------------------------")
         answer_body = self.markdown_to_html(answer_text)
         answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
@@ -495,7 +495,7 @@ class QuestionParserListener(ParseTreeListener):
         answer_text = ""
         for answer_content in ctx.content():
             answer_text += answer_content.getText()
-        print("--------------------------LIST ANSWER ITEM-------------------------------")
+        print("\n--------------------------LIST ANSWER ITEM-------------------------------")
         answer_body = self.markdown_to_html(answer_text)
         answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
@@ -528,13 +528,25 @@ class QuestionParserListener(ParseTreeListener):
     def exitEnd_answers(self, ctx:QuestionParser.End_answersContext):
         if len(self.questions) == len(ctx.end_answers_item()) :
             self.end_answers = []
+            print("\n--------------------------END ANSWERS-------------------------------")
             for idx, ctx_end_answers_item in enumerate(ctx.end_answers_item()):
                 answer = {}
-                answer['answer'] = self.trim_text(ctx_end_answers_item.content().getText())
+                answer_content = ""
+                for ctx_answer_content in ctx_end_answers_item.content():
+                    answer_content += ctx_answer_content.getText()
+
+                answer_content = self.trim_text(answer_content)
+                print(answer_content)
+                answer['answer'] = answer_content
                 answer['feedback'] = None
                 
                 try:
-                  answer['feedback'] = ctx_end_answers_item.feedback().content().getText()
+                    feedback_content = ""
+                    for ctx_feedback_content in ctx_end_answers_item.feedback().content():
+                        feedback_content += ctx_feedback_content.getText()
+
+                    feedback_content = self.trim_text(feedback_content)
+                    answer['feedback'] = feedback_content
                 except:
                     # NO FEEDBACK
                     pass
