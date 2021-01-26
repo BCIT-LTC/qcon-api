@@ -4,9 +4,11 @@ class L1Element:
         self.content = ""
         self.starmarked = False
         self.listitem = False
-        self.questionseparator = False
-        self.answerblockseparator = False
-        self.indentlength = 0
+        self.questionseparator = False # this one is set by the splitter
+        self.answerblockseparator = False # this one is set by the splitter
+        self.questionheader = False
+        self.sectionheader = False
+        # self.indentlength = 0 # Not being used
 
     def __str__(self):
         # return "PREFIX: " + str(self.prefix) + " CONTENT:" + str(self.content) + " CORRECT:" + str(self.starmarked) + " SEPARATOR:" + str(self.questionseparator)

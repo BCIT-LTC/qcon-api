@@ -24,16 +24,15 @@ class L1Listener(ParseTreeListener):
 
     # Enter a parse tree produced by L1Parser#sectionheading.
     def enterSectionheading(self, ctx:L1Parser.SectionheadingContext):
-
-        x = '##########_SECTION_##########'
-        self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
+        # x = '##########_SECTION_##########'
+        # self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
         pass
 
     # Exit a parse tree produced by L1Parser#sectionheading.
     def exitSectionheading(self, ctx:L1Parser.SectionheadingContext):
         if ctx.content() != None:
             x = ctx.content().getText().replace("\n>", "")
-            self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
+            self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':True, 'questionheader':False, 'endanswer': False})
             pass
 
 
@@ -58,7 +57,8 @@ class L1Listener(ParseTreeListener):
         # {'prefix':ctx.numlist_prefix().getText(), 'content':ctx.content().getText(), 'correctprefix': False, 'listseparator': False}
         prefix = ctx.numlist_prefix().getText().replace("\n>", '\n')
         content = ctx.content().getText().replace("\n>", '\n')
-        self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
+        # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
+        self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
         pass
 
 
@@ -71,24 +71,32 @@ class L1Listener(ParseTreeListener):
         if ctx.letterlist_prefix_regular() != None:
             prefix = ctx.letterlist_prefix_regular().getText().replace("\n>", '\n')
             content = ctx.content().getText().replace("\n>", '\n')           
-            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
-        
+            # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
+            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
+
         if ctx.letterlist_prefix_correct() != None:
             prefix = ctx.letterlist_prefix_correct().getText().replace("\n>", '\n')
             content = ctx.content().getText().replace("\n>", '\n')
-            self.questions.append({'prefix':ctx.letterlist_prefix_correct().getText(), 'content':ctx.content().getText(), 'correctprefix': True, 'listitem': True})
+            # self.questions.append({'prefix':ctx.letterlist_prefix_correct().getText(), 'content':ctx.content().getText(), 'correctprefix': True, 'listitem': True})
+            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': True, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
         pass
 
 
     # Enter a parse tree produced by L1Parser#question_header.
     def enterQuestion_header(self, ctx:L1Parser.Question_headerContext):
-        if ctx.question_header_parameter() != None:       
-            x = '\n##########_QUESTION_HEADER_##########'
-            self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
+        # if ctx.question_header_parameter() != None:       
+        #     x = '\n##########_QUESTION_HEADER_##########'
+        #     self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
         pass
 
     # Exit a parse tree produced by L1Parser#question_header.
     def exitQuestion_header(self, ctx:L1Parser.Question_headerContext):
+        if ctx.question_header_parameter() != None:  
+            content = ""
+            for element in ctx.question_header_parameter():
+                content += element.getText()                
+            # self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
+            self.questions.append({'prefix':'', 'content':content, 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':True, 'endanswer': False})
         pass
 
 
@@ -134,25 +142,25 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#question_header_parameter.
     def exitQuestion_header_parameter(self, ctx:L1Parser.Question_header_parameterContext):
-        if ctx.points() != None:
-            x = ctx.points().getText().replace("\n>", '\n')
-            self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
+        # if ctx.points() != None:
+        #     x = ctx.points().getText().replace("\n>", '\n')
+        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
 
-        if ctx.title() != None:
-            x = ctx.title().getText().replace("\n>", '\n')
-            self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
+        # if ctx.title() != None:
+        #     x = ctx.title().getText().replace("\n>", '\n')
+        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
         
-        if ctx.questiontype() != None:
-            x = ctx.questiontype().getText().replace("\n>", '\n')
-            self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})    
+        # if ctx.questiontype() != None:
+        #     x = ctx.questiontype().getText().replace("\n>", '\n')
+        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})    
 
-        if ctx.randomize() != None:
-            x = ctx.randomize().getText().replace("\n>", '\n')
-            self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})   
+        # if ctx.randomize() != None:
+        #     x = ctx.randomize().getText().replace("\n>", '\n')
+        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})   
 
-        if ctx.content() != None:
-            x = ctx.content().getText().replace("\n>", '\n')
-            self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
+        # if ctx.content() != None:
+        #     x = ctx.content().getText().replace("\n>", '\n')
+        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
         pass
 
 

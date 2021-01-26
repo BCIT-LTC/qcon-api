@@ -50,16 +50,21 @@ def L1Converter(question_library) :
     # Populate L1 
     # Normalize array and grab indentations
 
+    for element in parsed_questions:        
+        print(str(element))
+
     listofL1Elements = []    
     for element in parsed_questions:        
         L1 = L1Element()
         if element['listitem'] == True:
             indent_length, normalized_prefix = normalize_prefix_and_grab_indent(element['prefix'])
             L1.prefix = normalized_prefix
-            L1.indentlength = indent_length  
+            # L1.indentlength = indent_length  
         L1.content = element['content']
         L1.starmarked = element['correctprefix']
         L1.listitem = element['listitem']
+        L1.questionheader = element['questionheader']
+        L1.sectionheader = element['sectionheader']
         listofL1Elements.append(L1)
 
     # for element in listofL1Elements:
@@ -67,8 +72,11 @@ def L1Converter(question_library) :
     #     print("PREFIX " + str(element.prefix))
     #     print("CONTENT " + str(element.content))
     #     print("STARMARKED " + str(element.starmarked))
-    #     print("LISTSEP " + str(element.listseparator))
-    #     print("INDENTLEN " + str(element.indentlength))
+    #     print("LISTITEM " + str(element.listitem))
+    #     print("questionseparator " + str(element.questionseparator))
+    #     print("answerblockseparator " + str(element.answerblockseparator))
+    #     print("questionheader " + str(element.questionheader))
+    #     print("sectionheader " + str(element.sectionheader))
 
     # Split questions
     
@@ -98,9 +106,15 @@ def L1Converter(question_library) :
     # for line in questions_separated:
     #     print(line)
 
-    # compile array or strings 
+    # ADD MARKER AND APPEND ARRAYS TO ONE STRING    
     collectionofstrings = []
     for i in range(0, len(questions_separated), 1):
+
+        if questions_separated[i].sectionheader:
+            collectionofstrings.append('##########_SECTION_##########\n')
+
+        if questions_separated[i].questionheader:
+            collectionofstrings.append('##########_QUESTION_HEADER_##########\n')
         
         if questions_separated[i].questionseparator:
             collectionofstrings.append('##########_START_QUESTION_##########\n')
@@ -132,16 +146,16 @@ def L1Converter(question_library) :
 # =============================================================================================
 
 def question_separate(data,index,question):
-    # print("++++++++++++++")
-    # print("index: " + str(index))
-    # print("question " + str(question))
-    # print("prefix " + str(data[index].prefix))
-    # print("content " + str(data[index].content))
+    print("++++++++++++++")
+    print("index: " + str(index))
+    print("question " + str(question))
+    print("prefix " + str(data[index].prefix))
+    print("content " + str(data[index].content))
 
     if index == len(data) - 1:
 
         if check_fib(data[index].content):
-            # print("FIB found at end")
+            print("FIB found at end")
             data[index].questionseparator = True
             return data
 
@@ -150,7 +164,7 @@ def question_separate(data,index,question):
     # else:
     #     return question_separate(data,index+1, question)
     if data[index].prefix.isnumeric():
-        # print("it is num")
+        print("it is num")
         if int(question) == 0:
             # print("first question")
             if int(data[index].prefix) == 1:
@@ -162,26 +176,26 @@ def question_separate(data,index,question):
         # try to find the next increment 
         if int(data[index].prefix) == int(question+1):
             #is this one FIB
-            # print("found next increment")
+            print("found next increment")
             if check_fib(data[index].content):
-                # print("FIB found")
+                print("FIB found")
                 data[index].questionseparator = True
                 return question_separate(data, index+1,question+1)
             else:
-                # print("NO FIB")
+                print("NO FIB")
 
                 # look for letters before this
                 if data[index-1].prefix.islower() or data[index-1].prefix.isupper():
                     data[index].questionseparator = True
                     return question_separate(data, index+1,question+1)
                 else:
-                    # print("check if number before skipping to next one ")
+                    print("check if number before skipping to next one ")
                     # check if number before skipping to next one 
                     if data[index-1].prefix.isnumeric():
-                        # print("check if previous one is a separator  ")
+                        print("check if previous one is a separator  ")
                         # check if previous one is a separator 
                         if data[index-1].questionseparator:
-                            # print("if it is then mark this one and continue")
+                            print("if it is then mark this one and continue")
                             #if it is then mark this one and continue
                             data[index].questionseparator = True
                             return question_separate(data, index+1,question+1)
@@ -189,13 +203,13 @@ def question_separate(data,index,question):
                         # if it is not numeric then it has to be a list separator 
                         # continue checking the previous one to this if it is letter
                         # if it is then mark and continue
-                        # print("if it is not numeric then it has to be a list separator ")
+                        print("if it is not numeric then it has to be a list separator ")
                         if data[index-2].prefix.islower() or data[index-2].prefix.isupper():
                             data[index].questionseparator = True
                             return question_separate(data, index+1,question+1)
                         else:
                             # if it is not letter just continue 
-                            # print("if it is not letter just continue ")
+                            print("if it is not letter just continue ")
                             return question_separate(data, index+1,question)
 
                     return question_separate(data, index+1,question)
@@ -229,9 +243,10 @@ def find_index_of_previous_number(data, startindex):
     return index
 
 def check_fib(content):
-    x = re.search("[\[.*,.*\]]", content)
+    x = re.search("\[.*,.*\]", content)
     # x = re.search("(?<!!)(?=\[(.*?)\])(?!\()", content)
     if x:
+        print("FIB found in detector")
         return True
     else:
         return False
@@ -301,97 +316,97 @@ def runconversion(question_library):
     try:
         L1_result = L1Converter(question_library)
         L1_result = "\n" + L1_result
-        parsed_questions_result = question_parser(question_library, L1_result)
-        print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
-        question_library.checkpoint = 2
-        question_library.save()
+        # parsed_questions_result = question_parser(question_library, L1_result)
+        # print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
+        # question_library.checkpoint = 2
+        # question_library.save()
     except Exception as e:
         print(e)
         question_library.checkpoint_failed = 2
         question_library.save()
         return "Error at Checkpoint 2"
         
-    # ImsManifest string create ===================================================================================
-    print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
-    try:              
-        parsed_xml = XmlWriter(question_library, parsed_questions_result)
-        manifest_entity = ManifestEntity()
-        manifest_resource_entity = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
-        manifest_entity.add_resource(manifest_resource_entity)
-        manifest = parsed_xml.create_manifest(manifest_entity, question_library.folder_path)
-        parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
-        parsed_imsmanifest = parseString(parsed_imsmanifest)
-        parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
-        question_library.imsmanifest_string = parsed_imsmanifest
-        question_library.checkpoint = 3
-        question_library.save()
+    # # ImsManifest string create ===================================================================================
+    # print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
+    # try:              
+    #     parsed_xml = XmlWriter(question_library, parsed_questions_result)
+    #     manifest_entity = ManifestEntity()
+    #     manifest_resource_entity = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
+    #     manifest_entity.add_resource(manifest_resource_entity)
+    #     manifest = parsed_xml.create_manifest(manifest_entity, question_library.folder_path)
+    #     parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
+    #     parsed_imsmanifest = parseString(parsed_imsmanifest)
+    #     parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
+    #     question_library.imsmanifest_string = parsed_imsmanifest
+    #     question_library.checkpoint = 3
+    #     question_library.save()
 
-        print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
-    except Exception as e:
-        print(e)
-        question_library.save()
-        return "Error at Checkpoint 3"
+    #     print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
+    # except Exception as e:
+    #     print(e)
+    #     question_library.save()
+    #     return "Error at Checkpoint 3"
 
-    # ImsManifest Save File ===================================================================================
+    # # ImsManifest Save File ===================================================================================
 
-    try:
-        print(datetime.now().strftime("%H:%M:%S"), "Creating questiondb string...")
-        questiondb_string = parsed_xml.questiondb_string
-        img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
+    # try:
+    #     print(datetime.now().strftime("%H:%M:%S"), "Creating questiondb string...")
+    #     questiondb_string = parsed_xml.questiondb_string
+    #     img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
-        for idx, img in enumerate(img_elements):
-            element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
-            new_img = '<img src="{0}" alt="{1}" />'.format('./media/' + basename(element[0]), basename(element[0]))
-            questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
+    #     for idx, img in enumerate(img_elements):
+    #         element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
+    #         new_img = '<img src="{0}" alt="{1}" />'.format('./media/' + basename(element[0]), basename(element[0]))
+    #         questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
 
-        question_library.questiondb_string = questiondb_string
-        question_library.save()
+    #     question_library.questiondb_string = questiondb_string
+    #     question_library.save()
 
-        imsmanifest_file = ContentFile(question_library.imsmanifest_string, name="imsmanifest.xml")
-        question_library.imsmanifest_file = imsmanifest_file
-        question_library.checkpoint = 4;
-        question_library.save()
-        print(question_library.imsmanifest_file.name)
-        print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
-    except:
-        question_library.save()
-        return "Error at Checkpoint 4"
-    # Questiondb string create ===================================================================================
+    #     imsmanifest_file = ContentFile(question_library.imsmanifest_string, name="imsmanifest.xml")
+    #     question_library.imsmanifest_file = imsmanifest_file
+    #     question_library.checkpoint = 4;
+    #     question_library.save()
+    #     print(question_library.imsmanifest_file.name)
+    #     print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
+    # except:
+    #     question_library.save()
+    #     return "Error at Checkpoint 4"
+    # # Questiondb string create ===================================================================================
 
-    print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifest.xml and questiondb.xml...")
-    try:        
-        questiondb_file = ContentFile(question_library.questiondb_string, name="questiondb.xml")
-        question_library.questiondb_file = questiondb_file
-        question_library.checkpoint = 5;
-        question_library.save()
+    # print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifest.xml and questiondb.xml...")
+    # try:        
+    #     questiondb_file = ContentFile(question_library.questiondb_string, name="questiondb.xml")
+    #     question_library.questiondb_file = questiondb_file
+    #     question_library.checkpoint = 5;
+    #     question_library.save()
 
-        print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
-    except:
-        question_library.checkpoint_failed = 5
-        question_library.save()
-        return "Error at Checkpoint 5"
+    #     print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
+    # except:
+    #     question_library.checkpoint_failed = 5
+    #     question_library.save()
+    #     return "Error at Checkpoint 5"
 
-    # Questiondb string create ===================================================================================
-    print(datetime.now().strftime("%H:%M:%S"), "Creating scorm zip file...")
-    try:
-        with ZipFile(question_library.folder_path + "/" + question_library.section_name + '.zip', 'w') as myzip:
-            myzip.write(question_library.questiondb_file.path, "questiondb.xml")
-            myzip.write(question_library.imsmanifest_file.path, "imsmanifest.xml")
-            for root, dirs, files in walk(question_library.image_path) :
-                for filename in files :
-                    myzip.write(path.join(root, filename), '/media/' + filename)
+    # # Questiondb string create ===================================================================================
+    # print(datetime.now().strftime("%H:%M:%S"), "Creating scorm zip file...")
+    # try:
+    #     with ZipFile(question_library.folder_path + "/" + question_library.section_name + '.zip', 'w') as myzip:
+    #         myzip.write(question_library.questiondb_file.path, "questiondb.xml")
+    #         myzip.write(question_library.imsmanifest_file.path, "imsmanifest.xml")
+    #         for root, dirs, files in walk(question_library.image_path) :
+    #             for filename in files :
+    #                 myzip.write(path.join(root, filename), '/media/' + filename)
                     
-        question_library.zip_file.name = str(question_library.id) + "/" + question_library.section_name + '.zip'
-        question_library.save()
-        end = time.time()
-        question_library.checkpoint = 6;
-        question_library.time_delta = end-start
-        question_library.save()
-        print(datetime.now().strftime("%H:%M:%S"), "Scorm zip file created!")
-        print("\n")
-    except:
-        question_library.checkpoint_failed = 6
-        question_library.save()
-        return "Error at Checkpoint 6"
+    #     question_library.zip_file.name = str(question_library.id) + "/" + question_library.section_name + '.zip'
+    #     question_library.save()
+    #     end = time.time()
+    #     question_library.checkpoint = 6;
+    #     question_library.time_delta = end-start
+    #     question_library.save()
+    #     print(datetime.now().strftime("%H:%M:%S"), "Scorm zip file created!")
+    #     print("\n")
+    # except:
+    #     question_library.checkpoint_failed = 6
+    #     question_library.save()
+    #     return "Error at Checkpoint 6"
     
     return "Task {} Finished successfully".format(question_library.id) 
