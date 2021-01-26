@@ -64,6 +64,16 @@ class L1Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by L1Parser#end_answers.
+    def visitEnd_answers(self, ctx:L1Parser.End_answersContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by L1Parser#end_answers_item.
+    def visitEnd_answers_item(self, ctx:L1Parser.End_answers_itemContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by L1Parser#title.
     def visitTitle(self, ctx:L1Parser.TitleContext):
         return self.visitChildren(ctx)

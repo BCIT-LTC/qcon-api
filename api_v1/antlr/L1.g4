@@ -14,7 +14,7 @@ grammar L1;
 //     }
 // }
 
-l1: sectionheading? rootlist* EOF;
+l1: sectionheading? rootlist* end_answers EOF;
 
 sectionheading: content;
 
@@ -39,6 +39,13 @@ question_header_parameter
     |   randomize content
     ;
 
+end_answers
+    :   END_ANSWER end_answers_item+
+    ;
+
+end_answers_item
+    :   numlist content+ 
+    ;
 
 title:   TITLE;
 points:   POINTS;
@@ -102,6 +109,8 @@ TITLE:  NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T I T L E S? WHITESPACE* ;
 POINTS:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* P O I N T S? WHITESPACE*  ;
 TYPE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T Y P E S? WHITESPACE*;
 RANDOMIZE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
+
+END_ANSWER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R (S)? WHITESPACE* COLON NEWLINE?;
 
 // FEEDBACK
 // BOLDED_STAR_AFTER_DOT: NEWLINE WHITESPACE* DOUBLE_ASTERISK LETTER LETTER? WHITESPACE* DELIMITER WHITESPACE* ANSWER_MARKER WHITESPACE*;

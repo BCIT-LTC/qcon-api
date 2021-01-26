@@ -19,13 +19,14 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#l1.
     def exitL1(self, ctx:L1Parser.L1Context):
-        pass
+        if ctx.end_answers() != None:
+            content = ctx.end_answers().getText()
+            self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'endanswer': True})
+            pass
 
 
     # Enter a parse tree produced by L1Parser#sectionheading.
     def enterSectionheading(self, ctx:L1Parser.SectionheadingContext):
-        # x = '##########_SECTION_##########'
-        # self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False})
         pass
 
     # Exit a parse tree produced by L1Parser#sectionheading.
@@ -42,10 +43,7 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#rootlist.
     def exitRootlist(self, ctx:L1Parser.RootlistContext):
-        if ctx.endoflist() != None:
-            # dict = {'prefix':'', 'content':'', 'correctprefix': False, 'listseparator': True} 
-            # self.questions.append({'prefix':'', 'content':'', 'correctprefix': False, 'listseparator': True}) #(prefix,content,correctprefix,listspearator)
-            pass
+        pass
 
 
     # Enter a parse tree produced by L1Parser#numlist.
@@ -54,7 +52,7 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#numlist.
     def exitNumlist(self, ctx:L1Parser.NumlistContext):
-        # {'prefix':ctx.numlist_prefix().getText(), 'content':ctx.content().getText(), 'correctprefix': False, 'listseparator': False}
+         # {'prefix':ctx.numlist_prefix().getText(), 'content':ctx.content().getText(), 'correctprefix': False, 'listseparator': False}
         prefix = ctx.numlist_prefix().getText().replace("\n>", '\n')
         content = ctx.content().getText().replace("\n>", '\n')
         # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
@@ -84,9 +82,6 @@ class L1Listener(ParseTreeListener):
 
     # Enter a parse tree produced by L1Parser#question_header.
     def enterQuestion_header(self, ctx:L1Parser.Question_headerContext):
-        # if ctx.question_header_parameter() != None:       
-        #     x = '\n##########_QUESTION_HEADER_##########'
-        #     self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
         pass
 
     # Exit a parse tree produced by L1Parser#question_header.
@@ -142,25 +137,24 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#question_header_parameter.
     def exitQuestion_header_parameter(self, ctx:L1Parser.Question_header_parameterContext):
-        # if ctx.points() != None:
-        #     x = ctx.points().getText().replace("\n>", '\n')
-        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
+        pass
 
-        # if ctx.title() != None:
-        #     x = ctx.title().getText().replace("\n>", '\n')
-        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
-        
-        # if ctx.questiontype() != None:
-        #     x = ctx.questiontype().getText().replace("\n>", '\n')
-        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})    
 
-        # if ctx.randomize() != None:
-        #     x = ctx.randomize().getText().replace("\n>", '\n')
-        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})   
+    # Enter a parse tree produced by L1Parser#end_answers.
+    def enterEnd_answers(self, ctx:L1Parser.End_answersContext):
+        pass
 
-        # if ctx.content() != None:
-        #     x = ctx.content().getText().replace("\n>", '\n')
-        #     self.questions.append({'prefix':'', 'content':x , 'correctprefix': False, 'listitem': False})
+    # Exit a parse tree produced by L1Parser#end_answers.
+    def exitEnd_answers(self, ctx:L1Parser.End_answersContext):
+        pass
+
+
+    # Enter a parse tree produced by L1Parser#end_answers_item.
+    def enterEnd_answers_item(self, ctx:L1Parser.End_answers_itemContext):
+        pass
+
+    # Exit a parse tree produced by L1Parser#end_answers_item.
+    def exitEnd_answers_item(self, ctx:L1Parser.End_answers_itemContext):
         pass
 
 
