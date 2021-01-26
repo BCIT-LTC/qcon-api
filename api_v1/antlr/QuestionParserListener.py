@@ -39,7 +39,6 @@ class QuestionParserListener(ParseTreeListener):
             for question_index, question in enumerate(self.questions):
                 end_answer = self.end_answers[question_index]['answer']
                 answers = question.get_answers()
-
                 if len(answers) > 0:
                     if len(answers) == 2:
                         is_true_exist = False
@@ -123,7 +122,7 @@ class QuestionParserListener(ParseTreeListener):
                                     answer_obj.save()
 
                 elif len(answers) == 0:
-                    # either MT or WR
+                    # either MT or WR or FIB
                     is_wr = False
                     fib_answers = question.get_fib_answers()
                     if len(fib_answers) > 0: 
@@ -131,12 +130,16 @@ class QuestionParserListener(ParseTreeListener):
                             # Multi FIB
                             end_answers_split = end_answer.split(";")
                             for answer_index, answer_text in enumerate(end_answers_split):
+                                question.question_type = 'FIB'
+                                question.save()
                                 fib_answer = fib_answers[answer_index]
                                 fib_answer.type = "answer"
                                 fib_answer.text = answer_text
                                 fib_answer.save()
                         else:
                             # only one FIB
+                            question.question_type = 'FIB'
+                            question.save()
                             fib_answer = question.get_fib_answers()[0]
                             fib_answer.type = "answer"
                             fib_answer.text = end_answer
