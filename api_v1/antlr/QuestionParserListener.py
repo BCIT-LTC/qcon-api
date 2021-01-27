@@ -126,24 +126,32 @@ class QuestionParserListener(ParseTreeListener):
                     is_wr = False
                     fib_answers = question.get_fib_answers()
                     if len(fib_answers) > 0: 
+                        # Type FIB
+                        question.question_type = 'FIB'
+                        question.save()
+                        
                         if ';' in end_answer:
                             # Multi FIB
                             end_answers_split = end_answer.split(";")
                             for answer_index, answer_text in enumerate(end_answers_split):
-                                question.question_type = 'FIB'
-                                question.save()
                                 fib_answer = fib_answers[answer_index]
-                                fib_answer.type = "answer"
                                 fib_answer.text = answer_text
                                 fib_answer.save()
                         else:
                             # only one FIB
-                            question.question_type = 'FIB'
-                            question.save()
                             fib_answer = question.get_fib_answers()[0]
-                            fib_answer.type = "answer"
                             fib_answer.text = end_answer
                             fib_answer.save()
+
+                        fib_answers = question.get_fib_answers()
+                        fib_question_body = question.question_body
+                        for index, fib_answer in enumerate(fib_answers):
+                            answer_text = "["+ fib_answer.text +"]"
+                            fib_question_body = re.sub(r"\[\s*?(\*)+\s*?\]", answer_text, fib_question_body, 1)
+
+                        question.question_body = fib_question_body
+                        question.save()
+                        
                     elif ';' in end_answer:
                         end_answers_split = end_answer.split(";")
                         
@@ -174,7 +182,7 @@ class QuestionParserListener(ParseTreeListener):
                         wr_answer.question = question
                         wr_answer.answer_body = end_answer
                         wr_answer.save()
-                            
+
                 self.process_question(question)
                 self.question.save()
                 print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
@@ -636,8 +644,11 @@ class QuestionParserListener(ParseTreeListener):
                 else:
                     print("Wrong question Format: ORD")
             elif question.question_type == 'FIB':
-                # if self.is_fill_in_the_blanks(question) == True:
-                # BUILD FIB
+                if self.is_fill_in_the_blanks(question) == True:
+                    # BUILD FIB
+                    pass
+                else:
+                    print("Wrong question Format: FIB")
                 pass
             elif question.question_type == 'WR':
                 # TRUST USER & BUILD WR
@@ -716,7 +727,7 @@ class QuestionParserListener(ParseTreeListener):
 
     def is_matching(self, question):
         count_equal_sign = 0
-        if len(question.get_answers()) >= 1:
+        if len(question.get_answers()) > 1:
             for answer in question.get_answers():
                 if "=" in answer.answer_body:
                     count_equal_sign = count_equal_sign + 1
@@ -748,7 +759,7 @@ class QuestionParserListener(ParseTreeListener):
             if question.correct_answers_length == 0:
                 if len(question.get_fib_answers()) > 0:
                     question_text = question.question_body
-                    question_fib_length = len(re.findall(r"(?<!!)(?=\[(.*?)\])(?!\()", question_text))
+                    question_fib_length = len(re.findall(r"\[(.*?)\]", question_text))
                     if question_fib_length == len(question.get_fib_answers()):
                         fib_order = 0
                         for index, fib_answer in enumerate(question.get_fib_answers()):
