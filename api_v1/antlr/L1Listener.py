@@ -4,7 +4,7 @@ if __name__ is not None and "." in __name__:
     from .L1Parser import L1Parser
 else:
     from L1Parser import L1Parser
-
+import re
 # This class defines a complete listener for a parse tree produced by L1Parser.
 class L1Listener(ParseTreeListener):
     def __init__(self, question_library):
@@ -21,7 +21,8 @@ class L1Listener(ParseTreeListener):
     def exitL1(self, ctx:L1Parser.L1Context):
         if ctx.end_answers() != None:
             content = ctx.end_answers().getText()
-            content = content.replace("\n>", "")
+            content = re.sub(r"\n\s*\>\s*", "", content)
+
             self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'endanswer': True})
             pass
 
@@ -33,7 +34,7 @@ class L1Listener(ParseTreeListener):
     # Exit a parse tree produced by L1Parser#sectionheading.
     def exitSectionheading(self, ctx:L1Parser.SectionheadingContext):
         if ctx.content() != None:
-            x = ctx.content().getText().replace("\n>", "")
+            x = re.sub(r"\n\s*\>\s*", "", ctx.content().getText())
             self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':True, 'questionheader':False, 'endanswer': False})
             pass
 
@@ -54,8 +55,8 @@ class L1Listener(ParseTreeListener):
     # Exit a parse tree produced by L1Parser#numlist.
     def exitNumlist(self, ctx:L1Parser.NumlistContext):
          # {'prefix':ctx.numlist_prefix().getText(), 'content':ctx.content().getText(), 'correctprefix': False, 'listseparator': False}
-        prefix = ctx.numlist_prefix().getText().replace("\n>", '\n')
-        content = ctx.content().getText().replace("\n>", '\n')
+        prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.numlist_prefix().getText())
+        content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
         # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
         self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
         pass
@@ -68,14 +69,14 @@ class L1Listener(ParseTreeListener):
     # Exit a parse tree produced by L1Parser#letterlist.
     def exitLetterlist(self, ctx:L1Parser.LetterlistContext):
         if ctx.letterlist_prefix_regular() != None:
-            prefix = ctx.letterlist_prefix_regular().getText().replace("\n>", '\n')
-            content = ctx.content().getText().replace("\n>", '\n')           
+            prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.letterlist_prefix_regular().getText())
+            content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
             # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
             self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
 
         if ctx.letterlist_prefix_correct() != None:
-            prefix = ctx.letterlist_prefix_correct().getText().replace("\n>", '\n')
-            content = ctx.content().getText().replace("\n>", '\n')
+            prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.letterlist_prefix_correct().getText())
+            content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
             # self.questions.append({'prefix':ctx.letterlist_prefix_correct().getText(), 'content':ctx.content().getText(), 'correctprefix': True, 'listitem': True})
             self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': True, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
         pass
@@ -90,8 +91,8 @@ class L1Listener(ParseTreeListener):
         if ctx.question_header_parameter() != None:  
             content = ""
             for element in ctx.question_header_parameter():
-                content += element.getText()                
-            content = content.replace("\n>", '\n')           
+                content += element.getText()
+            content = re.sub(r"\n\s*\>\s*", "\n", content)    
             # self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
             self.questions.append({'prefix':'', 'content':content, 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':True, 'endanswer': False})
         pass
