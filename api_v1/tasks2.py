@@ -247,11 +247,10 @@ def find_index_of_previous_number(data, startindex):
     return index
 
 def check_fib(content):
-    # x = re.search("\[.*,.*\]", content)
-    # x = re.search("(?<!!)(?=\[(.*?)\])(?!\()", content)
-
-    fiblength = len(re.findall(r"(?<!!)(?=\[(.*?)\])(?!\()", content))       
-    if fiblength > 0:
+    # Create HTML string first to filter out images and other tags that will interfere with the regex
+    html_text = pypandoc.convert_text(content, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
+    x = re.search(r"\[(.*?)\]", html_text)    
+    if x:
         # print("FIB found in detector")
         return True
     else:
