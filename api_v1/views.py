@@ -36,7 +36,10 @@ class CliUpload(APIView):
     def post(self, request):
 
         file_obj = request.FILES.get('file')
-
+        is_random = False
+        if 'randomize' in request.POST:
+            if request.POST['randomize'].lower() in ("true", "yes"):
+                is_random = True
         print("CLIUPLOAD")
         question_library = QuestionLibrary.objects.create()
         question_library.folder_path = '/code/temp/' + str(question_library.id)
@@ -48,9 +51,10 @@ class CliUpload(APIView):
         question_library.section_name = file_obj.name.split(".")[0]
         question_library.create_directory()
         question_library.temp_file=file_obj
+        question_library.randomize_answer = is_random
         question_library.save()
 
-        async_task('api_v1.tasks.runconversion', question_library, hook='api_v1.views.print_result')
+        async_task('api_v1.tasks2.runconversion', question_library, hook='api_v1.views.print_result')
 
         return Response(question_library.id)
 

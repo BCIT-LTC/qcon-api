@@ -6,7 +6,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /api/
+      - path: /admin
         pathType: Prefix
         backend:
           serviceName: qcon-service

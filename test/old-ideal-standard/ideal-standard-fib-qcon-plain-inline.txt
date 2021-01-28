@@ -1,0 +1,35 @@
+﻿# Ideal Standard - Fill-in-Blank (FIB) - Qcon format - Plain – inline answers
+
+1. A [rose, flower] by any other name would smell as [sweet, good].
+
+2. A [rose, flower] by any other name would smell as [sweet, good].
+@ Overall feedback yo
+
+Title: Some poem (3) - by any other name...
+3. A [rose, flower] by any other name would smell as [sweet, good].
+@ Overall feedback yo
+
+Points: 5 
+Title: Some poem (4) - by any other name...
+4. A [rose, flower] by any other name would smell as [sweet, good].
+@ Overall feedback yo
+
+Title: Some poem (5) - by any other name...
+5. A [rose, flower] by any other name would smell as [sweet, good].
+![car](car.jpeg)
+@ Overall feedback yo...
+Can it do paragraphs?
+
+Title: Some poem (6) - by any other name...
+6. A [rose, flower] by any other name would smell as [sweet, good].
+source: https://www.youtube.com/embed/fpJdq12ddgk
+@ Overall feedback yo...
+Can it do paragraphs?
+
+Title: Some poem (7) - by any other name...
+7. A [rose, flower] by any other name would smell as [sweet, good].
+source: https://www.youtube.com/embed/fpJdq12ddgk
+@ Overall feedback yo...
+source: einstein.jpg
+Can it do paragraphs?
+How about math? A=pr^2
