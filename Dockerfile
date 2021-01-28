@@ -20,7 +20,8 @@ WORKDIR /code
 COPY requirements.txt .
 
 RUN mkdir log \
-    && touch log/error.log
+    && touch log/error.log \
+    && chmod g+w log/error.log
 
 RUN pip install -r requirements.txt
 

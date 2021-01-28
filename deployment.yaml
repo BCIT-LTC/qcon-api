@@ -2,34 +2,36 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon
+#  namespace: web-apps
+  labels:
+    app: qcon
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: qcon
-#  strategy:
-#    type: Recreate
+      tier: backend
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: qcon
+        tier: backend
     spec:
+#      volumes:
+#      - name: qcon-persistent-storage
+#        persistentVolumeClaim:
+#          claimName: qcon-pv-claim
       containers:
       - name: qcon
         image: qcon
-#         volumeMounts:
-#           name: qcon-volume
-#           - mountPath: /code
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         ports:
         - containerPort: 8000
-#      imagePullSecrets:
-#        - name: qcon-secrets
-#      volumes:
-#      - name: qcon-volume
-#        persistentVolumeClaim:
-#          claimName: qcon-volume-claim
-status: {}
+#        volumeMounts:
+#        - name: qcon-persistent-storage
+#          mountPath: /code

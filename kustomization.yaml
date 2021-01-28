@@ -1,0 +1,4 @@
+secretGenerator:
+- name: qcon-pass
+  literals:
+  - password=SOME_PASSWORD

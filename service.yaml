@@ -1,13 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: qcon
+  name: qcon-service
+#  namespace: web-apps
 spec:
   type: NodePort
-  ports:
-  - name: "port-8000"
-    port: 8000
-    targetPort: 8000
   selector:
     app: qcon
-status: {}
+  ports:
+  - port: 8000
+    targetPort: 8000

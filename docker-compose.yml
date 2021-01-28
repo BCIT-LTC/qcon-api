@@ -16,7 +16,7 @@ services:
   app:
     build: .
     # command: python manage.py runserver 0.0.0.0:9000
-    image: qcon
+#    image: qcon
     restart: always
     tty: true
     volumes:

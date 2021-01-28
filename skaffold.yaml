@@ -5,10 +5,18 @@ metadata:
 build:
   artifacts:
   - image: qcon
+    context: .
+  local:
+    push:
+    useDockerCLI: true
+#    sync:
+#      infer:
+#      - 'api_v1/*'
 deploy:
   kubectl:
     manifests:
-    - storage.yaml
-    - deployment.yaml
+#    - namespace.yaml
+#    - storage.yaml
     - service.yaml
+    - deployment.yaml
     - ingress.yaml
