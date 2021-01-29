@@ -30,9 +30,9 @@ class QuestionLibrary(models.Model):
     # tempfile = models.FileField(upload_to='file_newww', blank=True, null=True)
     # JSON = models.JSONField(encoder=None, decoder=None, blank=True, null=True)
     # state = models.DecimalField(unique=False, max_digits=2, decimal_places=0, blank=True, null=True)
-    checkpoint = models.IntegerField(blank=True, null=True)
-    checkpoint_failed = models.IntegerField(blank=True, null=True)
-    time_delta = models.IntegerField(blank=True, null=True)
+    # checkpoint = models.IntegerField(blank=True, null=True)
+    # checkpoint_failed = models.IntegerField(blank=True, null=True)
+    # time_delta = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
