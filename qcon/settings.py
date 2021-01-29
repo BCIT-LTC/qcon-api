@@ -162,46 +162,40 @@ LOGGING = {
             'format': '{levelname} {message}',
             'style': '{',
         },
-    },
-    'filters': {
-        # 'special': {
-        #     '()': 'project.logging.SpecialFilter',
-        #     'foo': 'bar',
-        # },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        'custom': {
+            'format': '{levelname} {asctime} {name} {message}',
+            'style': '{',
         },
     },
     'handlers': {
-        # 'error': {
-        #     'level': 'ERROR',
-        #     'class': 'logging.FileHandler',
-        #     'filename': '/code/log/error.log',
-        #     'formatter': 'verbose'
-        # },
-        'warning': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': '/code/log/error.log',
-            'formatter': 'verbose'
-        },
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': '/code/log/error.log',
+            'formatter': 'custom'
+        }, 
+        'fileconsole':{
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/code/log/error.log',
+            'formatter': 'custom'
+        }       
     },
     'loggers': {
         'django': {
-            'handlers': ['warning', 'console'],
-            'level': 'WARNING',
+            'handlers': ['console'],
+            'level': 'ERROR',
             'propagate': True,
         },
         'api_v1': {
-            'handlers': ['console'],
+            'handlers': ['console','file','fileconsole'],
             'level': 'INFO',
-            # 'filters': ['special']
+            'propagate': True,
         }
     },
 }
