@@ -1,13 +1,18 @@
 # Generated from QuestionParser.g4 by ANTLR 4.8
+import logging
+import re
+import pypandoc
+from api_v1.models import Question, Answer, Fib
+from datetime import datetime
+
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .QuestionParser import QuestionParser
 else:
     from QuestionParser import QuestionParser
-import re
-import pypandoc
-from api_v1.models import Question, Answer, Fib
-from datetime import datetime
+
+
+logger = logging.getLogger(__name__)
 
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
@@ -29,12 +34,11 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#parse_question.
     def exitParse_question(self, ctx:QuestionParser.Parse_questionContext):
-        print('')
         if self.end_answers == None:
             for question_index, question in enumerate(self.questions):
                 self.process_question(question)
                 self.question.save()
-                print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
+                # print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
         else:
             for question_index, question in enumerate(self.questions):
                 end_answer = self.end_answers[question_index]['answer']
@@ -185,8 +189,7 @@ class QuestionParserListener(ParseTreeListener):
 
                 self.process_question(question)
                 self.question.save()
-                print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
-        print('')
+                # print(datetime.now().strftime("%H:%M:%S"), "Question", question_index+1, ":", question.question_type)
         pass
  
     # Enter a parse tree produced by QuestionParser#section_title.
@@ -206,6 +209,7 @@ class QuestionParserListener(ParseTreeListener):
     def enterQuestion(self, ctx:QuestionParser.QuestionContext):
         self.question = Question()
         self.question.question_library = self.question_library
+        self.question.prefix = len(self.questions) + 1
         self.question.save()
         pass
 
@@ -307,7 +311,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#TypeOther.
     def exitTypeOther(self, ctx:QuestionParser.TypeOtherContext):
-        self.question.question_type = 'OTHER'
+        self.question.question_type = self.ctx.getText()
         self.question.save()
         pass
 
@@ -366,11 +370,13 @@ class QuestionParserListener(ParseTreeListener):
         body_text = ""
         for question_content in ctx.content():
             body_text += question_content.getText()
-        print("\n--------------------------QUESTION-------------------------------")
         question_body = self.markdown_to_html(body_text)
         question_body = self.trim_text(question_body)
         self.question.question_body = question_body
-        print(question_body)
+
+        # print("\n--------------------------QUESTION-------------------------------")
+        # print(question_body)
+
         # TODO: Find a better way to parse this in exitFeedback()
         if ctx.feedback() != None:
             question_feedback = ctx.feedback().getText().lstrip()[1:]
@@ -463,11 +469,12 @@ class QuestionParserListener(ParseTreeListener):
         answer_text = ""
         for answer_content in ctx.content():
             answer_text += answer_content.getText()
-        print("\n--------------------------LIST ITEM-------------------------------")
         answer_body = self.markdown_to_html(answer_text)
         answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
-        print(answer_body)
+        
+        # print("\n--------------------------LIST ITEM-------------------------------")
+        # print(answer_body)
 
         # TODO: Find a better way to parse this in exitFeedback()
         if ctx.feedback() != None:
@@ -506,11 +513,12 @@ class QuestionParserListener(ParseTreeListener):
         answer_text = ""
         for answer_content in ctx.content():
             answer_text += answer_content.getText()
-        print("\n--------------------------LIST ANSWER ITEM-------------------------------")
         answer_body = self.markdown_to_html(answer_text)
         answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
-        print(answer_body)
+        
+        # print("\n--------------------------LIST ANSWER ITEM-------------------------------")
+        # print(answer_body)
 
         # TODO: Find a better way to parse this in exitFeedback()
         if ctx.feedback() != None:
@@ -539,7 +547,7 @@ class QuestionParserListener(ParseTreeListener):
     def exitEnd_answers(self, ctx:QuestionParser.End_answersContext):
         if len(self.questions) == len(ctx.end_answers_item()) :
             self.end_answers = []
-            print("\n--------------------------END ANSWERS-------------------------------")
+            # print("\n--------------------------END ANSWERS-------------------------------")
             for idx, ctx_end_answers_item in enumerate(ctx.end_answers_item()):
                 answer = {}
                 answer_content = ""
@@ -547,7 +555,7 @@ class QuestionParserListener(ParseTreeListener):
                     answer_content += ctx_answer_content.getText()
 
                 answer_content = self.trim_text(answer_content)
-                print(answer_content)
+                # print(answer_content)
                 answer['answer'] = answer_content
                 answer['feedback'] = None
                 
@@ -564,9 +572,10 @@ class QuestionParserListener(ParseTreeListener):
 
                 self.end_answers.append(answer)
         else:
-            print("Number of Questions and End Answers is not the same")
-            print("\tQuestions:", len(self.questions))
-            print("\tEnd Answers:", len(ctx.end_answers_item()))
+            error_message = f"\n301, Total number of questions doesn't match total answer key. \
+                              \n\t Total Questions  : {len(self.questions)} \
+                              \n\t Total Answer Key : {len(ctx.end_answers_item())}"
+            logger.error(error_message)
         pass
 
     # Enter a parse tree produced by QuestionParser#end_answers_item.
@@ -614,13 +623,39 @@ class QuestionParserListener(ParseTreeListener):
                     # BUILD MC
                     pass
                 else:
-                    print("Wrong question Format: MC")
+                    error_message = f"\n302, Question {question.prefix} format doesn't match Multiple Choice type format. \
+                                      \n\t Right answer allowed : 1 \
+                                      \n\t Right answer found   : {question.correct_answers_length}"
+                    logger.error(error_message)
+
+
             elif question.question_type == 'TF':
                 if self.is_true_false(question) == True:
                     # BUILD TF
                     pass
                 else:
-                    print("Wrong question Format: TF")
+                    answers_length = len(question.get_answers())
+                    is_true_exist = False
+                    is_false_exist = False
+                    if answers_length == 2:
+                        for answer in question.get_answers():
+                            text_answer = self.html_to_plain(answer.answer_body.lower()).strip()
+                            if "true" == text_answer:
+                                is_true_exist = True
+                            elif "false" == text_answer:
+                                is_false_exist = True
+
+                    error_message = f"\n302, Question {question.prefix} format doesn't match True/False type format."
+                    if answers_length != 2:
+                        error_message += "\n\t There must be two answer items."
+                    
+                    if is_true_exist == False:
+                        error_message += "\n\t One of the answer item must only consist of the word 'True'."
+                    if is_false_exist == False:
+                        error_message += "\n\t One of the answer item must only consist of the word 'False'."
+                    logger.error(error_message)
+
+
             elif question.question_type == 'MS':
                 if self.is_multi_select(question) == True:
                     if self.question_library.randomize_answer != None:
@@ -630,32 +665,71 @@ class QuestionParserListener(ParseTreeListener):
                     # BUILD MS
                     pass
                 else:
-                    print("Wrong question Format: MS")
+                    answers_length = len(question.get_answers())
+                    error_message = f"\n302, Question {question.prefix} format doesn't match Multi-Select type format. \
+                                      \n\t Minimum answer item needed : 1 \
+                                      \n\t Answer item found          : {answers_length}"
+                    logger.error(error_message)
+
+
+
             elif question.question_type == 'MT':
                 if self.is_matching(question) == True:
                     # BUILD MT
                     pass
                 else:
-                    print("Wrong question Format: MT")
+                    count_equal_sign = 0
+                    is_one_equal_sign = True
+                    if len(question.get_answers()) > 1:
+                        for answer in question.get_answers():
+                            if "=" in answer.answer_body:
+                                count_equal_sign = count_equal_sign + 1
+                                if answer.answer_body.count("=") > 1:
+                                    is_one_equal_sign = False
+                    error_message = f"\n302, Question {question.prefix} format doesn't match Matching type format."
+                    if count_equal_sign < len(question.get_answers()):
+                        missing_count = len(question.get_answers()) - count_equal_sign
+                        error_message += f"\n\t Answer list is missing {missing_count} '=' separator."
+                    if is_one_equal_sign == False:
+                        error_message += "\n\t More than one '=' separator was found on the answer list."
+                    logger.error(error_message)
+
+
             elif question.question_type == 'ORD':
                 if self.is_ordering(question) == True:
                     # BUILD ORD
                     pass
                 else:
-                    print("Wrong question Format: ORD")
+                    answers_length = len(question.get_answers())
+                    error_message = f"\n302, Question {question.prefix} format doesn't match Ordering type format."
+                    if answers_length <=1:
+                        error_message += f"\n\t Minimum answer item needed : 2 \
+                                           \n\t Answer item found          : {answers_length}"
+                    if question.correct_answers_length != None:
+                         error_message += "\n\t Answer item shouldn't start with a '*' symbol."
+                    logger.error(error_message)
+
+
             elif question.question_type == 'FIB':
                 if self.is_fill_in_the_blanks(question) == True:
                     # BUILD FIB
                     pass
                 else:
-                    print("Wrong question Format: FIB")
+                    question_fib_length = len(re.findall(r"\[(.*?)\]", question.question_body))
+                    answers_length = len(question.get_fib_answers())
+                    error_message = f"\n302, Question {question.prefix} format doesn't match Fill In the Blanks type format."
+                    if question_fib_length != answers_length:
+                        error_message = "\n\tPlease check your question format or email us at courseproduction@bcit.ca."
+                    logger.error(error_message)
                 pass
+
+
             elif question.question_type == 'WR':
                 # TRUST USER & BUILD WR
                 pass
             else:
-                # TODO LOG WRONG QUESTION FORMAT
-                print("UNKNOWN QUESTION FORMAT")
+                error_message = f"\n304, Question {question.prefix} doesn't match any type of questions."
+                logger.error(error_message)
                 pass
         else:
             is_TF = self.is_true_false(question)
@@ -666,13 +740,13 @@ class QuestionParserListener(ParseTreeListener):
             is_WR = self.is_written_response(question)
             is_FIB = self.is_fill_in_the_blanks(question)
 
-            print('is_TF :', is_TF)
-            print('is_MC :', is_MC)
-            print('is_MS :', is_MS)
-            print('is_MT :', is_MT)
-            print('is_ORD :', is_ORD)
-            print('is_WR :', is_WR)
-            print('is_FIB :',is_FIB )
+            # print('is_TF  :', is_TF)
+            # print('is_MC  :', is_MC)
+            # print('is_MS  :', is_MS)
+            # print('is_MT  :', is_MT)
+            # print('is_ORD :', is_ORD)
+            # print('is_WR  :', is_WR)
+            # print('is_FIB :', is_FIB )
 
             if is_TF == True:
                 question.question_type = "TF"
@@ -688,6 +762,9 @@ class QuestionParserListener(ParseTreeListener):
                 question.question_type = "FIB"
             elif is_WR == True:
                 question.question_type = "WR"
+            else:
+                error_message = f"\n303, Type {question.question_type} doesn't exist for Question {question.prefix}."
+                logger.error(error_message)
             question.save()
 
     def is_multiple_choice(self, question):
@@ -721,7 +798,7 @@ class QuestionParserListener(ParseTreeListener):
         return False
 
     def is_multi_select(self, question):
-        if len(question.get_answers()) > 1:
+        if len(question.get_answers()) > 0:
             return True
         return False
 
