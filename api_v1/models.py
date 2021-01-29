@@ -31,7 +31,7 @@ class QuestionLibrary(models.Model):
     # JSON = models.JSONField(encoder=None, decoder=None, blank=True, null=True)
     # state = models.DecimalField(unique=False, max_digits=2, decimal_places=0, blank=True, null=True)
     checkpoint = models.IntegerField(blank=True, null=True)
-    checkpoint_failed  = models.IntegerField(blank=True, null=True)
+    checkpoint_failed = models.IntegerField(blank=True, null=True)
     time_delta = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -49,6 +49,7 @@ class QuestionLibrary(models.Model):
 class Question(models.Model):
     id = models.AutoField(primary_key=True) 
     question_library = models.ForeignKey(QuestionLibrary, on_delete=models.CASCADE)
+    prefix = models.CharField(max_length=5, null=False)
     question_type = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=250, null=False)
     question_body = models.TextField(blank=True, null=True)
