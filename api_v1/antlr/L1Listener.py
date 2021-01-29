@@ -91,8 +91,9 @@ class L1Listener(ParseTreeListener):
         if ctx.question_header_parameter() != None:  
             content = ""
             for element in ctx.question_header_parameter():
-                content += element.getText()
-            content = re.sub(r"\n\s*\>\s*", "\n", content)    
+                # content += element.getText()
+                content += re.sub(r"\n\s*\>\s*", "\n", element.getText())
+            # content = re.sub(r"\n\s*\>\s*", "\n", content)    
             # self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
             self.questions.append({'prefix':'', 'content':content, 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':True, 'endanswer': False})
         pass
