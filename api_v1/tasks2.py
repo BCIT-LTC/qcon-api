@@ -14,6 +14,7 @@ from api_v1.scorm.XmlWriter import XmlWriter
 from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
 from antlr4 import *
+from antlr4.error.ErrorListener import ErrorListener
 import json
 import sys
 import pypandoc
@@ -36,6 +37,33 @@ import logging
 L1Converter_Logger = logging.getLogger('api_v1.L1Converter')
 Main_Logger = logging.getLogger('api_v1.QuestionParser')
 
+TransactionID = None
+
+
+class CustomL1ErrorListener(ErrorListener):
+    def __init__(self):
+        super(CustomL1ErrorListener, self).__init__()
+
+    def syntaxError(self, recognizer, line, offendingSymbol, msg, column):
+        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: line " + str(line)+ ":" + str(offendingSymbol) + " " + msg)
+        pass
+
+    def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
+        # raise Exception("ANTLR error")
+        pass
+
+    def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
+        # raise Exception("ANTLR error")
+        pass
+
+    def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
+        # raise Exception("ANTLR error")
+        pass
+
+    # def reportError(self, recognizer:Parser, e:RecognitionException):
+    #     raise Exception(e)
+
+
 # =============================================================================================
 # =======================================L1 MAIN===============================================
 # =============================================================================================
@@ -44,6 +72,7 @@ def L1Converter(question_library) :
     lexer = L1Lexer(input)
     stream = CommonTokenStream(lexer)
     parser = L1Parser(stream)
+    parser.addErrorListener(CustomL1ErrorListener)
     tree = parser.l1()
     # 
     printer = L1Listener(question_library)
@@ -311,6 +340,8 @@ def question_parser(question_library, text_string) :
 def runconversion(question_library):
 
     # print(datetime.now().strftime("%H:%M:%S"), "Starting task ID:", question_library.id)
+    global TransactionID
+    TransactionID = question_library.id
 
     Main_Logger.info("Transaction : " + str(question_library.id))
 
