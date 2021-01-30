@@ -34,11 +34,17 @@ from api_v1.L1Element import L1Element
 
 
 import logging
+# from logging.handlers import TimedRotatingFileHandler
+# logname = "my_app.log"
+# handler = TimedRotatingFileHandler(logname, when="midnight", interval=1)
+# handler.suffix = "%Y%m%d"
+
 L1Converter_Logger = logging.getLogger('api_v1.L1Converter')
 Main_Logger = logging.getLogger('api_v1.QuestionParser')
 
-TransactionID = None
 
+
+TransactionID = None
 
 class CustomL1ErrorListener(ErrorListener):
     def __init__(self):

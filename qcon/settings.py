@@ -173,16 +173,18 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': '/code/log/error.log',
-            'formatter': 'custom'
-        }, 
+        # 'file': {
+        #     'level': 'ERROR',
+        #     'class': 'logging.FileHandler',
+        #     'filename': '/code/log/main.log',
+        #     'formatter': 'custom'
+        # }, 
         'fileconsole':{
             'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/code/log/error.log',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': '/code/log/main.log',
+            'when': 'D', # daily 'D', you can use 'midnight' as well
+            'backupCount': 7, # 7 days backup
             'formatter': 'custom'
         }       
     },
@@ -193,7 +195,7 @@ LOGGING = {
             'propagate': True,
         },
         'api_v1': {
-            'handlers': ['console','file','fileconsole'],
+            'handlers': ['console','fileconsole'],
             'level': 'INFO',
             'propagate': True,
         }
