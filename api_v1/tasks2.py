@@ -67,35 +67,35 @@ class CustomL1ErrorListener(ErrorListener):
 # =============================================================================================
 # =======================================L1 MAIN===============================================
 # =============================================================================================
-def L1Converter(question_library) :
+def L1Converter(question_library):
     input = InputStream(question_library.pandoc_string)
     lexer = L1Lexer(input)
     stream = CommonTokenStream(lexer)
     parser = L1Parser(stream)
     parser.addErrorListener(CustomL1ErrorListener)
     tree = parser.l1()
-    # 
+    #
     printer = L1Listener(question_library)
     walker = ParseTreeWalker()
     # print(tree.toStringTree(recog=parser))
     walker.walk(printer, tree)
     parsed_questions = printer.get_results()
 
-    # Populate L1 
+    # Populate L1
     # Normalize array and grab indentations
 
     # logger.info('Something went wrong!')
     # logger.warning('Something went wrong!')
     # logger.debug('Something went wrong!')
 
-
-    listofL1Elements = []    
-    for element in parsed_questions:        
+    listofL1Elements = []
+    for element in parsed_questions:
         L1 = L1Element()
         if element['listitem'] == True:
-            indent_length, normalized_prefix = normalize_prefix_and_grab_indent(element['prefix'])
+            indent_length, normalized_prefix = normalize_prefix_and_grab_indent(
+                element['prefix'])
             L1.prefix = normalized_prefix
-            # L1.indentlength = indent_length  
+            # L1.indentlength = indent_length
         L1.content = element['content']
         L1.starmarked = element['correctprefix']
         L1.listitem = element['listitem']
@@ -116,27 +116,27 @@ def L1Converter(question_library) :
     #     print("sectionheader " + str(element.sectionheader))
 
     # Split questions
-    
-    questions_separated, number_of_questions = question_separate(listofL1Elements, 0, 0)
+
+    questions_separated, number_of_questions = question_separate(
+        listofL1Elements, 0, 0)
 
     # Check if number of questions is equal to higher index value found
 
     highest_numbered_index = 0
-    for element in questions_separated:        
+    for element in questions_separated:
         if element.prefix.isnumeric():
             if int(element.prefix) > int(highest_numbered_index):
                 highest_numbered_index = element.prefix
     # print("questions detected: " + str(number_of_questions) + " expected: " + str(highest_numbered_index))
 
     if int(number_of_questions) != int(highest_numbered_index):
-        L1Converter_Logger.error("Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index))
-     
+        L1Converter_Logger.error(
+            "Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index))
 
     # Split AnswerBlock by marking beginning of it
-    
+
     ending_found = True
     for i in range(len(questions_separated)-1, 0, -1):
-        # print(questions_separated[i].prefix)
         if ending_found:
             # print("check if letter a or A")
             if questions_separated[i].prefix == 'a' or questions_separated[i].prefix == 'A':
@@ -153,7 +153,7 @@ def L1Converter(question_library) :
     # for line in questions_separated:
     #     print(line)
 
-    # ADD MARKER AND APPEND ARRAYS TO ONE STRING    
+    # ADD MARKER AND APPEND ARRAYS TO ONE STRING
     collectionofstrings = []
     for i in range(0, len(questions_separated), 1):
 
@@ -161,33 +161,34 @@ def L1Converter(question_library) :
             collectionofstrings.append('##########_SECTION_##########\n')
 
         if questions_separated[i].questionheader:
-            collectionofstrings.append('##########_QUESTION_HEADER_##########\n')
-        
+            collectionofstrings.append(
+                '##########_QUESTION_HEADER_##########\n')
+
         if questions_separated[i].questionseparator:
-            collectionofstrings.append('##########_START_QUESTION_##########\n')
+            collectionofstrings.append(
+                '##########_START_QUESTION_##########\n')
 
         if questions_separated[i].answerblockseparator:
             collectionofstrings.append('##########_START_ANSWER_##########\n')
-        
+
         if questions_separated[i].endanswers:
             collectionofstrings.append('##########_END_ANSWERS_##########\n')
-        
+
         # THIS IS FOR LIST ITEMS
         if questions_separated[i].listitem:
             if questions_separated[i].starmarked:
-                collectionofstrings.append(questions_separated[i].prefix + ". \*" + questions_separated[i].content)
+                collectionofstrings.append(
+                    questions_separated[i].prefix + ". \*" + questions_separated[i].content)
             else:
-                collectionofstrings.append(questions_separated[i].prefix + ". " + questions_separated[i].content)
+                collectionofstrings.append(
+                    questions_separated[i].prefix + ". " + questions_separated[i].content)
         # THIS IS FOR REGULAR CONTENT (seperators, feedback markers, questionheader markers etc etc)
         else:
             collectionofstrings.append(questions_separated[i].content)
 
-
     thestring = ''
     for text in collectionofstrings:
         thestring += text
-    # print(thestring)
-    # TODO: pass the split questions to the L2 grammar
 
     return thestring
 
@@ -195,7 +196,8 @@ def L1Converter(question_library) :
 # ===============================Question Splitter=============================================
 # =============================================================================================
 
-def question_separate(data,index,question):
+
+def question_separate(data, index, question):
     # print("++++++++++++++")
     # print("index: " + str(index))
     # print("question " + str(question))
@@ -220,58 +222,59 @@ def question_separate(data,index,question):
             if int(data[index].prefix) == 1:
                 data[index].questionseparator = True
                 # print("================================================")
-                return question_separate(data, index+1,question+1)
+                return question_separate(data, index+1, question+1)
         # ++++++++++
 
-        # try to find the next increment 
+        # try to find the next increment
         if int(data[index].prefix) == int(question+1):
-            #is this one FIB
+            # is this one FIB
             # print("found next increment")
             if check_fib(data[index].content):
                 # print("FIB found")
                 data[index].questionseparator = True
-                return question_separate(data, index+1,question+1)
+                return question_separate(data, index+1, question+1)
             else:
                 # print("NO FIB")
 
                 # look for letters before this
                 if data[index-1].prefix.islower() or data[index-1].prefix.isupper():
                     data[index].questionseparator = True
-                    return question_separate(data, index+1,question+1)
+                    return question_separate(data, index+1, question+1)
                 else:
                     # print("check if number before skipping to next one ")
-                    # check if number before skipping to next one 
+                    # check if number before skipping to next one
                     if data[index-1].prefix.isnumeric():
                         # print("check if previous one is a separator  ")
-                        # check if previous one is a separator 
+                        # check if previous one is a separator
                         if data[index-1].questionseparator:
                             # print("if it is then mark this one and continue")
-                            #if it is then mark this one and continue
+                            # if it is then mark this one and continue
                             data[index].questionseparator = True
-                            return question_separate(data, index+1,question+1)
+                            return question_separate(data, index+1, question+1)
                     else:
-                        # if it is not numeric then it has to be a list separator 
+                        # if it is not numeric then it has to be a list separator
                         # continue checking the previous one to this if it is letter
                         # if it is then mark and continue
                         # print("if it is not numeric then it has to be a list separator ")
                         if data[index-2].prefix.islower() or data[index-2].prefix.isupper():
                             data[index].questionseparator = True
-                            return question_separate(data, index+1,question+1)
+                            return question_separate(data, index+1, question+1)
                         else:
-                            # if it is not letter just continue 
+                            # if it is not letter just continue
                             # print("if it is not letter just continue ")
-                            return question_separate(data, index+1,question)
+                            return question_separate(data, index+1, question)
 
-                    return question_separate(data, index+1,question)
+                    return question_separate(data, index+1, question)
             # return question_separate(data, index+1,question)
         else:
-            return question_separate(data, index+1,question)
+            return question_separate(data, index+1, question)
     else:
         return question_separate(data, index+1, question)
 
 # =============================================================================================
 # ===============================HELPER FUNCTIONS==============================================
 # =============================================================================================
+
 
 def find_index_of_next_number(data, startindex):
     index = int(startindex)+1
@@ -281,10 +284,11 @@ def find_index_of_next_number(data, startindex):
             break
         index += 1
 
-    if int(index) == (len(data)-1):    
+    if int(index) == (len(data)-1):
         # print("next number not found EOL")
         return 0
     return index
+
 
 def find_index_of_previous_number(data, startindex):
     index = startindex-1
@@ -292,15 +296,18 @@ def find_index_of_previous_number(data, startindex):
         index -= 1
     return index
 
+
 def check_fib(content):
     # Create HTML string first to filter out images and other tags that will interfere with the regex
-    html_text = pypandoc.convert_text(content, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
-    x = re.search(r"\[(.*?)\]", html_text)    
+    html_text = pypandoc.convert_text(
+        content, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
+    x = re.search(r"\[(.*?)\]", html_text)
     if x:
         # print("FIB found in detector")
         return True
     else:
         return False
+
 
 def normalize_prefix_and_grab_indent(prefix):
     # TODO: function to clean up extra characters on the prefix
@@ -310,11 +317,13 @@ def normalize_prefix_and_grab_indent(prefix):
     indent_length = len(x[0][1])
     normalized_prefix = str(x[0][2])
 
-    return indent_length,normalized_prefix
+    return indent_length, normalized_prefix
+
 
 def normalize_content(content):
     # TODO: function to clean up extra characters on the content
     return content
+
 
 def remove_prefix(text, prefix):
     return re.sub(r'^{0}'.format(re.escape(prefix)), '', text)
@@ -323,7 +332,8 @@ def remove_prefix(text, prefix):
 # =================================RUN CONVERSION==============================================
 # =============================================================================================
 
-def question_parser(question_library, text_string) :
+
+def question_parser(question_library, text_string):
     input = InputStream(text_string)
     lexer = QuestionLexer(input)
     tokens = CommonTokenStream(lexer)
@@ -337,131 +347,153 @@ def question_parser(question_library, text_string) :
 
     return parsed_questions
 
+
 def runconversion(question_library):
 
     # print(datetime.now().strftime("%H:%M:%S"), "Starting task ID:", question_library.id)
+    # Main_Logger.info("Transaction Started : " + "[" + str(question_library.id) + "]")
+    Main_Logger.info("["+str(question_library.id) + "] " +
+                     "<<<<<<<<<<Transaction Started<<<<<<<<<<")
     global TransactionID
     TransactionID = question_library.id
-
-    Main_Logger.info("Transaction : " + str(question_library.id))
-
-    start = time.time()
-    question_library.checkpoint = 0
-    question_library.checkpoint_failed = 0
-    question_library.save()
+    # start = time.time()
+    # question_library.checkpoint = 0
+    # question_library.checkpoint_failed = 0
+    # question_library.save()
 
     # Pandoc string create ===================================================================================
     # print(datetime.now().strftime("%H:%M:%S"), "Pandoc processing...")
     try:
-        pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum', extra_args=['--extract-media='+ question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
+        pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum', extra_args=[
+                                             '--extract-media=' + question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
         question_library.pandoc_string = "\n" + pandocstring
-        question_library.checkpoint = 1
+        # question_library.checkpoint = 1
         question_library.save()
-
+        # raise Exception('')
+        Main_Logger.info("["+str(question_library.id) +
+                         "] " + "Markdown String Created")
         # print(datetime.now().strftime("%H:%M:%S"), "Pandoc Done!")
-    except:
-        question_library.checkpoint_failed = 1
-        question_library.save()
-        return "Error at Checkpoint 1"
-   
+    except Exception as e:
+        # question_library.checkpoint_failed = 1
+        Main_Logger.error("["+str(question_library.id) +
+                          "] " + "Markdown String Failed")
+        return None
 
     # Starting Antler AST conversion
     # Antler parsing  ===================================================================================
     # print(datetime.now().strftime("%H:%M:%S"), "Antlr processing...")
+
     try:
         L1_result = L1Converter(question_library)
         L1_result = "\n" + L1_result
         parsed_questions_result = question_parser(question_library, L1_result)
         # print(datetime.now().strftime("%H:%M:%S"), "Antlr Done!")
-        question_library.checkpoint = 2
+        # question_library.checkpoint = 2
         question_library.save()
+        # raise Exception('')
+        Main_Logger.info(
+            "["+str(question_library.id) + "] " + "Parser Finished")
     except Exception as e:
-        # print(e)
-        question_library.checkpoint_failed = 2
-        question_library.save()
-        return "Error at Checkpoint 2"
-        
+        Main_Logger.error(
+            "["+str(question_library.id) + "] " + "Parser Failed")
+        return None
+
     # ImsManifest string create ===================================================================================
     # print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifext string...")
-    try:              
+    try:
         parsed_xml = XmlWriter(question_library, parsed_questions_result)
         manifest_entity = ManifestEntity()
-        manifest_resource_entity = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
+        manifest_resource_entity = ManifestResourceEntity(
+            'res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
         manifest_entity.add_resource(manifest_resource_entity)
-        manifest = parsed_xml.create_manifest(manifest_entity, question_library.folder_path)
-        parsed_imsmanifest = ET.tostring(manifest.getroot(),encoding='utf-8', xml_declaration=True).decode()
+        manifest = parsed_xml.create_manifest(
+            manifest_entity, question_library.folder_path)
+        parsed_imsmanifest = ET.tostring(
+            manifest.getroot(), encoding='utf-8', xml_declaration=True).decode()
         parsed_imsmanifest = parseString(parsed_imsmanifest)
         parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
         question_library.imsmanifest_string = parsed_imsmanifest
-        question_library.checkpoint = 3
         question_library.save()
 
+        Main_Logger.info("["+str(question_library.id) +
+                         "] " + "imsmanifest String Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
     except Exception as e:
-        # print(e)
-        question_library.save()
-        return "Error at Checkpoint 3"
+        Main_Logger.error("["+str(question_library.id) +
+                          "] " + "imsmanifest String Failed")
+        return None
 
     # ImsManifest Save File ===================================================================================
 
     try:
         # print(datetime.now().strftime("%H:%M:%S"), "Creating questiondb string...")
         questiondb_string = parsed_xml.questiondb_string
-        img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
+        img_elements = re.findall(
+            r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
         for idx, img in enumerate(img_elements):
             element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
-            new_img = '<img src="{0}" alt="{1}" />'.format('./media/' + basename(element[0]), basename(element[0]))
-            questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
+            new_img = '<img src="{0}" alt="{1}" />'.format(
+                './media/' + basename(element[0]), basename(element[0]))
+            questiondb_string = questiondb_string.replace(
+                img_elements[idx], new_img)
 
         question_library.questiondb_string = questiondb_string
         question_library.save()
 
-        imsmanifest_file = ContentFile(question_library.imsmanifest_string, name="imsmanifest.xml")
+        imsmanifest_file = ContentFile(
+            question_library.imsmanifest_string, name="imsmanifest.xml")
         question_library.imsmanifest_file = imsmanifest_file
-        question_library.checkpoint = 4;
+        # question_library.checkpoint = 4;
         question_library.save()
+        Main_Logger.info("["+str(question_library.id) +
+                         "] " + "QuestionDB String Created")
         # print(question_library.imsmanifest_file.name)
         # print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
-    except:
-        question_library.save()
-        return "Error at Checkpoint 4"
+    except Exception as e:
+        Main_Logger.error("["+str(question_library.id) +
+                          "] " + "QuestionDB String Failed")
+        return None
     # Questiondb string create ===================================================================================
 
     # print(datetime.now().strftime("%H:%M:%S"), "Creating imsmanifest.xml and questiondb.xml...")
-    try:        
-        questiondb_file = ContentFile(question_library.questiondb_string, name="questiondb.xml")
+    try:
+        questiondb_file = ContentFile(
+            question_library.questiondb_string, name="questiondb.xml")
         question_library.questiondb_file = questiondb_file
-        question_library.checkpoint = 5;
+        # question_library.checkpoint = 5;
         question_library.save()
-
+        Main_Logger.info(
+            "["+str(question_library.id) + "] " + "XML files Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
-    except:
-        question_library.checkpoint_failed = 5
-        question_library.save()
-        return "Error at Checkpoint 5"
+    except Exception as e:
+        Main_Logger.error(
+            "["+str(question_library.id) + "] " + "XML files Failed")
+        return None
 
     # Questiondb string create ===================================================================================
     # print(datetime.now().strftime("%H:%M:%S"), "Creating scorm zip file...")
     try:
         with ZipFile(question_library.folder_path + "/" + question_library.section_name + '.zip', 'w') as myzip:
-            myzip.write(question_library.questiondb_file.path, "questiondb.xml")
-            myzip.write(question_library.imsmanifest_file.path, "imsmanifest.xml")
-            for root, dirs, files in walk(question_library.image_path) :
-                for filename in files :
-                    myzip.write(path.join(root, filename), '/media/' + filename)
-                    
-        question_library.zip_file.name = str(question_library.id) + "/" + question_library.section_name + '.zip'
+            myzip.write(question_library.questiondb_file.path,
+                        "questiondb.xml")
+            myzip.write(question_library.imsmanifest_file.path,
+                        "imsmanifest.xml")
+            for root, dirs, files in walk(question_library.image_path):
+                for filename in files:
+                    myzip.write(path.join(root, filename),
+                                '/media/' + filename)
+
+        question_library.zip_file.name = str(
+            question_library.id) + "/" + question_library.section_name + '.zip'
         question_library.save()
-        end = time.time()
-        question_library.checkpoint = 6;
-        question_library.time_delta = end-start
-        question_library.save()
-        # print(datetime.now().strftime("%H:%M:%S"), "Scorm zip file created!")
-        # print("\n")
-    except:
-        question_library.checkpoint_failed = 6
-        question_library.save()
-        return "Error at Checkpoint 6"
-    
-    return "Task {} Finished successfully".format(question_library.id) 
+        Main_Logger.info(
+            "["+str(question_library.id) + "] " + "ZIP file Created")
+    except Exception as e:
+        Main_Logger.error(
+            "["+str(question_library.id) + "] " + "ZIP file Failed")
+        return None
+
+    Main_Logger.info("["+str(question_library.id) + "] " +
+                     ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+    return None
