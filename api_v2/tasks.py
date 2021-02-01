@@ -98,11 +98,6 @@ def L1Converter(question_library):
     # Populate L1
     # Normalize array and grab indentations
 
-    # logger.info('Something went wrong!')
-    # logger.warning('Something went wrong!')
-    # logger.debug('Something went wrong!')
-
-
     listofL1Elements = []
     for element in parsed_questions:
         L1 = L1Element()
@@ -338,10 +333,6 @@ def normalize_prefix_and_grab_indent(prefix):
 def normalize_content(content):
     # TODO: function to clean up extra characters on the content
     return content
-
-
-def remove_prefix(text, prefix):
-    return re.sub(r'^{0}'.format(re.escape(prefix)), '', text)
 
 # =============================================================================================
 # =================================RUN CONVERSION==============================================
