@@ -7,7 +7,6 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 urlpatterns = [
     # path('media/<int:id>/<filename>', views.Download),
-    path('api/cli', views.CliUpload.as_view(), name='cli'),
 
     path('api/status/<int:id>', views.GetStatus.as_view(), name='status'),
     path('api/upload', views.Upload.as_view(), name='upload'),
