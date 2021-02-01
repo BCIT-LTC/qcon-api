@@ -17,7 +17,7 @@ class UploadSerializer(serializers.Serializer):
         newconversion = QuestionLibrary.objects.create()
         newconversion.temp_file = validated_data.get('temp_file', validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        print(newconversion.section_name)
+        # print(newconversion.section_name)
 
         newconversion.folder_path = '/code/temp/' + str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + '/media/'

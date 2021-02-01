@@ -159,5 +159,4 @@ class SetSection(APIView):
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 
-        # return Response("heheh")
 
