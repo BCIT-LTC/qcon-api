@@ -34,7 +34,7 @@ class QuestionLibrary(models.Model):
     # checkpoint_failed = models.IntegerField(blank=True, null=True)
     # time_delta = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name_plural = "question libraries"
 
@@ -52,13 +52,14 @@ class Question(models.Model):
     prefix = models.CharField(max_length=5, null=False)
     question_type = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=250, null=False)
+    points = models.DecimalField(unique=False, max_digits=2, decimal_places=1, blank=True, null=True)
+    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
-    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
-    points = models.DecimalField(unique=False, max_digits=2, decimal_places=1, blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
-    
+
+
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
 
