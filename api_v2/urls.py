@@ -8,11 +8,11 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 urlpatterns = [
     # path('media/<int:id>/<filename>', views.Download),
 
-    path('api/status/<int:id>', views.GetStatus.as_view(), name='status'),
-    path('api/upload', views.Upload.as_view(), name='upload'),
-    path('api/setsection', views.SetSection.as_view(), name='setsection'),
+    path('status/<int:id>', views.GetStatus.as_view(), name='status'),
+    path('upload', views.Upload.as_view(), name='upload'),
+    path('setsection', views.SetSection.as_view(), name='setsection'),
     path('media/<int:id>/<filename>', views.Download.as_view()),
-    path('api/download/<int:id>', views.DownloadAPI.as_view(), name='download'),
+    path('download/<int:id>', views.DownloadAPI.as_view(), name='download'),
     # path('api/download', views.CliUpload.as_view(), name='download'),
     # path('api/execute', views.CliUpload.as_view(), name='execute'),
     # path('api/getmarkdown', views.CliUpload.as_view(), name='getmarkdown'),
@@ -21,8 +21,8 @@ urlpatterns = [
 
     # OPENAPI
     # PATTERNS
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
     # UI:
-    path('api/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     # path('api/doc2/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
