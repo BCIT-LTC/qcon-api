@@ -40,7 +40,8 @@ import logging
 # handler.suffix = "%Y%m%d"
 
 L1Converter_Logger = logging.getLogger('api_v2.tasks.L1Converter')
-Main_Logger = logging.getLogger('api_v2.tasks.QuestionParser')
+QuestionParser_Logger = logging.getLogger('api_v2.tasks.QuestionParser')
+RunConversion_Logger = logging.getLogger('api_v2.tasks.runconversion')
 
 
 TransactionID = None
@@ -340,25 +341,28 @@ def normalize_content(content):
 
 
 def question_parser(question_library, text_string):
-    input = InputStream(text_string)
-    lexer = QuestionLexer(input)
-    tokens = CommonTokenStream(lexer)
-    parser = QuestionParser(tokens)
-    tree = parser.parse_question()
-    listener = QuestionParserListener(question_library)
-    walker = ParseTreeWalker()
-    walker.walk(listener, tree)
-    # print(tree.toStringTree(recog=parser))
-    parsed_questions = listener.get_results()
 
-    return parsed_questions
+    try:
+        input = InputStream(text_string)
+        lexer = QuestionLexer(input)
+        tokens = CommonTokenStream(lexer)
+        parser = QuestionParser(tokens)
+        tree = parser.parse_question()
+        listener = QuestionParserListener(question_library)
+        walker = ParseTreeWalker()
+        walker.walk(listener, tree)
+        # print(tree.toStringTree(recog=parser))
+        parsed_questions = listener.get_results()
+        return parsed_questions
+    except:
+        QuestionParser_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
 
 
 def runconversion(question_library):
 
     # print(datetime.now().strftime("%H:%M:%S"), "Starting task ID:", question_library.id)
-    # Main_Logger.info("Transaction Started : " + "[" + str(question_library.id) + "]")
-    Main_Logger.info("["+str(question_library.id) + "] " +
+    # runconversion.info("Transaction Started : " + "[" + str(question_library.id) + "]")
+    RunConversion_Logger.info("["+str(question_library.id) + "] " +
                      "<<<<<<<<<<Transaction Started<<<<<<<<<<")
     global TransactionID
     TransactionID = question_library.id
@@ -376,12 +380,12 @@ def runconversion(question_library):
         # question_library.checkpoint = 1
         question_library.save()
         # raise Exception('')
-        Main_Logger.info("["+str(question_library.id) +
+        RunConversion_Logger.info("["+str(question_library.id) +
                          "] " + "Markdown String Created")
         # print(datetime.now().strftime("%H:%M:%S"), "Pandoc Done!")
     except Exception as e:
         # question_library.checkpoint_failed = 1
-        Main_Logger.error("["+str(question_library.id) +
+        RunConversion_Logger.error("["+str(question_library.id) +
                           "] " + "Markdown String Failed")
         return None
 
@@ -397,10 +401,10 @@ def runconversion(question_library):
         # question_library.checkpoint = 2
         question_library.save()
         # raise Exception('')
-        Main_Logger.info(
+        RunConversion_Logger.info(
             "["+str(question_library.id) + "] " + "Parser Finished")
     except Exception as e:
-        Main_Logger.error(
+        RunConversion_Logger.error(
             "["+str(question_library.id) + "] " + "Parser Failed")
         return None
 
@@ -421,11 +425,11 @@ def runconversion(question_library):
         question_library.imsmanifest_string = parsed_imsmanifest
         question_library.save()
 
-        Main_Logger.info("["+str(question_library.id) +
+        RunConversion_Logger.info("["+str(question_library.id) +
                          "] " + "imsmanifest String Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
     except Exception as e:
-        Main_Logger.error("["+str(question_library.id) +
+        RunConversion_Logger.error("["+str(question_library.id) +
                           "] " + "imsmanifest String Failed")
         return None
 
@@ -452,12 +456,12 @@ def runconversion(question_library):
         question_library.imsmanifest_file = imsmanifest_file
         # question_library.checkpoint = 4;
         question_library.save()
-        Main_Logger.info("["+str(question_library.id) +
+        RunConversion_Logger.info("["+str(question_library.id) +
                          "] " + "QuestionDB String Created")
         # print(question_library.imsmanifest_file.name)
         # print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
     except Exception as e:
-        Main_Logger.error("["+str(question_library.id) +
+        RunConversion_Logger.error("["+str(question_library.id) +
                           "] " + "QuestionDB String Failed")
         return None
     # Questiondb string create ===================================================================================
@@ -469,11 +473,11 @@ def runconversion(question_library):
         question_library.questiondb_file = questiondb_file
         # question_library.checkpoint = 5;
         question_library.save()
-        Main_Logger.info(
+        RunConversion_Logger.info(
             "["+str(question_library.id) + "] " + "XML files Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
     except Exception as e:
-        Main_Logger.error(
+        RunConversion_Logger.error(
             "["+str(question_library.id) + "] " + "XML files Failed")
         return None
 
@@ -493,13 +497,13 @@ def runconversion(question_library):
         question_library.zip_file.name = str(
             question_library.id) + "/" + question_library.section_name + '.zip'
         question_library.save()
-        Main_Logger.info(
+        RunConversion_Logger.info(
             "["+str(question_library.id) + "] " + "ZIP file Created")
     except Exception as e:
-        Main_Logger.error(
+        RunConversion_Logger.error(
             "["+str(question_library.id) + "] " + "ZIP file Failed")
         return None
 
-    Main_Logger.info("["+str(question_library.id) + "] " +
+    RunConversion_Logger.info("["+str(question_library.id) + "] " +
                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
     return None
