@@ -12,7 +12,6 @@ else:
     from QuestionParser import QuestionParser
 
 
-logger = logging.getLogger(__name__)
 
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
@@ -572,6 +571,7 @@ class QuestionParserListener(ParseTreeListener):
 
                 self.end_answers.append(answer)
         else:
+            logger = logging.getLogger('api_v1.QuestionParserListener.exitEnd_answers')
             error_message = f"\n301, Total number of questions doesn't match total answer key. \
                               \n\t Total Questions  : {len(self.questions)} \
                               \n\t Total Answer Key : {len(ctx.end_answers_item())}"
@@ -612,7 +612,7 @@ class QuestionParserListener(ParseTreeListener):
         return html_text
 
     def process_question(self, question):
-        
+        logger = logging.getLogger('api_v1.QuestionParserListener.process_question')
         if question.question_type != None:
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:
