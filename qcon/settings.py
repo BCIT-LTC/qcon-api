@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     # 'api_v1',
 
     # Local Apps
-    'api_v1.apps.ApiV1Config'
+    'api_v2.apps.ApiV2Config'
 ]
 
 MIDDLEWARE = [
@@ -194,7 +194,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'api_v1': {
+        'api_v2': {
             'handlers': ['console','fileconsole'],
             'level': 'INFO',
             'propagate': True,

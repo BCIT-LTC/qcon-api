@@ -43,7 +43,6 @@ L1Converter_Logger = logging.getLogger('api_v1.L1Converter')
 Main_Logger = logging.getLogger('api_v1.QuestionParser')
 
 
-
 TransactionID = None
 
 class CustomL1ErrorListener(ErrorListener):
