@@ -32,12 +32,7 @@ import time
 
 from api_v2.L1Element import L1Element
 
-
 import logging
-# from logging.handlers import TimedRotatingFileHandler
-# logname = "my_app.log"
-# handler = TimedRotatingFileHandler(logname, when="midnight", interval=1)
-# handler.suffix = "%Y%m%d"
 
 L1Converter_Logger = logging.getLogger('api_v2.tasks.L1Converter')
 QuestionParser_Logger = logging.getLogger('api_v2.tasks.QuestionParser')
@@ -56,22 +51,22 @@ class CustomL1ErrorListener(ErrorListener):
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         # raise Exception("ANTLR error")
-        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAmbiguity")
+        # L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAmbiguity")
         pass
 
     def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
         # raise Exception("ANTLR error")
-        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAttemptingFullContext")
+        # L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAttemptingFullContext")
         pass
 
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
         # raise Exception("ANTLR error")
-        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportContextSensitivity")
+        # L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportContextSensitivity")
         pass
 
-    def reportError(self, recognizer:Parser, e:RecognitionException):
-        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportError")
-        pass
+    # def reportError(self, recognizer:Parser, e:RecognitionException):
+    #     L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportError")
+    #     pass
         # raise Exception(e)
 
 
@@ -85,7 +80,7 @@ def L1Converter(question_library):
         lexer = L1Lexer(input)
         stream = CommonTokenStream(lexer)
         parser = L1Parser(stream)
-        parser.addErrorListener(CustomL1ErrorListener)
+        # parser.addErrorListener(CustomL1ErrorListener)
         tree = parser.l1()
         #
         printer = L1Listener(question_library)
