@@ -55,36 +55,45 @@ class CustomL1ErrorListener(ErrorListener):
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         # raise Exception("ANTLR error")
+        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAmbiguity")
         pass
 
     def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
         # raise Exception("ANTLR error")
+        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAttemptingFullContext")
         pass
 
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
         # raise Exception("ANTLR error")
+        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportContextSensitivity")
         pass
 
-    # def reportError(self, recognizer:Parser, e:RecognitionException):
-    #     raise Exception(e)
+    def reportError(self, recognizer:Parser, e:RecognitionException):
+        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportError")
+        pass
+        # raise Exception(e)
 
 
 # =============================================================================================
 # =======================================L1 MAIN===============================================
 # =============================================================================================
 def L1Converter(question_library):
-    input = InputStream(question_library.pandoc_string)
-    lexer = L1Lexer(input)
-    stream = CommonTokenStream(lexer)
-    parser = L1Parser(stream)
-    parser.addErrorListener(CustomL1ErrorListener)
-    tree = parser.l1()
-    #
-    printer = L1Listener(question_library)
-    walker = ParseTreeWalker()
-    # print(tree.toStringTree(recog=parser))
-    walker.walk(printer, tree)
-    parsed_questions = printer.get_results()
+
+    try:
+        input = InputStream(question_library.pandoc_string)
+        lexer = L1Lexer(input)
+        stream = CommonTokenStream(lexer)
+        parser = L1Parser(stream)
+        parser.addErrorListener(CustomL1ErrorListener)
+        tree = parser.l1()
+        #
+        printer = L1Listener(question_library)
+        walker = ParseTreeWalker()
+        # print(tree.toStringTree(recog=parser))
+        walker.walk(printer, tree)
+        parsed_questions = printer.get_results()
+    except:
+        Main_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
 
     # Populate L1
     # Normalize array and grab indentations
@@ -92,6 +101,7 @@ def L1Converter(question_library):
     # logger.info('Something went wrong!')
     # logger.warning('Something went wrong!')
     # logger.debug('Something went wrong!')
+
 
     listofL1Elements = []
     for element in parsed_questions:
@@ -137,7 +147,7 @@ def L1Converter(question_library):
     if int(number_of_questions) != int(highest_numbered_index):
         L1Converter_Logger.error(
             "Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index))
-
+ 
     # Split AnswerBlock by marking beginning of it
 
     ending_found = True
