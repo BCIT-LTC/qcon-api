@@ -39,8 +39,8 @@ import logging
 # handler = TimedRotatingFileHandler(logname, when="midnight", interval=1)
 # handler.suffix = "%Y%m%d"
 
-L1Converter_Logger = logging.getLogger('api_v2.L1Converter')
-Main_Logger = logging.getLogger('api_v2.QuestionParser')
+L1Converter_Logger = logging.getLogger('api_v2.tasks.L1Converter')
+Main_Logger = logging.getLogger('api_v2.tasks.QuestionParser')
 
 
 TransactionID = None
@@ -50,26 +50,26 @@ class CustomL1ErrorListener(ErrorListener):
         super(CustomL1ErrorListener, self).__init__()
 
     def syntaxError(self, recognizer, line, offendingSymbol, msg, column):
-        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: line " + str(line)+ ":" + str(offendingSymbol) + " " + msg)
+        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: line " + str(line)+ ":" + str(offendingSymbol) + " " + msg)
         pass
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         # raise Exception("ANTLR error")
-        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAmbiguity")
+        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAmbiguity")
         pass
 
     def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
         # raise Exception("ANTLR error")
-        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAttemptingFullContext")
+        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportAttemptingFullContext")
         pass
 
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
         # raise Exception("ANTLR error")
-        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportContextSensitivity")
+        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportContextSensitivity")
         pass
 
     def reportError(self, recognizer:Parser, e:RecognitionException):
-        Main_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportError")
+        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: reportError")
         pass
         # raise Exception(e)
 
@@ -93,7 +93,7 @@ def L1Converter(question_library):
         walker.walk(printer, tree)
         parsed_questions = printer.get_results()
     except:
-        Main_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
+        L1Converter_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
 
     # Populate L1
     # Normalize array and grab indentations
