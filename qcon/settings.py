@@ -176,7 +176,7 @@ LOGGING = {
         #     'filename': '/code/log/main.log',
         #     'formatter': 'custom'
         # }, 
-        'fileconsole':{
+        'file':{
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': '/code/log/main.log',
@@ -192,7 +192,7 @@ LOGGING = {
             'propagate': True,
         },
         'api_v2': {
-            'handlers': ['console','fileconsole'],
+            'handlers': ['console','file'],
             'level': 'INFO',
             'propagate': True,
         }
