@@ -6,7 +6,7 @@ else:
     from QconParser import QconParser
 import re
 import pypandoc
-from api_v1.models import Question, Answer, Fib
+from api_v2.models import Question, Answer, Fib
 from datetime import datetime
 
 

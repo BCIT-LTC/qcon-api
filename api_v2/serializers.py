@@ -23,7 +23,7 @@ class UploadSerializer(serializers.Serializer):
         newconversion.image_path = newconversion.folder_path + '/media/'
         newconversion.create_directory()
         newconversion.save()
-        async_task('api_v1.tasks.runconversion', newconversion)
+        async_task('api_v2.tasks.runconversion', newconversion)
 
         return newconversion
 

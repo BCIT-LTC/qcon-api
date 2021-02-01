@@ -1,17 +1,17 @@
-from api_v1.antlr.L1Lexer import L1Lexer
-from api_v1.antlr.L1Listener import L1Listener
-from api_v1.antlr.L1Parser import L1Parser
+from api_v2.antlr.L1Lexer import L1Lexer
+from api_v2.antlr.L1Listener import L1Listener
+from api_v2.antlr.L1Parser import L1Parser
 
-from api_v1.antlr.QuestionLexer import QuestionLexer
-from api_v1.antlr.QuestionParserListener import QuestionParserListener
-from api_v1.antlr.QuestionParser import QuestionParser
+from api_v2.antlr.QuestionLexer import QuestionLexer
+from api_v2.antlr.QuestionParserListener import QuestionParserListener
+from api_v2.antlr.QuestionParser import QuestionParser
 
-from api_v1.antlr.QconLexer import QconLexer
-from api_v1.antlr.QconListener import QconListener
-from api_v1.antlr.QconParser import QconParser
+from api_v2.antlr.QconLexer import QconLexer
+from api_v2.antlr.QconListener import QconListener
+from api_v2.antlr.QconParser import QconParser
 
-from api_v1.scorm.XmlWriter import XmlWriter
-from api_v1.scorm.manifest import ManifestEntity, ManifestResourceEntity
+from api_v2.scorm.XmlWriter import XmlWriter
+from api_v2.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
 from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
@@ -30,7 +30,7 @@ import xml.etree.cElementTree as ET
 
 import time
 
-from api_v1.L1Element import L1Element
+from api_v2.L1Element import L1Element
 
 
 import logging
@@ -39,8 +39,8 @@ import logging
 # handler = TimedRotatingFileHandler(logname, when="midnight", interval=1)
 # handler.suffix = "%Y%m%d"
 
-L1Converter_Logger = logging.getLogger('api_v1.L1Converter')
-Main_Logger = logging.getLogger('api_v1.QuestionParser')
+L1Converter_Logger = logging.getLogger('api_v2.L1Converter')
+Main_Logger = logging.getLogger('api_v2.QuestionParser')
 
 
 TransactionID = None

@@ -48,9 +48,6 @@ INSTALLED_APPS = [
     'django_q',
     'drf_spectacular',
 
-    #Qcon package
-    # 'api_v1',
-
     # Local Apps
     'api_v2.apps.ApiV2Config'
 ]

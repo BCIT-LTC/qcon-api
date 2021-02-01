@@ -63,11 +63,6 @@ class Upload(APIView):
             response = {
                 'id': instance.id
             }
-            # instance.folder_path = '/code/temp/' + str(instance.id)
-            # instance.image_path = instance.folder_path + '/media/'
-            # instance.create_directory()
-            # instance.save()
-            # async_task('api_v1.tasks.runconversion', instance)
 
             return JsonResponse(response, status=201)    
         return JsonResponse(serializer.errors, status=400)
