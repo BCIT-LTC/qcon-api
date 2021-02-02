@@ -8,7 +8,7 @@ Qcon is an open source project that converts assessment questions from Word into
 ## Latest Release
 
 * Latest - v2.0.3-alpha - `bcitltc/qcon:latest` - Read the full release [notes]().
-* Stable - v2.0.0-alpha - `bcitltc/qcon:stable` - Read the full release [notes]().
+* Stable - v2.0.0 - `bcitltc/qcon:stable` - Read the full release [notes]().
 
 ## Quick Start
 
