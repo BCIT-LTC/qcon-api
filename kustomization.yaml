@@ -1,4 +1,5 @@
-secretGenerator:
-- name: qcon-pass
-  literals:
-  - password=SOME_PASSWORD
+resources:
+- deployment.yaml
+- service.yaml
+- ingress.yaml
+- storage.yaml
