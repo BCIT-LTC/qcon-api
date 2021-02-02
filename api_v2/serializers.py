@@ -17,13 +17,13 @@ class UploadSerializer(serializers.Serializer):
         newconversion = QuestionLibrary.objects.create()
         newconversion.temp_file = validated_data.get('temp_file', validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        print(newconversion.section_name)
+        # print(newconversion.section_name)
 
         newconversion.folder_path = '/code/temp/' + str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + '/media/'
         newconversion.create_directory()
         newconversion.save()
-        async_task('api_v1.tasks2.runconversion', newconversion)
+        async_task('api_v2.tasks.runconversion', newconversion)
 
         return newconversion
 

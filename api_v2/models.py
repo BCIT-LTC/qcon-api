@@ -30,11 +30,11 @@ class QuestionLibrary(models.Model):
     # tempfile = models.FileField(upload_to='file_newww', blank=True, null=True)
     # JSON = models.JSONField(encoder=None, decoder=None, blank=True, null=True)
     # state = models.DecimalField(unique=False, max_digits=2, decimal_places=0, blank=True, null=True)
-    checkpoint = models.IntegerField(blank=True, null=True)
-    checkpoint_failed  = models.IntegerField(blank=True, null=True)
-    time_delta = models.IntegerField(blank=True, null=True)
+    # checkpoint = models.IntegerField(blank=True, null=True)
+    # checkpoint_failed = models.IntegerField(blank=True, null=True)
+    # time_delta = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name_plural = "question libraries"
 
@@ -49,15 +49,17 @@ class QuestionLibrary(models.Model):
 class Question(models.Model):
     id = models.AutoField(primary_key=True) 
     question_library = models.ForeignKey(QuestionLibrary, on_delete=models.CASCADE)
+    prefix = models.CharField(max_length=5, null=False)
     question_type = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=250, null=False)
+    points = models.DecimalField(unique=False, max_digits=2, decimal_places=1, blank=True, null=True)
+    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
-    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
-    points = models.DecimalField(unique=False, max_digits=2, decimal_places=1, blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
-    
+
+
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
 

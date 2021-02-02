@@ -48,11 +48,8 @@ INSTALLED_APPS = [
     'django_q',
     'drf_spectacular',
 
-    #Qcon package
-    # 'api_v1',
-
     # Local Apps
-    'api_v1.apps.ApiV1Config'
+    'api_v2.apps.ApiV2Config'
 ]
 
 MIDDLEWARE = [
@@ -162,46 +159,42 @@ LOGGING = {
             'format': '{levelname} {message}',
             'style': '{',
         },
-    },
-    'filters': {
-        # 'special': {
-        #     '()': 'project.logging.SpecialFilter',
-        #     'foo': 'bar',
-        # },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        'custom': {
+            'format': '{levelname} {asctime} {name} {message}',
+            'style': '{',
         },
     },
     'handlers': {
-        # 'error': {
-        #     'level': 'ERROR',
-        #     'class': 'logging.FileHandler',
-        #     'filename': '/code/log/error.log',
-        #     'formatter': 'verbose'
-        # },
-        'warning': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': '/code/log/error.log',
-            'formatter': 'verbose'
-        },
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        # 'file': {
+        #     'level': 'ERROR',
+        #     'class': 'logging.FileHandler',
+        #     'filename': '/code/log/main.log',
+        #     'formatter': 'custom'
+        # }, 
+        'file':{
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': '/code/log/main.log',
+            'when': 'D', # daily 'D', you can use 'midnight' as well
+            'backupCount': 7, # 7 days backup
+            'formatter': 'custom'
+        }       
     },
     'loggers': {
         'django': {
-            'handlers': ['warning', 'console'],
-            'level': 'WARNING',
+            'handlers': ['console'],
+            'level': 'ERROR',
             'propagate': True,
         },
-        'api_v1': {
-            'handlers': ['console'],
+        'api_v2': {
+            'handlers': ['console','file'],
             'level': 'INFO',
-            # 'filters': ['special']
+            'propagate': True,
         }
     },
 }
