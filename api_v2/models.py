@@ -41,7 +41,8 @@ class QuestionLibrary(models.Model):
     questiondb_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     zip_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     # created_at = models.DateTimeField(auto_now_add=True)
-
+    
+    error = models.TextField(blank=True, null=True)
     class Meta:
         verbose_name_plural = "question libraries"
 
@@ -66,6 +67,7 @@ class Question(models.Model):
     hint = models.TextField(blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
 
+    error = models.TextField(blank=True, null=True)
 
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
