@@ -355,12 +355,12 @@ def question_parser(question_library, text_string):
 
 def runconversion(question_library):
 
-    # print(datetime.now().strftime("%H:%M:%S"), "Starting task ID:", question_library.id)
-    # runconversion.info("Transaction Started : " + "[" + str(question_library.id) + "]")
-    RunConversion_Logger.info("["+str(question_library.id) + "] " +
+    # print(datetime.now().strftime("%H:%M:%S"), "Starting task ID:", question_library.transaction)
+    # runconversion.info("Transaction Started : " + "[" + str(question_library.transaction) + "]")
+    RunConversion_Logger.info("["+str(question_library.transaction) + "] " +
                      "<<<<<<<<<<Transaction Started<<<<<<<<<<")
     global TransactionID
-    TransactionID = question_library.id
+    TransactionID = question_library.transaction
     # start = time.time()
     # question_library.checkpoint = 0
     # question_library.checkpoint_failed = 0
@@ -375,12 +375,12 @@ def runconversion(question_library):
         # question_library.checkpoint = 1
         question_library.save()
         # raise Exception('')
-        RunConversion_Logger.info("["+str(question_library.id) +
+        RunConversion_Logger.info("["+str(question_library.transaction) +
                          "] " + "Markdown String Created")
         # print(datetime.now().strftime("%H:%M:%S"), "Pandoc Done!")
     except Exception as e:
         # question_library.checkpoint_failed = 1
-        RunConversion_Logger.error("["+str(question_library.id) +
+        RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "Markdown String Failed")
         return None
 
@@ -397,10 +397,10 @@ def runconversion(question_library):
         question_library.save()
         # raise Exception('')
         RunConversion_Logger.info(
-            "["+str(question_library.id) + "] " + "Parser Finished")
+            "["+str(question_library.transaction) + "] " + "Parser Finished")
     except Exception as e:
         RunConversion_Logger.error(
-            "["+str(question_library.id) + "] " + "Parser Failed")
+            "["+str(question_library.transaction) + "] " + "Parser Failed")
         return None
 
     # ImsManifest string create ===================================================================================
@@ -420,11 +420,11 @@ def runconversion(question_library):
         question_library.imsmanifest_string = parsed_imsmanifest
         question_library.save()
 
-        RunConversion_Logger.info("["+str(question_library.id) +
+        RunConversion_Logger.info("["+str(question_library.transaction) +
                          "] " + "imsmanifest String Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
     except Exception as e:
-        RunConversion_Logger.error("["+str(question_library.id) +
+        RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "imsmanifest String Failed")
         return None
 
@@ -451,12 +451,12 @@ def runconversion(question_library):
         question_library.imsmanifest_file = imsmanifest_file
         # question_library.checkpoint = 4;
         question_library.save()
-        RunConversion_Logger.info("["+str(question_library.id) +
+        RunConversion_Logger.info("["+str(question_library.transaction) +
                          "] " + "QuestionDB String Created")
         # print(question_library.imsmanifest_file.name)
         # print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
     except Exception as e:
-        RunConversion_Logger.error("["+str(question_library.id) +
+        RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "QuestionDB String Failed")
         return None
     # Questiondb string create ===================================================================================
@@ -469,11 +469,11 @@ def runconversion(question_library):
         # question_library.checkpoint = 5;
         question_library.save()
         RunConversion_Logger.info(
-            "["+str(question_library.id) + "] " + "XML files Created")
+            "["+str(question_library.transaction) + "] " + "XML files Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
     except Exception as e:
         RunConversion_Logger.error(
-            "["+str(question_library.id) + "] " + "XML files Failed")
+            "["+str(question_library.transaction) + "] " + "XML files Failed")
         return None
 
     # Questiondb string create ===================================================================================
@@ -490,15 +490,15 @@ def runconversion(question_library):
                                 '/media/' + filename)
 
         question_library.zip_file.name = str(
-            question_library.id) + "/" + question_library.section_name + '.zip'
+            question_library.transaction) + "/" + question_library.section_name + '.zip'
         question_library.save()
         RunConversion_Logger.info(
-            "["+str(question_library.id) + "] " + "ZIP file Created")
+            "["+str(question_library.transaction) + "] " + "ZIP file Created")
     except Exception as e:
         RunConversion_Logger.error(
-            "["+str(question_library.id) + "] " + "ZIP file Failed")
+            "["+str(question_library.transaction) + "] " + "ZIP file Failed")
         return None
 
-    RunConversion_Logger.info("["+str(question_library.id) + "] " +
+    RunConversion_Logger.info("["+str(question_library.transaction) + "] " +
                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
     return None

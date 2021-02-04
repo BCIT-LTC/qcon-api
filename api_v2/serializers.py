@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import QuestionLibrary
+from .models import QuestionLibrary, Transaction
 from django_q.tasks import async_task
 
 def validate_file(value):
@@ -14,18 +14,24 @@ class UploadSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         # newconversion = QuestionLibrary.objects.create(**validated_data)
+        newtransaction = Transaction(user='qconweb')
+        newtransaction.save()
+
         newconversion = QuestionLibrary.objects.create()
+        newconversion.transaction = newtransaction
+        # print("transaction " + str(newconversion.transaction))
+        # print("qlibratry " + str(newtransaction.questionlibrary))
         newconversion.temp_file = validated_data.get('temp_file', validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         # print(newconversion.section_name)
 
-        newconversion.folder_path = '/code/temp/' + str(newconversion.id)
+        newconversion.folder_path = '/code/temp/' + str(newconversion.transaction)
         newconversion.image_path = newconversion.folder_path + '/media/'
         newconversion.create_directory()
         newconversion.save()
         async_task('api_v2.tasks.runconversion', newconversion)
 
-        return newconversion
+        return newconversion.transaction
 
     def update(self, instance, validated_data):
         instance.temp_file =validated_data.get('temp_file', instance.temp_file)
