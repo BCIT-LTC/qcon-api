@@ -14,7 +14,8 @@ def format_file_path(instance, file_name):
 # TODO format_media_path for custom media folder
 class Transaction(models.Model): 
     id = models.AutoField(primary_key=True)
-    user = models.TextField(blank=True, null=True)
+    client = models.TextField(blank=True, null=True) #will be generated from TOKEN authentication in the future
+    user = models.TextField(blank=True, null=True) # csrf token from qcon web
 
     def __str__(self):
         return str(self.id) + " User: " + str(self.user)
@@ -79,7 +80,7 @@ class Question(models.Model):
         return Fib.objects.filter(question=self.id, type='answer')
     
     def __str__(self):
-        return str(self.question_body)
+        return str(self.prefix) + " Transaction" + str(self.question_library.transaction.id)
     # messages = {}
     # images = []
 
