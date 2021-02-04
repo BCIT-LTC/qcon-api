@@ -90,6 +90,8 @@ def L1Converter(question_library):
         parsed_questions = printer.get_results()
     except:
         L1Converter_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
+        question_library.error = "Error Splitting the questions"
+        question_library.save()
 
     # Populate L1
     # Normalize array and grab indentations
@@ -136,8 +138,9 @@ def L1Converter(question_library):
     # print("questions detected: " + str(number_of_questions) + " expected: " + str(highest_numbered_index))
 
     if int(number_of_questions) != int(highest_numbered_index):
-        L1Converter_Logger.error(
-            "Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index))
+        L1Converter_Logger.error("Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index))
+        question_library.error = "Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index)
+        question_library.save()
  
     # Split AnswerBlock by marking beginning of it
 
@@ -382,6 +385,9 @@ def runconversion(question_library):
         # question_library.checkpoint_failed = 1
         RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "Markdown String Failed")
+        
+        question_library.error = "System Error: 1"
+        question_library.save()
         return None
 
     # Starting Antler AST conversion
@@ -401,6 +407,9 @@ def runconversion(question_library):
     except Exception as e:
         RunConversion_Logger.error(
             "["+str(question_library.transaction) + "] " + "Parser Failed")
+        
+        question_library.error = "System Error: 2"
+        question_library.save()
         return None
 
     # ImsManifest string create ===================================================================================
@@ -426,6 +435,9 @@ def runconversion(question_library):
     except Exception as e:
         RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "imsmanifest String Failed")
+        
+        question_library.error = "System Error: 3"
+        question_library.save()
         return None
 
     # ImsManifest Save File ===================================================================================
@@ -458,6 +470,9 @@ def runconversion(question_library):
     except Exception as e:
         RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "QuestionDB String Failed")
+
+        question_library.error = "System Error: 4"
+        question_library.save()
         return None
     # Questiondb string create ===================================================================================
 
@@ -474,6 +489,8 @@ def runconversion(question_library):
     except Exception as e:
         RunConversion_Logger.error(
             "["+str(question_library.transaction) + "] " + "XML files Failed")
+        question_library.error = "System Error: 5"
+        question_library.save()
         return None
 
     # Questiondb string create ===================================================================================
@@ -497,6 +514,9 @@ def runconversion(question_library):
     except Exception as e:
         RunConversion_Logger.error(
             "["+str(question_library.transaction) + "] " + "ZIP file Failed")
+        
+        question_library.error = "System Error: 6"
+        question_library.save()
         return None
 
     RunConversion_Logger.info("["+str(question_library.transaction) + "] " +
