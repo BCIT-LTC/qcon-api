@@ -9,13 +9,14 @@ from rest_framework.parsers import FileUploadParser
 # from os import makedirs, path, walk
 
 from .models import QuestionLibrary
+from .models import Question
 
 from django_q.tasks import async_task
 
 import logging
 logger = logging.getLogger(__name__)
 
-from .serializers import UploadSerializer, SectionSerializer, StatusSerializer
+from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer
 from rest_framework import viewsets
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -27,16 +28,15 @@ def print_result(task):
 
 class GetStatus(APIView):
 
+    serializer_class = QuestionLibrarySerializer, 
     def get(self, request, id):
         # question_library = QuestionLibrary.objects.get()
         # print(request.data['id'])
-        question_library = QuestionLibrary.objects.get(id=id)
-
-        response = {
-            'status': question_library.checkpoint
-        }
+        question_library = QuestionLibrary.objects.get(transaction=id)
+        question_library_serializer = QuestionLibrarySerializer(question_library)
         
-        return JsonResponse(response, status=200)
+        return Response(question_library_serializer.data, status=200)
+        # return JsonResponse(response, status=200, safe=False)
 
 class Upload(APIView):
     parser_classes = [MultiPartParser]

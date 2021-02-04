@@ -57,7 +57,7 @@ class QuestionLibrary(models.Model):
 
 class Question(models.Model):
     id = models.AutoField(primary_key=True) 
-    question_library = models.ForeignKey(QuestionLibrary, on_delete=models.CASCADE)
+    question_library = models.ForeignKey(QuestionLibrary, related_name='questions' ,on_delete=models.CASCADE)
     prefix = models.CharField(max_length=5, null=False)
     question_type = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=250, null=False)
@@ -67,7 +67,6 @@ class Question(models.Model):
     question_feedback = models.TextField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
-
     error = models.TextField(blank=True, null=True)
 
     def get_answers(self):
