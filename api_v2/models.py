@@ -86,7 +86,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
     prefix = models.CharField(max_length=5, null=False)
     answer_body = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)

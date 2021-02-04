@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import QuestionLibrary, Transaction, Question
+from .models import QuestionLibrary, Transaction, Question, Answer
 from django_q.tasks import async_task
 
 
@@ -64,17 +64,23 @@ class SectionSerializer(serializers.Serializer):
         return instance
 
 
+class AnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Answer
+        fields = ['prefix', 'answer_body', 'answer_feedback', 'is_correct', 'match_left', 'match_right', 'order']
 
 class QuestionSerializer(serializers.ModelSerializer):
+    answers = AnswerSerializer(many=True, read_only=True)
     class Meta:
         model = Question
         fields = ['prefix', 'title', 'points', 'randomize_answer', 'question_type',
-                  'question_body', 'question_feedback', 'hint', 'correct_answers_length', 'error']
+                  'question_body', 'question_feedback', 'hint', 'correct_answers_length', 'error', 'answers']
 
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
-
     class Meta:
         model = QuestionLibrary
         fields = ['section_name', 'randomize_answer', 'error', 'questions']
+
