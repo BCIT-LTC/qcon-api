@@ -16,11 +16,18 @@ Qcon is an open source project that converts assessment questions from Word into
 
 Open your browser to https://localhost:8000
 
+## Development Env Requirements
+* Skaffold
+* Kubernetes-cli (kubectl, kustomize)
+* Docker
+
 ## Installation
 
 Qcon can be deployed as a single docker container or as a scalable Kubernetes cluster workload. Please refer to the following guides for each setup:
 * [docker container](https://registry.dev.ltc.bcit.ca/prototypes/qcon:latest) - ideal for development
 * [Kubernetes workload]() - scalable production deployment
+
+
 
 ## Using Qcon
 

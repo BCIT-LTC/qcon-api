@@ -1,4 +1,4 @@
-FROM python:3.9-slim AS qcon-base
+FROM python:3.9 AS qcon-base
 
 ENV ARCH amd64
 ENV PANDOC_VERSION 2.11.3.2
@@ -14,42 +14,37 @@ RUN set -ex \
     && apt-get autoremove --purge \
     && apt-get -y clean
 
-WORKDIR /code
-
-# Copy in new files
 COPY requirements.txt .
-
-RUN mkdir log \
-    && touch log/error.log \
-    && chmod g+w log/error.log
 
 RUN pip install -r requirements.txt
 
-#
-#
-#
-#
+
+
+
+
+#######################################################
 FROM python:3.9-alpine AS release  
 
 LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
+ENV PATH /code:$PATH
 
 WORKDIR /code
-
-EXPOSE 8000
+VOLUME /code
 
 COPY --from=qcon-base /usr/bin/pandoc /usr/local/bin/pandoc
 COPY --from=qcon-base /root/.cache /root/.cache
 
-# Re-run requirements install with cached wheels
-COPY requirements.txt .
+COPY . .
+
 RUN pip install -r requirements.txt
 
-# Finally copy in our code
-COPY . .
-RUN chmod +x /code/docker-entrypoint.sh
+RUN mkdir log && touch log/error.log \
+    && chmod g+w log/error.log
 
-ENTRYPOINT ["/code/docker-entrypoint.sh"]
+RUN chmod +x ./docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+EXPOSE 8000
+CMD ["python","manage.py","runserver","0.0.0.0:8000"]
