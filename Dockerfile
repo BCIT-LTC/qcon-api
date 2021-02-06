@@ -40,11 +40,11 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-RUN mkdir log && touch log/error.log \
+RUN mkdir -p log && touch log/error.log \
     && chmod g+w log/error.log
 
-RUN chmod +x ./docker-entrypoint.sh
-ENTRYPOINT ["./docker-entrypoint.sh"]
+COPY docker-entrypoint.sh /usr/local/bin
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8000
 CMD ["python","manage.py","runserver","0.0.0.0:8000"]
