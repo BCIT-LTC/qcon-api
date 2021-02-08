@@ -16,7 +16,7 @@ class UploadSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         # newconversion = QuestionLibrary.objects.create(**validated_data)
-        newtransaction = Transaction(user='qconweb')
+        newtransaction = Transaction(client='qconweb')
         newtransaction.save()
 
         newconversion = QuestionLibrary.objects.create()
@@ -62,6 +62,16 @@ class SectionSerializer(serializers.Serializer):
         instance.id = validated_data.get('id', instance.id)
         instance.save()
         return instance
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Transaction
+        fields = ['id', 'progress']
+
+
+
 
 
 class AnswerSerializer(serializers.ModelSerializer):

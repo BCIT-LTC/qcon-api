@@ -39,14 +39,14 @@ QuestionParser_Logger = logging.getLogger('api_v2.tasks.QuestionParser')
 RunConversion_Logger = logging.getLogger('api_v2.tasks.runconversion')
 
 
-TransactionID = None
+TRANSACTION_OBJECT = None
 
 class CustomL1ErrorListener(ErrorListener):
     def __init__(self):
         super(CustomL1ErrorListener, self).__init__()
 
     def syntaxError(self, recognizer, line, offendingSymbol, msg, column):
-        L1Converter_Logger.warn("["+str(TransactionID) +"]" + "ANTLR Error: line " + str(line)+ ":" + str(offendingSymbol) + " " + msg)
+        L1Converter_Logger.warn("["+str(TRANSACTION_OBJECT.id) +"]" + "ANTLR Error: line " + str(line)+ ":" + str(offendingSymbol) + " " + msg)
         pass
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
@@ -89,13 +89,12 @@ def L1Converter(question_library):
         walker.walk(printer, tree)
         parsed_questions = printer.get_results()
     except:
-        L1Converter_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
+        L1Converter_Logger.error("["+str(TRANSACTION_OBJECT.id) +"]" + "ANTLR LEXER failed and cannot continue")
         question_library.error = "Error Splitting the questions"
         question_library.save()
 
     # Populate L1
     # Normalize array and grab indentations
-
     listofL1Elements = []
     for element in parsed_questions:
         L1 = L1Element()
@@ -112,9 +111,9 @@ def L1Converter(question_library):
         L1.endanswers = element['endanswer']
         listofL1Elements.append(L1)
 
-    # for element in listofL1Elements:
-    #     print("==============")
-    #     print("PREFIX " + str(element.prefix))
+    for element in listofL1Elements:
+        print("==============")
+        print("PREFIX " + str(element.prefix))
     #     print("CONTENT " + str(element.content))
     #     print("STARMARKED " + str(element.starmarked))
     #     print("LISTITEM " + str(element.listitem))
@@ -353,7 +352,7 @@ def question_parser(question_library, text_string):
         parsed_questions = listener.get_results()
         return parsed_questions
     except:
-        QuestionParser_Logger.error("["+str(TransactionID) +"]" + "ANTLR LEXER failed and cannot continue")
+        QuestionParser_Logger.error("["+str(TRANSACTION_OBJECT.id) +"]" + "ANTLR LEXER failed and cannot continue")
 
 
 def runconversion(question_library):
@@ -362,8 +361,8 @@ def runconversion(question_library):
     # runconversion.info("Transaction Started : " + "[" + str(question_library.transaction) + "]")
     RunConversion_Logger.info("["+str(question_library.transaction) + "] " +
                      "<<<<<<<<<<Transaction Started<<<<<<<<<<")
-    global TransactionID
-    TransactionID = question_library.transaction
+    global TRANSACTION_OBJECT
+    TRANSACTION_OBJECT = question_library.transaction
     # start = time.time()
     # question_library.checkpoint = 0
     # question_library.checkpoint_failed = 0
@@ -373,14 +372,16 @@ def runconversion(question_library):
     # print(datetime.now().strftime("%H:%M:%S"), "Pandoc processing...")
     try:
         pandocstring = pypandoc.convert_file(question_library.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum', extra_args=[
-                                             '--extract-media=' + question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve'])
+                                             '--extract-media=' + question_library.folder_path, '--no-highlight', '--self-contained', '--atx-headers', '--preserve-tabs', '--wrap=preserve', '--indent=false'])
         question_library.pandoc_string = "\n" + pandocstring
-        # question_library.checkpoint = 1
         question_library.save()
         # raise Exception('')
         RunConversion_Logger.info("["+str(question_library.transaction) +
                          "] " + "Markdown String Created")
-        # print(datetime.now().strftime("%H:%M:%S"), "Pandoc Done!")
+
+        TRANSACTION_OBJECT.progress = 1
+        TRANSACTION_OBJECT.save()
+        
     except Exception as e:
         # question_library.checkpoint_failed = 1
         RunConversion_Logger.error("["+str(question_library.transaction) +
@@ -404,6 +405,10 @@ def runconversion(question_library):
         # raise Exception('')
         RunConversion_Logger.info(
             "["+str(question_library.transaction) + "] " + "Parser Finished")
+        
+        TRANSACTION_OBJECT.progress = 2
+        TRANSACTION_OBJECT.save()
+
     except Exception as e:
         RunConversion_Logger.error(
             "["+str(question_library.transaction) + "] " + "Parser Failed")
@@ -431,7 +436,10 @@ def runconversion(question_library):
 
         RunConversion_Logger.info("["+str(question_library.transaction) +
                          "] " + "imsmanifest String Created")
-        # print(datetime.now().strftime("%H:%M:%S"), "imsmanifext string created!")
+
+        TRANSACTION_OBJECT.progress = 3
+        TRANSACTION_OBJECT.save()
+
     except Exception as e:
         RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "imsmanifest String Failed")
@@ -461,12 +469,12 @@ def runconversion(question_library):
         imsmanifest_file = ContentFile(
             question_library.imsmanifest_string, name="imsmanifest.xml")
         question_library.imsmanifest_file = imsmanifest_file
-        # question_library.checkpoint = 4;
         question_library.save()
         RunConversion_Logger.info("["+str(question_library.transaction) +
                          "] " + "QuestionDB String Created")
-        # print(question_library.imsmanifest_file.name)
-        # print(datetime.now().strftime("%H:%M:%S"), "questiondb string created!")
+
+        TRANSACTION_OBJECT.progress = 4
+        TRANSACTION_OBJECT.save()
     except Exception as e:
         RunConversion_Logger.error("["+str(question_library.transaction) +
                           "] " + "QuestionDB String Failed")
@@ -486,6 +494,8 @@ def runconversion(question_library):
         RunConversion_Logger.info(
             "["+str(question_library.transaction) + "] " + "XML files Created")
         # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
+        TRANSACTION_OBJECT.progress = 5
+        TRANSACTION_OBJECT.save()       
     except Exception as e:
         RunConversion_Logger.error(
             "["+str(question_library.transaction) + "] " + "XML files Failed")
@@ -511,6 +521,9 @@ def runconversion(question_library):
         question_library.save()
         RunConversion_Logger.info(
             "["+str(question_library.transaction) + "] " + "ZIP file Created")
+
+        TRANSACTION_OBJECT.progress = 6
+        TRANSACTION_OBJECT.save()
     except Exception as e:
         RunConversion_Logger.error(
             "["+str(question_library.transaction) + "] " + "ZIP file Failed")
