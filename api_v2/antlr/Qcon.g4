@@ -4,7 +4,7 @@ grammar Qcon;
 // {
 // output=AST;
 // backtrack=true;
-// memoize=true;
+// memorize=true;
 // }
 
 // @parser::members{

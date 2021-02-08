@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: qcon-api
+  labels:
+    app: qcon-api
+spec:
+  selector:
+    matchLabels:
+      app: qcon-api
+  template:
+    metadata:
+      labels:
+        app: qcon-api
+    spec:
+      imagePullSecrets:
+      - name: gitlab-reg-creds
+      containers:
+      - name: qcon-api
+        ports:
+        - containerPort: 8000

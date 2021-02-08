@@ -1,14 +1,32 @@
-apiVersion: skaffold/v2beta8
+apiVersion: skaffold/v2beta11
 kind: Config
 metadata:
-  name: qcon
+  name: qcon-api
 build:
   artifacts:
-  - image: qcon
+  - image: qcon-api
+    context: .
+  local:
+#    useDockerCLI: true
+    useBuildkit: true
 deploy:
-  kubectl:
-    manifests:
-    - storage.yaml
-    - deployment.yaml
-    - service.yaml
-    - ingress.yaml
+  kustomize:
+    paths:
+    - overlays/dev
+#profiles:
+#- name: prod
+#  deploy:
+#    kustomize:
+#      paths:
+#      - overlays/prod
+#- name: staging
+#  deploy:
+#    kustomize:
+#      paths:
+#      - overlays/staging
+portForward:
+  - resourceType: deployment
+    resourceName: qcon-api
+    address: 0.0.0.0
+    port: 300008
+    localPort: 8000 # *Optional*

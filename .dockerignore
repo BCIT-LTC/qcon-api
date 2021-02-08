@@ -5,3 +5,6 @@ __pycache__
 *.pyd
 .Python
 env
+.DS_Store
+.dockerignore
+.gitignore

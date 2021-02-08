@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-reg-creds
+#  namespace: web-apps
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJyZWdpc3RyeS5kZXYubHRjLmJjaXQuY2EiOnsidXNlcm5hbWUiOiJnaXRsYWItaW1nLXB1bGwiLCJwYXNzd29yZCI6IkVaUXhBWDhyMUt6YlY4SnhTVndiIiwiZW1haWwiOiJjb3Vyc2Vwcm9kdWN0aW9uQGJjaXQuY2EiLCJhdXRoIjoiWjJsMGJHRmlMV2x0Wnkxd2RXeHNPa1ZhVVhoQldEaHlNVXQ2WWxZNFNuaFRWbmRpIn19fQ==
+type: kubernetes.io/dockerconfigjson
