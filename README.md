@@ -21,6 +21,8 @@ Open your browser to https://localhost:8000
 * Kubernetes-cli (kubectl, kustomize)
 * Docker
 
+`skaffold dev --default-repo=registry.dev.ltc.bcit.ca/web-apps/qcon`
+
 ## Installation
 
 Qcon can be deployed as a single docker container or as a scalable Kubernetes cluster workload. Please refer to the following guides for each setup:
