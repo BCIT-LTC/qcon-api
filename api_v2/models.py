@@ -15,17 +15,9 @@ def format_file_path(instance, file_name):
 class Transaction(models.Model): 
     id = models.AutoField(primary_key=True)
     client = models.TextField(blank=True, null=True) #will be generated from TOKEN authentication in the future
-    user = models.TextField(blank=True, null=True) # csrf token from qcon web
 
     def __str__(self):
         return str(self.id) + " User: " + str(self.user)
-
-
-# class TransactionReport(models.Model): 
-#     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
-    
-#     def __str__(self):
-#         return str(self.id)
 
 class QuestionLibrary(models.Model):   
     # id = models.AutoField(primary_key=True)
