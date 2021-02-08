@@ -20,8 +20,12 @@ Open your browser to https://localhost:8000
 * Skaffold
 * Kubernetes-cli (kubectl, kustomize)
 * Docker
+* Kustomize
 
 `skaffold dev --default-repo=registry.dev.ltc.bcit.ca/web-apps/qcon`
+
+`KUBECONFIG=file1:file2:file3 kubectl config view \
+    --merge --flatten > out.txt`
 
 ## Installation
 
