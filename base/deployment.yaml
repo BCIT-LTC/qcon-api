@@ -1,5 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: qcon-api
   labels:
@@ -13,17 +14,9 @@ spec:
       labels:
         app: qcon-api
     spec:
+      imagePullSecrets:
+      - name: gitlab-reg-creds
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
         ports:
         - containerPort: 8000
-        volumeMounts:
-        - name: qcon-api-persistent-storage
-          mountPath: "/code"
-      imagePullSecrets:
-        - name: gitlab-img-pull
-      volumes:
-      - name: qcon-api-persistent-storage
-        persistentVolumeClaim:
-          claimName: qcon-api-pv-claim

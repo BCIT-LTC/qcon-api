@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: qcon-api
+  labels:
+    app: qcon-api
+    env: dev
+spec:
+  ports:
+    - protocol: TCP
+      port: 300008
+      targetPort: 8000

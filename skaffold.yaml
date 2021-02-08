@@ -8,7 +8,7 @@ build:
     context: .
   local:
 #    useDockerCLI: true
-#    useBuildkit: true
+    useBuildkit: true
 deploy:
   kustomize:
     paths:
@@ -24,3 +24,9 @@ deploy:
 #    kustomize:
 #      paths:
 #      - overlays/staging
+portForward:
+  - resourceType: deployment
+    resourceName: qcon-api
+    address: 0.0.0.0
+    port: 300008
+    localPort: 8000 # *Optional*
