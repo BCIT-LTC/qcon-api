@@ -36,9 +36,9 @@ VOLUME /code
 COPY --from=qcon-base /usr/bin/pandoc /usr/local/bin/pandoc
 COPY --from=qcon-base /root/.cache /root/.cache
 
-COPY . .
-
+COPY requirements.txt .
 RUN pip install -r requirements.txt
+COPY . .
 
 RUN mkdir -p log && touch log/error.log \
     && chmod g+w log/error.log
