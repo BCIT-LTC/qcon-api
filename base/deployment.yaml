@@ -20,3 +20,4 @@ spec:
       - name: qcon-api
         ports:
         - containerPort: 8000
+status: {}
