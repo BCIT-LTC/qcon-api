@@ -8,25 +8,27 @@ build:
     context: .
   local:
 #    useDockerCLI: true
-    useBuildkit: true
+#    useBuildkit: true
 deploy:
+  cluster:
   kustomize:
+    defaultNamespace: {{.SHA}}
     paths:
     - overlays/dev
 #profiles:
-#- name: prod
-#  deploy:
-#    kustomize:
-#      paths:
-#      - overlays/prod
 #- name: staging
 #  deploy:
 #    kustomize:
 #      paths:
 #      - overlays/staging
-portForward:
-  - resourceType: deployment
-    resourceName: qcon-api
-    address: 0.0.0.0
-    port: 300008
-    localPort: 8000 # *Optional*
+#- name: prod
+#  deploy:
+#    kustomize:
+#      paths:
+#      - overlays/prod
+#portForward:
+#  - resourceType: deployment
+#    resourceName: qcon-api
+#    address: 0.0.0.0
+#    port: 300008
+#    localPort: 8000 # *Optional*
