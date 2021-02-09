@@ -7,28 +7,29 @@ build:
   - image: qcon-api
     context: .
   local:
-#    useDockerCLI: true
+    useDockerCLI: true
 #    useBuildkit: true
 deploy:
-  cluster:
   kustomize:
-    defaultNamespace: {{.SHA}}
     paths:
     - overlays/dev
-#profiles:
-#- name: staging
-#  deploy:
-#    kustomize:
-#      paths:
-#      - overlays/staging
-#- name: prod
-#  deploy:
-#    kustomize:
-#      paths:
-#      - overlays/prod
-#portForward:
-#  - resourceType: deployment
-#    resourceName: qcon-api
-#    address: 0.0.0.0
-#    port: 300008
-#    localPort: 8000 # *Optional*
+# enable with `skaffold dev -p {profile.name}`
+profiles:
+- name: v
+  deploy:
+    kustomize:
+      paths:
+      - overlays/dev
+      defaultNamespace: default-v
+- name: a
+  deploy:
+    kustomize:
+      paths:
+      - overlays/dev
+      defaultNamespace: default-a
+- name: k
+  deploy:
+    kustomize:
+      paths:
+      - overlays/dev
+      defaultNamespace: default-k

@@ -22,8 +22,10 @@ Open your browser to https://localhost:8000
 * Docker
 * Kustomize
 
-`skaffold dev --default-repo=registry.dev.ltc.bcit.ca/web-apps/qcon`
+* Setup a sane default repo
+`skaffold config set default-repo registry.dev.ltc.bcit.ca/web-apps/qcon`
 
+* Configure your Kubernetes context. This script merges config files when adding new contexts:
 `KUBECONFIG=file1:file2:file3 kubectl config view \
     --merge --flatten > out.txt`
 

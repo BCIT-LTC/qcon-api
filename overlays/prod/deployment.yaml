@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-#  namespace: web-apps
   labels:
     app: qcon-api
 spec:
