@@ -110,30 +110,30 @@ class DownloadAPI(APIView):
         file_response = FileResponse(question_library.zip_file)
         file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
         return file_response
-class SetSection(APIView):
+# class SetSection(APIView):
 
-    parser_classes = [MultiPartParser]
-    serializer_class = SectionSerializer
+#     parser_classes = [MultiPartParser]
+#     serializer_class = SectionSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description='Set the Section Name',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
-    def post(self, request, format=None):
+#     @extend_schema(
+#         # override default docstring extraction
+#         description='Set the Section Name',
+#         # provide Authentication class that deviates from the views default
+#         auth=None,
+#         # change the auto-generated operation name
+#         operation_id=None,
+#         # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+#         operation=None,
+#         # attach request/response examples to the operation.
+#     )
+#     def post(self, request, format=None):
 
-        QuestionModel = QuestionLibrary.objects.get(id=request.data['id'])
-        serializer = SectionSerializer(QuestionModel, data={'section_name': request.data['section_name'], 'id': request.data['id']}, partial=True)
+#         QuestionModel = QuestionLibrary.objects.get(id=request.data['id'])
+#         serializer = SectionSerializer(QuestionModel, data={'section_name': request.data['section_name'], 'id': request.data['id']}, partial=True)
 
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return JsonResponse(serializer.data, status=201)
+#         return JsonResponse(serializer.errors, status=400)
 
 
