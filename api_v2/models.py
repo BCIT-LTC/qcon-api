@@ -94,7 +94,7 @@ class Answer(models.Model):
 
 class Fib(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='fib', on_delete=models.CASCADE)
     type = models.CharField(max_length=7, null=False)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)

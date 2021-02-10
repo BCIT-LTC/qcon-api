@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import QuestionLibrary, Transaction, Question, Answer
+from .models import QuestionLibrary, Transaction, Question, Answer, Fib
 from django_q.tasks import async_task
 
 
@@ -71,8 +71,10 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = ['id', 'progress']
 
 
-
-
+class FibSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fib
+        fields = ['type', 'text', 'order']
 
 class AnswerSerializer(serializers.ModelSerializer):
 
@@ -82,10 +84,11 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
+    fib = FibSerializer(many=True, read_only=True)
     class Meta:
         model = Question
         fields = ['prefix', 'title', 'points', 'randomize_answer', 'question_type',
-                  'question_body', 'question_feedback', 'hint', 'correct_answers_length', 'error', 'answers']
+                  'question_body', 'question_feedback', 'hint', 'correct_answers_length', 'error', 'answers', 'fib']
 
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
