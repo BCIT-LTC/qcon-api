@@ -8,6 +8,6 @@ metadata:
     env: dev
 spec:
   ports:
-    - protocol: TCP
-      port: 300008
-      targetPort: 8000
+  - protocol: TCP
+    port: 30008
+    targetPort: 8000

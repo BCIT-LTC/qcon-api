@@ -4,12 +4,12 @@ kind: Kustomization
 resources:
 - ../../base
 
-# namespace: web-apps
-#nameSuffix: -prod
+namespace: web-apps
+
+nameSuffix: -prod
 
 patchesStrategicMerge:
 - deployment.yaml
-- namespace.yaml
 - service.yaml
 - ingress.yaml
 - storage.yaml
