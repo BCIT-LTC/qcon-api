@@ -111,9 +111,9 @@ def L1Converter(question_library):
         L1.endanswers = element['endanswer']
         listofL1Elements.append(L1)
 
-    for element in listofL1Elements:
-        print("==============")
-        print("PREFIX " + str(element.prefix))
+    # for element in listofL1Elements:
+    #     print("==============")
+    #     print("PREFIX " + str(element.prefix))
     #     print("CONTENT " + str(element.content))
     #     print("STARMARKED " + str(element.starmarked))
     #     print("LISTITEM " + str(element.listitem))
