@@ -5,7 +5,7 @@ resources:
 - ../../base
 
 # namespace: web-apps
-#nameSuffix: -prod
+#nameSuffix: -staging
 
 patchesStrategicMerge:
 - deployment.yaml
