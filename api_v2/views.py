@@ -105,7 +105,8 @@ class DownloadAPI(APIView):
         # attach request/response examples to the operation.
     )
     def get(self, request, id, format=None):
-        question_library = QuestionLibrary.objects.get(id=id)
+        Transactionrequested = Transaction.objects.get(id=id)
+        question_library = QuestionLibrary.objects.get(transaction=Transactionrequested)
         filename=question_library.zip_file.name.split("/")[1]
         file_response = FileResponse(question_library.zip_file)
         file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
