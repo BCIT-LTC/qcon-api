@@ -9,13 +9,19 @@ from os import makedirs, path
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     # print('{0}/{1}'.format(instance.id, file_name))
-    return '{0}/{1}'.format(instance.id, file_name)
+    return '{0}/{1}'.format(instance.transaction, file_name)
 
 # TODO format_media_path for custom media folder
+class Transaction(models.Model): 
+    id = models.AutoField(primary_key=True)
+    client = models.TextField(blank=True, null=True) #will be generated from TOKEN authentication in the future
+    progress = models.TextField(blank=True, null=True) 
+    def __str__(self):
+        return str(self.id) + " Client: " + str(self.client)
 
 class QuestionLibrary(models.Model):   
-    id = models.AutoField(primary_key=True)
-    # session = models.CharField(max_length=100, null=True)
+    # id = models.AutoField(primary_key=True)
+    transaction = models.OneToOneField(Transaction,on_delete=models.CASCADE,primary_key=True)
     folder_path = models.FilePathField(path="/code", match=None, recursive=False, max_length=None)
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
@@ -27,14 +33,9 @@ class QuestionLibrary(models.Model):
     questiondb_string = models.TextField(blank=True, null=True)
     questiondb_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     zip_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
-    # tempfile = models.FileField(upload_to='file_newww', blank=True, null=True)
-    # JSON = models.JSONField(encoder=None, decoder=None, blank=True, null=True)
-    # state = models.DecimalField(unique=False, max_digits=2, decimal_places=0, blank=True, null=True)
-    # checkpoint = models.IntegerField(blank=True, null=True)
-    # checkpoint_failed = models.IntegerField(blank=True, null=True)
-    # time_delta = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
+    # created_at = models.DateTimeField(auto_now_add=True)
+    
+    error = models.TextField(blank=True, null=True)
     class Meta:
         verbose_name_plural = "question libraries"
 
@@ -44,11 +45,11 @@ class QuestionLibrary(models.Model):
             makedirs(self.folder_path)
     
     def __str__(self):
-        return str(self.id)
+        return str(self.transaction)
 
 class Question(models.Model):
     id = models.AutoField(primary_key=True) 
-    question_library = models.ForeignKey(QuestionLibrary, on_delete=models.CASCADE)
+    question_library = models.ForeignKey(QuestionLibrary, related_name='questions' ,on_delete=models.CASCADE)
     prefix = models.CharField(max_length=5, null=False)
     question_type = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=250, null=False)
@@ -58,7 +59,7 @@ class Question(models.Model):
     question_feedback = models.TextField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     correct_answers_length = models.PositiveBigIntegerField(blank=True, null=True, default=0)
-
+    error = models.TextField(blank=True, null=True)
 
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
@@ -70,14 +71,14 @@ class Question(models.Model):
         return Fib.objects.filter(question=self.id, type='answer')
     
     def __str__(self):
-        return str(self.question_body)
+        return str(self.prefix) + " Transaction" + str(self.question_library.transaction.id)
     # messages = {}
     # images = []
 
 
 class Answer(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
     prefix = models.CharField(max_length=5, null=False)
     answer_body = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
@@ -93,7 +94,7 @@ class Answer(models.Model):
 
 class Fib(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='fib', on_delete=models.CASCADE)
     type = models.CharField(max_length=7, null=False)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
