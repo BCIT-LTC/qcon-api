@@ -41,8 +41,18 @@ class GetStatus(APIView):
 
 
 class GetResult(APIView):
-
-    serializer_class = QuestionLibrarySerializer, 
+    serializer_class = QuestionLibrarySerializer
+    @extend_schema(
+        # override default docstring extraction
+        description='Returns the Conversion results and errors in JSON format',
+        # provide Authentication class that deviates from the views default
+        auth=None,
+        # change the auto-generated operation name
+        operation_id=None,
+        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+        operation=None,
+        # attach request/response examples to the operation.
+    )
     def get(self, request, id):
         # question_library = QuestionLibrary.objects.get()
         # print(request.data['id'])
@@ -83,14 +93,14 @@ class Upload(APIView):
         return JsonResponse(serializer.errors, status=400)
 
 # Temporary endpoint for the admin view
-class Download(APIView):
-    # parser_classes = [MultiPartParser]
-    # permission_classes = [IsAuthenticated]
-    # serializer_class = UploadSerializer
-    def get(self, request , id, filename):
-        FILE = './temp/' + str(id) + '/' + filename
-        file_response = FileResponse(open(FILE, 'rb'))
-        return file_response
+# class Download(APIView):
+#     # parser_classes = [MultiPartParser]
+#     # permission_classes = [IsAuthenticated]
+#     # serializer_class = UploadSerializer
+#     def get(self, request , id, filename):
+#         FILE = './temp/' + str(id) + '/' + filename
+#         file_response = FileResponse(open(FILE, 'rb'))
+#         return file_response
 
 class DownloadAPI(APIView):
     @extend_schema(
@@ -105,7 +115,8 @@ class DownloadAPI(APIView):
         # attach request/response examples to the operation.
     )
     def get(self, request, id, format=None):
-        question_library = QuestionLibrary.objects.get(id=id)
+        Transactionrequested = Transaction.objects.get(id=id)
+        question_library = QuestionLibrary.objects.get(transaction=Transactionrequested)
         filename=question_library.zip_file.name.split("/")[1]
         file_response = FileResponse(question_library.zip_file)
         file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
