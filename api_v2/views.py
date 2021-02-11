@@ -41,8 +41,18 @@ class GetStatus(APIView):
 
 
 class GetResult(APIView):
-
-    serializer_class = QuestionLibrarySerializer, 
+    serializer_class = QuestionLibrarySerializer
+    @extend_schema(
+        # override default docstring extraction
+        description='Returns the Conversion results and errors in JSON format',
+        # provide Authentication class that deviates from the views default
+        auth=None,
+        # change the auto-generated operation name
+        operation_id=None,
+        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+        operation=None,
+        # attach request/response examples to the operation.
+    )
     def get(self, request, id):
         # question_library = QuestionLibrary.objects.get()
         # print(request.data['id'])
