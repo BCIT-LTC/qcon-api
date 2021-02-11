@@ -83,14 +83,14 @@ class Upload(APIView):
         return JsonResponse(serializer.errors, status=400)
 
 # Temporary endpoint for the admin view
-class Download(APIView):
-    # parser_classes = [MultiPartParser]
-    # permission_classes = [IsAuthenticated]
-    # serializer_class = UploadSerializer
-    def get(self, request , id, filename):
-        FILE = './temp/' + str(id) + '/' + filename
-        file_response = FileResponse(open(FILE, 'rb'))
-        return file_response
+# class Download(APIView):
+#     # parser_classes = [MultiPartParser]
+#     # permission_classes = [IsAuthenticated]
+#     # serializer_class = UploadSerializer
+#     def get(self, request , id, filename):
+#         FILE = './temp/' + str(id) + '/' + filename
+#         file_response = FileResponse(open(FILE, 'rb'))
+#         return file_response
 
 class DownloadAPI(APIView):
     @extend_schema(
