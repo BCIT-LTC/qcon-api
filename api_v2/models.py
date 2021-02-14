@@ -12,6 +12,10 @@ from api_v2.scorm.manifest import ManifestEntity, ManifestResourceEntity
 from xml.dom.minidom import parseString
 import xml.etree.cElementTree as ET
 
+import re
+from os.path import basename
+from django.core.files.base import ContentFile
+
 # Create your models here.
 
 import logging
@@ -144,6 +148,56 @@ class QuestionLibrary(models.Model):
             self.error = "System Error: 3"
             self.save()
 
+
+        try:
+            questiondb_string = parsed_xml.questiondb_string
+            img_elements = re.findall(
+                r"\<img.*?\>", questiondb_string, re.MULTILINE)
+
+            for idx, img in enumerate(img_elements):
+                element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
+                new_img = '<img src="{0}" alt="{1}" />'.format(
+                    './media/' + basename(element[0]), basename(element[0]))
+                questiondb_string = questiondb_string.replace(
+                    img_elements[idx], new_img)
+
+            self.questiondb_string = questiondb_string
+            self.save()
+
+            imsmanifest_file = ContentFile(
+                self.imsmanifest_string, name="imsmanifest.xml")
+            self.imsmanifest_file = imsmanifest_file
+            self.save()
+            RunConversion_Logger.info("["+str(self.transaction) +
+                            "] " + "QuestionDB String Created")
+
+            self.transaction.progress = 4
+            self.transaction.save()
+        except Exception as e:
+            RunConversion_Logger.error("["+str(self.transaction) +
+                            "] " + "QuestionDB String Failed")
+
+            self.error = "System Error: 4"
+            self.save()
+
+
+        try:
+            questiondb_file = ContentFile(
+                self.questiondb_string, name="questiondb.xml")
+            self.questiondb_file = questiondb_file
+            # question_library.checkpoint = 5;
+            self.save()
+            RunConversion_Logger.info(
+                "["+str(self.transaction) + "] " + "XML files Created")
+            # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
+            self.transaction.progress = 5
+            self.transaction.save()    
+        except Exception as e:
+            RunConversion_Logger.error(
+                "["+str(self.transaction) + "] " + "XML files Failed")
+            self.error = "System Error: 5"
+            self.save()
+    
     def __str__(self):
         return str(self.transaction)
 
