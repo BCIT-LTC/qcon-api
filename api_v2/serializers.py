@@ -34,8 +34,45 @@ class UploadSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
         async_task('api_v2.tasks.runconversion', newconversion)
-
+        
         return newconversion.transaction
+
+    def update(self, instance, validated_data):
+        instance.temp_file = validated_data.get(
+            'temp_file', instance.temp_file)
+        instance.save()
+        return instance
+
+
+class DocToZipSerializer(serializers.Serializer):
+
+    temp_file = serializers.FileField(
+        validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
+
+    def create(self, validated_data):
+        newtransaction = Transaction(client='qconweb')
+        newtransaction.save()
+        newconversion = QuestionLibrary.objects.create()
+        newconversion.transaction = newtransaction
+        newconversion.temp_file = validated_data.get(
+            'temp_file', validated_data)
+        newconversion.section_name = newconversion.temp_file.name.split(".")[0]
+        newconversion.folder_path = '/code/temp/' + \
+            str(newconversion.transaction)
+        newconversion.image_path = newconversion.folder_path + '/media/'
+        newconversion.create_directory()
+        newconversion.save()
+
+# ===========  1  ==================
+        newconversion.create_pandocstring()
+# ===========  2  ==================
+        newconversion.run_parser()
+# ===========  3, 4, 5  ==================
+        newconversion.create_xml_files()
+# ===========  6  ==================
+        newconversion.zip_files()
+
+        return newconversion
 
     def update(self, instance, validated_data):
         instance.temp_file = validated_data.get(
@@ -76,15 +113,19 @@ class FibSerializer(serializers.ModelSerializer):
         model = Fib
         fields = ['type', 'text', 'order']
 
+
 class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['prefix', 'answer_body', 'answer_feedback', 'is_correct', 'match_left', 'match_right', 'order']
+        fields = ['prefix', 'answer_body', 'answer_feedback',
+                  'is_correct', 'match_left', 'match_right', 'order']
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
     fib = FibSerializer(many=True, read_only=True)
+
     class Meta:
         model = Question
         fields = ['prefix', 'title', 'points', 'randomize_answer', 'question_type',
@@ -93,7 +134,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
+
     class Meta:
         model = QuestionLibrary
         fields = ['section_name', 'randomize_answer', 'error', 'questions']
-

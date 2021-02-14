@@ -17,7 +17,7 @@ from django_q.tasks import async_task
 import logging
 logger = logging.getLogger(__name__)
 
-from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer
+from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer, DocToZipSerializer
 from rest_framework import viewsets
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -91,6 +91,44 @@ class Upload(APIView):
 
             return JsonResponse(response, status=201)    
         return JsonResponse(serializer.errors, status=400)
+
+
+class DocToZip(APIView):
+    parser_classes = [MultiPartParser]
+    # permission_classes = [IsAuthenticated]
+    serializer_class = DocToZipSerializer
+    @extend_schema(
+        # override default docstring extraction
+        description='Upload a Word document(.docx) and receive a zip(.zip) file',
+        # provide Authentication class that deviates from the views default
+        auth=None,
+        # change the auto-generated operation name
+        operation_id=None,
+        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+        operation=None,
+        # attach request/response examples to the operation.
+    )
+    def post(self, request, format=None):
+        # file_obj = request.FILES.get('temp_file')
+        file_obj2 = request.data['temp_file']
+        serializer = DocToZipSerializer(data={'temp_file': file_obj2})
+
+        if serializer.is_valid():
+            instance = serializer.save()
+            # response = {
+            #     'id': str(instance.transaction)
+            # }
+
+            filename=instance.zip_file.name.split("/")[1]
+            file_response = FileResponse(instance.zip_file)
+            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
+            return file_response    
+            # return JsonResponse(response, status=201)    
+        return JsonResponse(serializer.errors, status=400)
+
+
+
+
 
 # Temporary endpoint for the admin view
 # class Download(APIView):
