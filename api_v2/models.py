@@ -5,7 +5,12 @@ import pypandoc
 
 from api_v2.questionsplitter.L1Converter import L1Converter
 from api_v2.parser.QuestionParserMain import question_parser
-# import api_v2.parser.QuestionParserMain
+
+from api_v2.scorm.XmlWriter import XmlWriter
+from api_v2.scorm.manifest import ManifestEntity, ManifestResourceEntity
+
+from xml.dom.minidom import parseString
+import xml.etree.cElementTree as ET
 
 # Create your models here.
 
@@ -106,7 +111,38 @@ class QuestionLibrary(models.Model):
             self.error = "System Error: 2"
             self.save()
 
+    # ImsManifest string create ===================================================================================
+    def create_imsmanifest(self):
 
+        try:
+            parsed_questions_result = Question.objects.filter(question_library=self)
+
+            parsed_xml = XmlWriter(self, parsed_questions_result)
+            manifest_entity = ManifestEntity()
+            manifest_resource_entity = ManifestResourceEntity(
+                'res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
+            manifest_entity.add_resource(manifest_resource_entity)
+            manifest = parsed_xml.create_manifest(
+                manifest_entity, self.folder_path)
+            parsed_imsmanifest = ET.tostring(
+                manifest.getroot(), encoding='utf-8', xml_declaration=True).decode()
+            parsed_imsmanifest = parseString(parsed_imsmanifest)
+            parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
+            self.imsmanifest_string = parsed_imsmanifest
+            self.save()
+
+            RunConversion_Logger.info("["+str(self.transaction) +
+                            "] " + "imsmanifest String Created")
+
+            self.transaction.progress = 3
+            self.transaction.save()
+
+        except Exception as e:
+            RunConversion_Logger.error("["+str(self.transaction) +
+                            "] " + "imsmanifest String Failed")
+            
+            self.error = "System Error: 3"
+            self.save()
 
     def __str__(self):
         return str(self.transaction)

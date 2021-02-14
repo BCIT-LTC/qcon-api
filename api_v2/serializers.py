@@ -63,8 +63,12 @@ class DocToZipSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
+# ===========  1  ==================
         newconversion.create_pandocstring()
+# ===========  2  ==================
         newconversion.run_parser()
+# ===========  3  ==================
+        newconversion.create_imsmanifest()
 
         return newconversion
 
