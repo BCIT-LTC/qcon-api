@@ -69,6 +69,8 @@ class DocToZipSerializer(serializers.Serializer):
         newconversion.run_parser()
 # ===========  3, 4, 5  ==================
         newconversion.create_xml_files()
+# ===========  6  ==================
+        newconversion.zip_files()
 
         return newconversion
 

@@ -11,6 +11,8 @@ from api_v2.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
 from xml.dom.minidom import parseString
 import xml.etree.cElementTree as ET
+from zipfile import *
+from os import makedirs, path, walk
 
 import re
 from os.path import basename
@@ -116,7 +118,7 @@ class QuestionLibrary(models.Model):
             self.save()
 
     # ImsManifest string create ===================================================================================
-    def create_imsmanifest(self):
+    def create_xml_files(self):
 
         try:
             parsed_questions_result = Question.objects.filter(question_library=self)
@@ -198,6 +200,33 @@ class QuestionLibrary(models.Model):
             self.error = "System Error: 5"
             self.save()
     
+    def zip_files(self):
+        try:
+            with ZipFile(self.folder_path + "/" + self.section_name + '.zip', 'w') as myzip:
+                myzip.write(self.questiondb_file.path,
+                            "questiondb.xml")
+                myzip.write(self.imsmanifest_file.path,
+                            "imsmanifest.xml")
+                for root, dirs, files in walk(self.image_path):
+                    for filename in files:
+                        myzip.write(path.join(root, filename),
+                                    '/media/' + filename)
+
+            self.zip_file.name = str(
+                self.transaction) + "/" + self.section_name + '.zip'
+            self.save()
+            RunConversion_Logger.info(
+                "["+str(self.transaction) + "] " + "ZIP file Created")
+
+            self.transaction.progress = 6
+            self.transaction.save()
+        except Exception as e:
+            RunConversion_Logger.error(
+                "["+str(self.transaction) + "] " + "ZIP file Failed")
+            
+            self.error = "System Error: 6"
+            self.save()
+
     def __str__(self):
         return str(self.transaction)
 
