@@ -34,7 +34,7 @@ class UploadSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
         async_task('api_v2.tasks.runconversion', newconversion)
-
+        
         return newconversion.transaction
 
     def update(self, instance, validated_data):
@@ -64,6 +64,7 @@ class DocToZipSerializer(serializers.Serializer):
         newconversion.save()
 
         newconversion.create_pandocstring()
+        newconversion.run_parser()
 
         return newconversion
 
@@ -106,15 +107,19 @@ class FibSerializer(serializers.ModelSerializer):
         model = Fib
         fields = ['type', 'text', 'order']
 
+
 class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['prefix', 'answer_body', 'answer_feedback', 'is_correct', 'match_left', 'match_right', 'order']
+        fields = ['prefix', 'answer_body', 'answer_feedback',
+                  'is_correct', 'match_left', 'match_right', 'order']
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
     fib = FibSerializer(many=True, read_only=True)
+
     class Meta:
         model = Question
         fields = ['prefix', 'title', 'points', 'randomize_answer', 'question_type',
@@ -123,7 +128,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
+
     class Meta:
         model = QuestionLibrary
         fields = ['section_name', 'randomize_answer', 'error', 'questions']
-
