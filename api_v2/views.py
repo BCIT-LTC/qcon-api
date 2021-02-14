@@ -115,11 +115,15 @@ class DocToZip(APIView):
 
         if serializer.is_valid():
             instance = serializer.save()
-            response = {
-                'id': str(instance.transaction)
-            }
+            # response = {
+            #     'id': str(instance.transaction)
+            # }
 
-            return JsonResponse(response, status=201)    
+            filename=instance.zip_file.name.split("/")[1]
+            file_response = FileResponse(instance.zip_file)
+            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
+            return file_response    
+            # return JsonResponse(response, status=201)    
         return JsonResponse(serializer.errors, status=400)
 
 
