@@ -17,7 +17,7 @@ from django_q.tasks import async_task
 import logging
 logger = logging.getLogger(__name__)
 
-from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer, WordToZipSerializer
+from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer, WordToZipSerializer, WordToJsonSerializer
 from rest_framework import viewsets
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -93,13 +93,13 @@ class Upload(APIView):
         return JsonResponse(serializer.errors, status=400)
 
 
-class WordToZip(APIView):
+class WordToJson(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
-    serializer_class = WordToZipSerializer
+    serializer_class = WordToJsonSerializer
     @extend_schema(
         # override default docstring extraction
-        description='Upload a Word document(.docx) and receive a zip(.zip) file',
+        description='Upload a Word document(.docx) and receive a JSON string',
         # provide Authentication class that deviates from the views default
         auth=None,
         # change the auto-generated operation name
@@ -111,13 +111,15 @@ class WordToZip(APIView):
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         file_obj2 = request.data['temp_file']
-        serializer = WordToZipSerializer(data={'temp_file': file_obj2})
+        serializer = WordToJsonSerializer(data={'temp_file': file_obj2})
 
         if serializer.is_valid():
             instance = serializer.save()
-            # response = {
-            #     'id': str(instance.transaction)
-            # }
+
+            question_library = QuestionLibrary.objects.get(transaction=instance.transaction.id)
+            question_library_serializer = QuestionLibrarySerializer(question_library)
+            
+            return JsonResponse(question_library_serializer.data, status=200)
 
             filename=instance.zip_file.name.split("/")[1]
             file_response = FileResponse(instance.zip_file)

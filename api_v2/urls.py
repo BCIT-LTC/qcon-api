@@ -13,6 +13,7 @@ urlpatterns = [
     # path('upload', views.Upload.as_view(), name='upload'),
 
     path('wordzip', views.WordToZip.as_view(), name='WordToZip'),
+    path('wordjson', views.WordToJson.as_view(), name='WordToJson'),
     # path('setsection', views.SetSection.as_view(), name='setsection'),
     # path('media/<int:id>/<filename>', views.Download.as_view()),
     # path('download/<int:id>', views.DownloadAPI.as_view(), name='download'),
