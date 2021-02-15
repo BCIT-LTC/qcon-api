@@ -24,6 +24,7 @@ import logging
 logger = logging.getLogger(__name__)
 RunConversion_Logger = logging.getLogger('api_v2.models.create_pandocstring')
 
+
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     # print('{0}/{1}'.format(instance.id, file_name))
@@ -107,13 +108,13 @@ class QuestionLibrary(models.Model):
             # # raise Exception('')
             RunConversion_Logger.info(
                 "["+str(self.transaction) + "] " + "Parser Finished")
-            
+
             self.transaction.progress = 2
             self.transaction.save()
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "Parser Failed")
-            
+
             self.error = "System Error: 2"
             self.save()
 
@@ -121,7 +122,8 @@ class QuestionLibrary(models.Model):
     def create_xml_files(self):
 
         try:
-            parsed_questions_result = Question.objects.filter(question_library=self)
+            parsed_questions_result = Question.objects.filter(
+                question_library=self)
 
             parsed_xml = XmlWriter(self, parsed_questions_result)
             manifest_entity = ManifestEntity()
@@ -138,18 +140,17 @@ class QuestionLibrary(models.Model):
             self.save()
 
             RunConversion_Logger.info("["+str(self.transaction) +
-                            "] " + "imsmanifest String Created")
+                                      "] " + "imsmanifest String Created")
 
             self.transaction.progress = 3
             self.transaction.save()
 
         except Exception as e:
             RunConversion_Logger.error("["+str(self.transaction) +
-                            "] " + "imsmanifest String Failed")
-            
+                                       "] " + "imsmanifest String Failed")
+
             self.error = "System Error: 3"
             self.save()
-
 
         try:
             questiondb_string = parsed_xml.questiondb_string
@@ -171,17 +172,16 @@ class QuestionLibrary(models.Model):
             self.imsmanifest_file = imsmanifest_file
             self.save()
             RunConversion_Logger.info("["+str(self.transaction) +
-                            "] " + "QuestionDB String Created")
+                                      "] " + "QuestionDB String Created")
 
             self.transaction.progress = 4
             self.transaction.save()
         except Exception as e:
             RunConversion_Logger.error("["+str(self.transaction) +
-                            "] " + "QuestionDB String Failed")
+                                       "] " + "QuestionDB String Failed")
 
             self.error = "System Error: 4"
             self.save()
-
 
         try:
             questiondb_file = ContentFile(
@@ -193,13 +193,13 @@ class QuestionLibrary(models.Model):
                 "["+str(self.transaction) + "] " + "XML files Created")
             # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
             self.transaction.progress = 5
-            self.transaction.save()    
+            self.transaction.save()
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "XML files Failed")
             self.error = "System Error: 5"
             self.save()
-    
+
     def zip_files(self):
         try:
             with ZipFile(self.folder_path + "/" + self.section_name + '.zip', 'w') as myzip:
@@ -220,10 +220,12 @@ class QuestionLibrary(models.Model):
 
             self.transaction.progress = 6
             self.transaction.save()
+            RunConversion_Logger.info("["+str(self.transaction) + "] " +
+                                ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "ZIP file Failed")
-            
+
             self.error = "System Error: 6"
             self.save()
 
