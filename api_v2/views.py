@@ -24,19 +24,19 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
 
-def print_result(task):
-    print(task.result)
+# def print_result(task):
+#     print(task.result)
 
-class GetStatus(APIView):
+# class GetStatus(APIView):
 
-    serializer_class = TransactionSerializer
-    def get(self, request, id):
-        # question_library = QuestionLibrary.objects.get()
-        # print(request.data['id'])
-        transactionquery = Transaction.objects.get(id=id)
+#     serializer_class = TransactionSerializer
+#     def get(self, request, id):
+#         # question_library = QuestionLibrary.objects.get()
+#         # print(request.data['id'])
+#         transactionquery = Transaction.objects.get(id=id)
 
-        transaction_serializer = TransactionSerializer(transactionquery)        
-        return Response(transaction_serializer.data, status=200)
+#         transaction_serializer = TransactionSerializer(transactionquery)        
+#         return Response(transaction_serializer.data, status=200)
 
 
 
@@ -63,13 +63,43 @@ class GetResult(APIView):
         # return JsonResponse(response, status=200, safe=False)
 
 
-class Upload(APIView):
+# class Upload(APIView):
+#     parser_classes = [MultiPartParser]
+#     # permission_classes = [IsAuthenticated]
+#     serializer_class = UploadSerializer
+#     @extend_schema(
+#         # override default docstring extraction
+#         description='Upload a Word document(.docx)',
+#         # provide Authentication class that deviates from the views default
+#         auth=None,
+#         # change the auto-generated operation name
+#         operation_id=None,
+#         # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+#         operation=None,
+#         # attach request/response examples to the operation.
+#     )
+#     def post(self, request, format=None):
+#         # file_obj = request.FILES.get('temp_file')
+#         file_obj2 = request.data['temp_file']
+#         serializer = UploadSerializer(data={'temp_file': file_obj2})
+
+#         if serializer.is_valid():
+#             instance = serializer.save()
+#             response = {
+#                 'id': instance.id
+#             }
+
+#             return JsonResponse(response, status=201)    
+#         return JsonResponse(serializer.errors, status=400)
+
+
+class WordToZip(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
-    serializer_class = UploadSerializer
+    serializer_class = WordToZipSerializer
     @extend_schema(
         # override default docstring extraction
-        description='Upload a Word document(.docx)',
+        description='Upload a Word document(.docx) and receive a zip(.zip) file',
         # provide Authentication class that deviates from the views default
         auth=None,
         # change the auto-generated operation name
@@ -81,15 +111,19 @@ class Upload(APIView):
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         file_obj2 = request.data['temp_file']
-        serializer = UploadSerializer(data={'temp_file': file_obj2})
+        serializer = WordToZipSerializer(data={'temp_file': file_obj2})
 
         if serializer.is_valid():
             instance = serializer.save()
-            response = {
-                'id': instance.id
-            }
+            # response = {
+            #     'id': str(instance.transaction)
+            # }
 
-            return JsonResponse(response, status=201)    
+            filename=instance.zip_file.name.split("/")[1]
+            file_response = FileResponse(instance.zip_file)
+            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
+            return file_response    
+            # return JsonResponse(response, status=201)    
         return JsonResponse(serializer.errors, status=400)
 
 
@@ -121,14 +155,8 @@ class WordToJson(APIView):
             
             return JsonResponse(question_library_serializer.data, status=200)
 
-            filename=instance.zip_file.name.split("/")[1]
-            file_response = FileResponse(instance.zip_file)
-            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
-            return file_response    
-            # return JsonResponse(response, status=201)    
+            # return JsonResponse(response, status=201)  
         return JsonResponse(serializer.errors, status=400)
-
-
 
 
 
