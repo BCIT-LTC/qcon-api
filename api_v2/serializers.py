@@ -80,6 +80,39 @@ class WordToZipSerializer(serializers.Serializer):
         instance.save()
         return instance
 
+class WordToJsonSerializer(serializers.Serializer):
+
+    temp_file = serializers.FileField(
+        validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
+
+    def create(self, validated_data):
+        newtransaction = Transaction(client='qconweb')
+        newtransaction.save()
+        newconversion = QuestionLibrary.objects.create()
+        newconversion.transaction = newtransaction
+        newconversion.temp_file = validated_data.get(
+            'temp_file', validated_data)
+        newconversion.section_name = newconversion.temp_file.name.split(".")[0]
+        newconversion.folder_path = '/code/temp/' + \
+            str(newconversion.transaction)
+        newconversion.image_path = newconversion.folder_path + '/media/'
+        newconversion.create_directory()
+        newconversion.save()
+
+# ===========  1  ==================
+        newconversion.create_pandocstring()
+# ===========  2  ==================
+        newconversion.run_parser()
+
+
+
+        return newconversion
+
+    def update(self, instance, validated_data):
+        instance.temp_file = validated_data.get(
+            'temp_file', instance.temp_file)
+        instance.save()
+        return instance
 
 class SectionSerializer(serializers.Serializer):
 
