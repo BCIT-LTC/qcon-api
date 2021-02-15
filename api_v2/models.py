@@ -95,28 +95,36 @@ class QuestionLibrary(models.Model):
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "Markdown String Failed")
-            self.error = "System Error: 1"
+            self.error = "Markdown String Failed"
             self.save()
 
     def run_parser(self):
         try:
             L1_result = L1Converter(self)
             L1_result = "\n" + L1_result
-            parsed_questions_result = question_parser(self, L1_result)
-            # print(parsed_questions_result)
-            self.save()
-            # # raise Exception('')
             RunConversion_Logger.info(
-                "["+str(self.transaction) + "] " + "Parser Finished")
+                "["+str(self.transaction) + "] " + "Splitter Finished")
+        except:
+            RunConversion_Logger.error(
+                "["+str(self.transaction) + "] " + "Splitter Failed")
+            self.error = "Splitter Failed"
+            self.save()
+            return None
 
+        try:
+            question_parser(self, L1_result)
+            self.save()
             self.transaction.progress = 2
             self.transaction.save()
-        except Exception as e:
+            RunConversion_Logger.info(
+                "["+str(self.transaction) + "] " + "Parser Finished")
+        except:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "Parser Failed")
-
-            self.error = "System Error: 2"
+            self.error = "Parser Failed"
             self.save()
+            return None
+
 
     # ImsManifest string create ===================================================================================
     def create_xml_files(self):
@@ -149,7 +157,7 @@ class QuestionLibrary(models.Model):
             RunConversion_Logger.error("["+str(self.transaction) +
                                        "] " + "imsmanifest String Failed")
 
-            self.error = "System Error: 3"
+            self.error = "imsmanifest String Failed"
             self.save()
 
         try:
@@ -180,7 +188,7 @@ class QuestionLibrary(models.Model):
             RunConversion_Logger.error("["+str(self.transaction) +
                                        "] " + "QuestionDB String Failed")
 
-            self.error = "System Error: 4"
+            self.error = "QuestionDB String Failed"
             self.save()
 
         try:
@@ -197,7 +205,7 @@ class QuestionLibrary(models.Model):
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "XML files Failed")
-            self.error = "System Error: 5"
+            self.error = "XML files Failed"
             self.save()
 
     def zip_files(self):
@@ -221,12 +229,12 @@ class QuestionLibrary(models.Model):
             self.transaction.progress = 6
             self.transaction.save()
             RunConversion_Logger.info("["+str(self.transaction) + "] " +
-                                ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "ZIP file Failed")
 
-            self.error = "System Error: 6"
+            self.error = "ZIP file Failed"
             self.save()
 
     def __str__(self):
