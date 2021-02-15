@@ -230,8 +230,7 @@ Q_CLUSTER = {
 
 
 SPECTACULAR_SETTINGS = {
-
-    'VERSION': '1.0.0',
+    # 'VERSION': '1.0.0',
     'TITLE': 'Qcon API',
     'DESCRIPTION': 'RESTful API to convert word documents to LMS compliant format',
     "COMPONENT_SPLIT_REQUEST" : True,

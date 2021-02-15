@@ -17,7 +17,7 @@ from django_q.tasks import async_task
 import logging
 logger = logging.getLogger(__name__)
 
-from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer, DocToZipSerializer
+from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer, WordToZipSerializer
 from rest_framework import viewsets
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -93,10 +93,10 @@ class Upload(APIView):
         return JsonResponse(serializer.errors, status=400)
 
 
-class DocToZip(APIView):
+class WordToZip(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
-    serializer_class = DocToZipSerializer
+    serializer_class = WordToZipSerializer
     @extend_schema(
         # override default docstring extraction
         description='Upload a Word document(.docx) and receive a zip(.zip) file',
@@ -111,7 +111,7 @@ class DocToZip(APIView):
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         file_obj2 = request.data['temp_file']
-        serializer = DocToZipSerializer(data={'temp_file': file_obj2})
+        serializer = WordToZipSerializer(data={'temp_file': file_obj2})
 
         if serializer.is_valid():
             instance = serializer.save()

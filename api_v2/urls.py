@@ -8,14 +8,14 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 urlpatterns = [
     # path('media/<int:id>/<filename>', views.Download),
 
-    path('status/<int:id>', views.GetStatus.as_view(), name='status'),
-    path('result/<int:id>', views.GetResult.as_view(), name='result'),
+    # path('status/<int:id>', views.GetStatus.as_view(), name='status'),
+    # path('result/<int:id>', views.GetResult.as_view(), name='result'),
     # path('upload', views.Upload.as_view(), name='upload'),
 
-    path('doczip', views.DocToZip.as_view(), name='DocToZip'),
+    path('wordzip', views.WordToZip.as_view(), name='WordToZip'),
     # path('setsection', views.SetSection.as_view(), name='setsection'),
     # path('media/<int:id>/<filename>', views.Download.as_view()),
-    path('download/<int:id>', views.DownloadAPI.as_view(), name='download'),
+    # path('download/<int:id>', views.DownloadAPI.as_view(), name='download'),
     # path('api/download', views.CliUpload.as_view(), name='download'),
     # path('api/execute', views.CliUpload.as_view(), name='execute'),
     # path('api/getmarkdown', views.CliUpload.as_view(), name='getmarkdown'),

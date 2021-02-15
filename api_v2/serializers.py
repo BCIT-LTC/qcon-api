@@ -44,7 +44,7 @@ class UploadSerializer(serializers.Serializer):
         return instance
 
 
-class DocToZipSerializer(serializers.Serializer):
+class WordToZipSerializer(serializers.Serializer):
 
     temp_file = serializers.FileField(
         validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
