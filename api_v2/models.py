@@ -103,6 +103,8 @@ class QuestionLibrary(models.Model):
         try:
             L1_result = L1Converter(self)
             L1_result = "\n" + L1_result
+            self.splitter_string = L1_result
+            self.save()
             RunConversion_Logger.info(
                 "["+str(self.transaction) + "] " + "Splitter Finished")
         except:
