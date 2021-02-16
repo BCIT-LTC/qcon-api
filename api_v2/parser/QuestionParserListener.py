@@ -817,7 +817,7 @@ class QuestionParserListener(ParseTreeListener):
         return False
 
     def is_multi_select(self, question):
-        if len(question.get_answers()) > 0:
+        if len(question.get_answers()) > 1:
             return True
         return False
 
