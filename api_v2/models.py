@@ -56,6 +56,7 @@ class QuestionLibrary(models.Model):
     image_path = models.FilePathField(
         path=None, match=None, recursive=False, max_length=None)
     pandoc_string = models.TextField(blank=True, null=True)
+    splitter_string = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(
         upload_to=format_file_path, blank=True, null=True)
