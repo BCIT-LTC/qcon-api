@@ -56,6 +56,7 @@ class QuestionLibrary(models.Model):
     image_path = models.FilePathField(
         path=None, match=None, recursive=False, max_length=None)
     pandoc_string = models.TextField(blank=True, null=True)
+    splitter_string = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(
         upload_to=format_file_path, blank=True, null=True)
@@ -102,6 +103,8 @@ class QuestionLibrary(models.Model):
         try:
             L1_result = L1Converter(self)
             L1_result = "\n" + L1_result
+            self.splitter_string = L1_result
+            self.save()
             RunConversion_Logger.info(
                 "["+str(self.transaction) + "] " + "Splitter Finished")
         except:
