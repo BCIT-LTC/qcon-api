@@ -40,7 +40,7 @@ class Transaction(models.Model):
     progress = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.id) + " Client: " + str(self.client)
+        return str(self.id)
 
 
 class QuestionLibrary(models.Model):
@@ -65,7 +65,11 @@ class QuestionLibrary(models.Model):
         upload_to=format_file_path, blank=True, null=True)
     zip_file = models.FileField(
         upload_to=format_file_path, blank=True, null=True)
-    # created_at = models.DateTimeField(auto_now_add=True)
+    json_file = models.FileField(
+        upload_to=format_file_path, blank=True, null=True)
+    output_zip_file = models.FileField(
+        upload_to=format_file_path, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     error = models.TextField(blank=True, null=True)
 
@@ -78,9 +82,6 @@ class QuestionLibrary(models.Model):
             makedirs(self.folder_path)
 
     def create_pandocstring(self):
-
-        RunConversion_Logger.info("["+str(self.transaction) + "] " +
-                                  "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         try:
 
             pandocstring = pypandoc.convert_file(self.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum', extra_args=[
@@ -128,8 +129,8 @@ class QuestionLibrary(models.Model):
             self.save()
             return None
 
-
     # ImsManifest string create ===================================================================================
+
     def create_xml_files(self):
 
         try:
@@ -231,14 +232,28 @@ class QuestionLibrary(models.Model):
 
             self.transaction.progress = 6
             self.transaction.save()
-            RunConversion_Logger.info("["+str(self.transaction) + "] " +
-                                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "ZIP file Failed")
 
             self.error = "ZIP file Failed"
             self.save()
+
+    def create_zip_file_package(self):
+        try:
+            with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
+                myzip.write(self.zip_file.path,
+                            self.section_name + '.zip')
+                myzip.write(self.json_file.path,
+                            'result.json')
+
+            self.output_zip_file.name = str(
+                self.transaction) + "/" + 'package.zip'
+            self.save()
+            RunConversion_Logger.info(
+                "["+str(self.transaction) + "] " + "ZIP file with JSON package Created")
+        except Exception as e:
+            print('error')
 
     def __str__(self):
         return str(self.transaction)

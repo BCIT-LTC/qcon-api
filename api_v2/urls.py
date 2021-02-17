@@ -14,6 +14,7 @@ urlpatterns = [
 
     path('wordzip', views.WordToZip.as_view(), name='WordToZip'),
     path('wordjson', views.WordToJson.as_view(), name='WordToJson'),
+    path('wordjsonzip', views.WordToJsonZip.as_view(), name='WordToJsonZip'),
     # path('setsection', views.SetSection.as_view(), name='setsection'),
     # path('media/<int:id>/<filename>', views.Download.as_view()),
     # path('download/<int:id>', views.DownloadAPI.as_view(), name='download'),
