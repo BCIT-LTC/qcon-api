@@ -1,3 +1,7 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import viewsets
+from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,17 +21,18 @@ from django_q.tasks import async_task
 
 import logging
 logger = logging.getLogger(__name__)
+WordToJsonZip_Logger = logging.getLogger(
+    'api_v2.views.WordToJsonZip')
 
-from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer
-from rest_framework import viewsets
+WordToZip_Logger = logging.getLogger(
+    'api_v2.views.WordToZip')
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from drf_spectacular.types import OpenApiTypes
 
 class WordToZip(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
     serializer_class = WordToZipSerializer
+
     @extend_schema(
         # override default docstring extraction
         description='Upload a Word document(.docx) and receive a zip(.zip) file',
@@ -46,15 +51,15 @@ class WordToZip(APIView):
 
         if serializer.is_valid():
             instance = serializer.save()
-            # response = {
-            #     'id': str(instance.transaction)
-            # }
 
-            filename=instance.zip_file.name.split("/")[1]
+            WordToZip_Logger.info("["+str(instance.transaction) + "] " +
+                                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+
+            filename = instance.zip_file.name.split("/")[1]
             file_response = FileResponse(instance.zip_file)
-            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
-            return file_response    
-            # return JsonResponse(response, status=201)    
+            file_response['Content-Disposition'] = 'attachment; filename="'+filename + '"'
+            return file_response
+            # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
 
 
@@ -62,6 +67,7 @@ class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
     serializer_class = WordToJsonSerializer
+
     @extend_schema(
         # override default docstring extraction
         description='Upload a Word document(.docx) and receive a JSON string',
@@ -76,32 +82,41 @@ class WordToJsonZip(APIView):
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         file_obj2 = request.data['temp_file']
-        convertserializer = WordToJsonZipSerializer(data={'temp_file': file_obj2})
+        convertserializer = WordToJsonZipSerializer(
+            data={'temp_file': file_obj2})
 
         if convertserializer.is_valid():
             instance = convertserializer.save()
 
-            question_library = QuestionLibrary.objects.get(transaction=instance.transaction.id)
-            question_library_serializer = QuestionLibrarySerializer(question_library)
+            question_library = QuestionLibrary.objects.get(
+                transaction=instance.transaction.id)
+            question_library_serializer = QuestionLibrarySerializer(
+                question_library)
 
-            jsonfile = ContentFile(str(question_library_serializer.data), name="output.json")            
+            jsonfile = ContentFile(
+                str(question_library_serializer.data), name="output.json")
             instance.json_file = jsonfile
             instance.save()
 
             instance.create_zip_file_package()
 
-            filename=instance.output_zip_file.name.split("/")[1]
+            WordToJsonZip_Logger.info("["+str(instance.transaction) + "] " +
+                                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+
+            filename = instance.output_zip_file.name.split("/")[1]
             file_response = FileResponse(instance.output_zip_file)
-            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
-            return file_response   
+            file_response['Content-Disposition'] = 'attachment; filename="'+filename + '"'
+            return file_response
 
             # return Response("None")
         return JsonResponse(convertserializer.errors, status=400)
+
 
 class WordToJson(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
     serializer_class = WordToJsonSerializer
+
     @extend_schema(
         # override default docstring extraction
         description='Upload a Word document(.docx) and receive a JSON string',
@@ -121,14 +136,15 @@ class WordToJson(APIView):
         if serializer.is_valid():
             instance = serializer.save()
 
-            question_library = QuestionLibrary.objects.get(transaction=instance.transaction.id)
-            question_library_serializer = QuestionLibrarySerializer(question_library)
-            
+            question_library = QuestionLibrary.objects.get(
+                transaction=instance.transaction.id)
+            question_library_serializer = QuestionLibrarySerializer(
+                question_library)
+
             return JsonResponse(question_library_serializer.data, status=200)
 
-            # return JsonResponse(response, status=201)  
+            # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
-
 
 
 # Temporary endpoint for the admin view
@@ -140,7 +156,3 @@ class WordToJson(APIView):
 #         FILE = './temp/' + str(id) + '/' + filename
 #         file_response = FileResponse(open(FILE, 'rb'))
 #         return file_response
-
-
-
-

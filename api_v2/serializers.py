@@ -34,7 +34,7 @@ class UploadSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
         async_task('api_v2.tasks.runconversion', newconversion)
-        
+
         return newconversion.transaction
 
     def update(self, instance, validated_data):
@@ -63,6 +63,13 @@ class WordToZipSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
+
+        import logging
+        WordToZipSerializer_Logger = logging.getLogger(
+            'api_v2.serializers.WordToZipSerializer')
+
+        WordToZipSerializer_Logger.info("["+str(newtransaction) + "] " +
+                                  "<<<<<<<<<<Transaction Started<<<<<<<<<<")
 # ===========  1  ==================
         newconversion.create_pandocstring()
 # ===========  2  ==================
@@ -79,6 +86,7 @@ class WordToZipSerializer(serializers.Serializer):
             'temp_file', instance.temp_file)
         instance.save()
         return instance
+
 
 class WordToJsonZipSerializer(serializers.Serializer):
 
@@ -99,6 +107,12 @@ class WordToJsonZipSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
+        import logging
+        WordToJsonZipSerializer_Logger = logging.getLogger(
+            'api_v2.serializers.WordToJsonZipSerializer')
+
+        WordToJsonZipSerializer_Logger.info("["+str(newtransaction) + "] " +
+                                  "<<<<<<<<<<Transaction Started<<<<<<<<<<")
 # ===========  1  ==================
         newconversion.create_pandocstring()
 # ===========  2  ==================
@@ -108,7 +122,7 @@ class WordToJsonZipSerializer(serializers.Serializer):
 # ===========  6  ==================
         newconversion.zip_files()
 # ===========  7  ==================
-        # newconversion.create_zip_file_package()
+
 
         return newconversion
 
@@ -117,6 +131,7 @@ class WordToJsonZipSerializer(serializers.Serializer):
             'temp_file', instance.temp_file)
         instance.save()
         return instance
+
 
 class WordToJsonSerializer(serializers.Serializer):
 
@@ -141,8 +156,6 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.create_pandocstring()
 # ===========  2  ==================
         newconversion.run_parser()
-
-
 
         return newconversion
 

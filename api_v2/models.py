@@ -81,9 +81,6 @@ class QuestionLibrary(models.Model):
             makedirs(self.folder_path)
 
     def create_pandocstring(self):
-
-        RunConversion_Logger.info("["+str(self.transaction) + "] " +
-                                  "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         try:
 
             pandocstring = pypandoc.convert_file(self.temp_file.path, format='docx', to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum', extra_args=[
@@ -232,8 +229,6 @@ class QuestionLibrary(models.Model):
 
             self.transaction.progress = 6
             self.transaction.save()
-            RunConversion_Logger.info("["+str(self.transaction) + "] " +
-                                      ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
         except Exception as e:
             RunConversion_Logger.error(
                 "["+str(self.transaction) + "] " + "ZIP file Failed")
