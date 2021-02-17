@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.parsers import FileUploadParser
 
+from django.core.files.base import ContentFile
 # from os import makedirs, path, walk
 
 from .models import QuestionLibrary
@@ -17,81 +18,11 @@ from django_q.tasks import async_task
 import logging
 logger = logging.getLogger(__name__)
 
-from .serializers import UploadSerializer, SectionSerializer, QuestionLibrarySerializer, QuestionSerializer, TransactionSerializer, WordToZipSerializer, WordToJsonSerializer
+from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer
 from rest_framework import viewsets
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
-
-
-# def print_result(task):
-#     print(task.result)
-
-# class GetStatus(APIView):
-
-#     serializer_class = TransactionSerializer
-#     def get(self, request, id):
-#         # question_library = QuestionLibrary.objects.get()
-#         # print(request.data['id'])
-#         transactionquery = Transaction.objects.get(id=id)
-
-#         transaction_serializer = TransactionSerializer(transactionquery)        
-#         return Response(transaction_serializer.data, status=200)
-
-
-
-class GetResult(APIView):
-    serializer_class = QuestionLibrarySerializer
-    @extend_schema(
-        # override default docstring extraction
-        description='Returns the Conversion results and errors in JSON format',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
-    def get(self, request, id):
-        # question_library = QuestionLibrary.objects.get()
-        # print(request.data['id'])
-        question_library = QuestionLibrary.objects.get(transaction=id)
-        question_library_serializer = QuestionLibrarySerializer(question_library)
-        
-        return Response(question_library_serializer.data, status=200)
-        # return JsonResponse(response, status=200, safe=False)
-
-
-# class Upload(APIView):
-#     parser_classes = [MultiPartParser]
-#     # permission_classes = [IsAuthenticated]
-#     serializer_class = UploadSerializer
-#     @extend_schema(
-#         # override default docstring extraction
-#         description='Upload a Word document(.docx)',
-#         # provide Authentication class that deviates from the views default
-#         auth=None,
-#         # change the auto-generated operation name
-#         operation_id=None,
-#         # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-#         operation=None,
-#         # attach request/response examples to the operation.
-#     )
-#     def post(self, request, format=None):
-#         # file_obj = request.FILES.get('temp_file')
-#         file_obj2 = request.data['temp_file']
-#         serializer = UploadSerializer(data={'temp_file': file_obj2})
-
-#         if serializer.is_valid():
-#             instance = serializer.save()
-#             response = {
-#                 'id': instance.id
-#             }
-
-#             return JsonResponse(response, status=201)    
-#         return JsonResponse(serializer.errors, status=400)
-
 
 class WordToZip(APIView):
     parser_classes = [MultiPartParser]
@@ -126,6 +57,46 @@ class WordToZip(APIView):
             # return JsonResponse(response, status=201)    
         return JsonResponse(serializer.errors, status=400)
 
+
+class WordToJsonZip(APIView):
+    parser_classes = [MultiPartParser]
+    # permission_classes = [IsAuthenticated]
+    serializer_class = WordToJsonSerializer
+    @extend_schema(
+        # override default docstring extraction
+        description='Upload a Word document(.docx) and receive a JSON string',
+        # provide Authentication class that deviates from the views default
+        auth=None,
+        # change the auto-generated operation name
+        operation_id=None,
+        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+        operation=None,
+        # attach request/response examples to the operation.
+    )
+    def post(self, request, format=None):
+        # file_obj = request.FILES.get('temp_file')
+        file_obj2 = request.data['temp_file']
+        convertserializer = WordToJsonZipSerializer(data={'temp_file': file_obj2})
+
+        if convertserializer.is_valid():
+            instance = convertserializer.save()
+
+            question_library = QuestionLibrary.objects.get(transaction=instance.transaction.id)
+            question_library_serializer = QuestionLibrarySerializer(question_library)
+
+            jsonfile = ContentFile(str(question_library_serializer.data), name="output.json")            
+            instance.json_file = jsonfile
+            instance.save()
+
+            instance.create_zip_file_package()
+
+            filename=instance.output_zip_file.name.split("/")[1]
+            file_response = FileResponse(instance.output_zip_file)
+            file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
+            return file_response   
+
+            # return Response("None")
+        return JsonResponse(convertserializer.errors, status=400)
 
 class WordToJson(APIView):
     parser_classes = [MultiPartParser]
@@ -170,49 +141,6 @@ class WordToJson(APIView):
 #         file_response = FileResponse(open(FILE, 'rb'))
 #         return file_response
 
-class DownloadAPI(APIView):
-    @extend_schema(
-        # override default docstring extraction
-        description='Download the Scorm zip file package',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
-    def get(self, request, id, format=None):
-        Transactionrequested = Transaction.objects.get(id=id)
-        question_library = QuestionLibrary.objects.get(transaction=Transactionrequested)
-        filename=question_library.zip_file.name.split("/")[1]
-        file_response = FileResponse(question_library.zip_file)
-        file_response['Content-Disposition'] = 'attachment; filename="'+filename +'"' 
-        return file_response
-# class SetSection(APIView):
 
-#     parser_classes = [MultiPartParser]
-#     serializer_class = SectionSerializer
-
-#     @extend_schema(
-#         # override default docstring extraction
-#         description='Set the Section Name',
-#         # provide Authentication class that deviates from the views default
-#         auth=None,
-#         # change the auto-generated operation name
-#         operation_id=None,
-#         # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-#         operation=None,
-#         # attach request/response examples to the operation.
-#     )
-#     def post(self, request, format=None):
-
-#         QuestionModel = QuestionLibrary.objects.get(id=request.data['id'])
-#         serializer = SectionSerializer(QuestionModel, data={'section_name': request.data['section_name'], 'id': request.data['id']}, partial=True)
-
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data, status=201)
-#         return JsonResponse(serializer.errors, status=400)
 
 
