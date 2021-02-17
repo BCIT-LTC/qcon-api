@@ -245,9 +245,9 @@ class QuestionLibrary(models.Model):
         try:
             with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
                 myzip.write(self.zip_file.path,
-                            self.folder_path + "/" + self.section_name + '.zip')
+                            self.section_name + '.zip')
                 myzip.write(self.json_file.path,
-                            self.folder_path + "/" + 'package.json')
+                            'result.json')
 
             self.output_zip_file.name = str(
                 self.transaction) + "/" + 'package.zip'
