@@ -92,9 +92,10 @@ class WordToJsonZip(APIView):
                 transaction=instance.transaction.id)
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
-
+            import json
+            # print(json.dumps(question_library_serializer.data, indent=4))
             jsonfile = ContentFile(
-                str(question_library_serializer.data), name="output.json")
+                str(json.dumps(question_library_serializer.data, indent=4)), name="output.json")
             instance.json_file = jsonfile
             instance.save()
 
