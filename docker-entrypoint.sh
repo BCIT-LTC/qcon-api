@@ -27,5 +27,8 @@ echo "from django.contrib.auth.models import User; User.objects.filter(username=
 echo "-------------------------------------------------------------------------------------------\n"
 
 #Start django dev server
->&2 echo "Starting Django runserver..."
+>&2 echo "Starting Gunicorn"
+gunicorn --bind 0.0.0.0:8001 qcon.wsgi --daemon
+
+>&2 echo "Starting Nginx"
 exec "$@"
