@@ -19,12 +19,7 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#l1.
     def exitL1(self, ctx:L1Parser.L1Context):
-        if ctx.end_answers() != None:
-            content = ctx.end_answers().getText()
-            content = re.sub(r"\n\s*\>\s*", "", content)
-
-            self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'endanswer': True})
-            pass
+        pass
 
 
     # Enter a parse tree produced by L1Parser#sectionheading.
@@ -54,7 +49,7 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#numlist.
     def exitNumlist(self, ctx:L1Parser.NumlistContext):
-         # {'prefix':ctx.numlist_prefix().getText(), 'content':ctx.content().getText(), 'correctprefix': False, 'listseparator': False}
+        # {'prefix':ctx.numlist_prefix().getText(), 'content':ctx.content().getText(), 'correctprefix': False, 'listseparator': False}
         prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.numlist_prefix().getText())
         content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
         # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
@@ -99,15 +94,6 @@ class L1Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by L1Parser#numlist_prefix.
-    def enterNumlist_prefix(self, ctx:L1Parser.Numlist_prefixContext):
-        pass
-
-    # Exit a parse tree produced by L1Parser#numlist_prefix.
-    def exitNumlist_prefix(self, ctx:L1Parser.Numlist_prefixContext):
-        pass
-
-
     # Enter a parse tree produced by L1Parser#letterlist_prefix_regular.
     def enterLetterlist_prefix_regular(self, ctx:L1Parser.Letterlist_prefix_regularContext):
         pass
@@ -144,12 +130,26 @@ class L1Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by L1Parser#end_answers.
-    def enterEnd_answers(self, ctx:L1Parser.End_answersContext):
+    # Enter a parse tree produced by L1Parser#end_answers_block.
+    def enterEnd_answers_block(self, ctx:L1Parser.End_answers_blockContext):
+        if ctx.end_answer_token() != None:
+            content = ctx.end_answer_token().getText()
+            content = re.sub(r"\n\s*\>\s*", "", content)
+
+            self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'endanswer': True})
         pass
 
-    # Exit a parse tree produced by L1Parser#end_answers.
-    def exitEnd_answers(self, ctx:L1Parser.End_answersContext):
+    # Exit a parse tree produced by L1Parser#end_answers_block.
+    def exitEnd_answers_block(self, ctx:L1Parser.End_answers_blockContext):
+        pass
+
+
+    # Enter a parse tree produced by L1Parser#end_answer_token.
+    def enterEnd_answer_token(self, ctx:L1Parser.End_answer_tokenContext):
+        pass
+
+    # Exit a parse tree produced by L1Parser#end_answer_token.
+    def exitEnd_answer_token(self, ctx:L1Parser.End_answer_tokenContext):
         pass
 
 
@@ -159,6 +159,15 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#end_answers_item.
     def exitEnd_answers_item(self, ctx:L1Parser.End_answers_itemContext):
+        pass
+
+
+    # Enter a parse tree produced by L1Parser#numlist_prefix.
+    def enterNumlist_prefix(self, ctx:L1Parser.Numlist_prefixContext):
+        pass
+
+    # Exit a parse tree produced by L1Parser#numlist_prefix.
+    def exitNumlist_prefix(self, ctx:L1Parser.Numlist_prefixContext):
         pass
 
 

@@ -60,6 +60,7 @@ def L1Converter(question_library):
     #     print("answerblockseparator " + str(element.answerblockseparator))
     #     print("questionheader " + str(element.questionheader))
     #     print("sectionheader " + str(element.sectionheader))
+    #     print("endanswer" + str(element.endanswers))
 
     # Split questions
 
