@@ -126,7 +126,7 @@ class XmlWriter():
 		it_weighting_label = ET.SubElement(it_weighting, "fieldlabel")
 		it_weighting_label.text = 'qmd_weighting'
 		it_weighting_entry = ET.SubElement(it_weighting, "fieldentry")
-		it_weighting_entry.text = "{:.4f}".format(float(question.points)) if question.points else "1"
+		it_weighting_entry.text = "{:.4f}".format(float(question.points))
 
 
 	def itemproc_extension(self, it) :

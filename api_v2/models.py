@@ -289,8 +289,7 @@ class Question(models.Model):
     points = models.DecimalField(unique=False,
                                  max_digits=2,
                                  decimal_places=1,
-                                 blank=True,
-                                 null=True)
+                                 default=1.0)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
