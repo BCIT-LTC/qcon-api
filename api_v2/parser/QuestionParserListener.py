@@ -407,9 +407,9 @@ class QuestionParserListener(ParseTreeListener):
         if self.question.points == None:
             self.question.points = 1.0
 
-        if question.randomize_answer == None:
+        if self.question.randomize_answer == None:
             if self.question_library.randomize_answer != None:
-                question.randomize_answer = self.question_library.randomize_answer
+                self.question.randomize_answer = self.question_library.randomize_answer
 
         self.question.question_body = question_body
 

@@ -285,11 +285,11 @@ class Question(models.Model):
                                          on_delete=models.CASCADE)
     prefix = models.CharField(max_length=5, null=False)
     question_type = models.CharField(max_length=100, null=True)
-    title = models.CharField(max_length=250, null=False)
+    title = models.CharField(max_length=250, null=True)
     points = models.DecimalField(unique=False,
                                  max_digits=2,
                                  decimal_places=1,
-                                 null=False)
+                                 null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     question_body = models.TextField(blank=True, null=True)
     question_feedback = models.TextField(blank=True, null=True)
