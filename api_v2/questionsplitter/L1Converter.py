@@ -266,8 +266,6 @@ def normalize_prefix_and_grab_indent(prefix):
     indent_length = len(x[0][1])
     normalized_prefix = str(x[0][2])
 
-    print(normalized_prefix)
-
     return indent_length, normalized_prefix
 
 
