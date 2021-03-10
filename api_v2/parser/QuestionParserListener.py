@@ -2,6 +2,7 @@
 import logging
 import re
 import pypandoc
+from decimal import Decimal
 # from api_v2.models import Question, Answer, Fib
 
 from datetime import datetime
@@ -347,7 +348,24 @@ class QuestionParserListener(ParseTreeListener):
         points = self.trim_text(ctx.getText()).split(":")[1]
         points = self.markdown_to_plain(points)
         points = self.trim_text(points)
-        self.question.points = points
+        try:
+            points = Decimal(points)
+            if points > 0 and points <= 9999:
+                self.question.points = points
+            else:
+                self.question.points = 1.0
+                logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+                error_message = f"\n310, Points must be greater than 0 and less than or equal to 9,999. \
+                              \n\t Points is now set to default 1.0 instead of {points}."
+                logger.error(error_message)
+            
+        except ValueError:
+            self.question.points = 1.0
+            logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+            error_message = f"\n310, Points must be in a decimal format. \
+                              \n\t Points is now set to default 1.0 instead of {points}."
+            logger.error(error_message)
+
         self.question.save()
         pass
 
@@ -385,6 +403,8 @@ class QuestionParserListener(ParseTreeListener):
 
         if self.question.title == None:
             self.question.title = self.html_to_plain(question_body)[0:127]
+        if self.question.points == None:
+            self.question.points = 1.0
 
         self.question.question_body = question_body
 

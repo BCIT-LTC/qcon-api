@@ -72,7 +72,7 @@ class XmlWriter():
 		doc = ET.SubElement(root, "resources")
 
 		for resource in manifest_entity.resources:
-			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type, 
+			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type,
 				'href': resource.href, 'd2l_2p0:link_target' : resource.link_target,
 				'title' : resource.title})
 
@@ -118,7 +118,7 @@ class XmlWriter():
 		it_weighting_label = ET.SubElement(it_weighting, "fieldlabel")
 		it_weighting_label.text = 'qmd_weighting'
 		it_weighting_entry = ET.SubElement(it_weighting, "fieldentry")
-		it_weighting_entry.text = "{:.4f}".format(float(question.points))
+		it_weighting_entry.text = "{:.4f}".format(question.points)
 
 
 	def itemproc_extension(self, it) :
@@ -614,7 +614,7 @@ class XmlWriter():
 		index = 1
 		for answer in question.get_answers():
 
-			question_answer_index = question_ident_answer + str(index) 
+			question_answer_index = question_ident_answer + str(index)
 
 			it_grp_ren_flow_lab = ET.SubElement(it_pre_flow_res_grp_ren_flow, "response_label", {'ident': question_answer_index })
 			it_grp_ren_flow_lab_flow = ET.SubElement(it_grp_ren_flow_lab, "flow_mat")
