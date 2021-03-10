@@ -10,7 +10,6 @@ from os.path import basename
 from django.conf import settings
 from xml.dom.minidom import parseString
 from zipfile import *
-import pypandoc
 
 class XmlWriter():
 
@@ -45,15 +44,8 @@ class XmlWriter():
 		for question in questions:
 			ident = str(ident_prefix + index)
 			question_ident = 'QUES_' + ident
-
-			title_prefix = ''
-			question_text = question.question_body
-			if isinstance(question.question_body, list) :
-				question_text = " ".join(question.question_body)
-			plain_text = pypandoc.convert_text(question_text, format="html", to="plain").replace('\n', ' ')
-			title = title_prefix + str(question.title if question.title != "" else plain_text)
+			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': question.title})
 			
-			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': title})	
 			if question.question_type == 'MC':
 				self.generate_multiple_choice(it, question_ident, question)
 			elif question.question_type == 'MS':

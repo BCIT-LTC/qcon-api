@@ -382,6 +382,10 @@ class QuestionParserListener(ParseTreeListener):
             body_text += question_content.getText()
         question_body = self.markdown_to_html(body_text)
         question_body = self.trim_text(question_body)
+
+        if self.question.title == None:
+            self.question.title = self.html_to_plain(question_body)[0:127]
+
         self.question.question_body = question_body
 
         # print("\n--------------------------QUESTION-------------------------------")
