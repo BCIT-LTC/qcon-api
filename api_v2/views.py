@@ -66,11 +66,11 @@ class WordToZip(APIView):
 class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
     # permission_classes = [IsAuthenticated]
-    serializer_class = WordToJsonSerializer
+    serializer_class = WordToJsonZipSerializer
 
     @extend_schema(
         # override default docstring extraction
-        description='Upload a Word document(.docx) and receive a JSON string',
+        description='Upload a Word document(.docx) and receive a Zip package with Json included',
         # provide Authentication class that deviates from the views default
         auth=None,
         # change the auto-generated operation name
@@ -85,11 +85,22 @@ class WordToJsonZip(APIView):
         convertserializer = WordToJsonZipSerializer(
             data={'temp_file': file_obj2})
 
+        is_random = False
+        if 'randomize' in request.POST:
+            if request.POST['randomize'].lower() in ("true", "yes"):
+                is_random = True
+
+
+
         if convertserializer.is_valid():
             instance = convertserializer.save()
 
             question_library = QuestionLibrary.objects.get(
                 transaction=instance.transaction.id)
+
+            question_library.randomize_answer = is_random
+            question_library.save()
+
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
             import json
