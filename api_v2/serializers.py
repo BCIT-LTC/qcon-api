@@ -100,6 +100,8 @@ class WordToJsonZipSerializer(serializers.Serializer):
                                       allow_empty_file=False,
                                       use_url=True)
 
+    randomize = serializers.BooleanField(default=False)
+
     def create(self, validated_data):
         newtransaction = Transaction(client='qconweb')
         newtransaction.save()
@@ -107,6 +109,10 @@ class WordToJsonZipSerializer(serializers.Serializer):
         newconversion.transaction = newtransaction
         newconversion.temp_file = validated_data.get('temp_file',
                                                      validated_data)
+
+        newconversion.randomize_answer = validated_data.get(
+            'randomize', validated_data)
+
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         newconversion.folder_path = '/code/temp/' + \
             str(newconversion.transaction)
