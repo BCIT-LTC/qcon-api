@@ -45,8 +45,16 @@ class WordToZip(APIView):
     )
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
+        is_random = False
+        if 'randomize' in request.POST:
+            if request.POST['randomize'].lower() in ("true", "yes"):
+                is_random = True
+
         file_obj2 = request.data['temp_file']
-        serializer = WordToZipSerializer(data={'temp_file': file_obj2})
+        serializer = WordToZipSerializer(data={
+            'temp_file': file_obj2,
+            'randomize': is_random
+        })
 
         if serializer.is_valid():
             instance = serializer.save()
