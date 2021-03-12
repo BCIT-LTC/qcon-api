@@ -235,8 +235,14 @@ class QuestionLibrary(models.Model):
             self.save()
 
     def zip_files(self):
+
+        # Prevents illegal characters for the filename
+        Filtered_section_name = re.sub(
+            r"<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "_",
+            self.section_name)
+
         try:
-            with ZipFile(self.folder_path + "/" + self.section_name + '.zip',
+            with ZipFile(self.folder_path + "/" + Filtered_section_name + '.zip',
                          'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
