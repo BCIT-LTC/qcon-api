@@ -58,6 +58,7 @@ class QuestionLibrary(models.Model):
                                  null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     section_name = models.TextField(blank=True, null=True)
+    filtered_section_name = models.TextField(blank=True, null=True)
     image_path = models.FilePathField(path=None,
                                       match=None,
                                       recursive=False,
@@ -87,6 +88,22 @@ class QuestionLibrary(models.Model):
 
     class Meta:
         verbose_name_plural = "question libraries"
+
+
+# Prevents illegal characters for the filename
+
+    def filter_section_name(self):
+
+        filtered_section_name = re.sub(
+            r"<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "_",
+            self.section_name)
+
+        # Limit the filename to 30 characters
+        filtered_section_name = (
+            filtered_section_name[:50] +
+            '_') if len(filtered_section_name) > 50 else filtered_section_name
+
+        self.filtered_section_name = filtered_section_name
 
     def create_directory(self):
         # self.folder_path('/code/temp/' + str(self.id))
@@ -236,14 +253,12 @@ class QuestionLibrary(models.Model):
 
     def zip_files(self):
 
-        # Prevents illegal characters for the filename
-        Filtered_section_name = re.sub(
-            r"<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "_",
-            self.section_name)
+        self.filter_section_name()
 
         try:
-            with ZipFile(self.folder_path + "/" + Filtered_section_name + '.zip',
-                         'w') as myzip:
+            with ZipFile(
+                    self.folder_path + "/" + self.filtered_section_name +
+                    '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
                 for root, dirs, files in walk(self.image_path):
@@ -252,7 +267,7 @@ class QuestionLibrary(models.Model):
                                     '/media/' + filename)
 
             self.zip_file.name = str(
-                self.transaction) + "/" + self.section_name + '.zip'
+                self.transaction) + "/" + self.filtered_section_name + '.zip'
             self.save()
             RunConversion_Logger.info("[" + str(self.transaction) + "] " +
                                       "ZIP file Created")
@@ -269,7 +284,8 @@ class QuestionLibrary(models.Model):
     def create_zip_file_package(self):
         try:
             with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
-                myzip.write(self.zip_file.path, self.section_name + '.zip')
+                myzip.write(self.zip_file.path,
+                            self.filtered_section_name + '.zip')
                 myzip.write(self.json_file.path, 'result.json')
 
             self.output_zip_file.name = str(
@@ -278,7 +294,10 @@ class QuestionLibrary(models.Model):
             RunConversion_Logger.info("[" + str(self.transaction) + "] " +
                                       "ZIP file with JSON package Created")
         except Exception as e:
-            print('error')
+            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+                                       "ZIP file with JSON package Failed")
+            self.error = "ZIP file Failed"
+            self.save()
 
     def __str__(self):
         return str(self.transaction)
