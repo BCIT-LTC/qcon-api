@@ -39,11 +39,6 @@ class L1Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by L1Parser#numlist_prefix.
-    def visitNumlist_prefix(self, ctx:L1Parser.Numlist_prefixContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by L1Parser#letterlist_prefix_regular.
     def visitLetterlist_prefix_regular(self, ctx:L1Parser.Letterlist_prefix_regularContext):
         return self.visitChildren(ctx)
@@ -64,13 +59,23 @@ class L1Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by L1Parser#end_answers.
-    def visitEnd_answers(self, ctx:L1Parser.End_answersContext):
+    # Visit a parse tree produced by L1Parser#end_answers_block.
+    def visitEnd_answers_block(self, ctx:L1Parser.End_answers_blockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by L1Parser#end_answer_token.
+    def visitEnd_answer_token(self, ctx:L1Parser.End_answer_tokenContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by L1Parser#end_answers_item.
     def visitEnd_answers_item(self, ctx:L1Parser.End_answers_itemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by L1Parser#numlist_prefix.
+    def visitNumlist_prefix(self, ctx:L1Parser.Numlist_prefixContext):
         return self.visitChildren(ctx)
 
 

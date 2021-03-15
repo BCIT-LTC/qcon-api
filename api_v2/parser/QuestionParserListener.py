@@ -2,6 +2,7 @@
 import logging
 import re
 import pypandoc
+from decimal import Decimal
 # from api_v2.models import Question, Answer, Fib
 
 from datetime import datetime
@@ -347,7 +348,24 @@ class QuestionParserListener(ParseTreeListener):
         points = self.trim_text(ctx.getText()).split(":")[1]
         points = self.markdown_to_plain(points)
         points = self.trim_text(points)
-        self.question.points = points
+        try:
+            points = Decimal(points)
+            if points > 0 and points <= 9999:
+                self.question.points = points
+            else:
+                self.question.points = 1.0
+                logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+                error_message = f"\n310, Points must be greater than 0 and less than or equal to 9,999. \
+                              \n\t Points is now set to default 1.0 instead of {points}."
+                logger.error(error_message)
+            
+        except ValueError:
+            self.question.points = 1.0
+            logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+            error_message = f"\n310, Points must be in a decimal format. \
+                              \n\t Points is now set to default 1.0 instead of {points}."
+            logger.error(error_message)
+
         self.question.save()
         pass
 
@@ -382,6 +400,17 @@ class QuestionParserListener(ParseTreeListener):
             body_text += question_content.getText()
         question_body = self.markdown_to_html(body_text)
         question_body = self.trim_text(question_body)
+
+        if self.question.title == None:
+            self.question.title = self.html_to_plain(question_body)[0:127]
+        
+        if self.question.points == None:
+            self.question.points = 1.0
+
+        if self.question.randomize_answer == None:
+            if self.question_library.randomize_answer != None:
+                self.question.randomize_answer = self.question_library.randomize_answer
+
         self.question.question_body = question_body
 
         # print("\n--------------------------QUESTION-------------------------------")
@@ -635,10 +664,6 @@ class QuestionParserListener(ParseTreeListener):
         if question.question_type != None:
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:
-                    if self.question_library.randomize_answer != None:
-                        if question.randomize_answer == None:
-                            question.randomize_answer = self.question_library.randomize_answer
-                            question.save()
                     # BUILD MC
                     pass
                 else:
@@ -677,10 +702,6 @@ class QuestionParserListener(ParseTreeListener):
 
             elif question.question_type == 'MS':
                 if self.is_multi_select(question) == True:
-                    if self.question_library.randomize_answer != None:
-                        if question.randomize_answer == None:
-                            question.randomize_answer = self.question_library.randomize_answer
-                            question.save()
                     # BUILD MS
                     pass
                 else:
@@ -809,9 +830,9 @@ class QuestionParserListener(ParseTreeListener):
                         for answer in question.get_answers():
                             current_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                             if "true" == current_answer:
-                                answer.answer_body = "True"
+                                answer.answer_body = "<p>True</p>"
                             elif "false" == current_answer:
-                                answer.answer_body = "False"
+                                answer.answer_body = "<p>False</p>"
                             answer.save()
                         return True
         return False

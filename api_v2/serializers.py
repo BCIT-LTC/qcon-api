@@ -10,8 +10,11 @@ def validate_file(value):
 
 class UploadSerializer(serializers.Serializer):
 
-    temp_file = serializers.FileField(
-        validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
+    temp_file = serializers.FileField(validators=[validate_file],
+                                      max_length=100,
+                                      allow_empty_file=False,
+                                      use_url=True)
+
     # section_name = serializers.CharField( max_length=100, allow_null=True, allow_blank=True, required=False)
 
     def create(self, validated_data):
@@ -23,8 +26,8 @@ class UploadSerializer(serializers.Serializer):
         newconversion.transaction = newtransaction
         # print("transaction " + str(newconversion.transaction))
         # print("qlibratry " + str(newtransaction.questionlibrary))
-        newconversion.temp_file = validated_data.get(
-            'temp_file', validated_data)
+        newconversion.temp_file = validated_data.get('temp_file',
+                                                     validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         # print(newconversion.section_name)
 
@@ -38,24 +41,32 @@ class UploadSerializer(serializers.Serializer):
         return newconversion.transaction
 
     def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get(
-            'temp_file', instance.temp_file)
+        instance.temp_file = validated_data.get('temp_file',
+                                                instance.temp_file)
         instance.save()
         return instance
 
 
 class WordToZipSerializer(serializers.Serializer):
 
-    temp_file = serializers.FileField(
-        validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
+    temp_file = serializers.FileField(validators=[validate_file],
+                                      max_length=100,
+                                      allow_empty_file=False,
+                                      use_url=True)
+
+    randomize = serializers.BooleanField(default=False)
 
     def create(self, validated_data):
         newtransaction = Transaction(client='qconweb')
         newtransaction.save()
         newconversion = QuestionLibrary.objects.create()
         newconversion.transaction = newtransaction
-        newconversion.temp_file = validated_data.get(
-            'temp_file', validated_data)
+        newconversion.temp_file = validated_data.get('temp_file',
+                                                     validated_data)
+
+        newconversion.randomize_answer = validated_data.get(
+            'randomize', validated_data)
+            
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         newconversion.folder_path = '/code/temp/' + \
             str(newconversion.transaction)
@@ -63,43 +74,51 @@ class WordToZipSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
-
         import logging
         WordToZipSerializer_Logger = logging.getLogger(
             'api_v2.serializers.WordToZipSerializer')
 
-        WordToZipSerializer_Logger.info("["+str(newtransaction) + "] " +
-                                  "<<<<<<<<<<Transaction Started<<<<<<<<<<")
-# ===========  1  ==================
+        WordToZipSerializer_Logger.info(
+            "[" + str(newtransaction) + "] " +
+            "<<<<<<<<<<Transaction Started<<<<<<<<<<")
+        # ===========  1  ==================
         newconversion.create_pandocstring()
-# ===========  2  ==================
+        # ===========  2  ==================
         newconversion.run_parser()
-# ===========  3, 4, 5  ==================
+        # ===========  3, 4, 5  ==================
         newconversion.create_xml_files()
-# ===========  6  ==================
+        # ===========  6  ==================
         newconversion.zip_files()
 
         return newconversion
 
     def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get(
-            'temp_file', instance.temp_file)
+        instance.temp_file = validated_data.get('temp_file',
+                                                instance.temp_file)
         instance.save()
         return instance
 
 
 class WordToJsonZipSerializer(serializers.Serializer):
 
-    temp_file = serializers.FileField(
-        validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
+    temp_file = serializers.FileField(validators=[validate_file],
+                                      max_length=100,
+                                      allow_empty_file=False,
+                                      use_url=True)
+
+    randomize = serializers.BooleanField(default=False)
 
     def create(self, validated_data):
         newtransaction = Transaction(client='qconweb')
         newtransaction.save()
         newconversion = QuestionLibrary.objects.create()
         newconversion.transaction = newtransaction
-        newconversion.temp_file = validated_data.get(
-            'temp_file', validated_data)
+        newconversion.temp_file = validated_data.get('temp_file',
+                                                     validated_data)
+
+        newconversion.randomize_answer = validated_data.get(
+            'randomize', validated_data)
+
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         newconversion.folder_path = '/code/temp/' + \
             str(newconversion.transaction)
@@ -111,40 +130,42 @@ class WordToJsonZipSerializer(serializers.Serializer):
         WordToJsonZipSerializer_Logger = logging.getLogger(
             'api_v2.serializers.WordToJsonZipSerializer')
 
-        WordToJsonZipSerializer_Logger.info("["+str(newtransaction) + "] " +
-                                  "<<<<<<<<<<Transaction Started<<<<<<<<<<")
-# ===========  1  ==================
+        WordToJsonZipSerializer_Logger.info(
+            "[" + str(newtransaction) + "] " +
+            "<<<<<<<<<<Transaction Started<<<<<<<<<<")
+        # ===========  1  ==================
         newconversion.create_pandocstring()
-# ===========  2  ==================
+        # ===========  2  ==================
         newconversion.run_parser()
-# ===========  3, 4, 5  ==================
+        # ===========  3, 4, 5  ==================
         newconversion.create_xml_files()
-# ===========  6  ==================
+        # ===========  6  ==================
         newconversion.zip_files()
-# ===========  7  ==================
-
+        # ===========  7  ==================
 
         return newconversion
 
     def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get(
-            'temp_file', instance.temp_file)
+        instance.temp_file = validated_data.get('temp_file',
+                                                instance.temp_file)
         instance.save()
         return instance
 
 
 class WordToJsonSerializer(serializers.Serializer):
 
-    temp_file = serializers.FileField(
-        validators=[validate_file], max_length=100, allow_empty_file=False, use_url=True)
+    temp_file = serializers.FileField(validators=[validate_file],
+                                      max_length=100,
+                                      allow_empty_file=False,
+                                      use_url=True)
 
     def create(self, validated_data):
         newtransaction = Transaction(client='qconweb')
         newtransaction.save()
         newconversion = QuestionLibrary.objects.create()
         newconversion.transaction = newtransaction
-        newconversion.temp_file = validated_data.get(
-            'temp_file', validated_data)
+        newconversion.temp_file = validated_data.get('temp_file',
+                                                     validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         newconversion.folder_path = '/code/temp/' + \
             str(newconversion.transaction)
@@ -152,18 +173,19 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
-# ===========  1  ==================
+        # ===========  1  ==================
         newconversion.create_pandocstring()
-# ===========  2  ==================
+        # ===========  2  ==================
         newconversion.run_parser()
 
         return newconversion
 
     def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get(
-            'temp_file', instance.temp_file)
+        instance.temp_file = validated_data.get('temp_file',
+                                                instance.temp_file)
         instance.save()
         return instance
+
 
 # class SectionSerializer(serializers.Serializer):
 
@@ -186,7 +208,6 @@ class WordToJsonSerializer(serializers.Serializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Transaction
         fields = ['id', 'progress']
@@ -199,11 +220,12 @@ class FibSerializer(serializers.ModelSerializer):
 
 
 class AnswerSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Answer
-        fields = ['prefix', 'answer_body', 'answer_feedback',
-                  'is_correct', 'match_left', 'match_right', 'order']
+        fields = [
+            'prefix', 'answer_body', 'answer_feedback', 'is_correct',
+            'match_left', 'match_right', 'order'
+        ]
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -212,8 +234,11 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['prefix', 'title', 'points', 'randomize_answer', 'question_type',
-                  'question_body', 'question_feedback', 'hint', 'correct_answers_length', 'error', 'answers', 'fib']
+        fields = [
+            'prefix', 'title', 'points', 'randomize_answer', 'question_type',
+            'question_body', 'question_feedback', 'hint',
+            'correct_answers_length', 'error', 'answers', 'fib'
+        ]
 
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):

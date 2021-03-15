@@ -10,7 +10,6 @@ from os.path import basename
 from django.conf import settings
 from xml.dom.minidom import parseString
 from zipfile import *
-import pypandoc
 
 class XmlWriter():
 
@@ -45,15 +44,8 @@ class XmlWriter():
 		for question in questions:
 			ident = str(ident_prefix + index)
 			question_ident = 'QUES_' + ident
-
-			title_prefix = ''
-			question_text = question.question_body
-			if isinstance(question.question_body, list) :
-				question_text = " ".join(question.question_body)
-			plain_text = pypandoc.convert_text(question_text, format="html", to="plain").replace('\n', ' ')
-			title = title_prefix + str(question.title if question.title != "" else plain_text)
+			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': question.title})
 			
-			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': title})	
 			if question.question_type == 'MC':
 				self.generate_multiple_choice(it, question_ident, question)
 			elif question.question_type == 'MS':
@@ -80,7 +72,7 @@ class XmlWriter():
 		doc = ET.SubElement(root, "resources")
 
 		for resource in manifest_entity.resources:
-			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type, 
+			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type,
 				'href': resource.href, 'd2l_2p0:link_target' : resource.link_target,
 				'title' : resource.title})
 
@@ -126,7 +118,7 @@ class XmlWriter():
 		it_weighting_label = ET.SubElement(it_weighting, "fieldlabel")
 		it_weighting_label.text = 'qmd_weighting'
 		it_weighting_entry = ET.SubElement(it_weighting, "fieldentry")
-		it_weighting_entry.text = "{:.4f}".format(float(question.points)) if question.points else "1"
+		it_weighting_entry.text = "{:.4f}".format(question.points)
 
 
 	def itemproc_extension(self, it) :
@@ -622,7 +614,7 @@ class XmlWriter():
 		index = 1
 		for answer in question.get_answers():
 
-			question_answer_index = question_ident_answer + str(index) 
+			question_answer_index = question_ident_answer + str(index)
 
 			it_grp_ren_flow_lab = ET.SubElement(it_pre_flow_res_grp_ren_flow, "response_label", {'ident': question_answer_index })
 			it_grp_ren_flow_lab_flow = ET.SubElement(it_grp_ren_flow_lab, "flow_mat")
