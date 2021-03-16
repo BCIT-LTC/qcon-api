@@ -20,8 +20,8 @@ class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
         self.questions = []
         self.question = None
-        self.answers = []
         self.answer = None
+        self.current_answer_order = 0
         self.question_library = question_library
         self.end_answers = None
 
@@ -480,6 +480,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Enter a parse tree produced by QuestionParser#ListNoAnswer.
     def enterListNoAnswer(self, ctx:QuestionParser.ListNoAnswerContext):
+        self.current_answer_order = 0
         pass
 
     # Exit a parse tree produced by QuestionParser#ListNoAnswer.
@@ -490,6 +491,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Enter a parse tree produced by QuestionParser#ListWithAnswer.
     def enterListWithAnswer(self, ctx:QuestionParser.ListWithAnswerContext):
+        self.current_answer_order = 0
         pass
     
     # Exit a parse tree produced by QuestionParser#ListWithAnswer.
@@ -503,6 +505,8 @@ class QuestionParserListener(ParseTreeListener):
         self.answer = new_answer
         self.answer.question = self.question
         self.answer.is_correct = False
+        self.current_answer_order += 1
+        self.answer.order = self.current_answer_order
         self.answer.save()
         pass
 
@@ -529,7 +533,6 @@ class QuestionParserListener(ParseTreeListener):
             self.answer.answer_feedback = answer_feedback
         
         self.answer.save()
-        self.answers.append(self.answer)
         pass
 
     # Enter a parse tree produced by QuestionParser#list_prefix.
@@ -547,6 +550,8 @@ class QuestionParserListener(ParseTreeListener):
         self.answer = new_answer
         self.answer.question = self.question
         self.answer.is_correct = True
+        self.current_answer_order += 1
+        self.answer.order = self.current_answer_order
         self.answer.save()
         self.question.correct_answers_length += 1
         self.question.save()
@@ -575,7 +580,6 @@ class QuestionParserListener(ParseTreeListener):
             self.answer.answer_feedback = answer_feedback
         
         self.answer.save()
-        self.answers.append(self.answer)
         pass
 
     # Enter a parse tree produced by QuestionParser#answer_prefix.
