@@ -19,7 +19,7 @@ echo "--------------------------------------------------------------------------
 # echo "-------------------------------------------------------------------------------------------\n"
 
 >&2 echo "Create temporary superuser"
-echo "from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python /code/manage.py shell
+echo "from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@example.com', '$ADMIN_CREDENTIAL')" | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
 
 #Start django dev server
