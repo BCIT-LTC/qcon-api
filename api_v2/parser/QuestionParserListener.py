@@ -334,7 +334,7 @@ class QuestionParserListener(ParseTreeListener):
     def exitTitle(self, ctx:QuestionParser.TitleContext):
         title = self.trim_text(ctx.getText()).split(":")[1]
         title = self.markdown_to_plain(title)
-        title = self.trim_text(title)
+        title = self.trim_text(title)[0:127]
         self.question.title = title
         self.question.save()
         pass
@@ -652,7 +652,7 @@ class QuestionParserListener(ParseTreeListener):
         return text
 
     def markdown_to_plain(self, text):
-        plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain").replace('\n', ' ')
+        plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
         return plain_text
 
     def markdown_to_html(self, text):
@@ -660,7 +660,7 @@ class QuestionParserListener(ParseTreeListener):
         return html_text
 
     def html_to_plain(self, text):
-        html_text = pypandoc.convert_text(text, format='html', to="plain")
+        html_text = pypandoc.convert_text(text, format='html', to="plain", extra_args=['--wrap=none'])
         return html_text
 
     def process_question(self, question):
@@ -905,7 +905,9 @@ class QuestionParserListener(ParseTreeListener):
                                 fib_answer.save()
                                 regex_pattern_2 = r".*\[\s?(" + re.escape(fib_answer.text) + ")\s?\]"
                                 question_text = re.sub(regex_pattern_2, "", question_text, 1)
-                                question.question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
+                                re_question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
+                                question.question_body = re_question_body
+                                question.title = self.html_to_plain(re_question_body)
                                 question.save()
                                 if(len(question.get_fib_answers()) == index+1):
                                     trimmed_text = self.trim_text(self.html_to_plain(question_text))
