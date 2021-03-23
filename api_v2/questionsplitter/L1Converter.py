@@ -49,6 +49,7 @@ def L1Converter(question_library):
         L1.endanswers = element['endanswer']
         listofL1Elements.append(L1)
 
+
     # for element in listofL1Elements:
     #     print("==============")
     #     print("PREFIX " + str(element.prefix))
@@ -59,6 +60,7 @@ def L1Converter(question_library):
     #     print("answerblockseparator " + str(element.answerblockseparator))
     #     print("questionheader " + str(element.questionheader))
     #     print("sectionheader " + str(element.sectionheader))
+    #     print("endanswer" + str(element.endanswers))
 
     # Split questions
 
@@ -257,7 +259,8 @@ def check_fib(content):
 
 def normalize_prefix_and_grab_indent(prefix):
     # TODO: function to clean up extra characters on the prefix
-    x = re.findall("^(\\n)(>?[ ]*)([a-zA-Z0-9]+)", prefix)
+    # x = re.findall("^(\\n)(>?[ ]*)([a-zA-Z0-9]+)", prefix)
+    x = re.findall("^(\\n)(.*)([a-zA-Z0-9]{1,2})", prefix)
     # print("indent length " + str(len(x[0][1])))
     # print("normalized prefix " + str(x[0][2]))
     indent_length = len(x[0][1])

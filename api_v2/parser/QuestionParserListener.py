@@ -2,6 +2,7 @@
 import logging
 import re
 import pypandoc
+from decimal import Decimal
 # from api_v2.models import Question, Answer, Fib
 
 from datetime import datetime
@@ -19,8 +20,8 @@ class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
         self.questions = []
         self.question = None
-        self.answers = []
         self.answer = None
+        self.current_answer_order = 0
         self.question_library = question_library
         self.end_answers = None
 
@@ -333,7 +334,7 @@ class QuestionParserListener(ParseTreeListener):
     def exitTitle(self, ctx:QuestionParser.TitleContext):
         title = self.trim_text(ctx.getText()).split(":")[1]
         title = self.markdown_to_plain(title)
-        title = self.trim_text(title)
+        title = self.trim_text(title)[0:127]
         self.question.title = title
         self.question.save()
         pass
@@ -347,7 +348,24 @@ class QuestionParserListener(ParseTreeListener):
         points = self.trim_text(ctx.getText()).split(":")[1]
         points = self.markdown_to_plain(points)
         points = self.trim_text(points)
-        self.question.points = points
+        try:
+            points = Decimal(points)
+            if points > 0 and points <= 9999:
+                self.question.points = points
+            else:
+                self.question.points = 1.0
+                logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+                error_message = f"\n310, Points must be greater than 0 and less than or equal to 9,999. \
+                              \n\t Points is now set to default 1.0 instead of {points}."
+                logger.error(error_message)
+            
+        except ValueError:
+            self.question.points = 1.0
+            logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+            error_message = f"\n310, Points must be in a decimal format. \
+                              \n\t Points is now set to default 1.0 instead of {points}."
+            logger.error(error_message)
+
         self.question.save()
         pass
 
@@ -382,6 +400,17 @@ class QuestionParserListener(ParseTreeListener):
             body_text += question_content.getText()
         question_body = self.markdown_to_html(body_text)
         question_body = self.trim_text(question_body)
+
+        if self.question.title == None:
+            self.question.title = self.html_to_plain(question_body)[0:127]
+        
+        if self.question.points == None:
+            self.question.points = 1.0
+
+        if self.question.randomize_answer == None:
+            if self.question_library.randomize_answer != None:
+                self.question.randomize_answer = self.question_library.randomize_answer
+
         self.question.question_body = question_body
 
         # print("\n--------------------------QUESTION-------------------------------")
@@ -451,6 +480,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Enter a parse tree produced by QuestionParser#ListNoAnswer.
     def enterListNoAnswer(self, ctx:QuestionParser.ListNoAnswerContext):
+        self.current_answer_order = 0
         pass
 
     # Exit a parse tree produced by QuestionParser#ListNoAnswer.
@@ -461,6 +491,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Enter a parse tree produced by QuestionParser#ListWithAnswer.
     def enterListWithAnswer(self, ctx:QuestionParser.ListWithAnswerContext):
+        self.current_answer_order = 0
         pass
     
     # Exit a parse tree produced by QuestionParser#ListWithAnswer.
@@ -474,6 +505,8 @@ class QuestionParserListener(ParseTreeListener):
         self.answer = new_answer
         self.answer.question = self.question
         self.answer.is_correct = False
+        self.current_answer_order += 1
+        self.answer.order = self.current_answer_order
         self.answer.save()
         pass
 
@@ -500,7 +533,6 @@ class QuestionParserListener(ParseTreeListener):
             self.answer.answer_feedback = answer_feedback
         
         self.answer.save()
-        self.answers.append(self.answer)
         pass
 
     # Enter a parse tree produced by QuestionParser#list_prefix.
@@ -518,6 +550,8 @@ class QuestionParserListener(ParseTreeListener):
         self.answer = new_answer
         self.answer.question = self.question
         self.answer.is_correct = True
+        self.current_answer_order += 1
+        self.answer.order = self.current_answer_order
         self.answer.save()
         self.question.correct_answers_length += 1
         self.question.save()
@@ -546,7 +580,6 @@ class QuestionParserListener(ParseTreeListener):
             self.answer.answer_feedback = answer_feedback
         
         self.answer.save()
-        self.answers.append(self.answer)
         pass
 
     # Enter a parse tree produced by QuestionParser#answer_prefix.
@@ -619,7 +652,7 @@ class QuestionParserListener(ParseTreeListener):
         return text
 
     def markdown_to_plain(self, text):
-        plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain").replace('\n', ' ')
+        plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
         return plain_text
 
     def markdown_to_html(self, text):
@@ -627,7 +660,7 @@ class QuestionParserListener(ParseTreeListener):
         return html_text
 
     def html_to_plain(self, text):
-        html_text = pypandoc.convert_text(text, format='html', to="plain")
+        html_text = pypandoc.convert_text(text, format='html', to="plain", extra_args=['--wrap=none'])
         return html_text
 
     def process_question(self, question):
@@ -635,10 +668,6 @@ class QuestionParserListener(ParseTreeListener):
         if question.question_type != None:
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:
-                    if self.question_library.randomize_answer != None:
-                        if question.randomize_answer == None:
-                            question.randomize_answer = self.question_library.randomize_answer
-                            question.save()
                     # BUILD MC
                     pass
                 else:
@@ -677,10 +706,6 @@ class QuestionParserListener(ParseTreeListener):
 
             elif question.question_type == 'MS':
                 if self.is_multi_select(question) == True:
-                    if self.question_library.randomize_answer != None:
-                        if question.randomize_answer == None:
-                            question.randomize_answer = self.question_library.randomize_answer
-                            question.save()
                     # BUILD MS
                     pass
                 else:
@@ -809,9 +834,9 @@ class QuestionParserListener(ParseTreeListener):
                         for answer in question.get_answers():
                             current_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                             if "true" == current_answer:
-                                answer.answer_body = "True"
+                                answer.answer_body = "<p>True</p>"
                             elif "false" == current_answer:
-                                answer.answer_body = "False"
+                                answer.answer_body = "<p>False</p>"
                             answer.save()
                         return True
         return False
@@ -880,7 +905,9 @@ class QuestionParserListener(ParseTreeListener):
                                 fib_answer.save()
                                 regex_pattern_2 = r".*\[\s?(" + re.escape(fib_answer.text) + ")\s?\]"
                                 question_text = re.sub(regex_pattern_2, "", question_text, 1)
-                                question.question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
+                                re_question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
+                                question.question_body = re_question_body
+                                question.title = self.html_to_plain(re_question_body)
                                 question.save()
                                 if(len(question.get_fib_answers()) == index+1):
                                     trimmed_text = self.trim_text(self.html_to_plain(question_text))

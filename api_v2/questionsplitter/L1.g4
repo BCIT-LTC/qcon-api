@@ -14,7 +14,7 @@ grammar L1;
 //     }
 // }
 
-l1: sectionheading? rootlist* end_answers? EOF;
+l1: sectionheading? rootlist* end_answers_block? EOF;
 
 sectionheading: content;
 
@@ -24,7 +24,6 @@ numlist: numlist_prefix content;
 letterlist: (letterlist_prefix_regular|letterlist_prefix_correct) content;
 question_header: question_header_parameter+;     
 
-numlist_prefix: NUMLIST_PREFIX;
 
 letterlist_prefix_regular: LETTERLIST_PREFIX;
 letterlist_prefix_correct: STAR_AFTER_DOT|STAR_BEFORE_DOT|STAR_BEFORE_LETTER;
@@ -39,13 +38,28 @@ question_header_parameter
     |   randomize content
     ;
 
-end_answers
-    :   END_ANSWER end_answers_item+
+end_answers_block
+    :   end_answer_token end_answers_item*
+    ;
+
+end_answer_token
+    :   END_ANSWER
     ;
 
 end_answers_item
-    :   numlist content+ 
+    :  content? numlist
     ;
+
+numlist_prefix: NUMLIST_PREFIX;
+
+// end_answers
+//     :   END_ANSWER end_answers_item+
+//     ;
+
+// end_answers_item
+//     :   numlist content+ 
+//     ;
+
 
 title:   TITLE;
 points:   POINTS;
@@ -97,6 +111,7 @@ ENDOFLIST: '<!-- -->' NEWLINE;
 // BLOCKQUOTE: NEWLINE WHITESPACE* GREATER_THAN {setText("\n");}; 
 // BLOCKQUOTE: NEWLINE WHITESPACE* GREATER_THAN; 
 
+
 NUMLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* WHITESPACE* DELIMITER WHITESPACE*;
 
 LETTERLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? LETTER LETTER? WHITESPACE* WHITESPACE* DELIMITER WHITESPACE*;
@@ -109,8 +124,8 @@ TITLE:  NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T I T L E S? WHITESPACE* ;
 POINTS:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* P O I N T S? WHITESPACE*  ;
 TYPE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T Y P E S? WHITESPACE*;
 RANDOMIZE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
+END_ANSWER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R (S)? WHITESPACE* COLON WHITESPACE*;
 
-END_ANSWER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R (S)? WHITESPACE* COLON NEWLINE*;
 
 // FEEDBACK
 // BOLDED_STAR_AFTER_DOT: NEWLINE WHITESPACE* DOUBLE_ASTERISK LETTER LETTER? WHITESPACE* DELIMITER WHITESPACE* ANSWER_MARKER WHITESPACE*;
