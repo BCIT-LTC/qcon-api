@@ -880,6 +880,13 @@ class QuestionParserListener(ParseTreeListener):
             if question.correct_answers_length == 0:
                 if len(question.get_fib_answers()) > 0:
                     question_text = question.question_body
+                    wrapped_question_text = re.search(r"^\<p\>(.*?)\<\/p\>$", question.question_body)
+                    try:
+                        if wrapped_question_text[1]:
+                            question_text = wrapped_question_text[1]
+                    except:
+                        # not wrapped
+                        pass
                     question_fib_length = len(re.findall(r"\[(.*?)\]", question_text))
                     if question_fib_length == len(question.get_fib_answers()):
                         fib_order = 0
