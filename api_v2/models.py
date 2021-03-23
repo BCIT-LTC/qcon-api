@@ -18,6 +18,12 @@ import re
 from os.path import basename
 from django.core.files.base import ContentFile
 
+# from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+
+# from django.conf import settings
+# from django.utils.translation import gettext_lazy as _
+
 # Create your models here.
 
 import logging
@@ -363,3 +369,21 @@ class Fib(models.Model):
     type = models.CharField(max_length=7, null=False)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
+
+
+class CustomToken(Token):
+    """
+    The extended authorization token model to support tokens generated from external sources
+    """
+
+    def save(self, *args, **kwargs):
+        # print(self.user)
+        # print(self.key)
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+        # return '1111111111111111111111111111111111111111'
