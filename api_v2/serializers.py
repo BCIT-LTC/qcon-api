@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import QuestionLibrary, Transaction, Question, Answer, Fib
-from django_q.tasks import async_task
+# from django_q.tasks import async_task
 
 
 def validate_file(value):
@@ -36,7 +36,7 @@ class UploadSerializer(serializers.Serializer):
         newconversion.image_path = newconversion.folder_path + '/media/'
         newconversion.create_directory()
         newconversion.save()
-        async_task('api_v2.tasks.runconversion', newconversion)
+        # async_task('api_v2.tasks.runconversion', newconversion)
 
         return newconversion.transaction
 
