@@ -14,6 +14,10 @@ echo "--------------------------------------------------------------------------
 # nginx -g 'daemon off;'
 # nginx
 
+#Collect static files
+>&2 echo "Collect static"
+python manage.py collectstatic
+
 # >&2 echo "Start Django Q task scheduler"
 # python manage.py qcluster &
 # echo "-------------------------------------------------------------------------------------------\n"
@@ -50,5 +54,8 @@ echo "--------------------------------------------------------------------------
 
 
 #Start django dev server
->&2 echo "Starting Django runserver..."
+>&2 echo "Starting Gunicorn"
+gunicorn --bind 0.0.0.0:8001 qcon.wsgi --daemon
+
+>&2 echo "Starting Nginx"
 exec "$@"
