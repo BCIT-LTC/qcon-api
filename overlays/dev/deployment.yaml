@@ -12,3 +12,8 @@ spec:
       containers:
       - name: qcon-api
         image: qcon-api
+        env:
+        - name: ADMIN_CREDENTIAL
+          value: "admin"
+        - name: API_KEY
+          value: "2222222222222222222222222222222222222222"

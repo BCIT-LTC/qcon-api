@@ -16,7 +16,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -45,7 +44,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_q',
+    # 'django_q',
     'drf_spectacular',
 
     # Local Apps
@@ -83,7 +82,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'qcon.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -94,25 +92,27 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -127,7 +127,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
@@ -138,22 +137,30 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'temp/')
 # Qcon config
 QCON = {
-    'TEMP_FOLDER': os.path.join(BASE_DIR, 'temp', 'resource', 'tempfile') + os.path.sep,
-    'TEMP_IMAGE_ROOT': os.path.join(BASE_DIR, 'temp', 'resource', 'tempfile', 'media') + os.path.sep,
-    'RESPONDUS_XML_ROOT': os.path.join(BASE_DIR, 'temp', 'resource', 'xml') + os.path.sep,
-    'XML_QUESTION_URL': '/ql/',
-    'XML_QUESTION_ROOT': os.path.join(BASE_DIR, 'temp', 'resource', 'xml') + os.path.sep,
-    'DEFAULT_IMAGE_FOLDER': '/assessment-assets/',
-    'QCON_INSTALL_SCRIPT_ROOT': os.path.join(BASE_DIR, 'scripts', 'production') + os.path.sep,
+    'TEMP_FOLDER':
+    os.path.join(BASE_DIR, 'temp', 'resource', 'tempfile') + os.path.sep,
+    'TEMP_IMAGE_ROOT':
+    os.path.join(BASE_DIR, 'temp', 'resource', 'tempfile', 'media') +
+    os.path.sep,
+    'RESPONDUS_XML_ROOT':
+    os.path.join(BASE_DIR, 'temp', 'resource', 'xml') + os.path.sep,
+    'XML_QUESTION_URL':
+    '/ql/',
+    'XML_QUESTION_ROOT':
+    os.path.join(BASE_DIR, 'temp', 'resource', 'xml') + os.path.sep,
+    'DEFAULT_IMAGE_FOLDER':
+    '/assessment-assets/',
+    'QCON_INSTALL_SCRIPT_ROOT':
+    os.path.join(BASE_DIR, 'scripts', 'production') + os.path.sep,
 }
-
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format':
+            '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
         'simple': {
@@ -176,15 +183,15 @@ LOGGING = {
         #     'class': 'logging.FileHandler',
         #     'filename': '/code/log/main.log',
         #     'formatter': 'custom'
-        # }, 
-        'file':{
+        # },
+        'file': {
             'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': '/code/log/main.log',
-            'when': 'D', # daily 'D', you can use 'midnight' as well
-            'backupCount': 7, # 7 days backup
+            'when': 'D',  # daily 'D', you can use 'midnight' as well
+            'backupCount': 7,  # 7 days backup
             'formatter': 'custom'
-        }       
+        }
     },
     'loggers': {
         'django': {
@@ -193,47 +200,51 @@ LOGGING = {
             'propagate': True,
         },
         'api_v2': {
-            'handlers': ['console','file'],
+            'handlers': ['console', 'file'],
             'level': 'INFO',
             'propagate': True,
         }
     },
 }
 
-
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         # 'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'api_v2.authentication.ExampleAuthentication',
     ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS':
+    'drf_spectacular.openapi.AutoSchema',
 }
 
-
-Q_CLUSTER = {
-    'name': 'myproject',
-    'workers': 8,
-    'recycle': 500,
-    'timeout': 300,
-    'retry': 301,
-    'max_attempts': 1,
-    'compress': True,
-    'save_limit': 250,
-    'queue_limit': 500,
-    'cpu_affinity': 1,
-    'label': 'Django Q',
-    'orm': 'default'
-}
-
+# Q_CLUSTER = {
+#     'name': 'myproject',
+#     'workers': 8,
+#     'recycle': 500,
+#     'timeout': 300,
+#     'retry': 301,
+#     'max_attempts': 1,
+#     'compress': True,
+#     'save_limit': 250,
+#     'queue_limit': 500,
+#     'cpu_affinity': 1,
+#     'label': 'Django Q',
+#     'orm': 'default'
+# }
 
 SPECTACULAR_SETTINGS = {
     # 'VERSION': '1.0.0',
     'TITLE': 'Qcon API',
-    'DESCRIPTION': 'RESTful API to convert word documents to LMS compliant format',
-    "COMPONENT_SPLIT_REQUEST" : True,
+    'DESCRIPTION':
+    'RESTful API to convert word documents to LMS compliant format',
+    "COMPONENT_SPLIT_REQUEST": True,
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
         "persistAuthorization": True,

@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import FileResponse, JsonResponse
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.parsers import FileUploadParser
 
@@ -17,7 +18,7 @@ from .models import QuestionLibrary
 from .models import Question
 from .models import Transaction
 
-from django_q.tasks import async_task
+# from django_q.tasks import async_task
 
 import logging
 logger = logging.getLogger(__name__)
@@ -71,9 +72,16 @@ class WordToZip(APIView):
         return JsonResponse(serializer.errors, status=400)
 
 
+class TokenAuthenticationWithBearer(TokenAuthentication):
+    keyword = 'Bearer'
+    def __init__(self):
+        super(TokenAuthenticationWithBearer, self).__init__()
+
+
 class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToJsonZipSerializer
 
     @extend_schema(
