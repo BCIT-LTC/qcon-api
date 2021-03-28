@@ -59,6 +59,7 @@ class QuestionParserListener(ParseTreeListener):
                             if is_false_exist == True:
                                 # TF
                                 question.question_type = 'TF'
+                                question.randomize_answer = False
                                 question.correct_answers_length = 1
                                 question.save()
                                 for answer_obj in answers:
@@ -88,6 +89,7 @@ class QuestionParserListener(ParseTreeListener):
                                 if count_ordering == len(end_answers_split):
                                     # ORD
                                     question.question_type = 'ORD'
+                                    question.randomize_answer = True
                                     question.save()
                                     for ordering_index, answer in enumerate(answers):
                                         answer.answer_body = end_answers_split[ordering_index]
@@ -133,6 +135,7 @@ class QuestionParserListener(ParseTreeListener):
                     if len(fib_answers) > 0: 
                         # Type FIB
                         question.question_type = 'FIB'
+                        question.randomize_answer = False
                         question.save()
                         
                         if ';' in end_answer:
@@ -168,6 +171,7 @@ class QuestionParserListener(ParseTreeListener):
                         if count_matching == len(end_answers_split):
                             # MT
                             question.question_type = 'MT'
+                            question.randomize_answer = True
                             question.save()
                             for answer_text in end_answers_split:
 
@@ -186,6 +190,7 @@ class QuestionParserListener(ParseTreeListener):
                     if is_wr == True:
                         # WR
                         question.question_type = 'WR'
+                        question.randomize_answer = False
                         question.save()
 
                         from api_v2.models import Answer
@@ -263,6 +268,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeTf.
     def exitTypeTf(self, ctx:QuestionParser.TypeTfContext):
         self.question.question_type = 'TF'
+        question.randomize_answer = False
         self.question.save()
         pass
 
@@ -283,6 +289,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeMt.
     def exitTypeMt(self, ctx:QuestionParser.TypeMtContext):
         self.question.question_type = 'MT'
+        question.randomize_answer = True
         self.question.save()
         pass
 
@@ -293,6 +300,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeOrd.
     def exitTypeOrd(self, ctx:QuestionParser.TypeOrdContext):
         self.question.question_type = 'ORD'
+        question.randomize_answer = True
         self.question.save()
         pass
 
@@ -303,6 +311,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeFib.
     def exitTypeFib(self, ctx:QuestionParser.TypeFibContext):
         self.question.question_type = 'FIB'
+        question.randomize_answer = False
         self.question.save()
         pass
 
@@ -313,6 +322,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeWr.
     def exitTypeWr(self, ctx:QuestionParser.TypeWrContext):
         self.question.question_type = 'WR'
+        question.randomize_answer = False
         self.question.save()
         pass
 
@@ -375,8 +385,9 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#RandomTrue.
     def exitRandomTrue(self, ctx:QuestionParser.RandomTrueContext):
-        self.question.randomize_answer = True
-        self.question.save()
+        if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
+            self.question.randomize_answer = True
+            self.question.save()
         pass
 
     # Enter a parse tree produced by QuestionParser#RandomFalse.
@@ -385,8 +396,9 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#RandomFalse.
     def exitRandomFalse(self, ctx:QuestionParser.RandomFalseContext):
-        self.question.randomize_answer = False
-        self.question.save()
+        if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
+            self.question.randomize_answer = False
+            self.question.save()
         pass
 
     # Enter a parse tree produced by QuestionParser#question_body.
@@ -407,7 +419,7 @@ class QuestionParserListener(ParseTreeListener):
         if self.question.points == None:
             self.question.points = 1.0
 
-        if self.question.randomize_answer == None:
+        if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
             if self.question_library.randomize_answer != None:
                 self.question.randomize_answer = self.question_library.randomize_answer
 
@@ -794,18 +806,23 @@ class QuestionParserListener(ParseTreeListener):
 
             if is_TF == True:
                 question.question_type = "TF"
+                question.randomize_answer = False
             elif is_MC == True:
                 question.question_type = "MC"
             elif is_MT == True:
                 question.question_type = "MT"
+                question.randomize_answer = True
             elif is_ORD == True:
                 question.question_type = "ORD"
+                question.randomize_answer = True
             elif is_MS == True:
                 question.question_type = "MS"
             elif is_FIB == True:
                 question.question_type = "FIB"
+                question.randomize_answer = False
             elif is_WR == True:
                 question.question_type = "WR"
+                question.randomize_answer = False
             else:
                 error_message = f"\n303, Type {question.question_type} doesn't exist for Question {question.prefix}."
                 logger.error(error_message)
