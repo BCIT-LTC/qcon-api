@@ -12,6 +12,7 @@ import re
 import logging
 L1Converter_Logger = logging.getLogger('api_v2.questionsplitter.L1Converter')
 
+
 def L1Converter(question_library):
     try:
         input = InputStream(question_library.pandoc_string)
@@ -27,7 +28,9 @@ def L1Converter(question_library):
         walker.walk(printer, tree)
         parsed_questions = printer.get_results()
     except:
-        L1Converter_Logger.error("["+str(question_library.transaction.id) +"]" + "ANTLR LEXER failed and cannot continue")
+        L1Converter_Logger.error("[" + str(question_library.transaction.id) +
+                                 "]" +
+                                 "ANTLR LEXER failed and cannot continue")
         question_library.error = "Error Splitting the questions"
         question_library.save()
 
@@ -48,7 +51,6 @@ def L1Converter(question_library):
         L1.sectionheader = element['sectionheader']
         L1.endanswers = element['endanswer']
         listofL1Elements.append(L1)
-
 
     # for element in listofL1Elements:
     #     print("==============")
@@ -77,17 +79,20 @@ def L1Converter(question_library):
     # print("questions detected: " + str(number_of_questions) + " expected: " + str(highest_numbered_index))
 
     if int(number_of_questions) != int(highest_numbered_index):
-        L1Converter_Logger.error("Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index))
-        question_library.error = "Detected: " + str(number_of_questions) + " Expected: " + str(highest_numbered_index)
+        L1Converter_Logger.error("Detected: " + str(number_of_questions) +
+                                 " Expected: " + str(highest_numbered_index))
+        question_library.error = "Detected: " + str(
+            number_of_questions) + " Expected: " + str(highest_numbered_index)
         question_library.save()
- 
+
     # Split AnswerBlock by marking beginning of it
 
     ending_found = True
-    for i in range(len(questions_separated)-1, 0, -1):
+    for i in range(len(questions_separated) - 1, 0, -1):
         if ending_found:
             # print("check if letter a or A")
-            if questions_separated[i].prefix == 'a' or questions_separated[i].prefix == 'A':
+            if questions_separated[i].prefix == 'a' or questions_separated[
+                    i].prefix == 'A':
                 # print("begin of answerlist found")
                 # questions_separated.insert(i, '##########START_ANSWER##########')
                 questions_separated[i].answerblockseparator = True
@@ -97,9 +102,6 @@ def L1Converter(question_library):
             ending_found = True
         # if questions_separated[i] == '##########END_QUESTION##########':
         #     ending_found = True
-
-    # for line in questions_separated:
-    #     print(line)
 
     # ADD MARKER AND APPEND ARRAYS TO ONE STRING
     collectionofstrings = []
@@ -125,11 +127,13 @@ def L1Converter(question_library):
         # THIS IS FOR LIST ITEMS
         if questions_separated[i].listitem:
             if questions_separated[i].starmarked:
-                collectionofstrings.append(
-                    questions_separated[i].prefix + ". \*" + questions_separated[i].content)
+                collectionofstrings.append(questions_separated[i].prefix +
+                                           ". \*" +
+                                           questions_separated[i].content)
             else:
-                collectionofstrings.append(
-                    questions_separated[i].prefix + ". " + questions_separated[i].content)
+                collectionofstrings.append(questions_separated[i].prefix +
+                                           ". " +
+                                           questions_separated[i].content)
         # THIS IS FOR REGULAR CONTENT (seperators, feedback markers, questionheader markers etc etc)
         else:
             collectionofstrings.append(questions_separated[i].content)
@@ -139,6 +143,7 @@ def L1Converter(question_library):
         thestring += text
 
     return thestring
+
 
 # =============================================================================================
 # ===============================Question Splitter=============================================
@@ -153,16 +158,14 @@ def question_separate(data, index, question):
     # print("content " + str(data[index].content))
 
     if index == len(data) - 1:
-
         if check_fib(data[index].content):
             # print("FIB found at end")
             data[index].questionseparator = True
-            return data
+            return data, question
 
         # print("END question_separate")
         return data, question
-    # else:
-    #     return question_separate(data,index+1, question)
+
     if data[index].prefix.isnumeric():
         # print("it is num")
         if int(question) == 0:
@@ -170,54 +173,72 @@ def question_separate(data, index, question):
             if int(data[index].prefix) == 1:
                 data[index].questionseparator = True
                 # print("================================================")
-                return question_separate(data, index+1, question+1)
+                return question_separate(data, index + 1, question + 1)
         # ++++++++++
 
         # try to find the next increment
-        if int(data[index].prefix) == int(question+1):
+        if int(data[index].prefix) == int(question + 1):
             # is this one FIB
             # print("found next increment")
             if check_fib(data[index].content):
                 # print("FIB found")
                 data[index].questionseparator = True
-                return question_separate(data, index+1, question+1)
+                return question_separate(data, index + 1, question + 1)
             else:
                 # print("NO FIB")
 
                 # look for letters before this
-                if data[index-1].prefix.islower() or data[index-1].prefix.isupper():
-                    data[index].questionseparator = True
-                    return question_separate(data, index+1, question+1)
-                else:
-                    # print("check if number before skipping to next one ")
-                    # check if number before skipping to next one
-                    if data[index-1].prefix.isnumeric():
-                        # print("check if previous one is a separator  ")
-                        # check if previous one is a separator
-                        if data[index-1].questionseparator:
-                            # print("if it is then mark this one and continue")
-                            # if it is then mark this one and continue
-                            data[index].questionseparator = True
-                            return question_separate(data, index+1, question+1)
-                    else:
-                        # if it is not numeric then it has to be a list separator
-                        # continue checking the previous one to this if it is letter
-                        # if it is then mark and continue
-                        # print("if it is not numeric then it has to be a list separator ")
-                        if data[index-2].prefix.islower() or data[index-2].prefix.isupper():
-                            data[index].questionseparator = True
-                            return question_separate(data, index+1, question+1)
-                        else:
-                            # if it is not letter just continue
-                            # print("if it is not letter just continue ")
-                            return question_separate(data, index+1, question)
 
-                    return question_separate(data, index+1, question)
+                # print("check if previous is listitem")
+                # print(data[index-1].listitem)
+
+                if data[index - 1].listitem:
+                    if data[index -
+                            1].prefix.islower() or data[index -
+                                                        1].prefix.isupper():
+                        data[index].questionseparator = True
+                        return question_separate(data, index + 1, question + 1)
+                    else:
+                        # print("check if number before skipping to next one ")
+                        # check if number before skipping to next one
+                        if data[index - 1].prefix.isnumeric():
+                            # print("check if previous one is a separator  ")
+                            # check if previous one is a separator
+                            if data[index - 1].questionseparator:
+                                # print("if it is then mark this one and continue")
+                                # if it is then mark this one and continue
+                                data[index].questionseparator = True
+                                return question_separate(
+                                    data, index + 1, question + 1)
+                        else:
+                            # if it is not numeric then it has to be a list separator
+                            # continue checking the previous one to this if it is letter
+                            # if it is then mark and continue
+                            # print("if it is not numeric then it has to be a list separator ")
+                            if data[index - 2].prefix.islower() or data[
+                                    index - 2].prefix.isupper():
+                                data[index].questionseparator = True
+                                return question_separate(
+                                    data, index + 1, question + 1)
+                            else:
+                                # if it is not letter just continue
+                                # print("if it is not letter just continue ")
+                                return question_separate(
+                                    data, index + 1, question)
+
+                        return question_separate(data, index + 1, question)
+                else:
+                    # Previous is Questionheader item this means Mark it as separator and continue
+                    # print("previous is not a listItem possibly a Questionheader item")
+                    data[index].questionseparator = True
+                    return question_separate(data, index + 1, question + 1)
+
             # return question_separate(data, index+1,question)
         else:
-            return question_separate(data, index+1, question)
+            return question_separate(data, index + 1, question)
     else:
-        return question_separate(data, index+1, question)
+        return question_separate(data, index + 1, question)
+
 
 # =============================================================================================
 # ===============================HELPER FUNCTIONS==============================================
@@ -225,21 +246,21 @@ def question_separate(data, index, question):
 
 
 def find_index_of_next_number(data, startindex):
-    index = int(startindex)+1
+    index = int(startindex) + 1
     while data[index].prefix.isnumeric() == False:
         # print("hhhHJKDLLKDHJS " + str(index) + " " + str(len(data)) )
-        if int(index) == (len(data)-1):
+        if int(index) == (len(data) - 1):
             break
         index += 1
 
-    if int(index) == (len(data)-1):
+    if int(index) == (len(data) - 1):
         # print("next number not found EOL")
         return 0
     return index
 
 
 def find_index_of_previous_number(data, startindex):
-    index = startindex-1
+    index = startindex - 1
     while data[index].prefix.isnumeric() == False:
         index -= 1
     return index
@@ -248,7 +269,10 @@ def find_index_of_previous_number(data, startindex):
 def check_fib(content):
     # Create HTML string first to filter out images and other tags that will interfere with the regex
     html_text = pypandoc.convert_text(
-        content, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
+        content,
+        format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks",
+        to="html",
+        extra_args=["--mathml", '--ascii'])
     x = re.search(r"\[(.*?)\]", html_text)
     if x:
         # print("FIB found in detector")
