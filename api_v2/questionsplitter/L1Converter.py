@@ -161,8 +161,7 @@ def question_separate(data, index, question):
         if check_fib(data[index].content):
             # print("FIB found at end")
             data[index].questionseparator = True
-            return data, question
-
+            return data, question + 1
         # print("END question_separate")
         return data, question
 
