@@ -40,8 +40,7 @@ def L1Converter(question_library):
     for element in parsed_questions:
         L1 = L1Element()
         if element['listitem'] == True:
-            indent_length, normalized_prefix = normalize_prefix_and_grab_indent(
-                element['prefix'])
+            normalized_prefix = normalize_prefix(element['prefix'])
             L1.prefix = normalized_prefix
             # L1.indentlength = indent_length
         L1.content = element['content']
@@ -275,21 +274,19 @@ def check_fib(content):
     x = re.search(r"\[(.*?)\]", html_text)
     if x:
         # print("FIB found in detector")
+
         return True
     else:
         return False
 
 
-def normalize_prefix_and_grab_indent(prefix):
-    # TODO: function to clean up extra characters on the prefix
-    # x = re.findall("^(\\n)(>?[ ]*)([a-zA-Z0-9]+)", prefix)
-    x = re.findall("^(\\n)(.*)([a-zA-Z0-9]{1,2})", prefix)
-    # print("indent length " + str(len(x[0][1])))
-    # print("normalized prefix " + str(x[0][2]))
-    indent_length = len(x[0][1])
-    normalized_prefix = str(x[0][2])
-
-    return indent_length, normalized_prefix
+def normalize_prefix(prefix):
+    # x = re.findall("^(\\n)(.*)([a-zA-Z0-9]{1,2})", prefix)
+    x = re.sub("\n", "", prefix)
+    x = re.search("[a-zA-Z0-9]{1,3}", x)
+    # x = re.findall("^(\\n)\s*([a-zA-Z0-9]*)", prefix)
+    normalized_prefix = str(x.group())
+    return normalized_prefix
 
 
 def normalize_content(content):
