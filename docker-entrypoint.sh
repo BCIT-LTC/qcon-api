@@ -51,6 +51,7 @@ echo "--------------------------------------------------------------------------
 # >&2 echo "Create temporary API TOKEN"
 # python manage.py drf_create_token admin
 
+chmod -R 755 /var/lib/nginx
 
 
 #Start django dev server
