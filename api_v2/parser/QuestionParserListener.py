@@ -385,9 +385,9 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#RandomTrue.
     def exitRandomTrue(self, ctx:QuestionParser.RandomTrueContext):
-        if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
-            self.question.randomize_answer = True
-            self.question.save()
+        # if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
+        self.question.randomize_answer = True
+        self.question.save()
         pass
 
     # Enter a parse tree produced by QuestionParser#RandomFalse.
@@ -396,9 +396,9 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#RandomFalse.
     def exitRandomFalse(self, ctx:QuestionParser.RandomFalseContext):
-        if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
-            self.question.randomize_answer = False
-            self.question.save()
+        # if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
+        self.question.randomize_answer = False
+        self.question.save()
         pass
 
     # Enter a parse tree produced by QuestionParser#question_body.
@@ -420,7 +420,7 @@ class QuestionParserListener(ParseTreeListener):
             self.question.points = 1.0
 
         if self.question.question_type == None or self.question.question_type == 'MC' or self.question.question_type == 'MS':
-            if self.question_library.randomize_answer != None:
+            if self.question.randomize_answer == None:
                 self.question.randomize_answer = self.question_library.randomize_answer
 
         self.question.question_body = question_body
