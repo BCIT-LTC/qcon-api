@@ -668,7 +668,8 @@ class QuestionParserListener(ParseTreeListener):
         return plain_text
 
     def markdown_to_html(self, text):
-        html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks", to="html", extra_args=["--mathml", '--ascii'])
+        html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+tex_math_single_backslash", to="html", extra_args=['--mathjax', '--ascii'])
+        html_text = pypandoc.convert_text(html_text, format="markdown+fancy_lists+emoji+task_lists+hard_line_breaks+tex_math_single_backslash+tex_math_dollars", to="html", extra_args=['--mathml', '--ascii']) # second pandoc conversion to convert mathml
         return html_text
 
     def html_to_plain(self, text):
