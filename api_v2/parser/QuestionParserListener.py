@@ -6,6 +6,7 @@ from decimal import Decimal
 # from api_v2.models import Question, Answer, Fib
 
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 from antlr4 import *
 if __name__ is not None and "." in __name__:
@@ -268,7 +269,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeTf.
     def exitTypeTf(self, ctx:QuestionParser.TypeTfContext):
         self.question.question_type = 'TF'
-        question.randomize_answer = False
+        self.question.randomize_answer = False
         self.question.save()
         pass
 
@@ -289,7 +290,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeMt.
     def exitTypeMt(self, ctx:QuestionParser.TypeMtContext):
         self.question.question_type = 'MT'
-        question.randomize_answer = True
+        self.question.randomize_answer = True
         self.question.save()
         pass
 
@@ -300,7 +301,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeOrd.
     def exitTypeOrd(self, ctx:QuestionParser.TypeOrdContext):
         self.question.question_type = 'ORD'
-        question.randomize_answer = True
+        self.question.randomize_answer = True
         self.question.save()
         pass
 
@@ -311,7 +312,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeFib.
     def exitTypeFib(self, ctx:QuestionParser.TypeFibContext):
         self.question.question_type = 'FIB'
-        question.randomize_answer = False
+        self.question.randomize_answer = False
         self.question.save()
         pass
 
@@ -322,7 +323,7 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#TypeWr.
     def exitTypeWr(self, ctx:QuestionParser.TypeWrContext):
         self.question.question_type = 'WR'
-        question.randomize_answer = False
+        self.question.randomize_answer = False
         self.question.save()
         pass
 
@@ -668,9 +669,19 @@ class QuestionParserListener(ParseTreeListener):
         return plain_text
 
     def markdown_to_html(self, text):
-        html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+tex_math_single_backslash", to="html", extra_args=['--mathjax', '--ascii'])
-        html_text = pypandoc.convert_text(html_text, format="markdown+fancy_lists+emoji+task_lists+hard_line_breaks+tex_math_single_backslash+tex_math_dollars", to="html", extra_args=['--mathml', '--ascii']) # second pandoc conversion to convert mathml
-        return html_text
+        html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
+        soup_text = BeautifulSoup(html_text, "html.parser")
+        soup_text_math = soup_text.find_all("span", {"class": "math"})
+
+        if len(soup_text_math) > 0:
+            for span_math in soup_text_math:
+                math_text = re.sub(r"\\(?=[^a-zA-Z\(\)\d\s:])", "", span_math.string)
+                mathml_text = pypandoc.convert_text(math_text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_single_backslash", to="html", extra_args=['--mathml', '--ascii']).removeprefix('<p>').removesuffix('</p>')
+                soup_math = BeautifulSoup(mathml_text, "html.parser")
+                span_math.string = ''
+                span_math.append(soup_math)
+                
+        return str(soup_text)
 
     def html_to_plain(self, text):
         html_text = pypandoc.convert_text(text, format='html', to="plain", extra_args=['--wrap=none'])
