@@ -68,10 +68,18 @@ echo "--------------------------------------------------------------------------
 
 chmod -R 755 /var/lib/nginx
 
-
-#Start django dev server
->&2 echo "Starting Gunicorn"
-gunicorn --bind 0.0.0.0:8001 qcon.wsgi --daemon
-
->&2 echo "Starting Nginx"
-exec "$@"
+if [ $DEBUG = "true" ] || [ $DEBUG = "True" ] || [ $DEBUG = "TRUE" ]; 
+    then
+    >&2 echo "Debug Mode"
+    #Start django dev server
+    >&2 echo "Starting Django dev server..."
+    export DEBUG="True"
+    python manage.py runserver 0.0.0.0:8000
+    else
+    >&2 echo "Production Mode"
+    #Start gunicorn server
+    >&2 echo "Starting Gunicorn"
+    gunicorn --bind 0.0.0.0:8001 qcon.wsgi --daemon
+    >&2 echo "Starting Nginx"
+    exec "$@"
+fi
