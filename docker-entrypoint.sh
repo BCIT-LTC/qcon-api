@@ -9,14 +9,9 @@ echo "--------------------------------------------------------------------------
 python manage.py migrate
 echo "-------------------------------------------------------------------------------------------\n"
 
-#Start NGINX
-# >&2 echo "Starting nginx..."
-# nginx -g 'daemon off;'
-# nginx
-
 #Collect static files
 >&2 echo "Collect static"
-python manage.py collectstatic
+python manage.py collectstatic --noinput
 
 # >&2 echo "Check if API_KEY set"
 if [[ -z "${API_KEY}" ]];  
