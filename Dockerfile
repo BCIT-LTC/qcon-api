@@ -26,6 +26,7 @@ LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
 ENV PATH /code:$PATH
+RUN apk --update add nginx
 
 WORKDIR /code
 VOLUME /code
