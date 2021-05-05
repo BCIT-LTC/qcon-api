@@ -18,9 +18,40 @@ echo "--------------------------------------------------------------------------
 >&2 echo "Collect static"
 python manage.py collectstatic
 
-# >&2 echo "Start Django Q task scheduler"
-# python manage.py qcluster &
-# echo "-------------------------------------------------------------------------------------------\n"
+# >&2 echo "Check if API_KEY set"
+if [[ -z "${API_KEY}" ]];  
+then  
+echo "API_KEY is not set"  
+exit 1
+else  
+echo "API_KEY found"
+fi  
+
+# >&2 echo "Check if ADMIN_USERNAME set"
+if [[ -z "${ADMIN_USERNAME}" ]];  
+then  
+echo "ADMIN_USERNAME not set"  
+exit 1
+else  
+echo ""
+fi  
+
+# >&2 echo "Check if ADMIN_PASSWORD set"
+if [[ -z "${ADMIN_PASSWORD}" ]];  
+then  
+echo "ADMIN_PASSWORD not set"  
+exit 1
+else  
+echo ""
+fi  
+
+# >&2 echo "Check if DEBUG set"
+if [[ -z "${DEBUG}" ]];  
+then  
+echo "DEBUG not set. Continue in production mode"  
+else  
+echo ""
+fi  
 
 >&2 echo "Create superuser 'admin'"
 echo "from django.contrib.auth.models import User; \
