@@ -41,7 +41,10 @@ RUN mkdir -p log && touch log/error.log \
     && chmod g+w log/error.log
 
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
-COPY . .
+
+COPY manage.py .
+COPY qcon qcon
+COPY api_v2 api_v2
 
 COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
