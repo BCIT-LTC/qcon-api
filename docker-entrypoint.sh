@@ -25,7 +25,7 @@ python manage.py collectstatic --noinput
 >&2 echo "Create superuser 'admin'"
 echo "from django.contrib.auth.models import User; \
         User.objects.filter(username='admin').exists() or \
-        User.objects.create_superuser('admin', 'admin@example.com', '$ADMIN_CREDENTIAL');" \
+        User.objects.create_superuser('admin', 'admin@example.com', '$ADMIN_PASSWORD');" \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
 
