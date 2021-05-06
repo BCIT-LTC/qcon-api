@@ -16,7 +16,7 @@ echo "--------------------------------------------------------------------------
 
 #Collect static files
 >&2 echo "Collect static"
-python manage.py collectstatic
+python manage.py collectstatic --noinput
 
 # >&2 echo "Start Django Q task scheduler"
 # python manage.py qcluster &
