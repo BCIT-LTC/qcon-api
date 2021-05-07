@@ -26,10 +26,14 @@ WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
 
 WordToZip_Logger = logging.getLogger('api_v2.views.WordToZip')
 
-
+class TokenAuthenticationWithBearer(TokenAuthentication):
+    keyword = 'Bearer'
+    def __init__(self):
+        super(TokenAuthenticationWithBearer, self).__init__()
 class WordToZip(APIView):
     parser_classes = [MultiPartParser]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToZipSerializer
 
     @extend_schema(
@@ -70,13 +74,6 @@ class WordToZip(APIView):
             return file_response
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
-
-
-class TokenAuthenticationWithBearer(TokenAuthentication):
-    keyword = 'Bearer'
-    def __init__(self):
-        super(TokenAuthenticationWithBearer, self).__init__()
-
 
 class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
