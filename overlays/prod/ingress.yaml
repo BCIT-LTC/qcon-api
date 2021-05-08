@@ -4,12 +4,13 @@ metadata:
   name: qcon-ingress
 spec:
   rules:
-  - http:
+  - host: "qcon-api.dev.ltc.bcit.ca"
+    http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: qcon-service
+            name: qcon-api
             port:
               number: 8000
