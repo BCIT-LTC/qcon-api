@@ -863,9 +863,9 @@ class QuestionParserListener(ParseTreeListener):
                         for answer in question.get_answers():
                             current_answer = self.html_to_plain(answer.answer_body.lower()).strip()
                             if "true" == current_answer:
-                                answer.answer_body = "<p>True</p>"
+                                answer.answer_body = "True"
                             elif "false" == current_answer:
-                                answer.answer_body = "<p>False</p>"
+                                answer.answer_body = "False"
                             answer.save()
                         return True
         return False
