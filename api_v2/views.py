@@ -141,7 +141,8 @@ class WordToJsonZip(APIView):
 
 class WordToJson(APIView):
     parser_classes = [MultiPartParser]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToJsonSerializer
 
     @extend_schema(
