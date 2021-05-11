@@ -75,7 +75,7 @@ get-latest-git-version:
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
       if [[ -n "$ADDITIONALTAGLIST" ]]; then 
         for TAG in $ADDITIONALTAGLIST; do 
-          FORMATTEDTAGLIST="${FORMATTEDTAGLIST} --tag $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$TAG "; 
+          FORMATTEDTAGLIST="${FORMATTEDTAGLIST} --tag $CI_REGISTRY_IMAGE:$TAG "; 
         done; 
       fi
       
