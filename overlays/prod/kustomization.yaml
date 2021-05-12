@@ -1,15 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+bases:
+- ../../base/
+
+namespace: qcon
+
+#nameSuffix: -prod
+
 resources:
-- ../../base
-
-namespace: web-apps
-
-nameSuffix: -prod
+- ingress.yaml
 
 patchesStrategicMerge:
 - deployment.yaml
-- service.yaml
-- ingress.yaml
-- storage.yaml
+# - service.yaml
+# - storage.yaml

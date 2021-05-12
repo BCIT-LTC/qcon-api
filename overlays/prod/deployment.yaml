@@ -20,14 +20,14 @@ spec:
     spec:
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/prototypes/qcon:stable
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:3.0
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         volumeMounts:
         - name: qcon-api-persistent-storage
-          mountPath: "/code"
+          mountPath: "/code/temp"
       volumes:
       - name: qcon-api-persistent-storage
         persistentVolumeClaim:
