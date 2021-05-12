@@ -157,11 +157,17 @@ def question_separate(data, index, question):
     # print("content " + str(data[index].content))
 
     if index == len(data) - 1:
-        if check_fib(data[index].content):
-            # print("FIB found at end")
-            data[index].questionseparator = True
-            return data, question + 1
-        # print("END question_separate")
+
+        # Test EDGE cases
+        # if check_fib(data[index].content):
+        #     data[index].questionseparator = True
+        #     return data, question + 1
+
+        if data[index].prefix.isnumeric():
+            if int(data[index].prefix) == int(question + 1):
+                data[index].questionseparator = True
+                return data, question + 1
+
         return data, question
 
     if data[index].prefix.isnumeric():
