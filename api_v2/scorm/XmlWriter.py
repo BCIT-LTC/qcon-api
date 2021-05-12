@@ -269,7 +269,7 @@ class XmlWriter():
 			response_label = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
 			flow_mat = ET.SubElement(response_label, "flow_mat")
 			material = ET.SubElement(flow_mat, "material")
-			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
+			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/plain'})
 			mattext.text = answer.answer_body
 
 			#Reprocessing -> Respcondition
