@@ -18,7 +18,7 @@ l1: sectionheading? rootlist* end_answers_block? EOF;
 
 sectionheading: content;
 
-rootlist: question_header? (numlist | letterlist) endoflist?;
+rootlist: question_header? (numlist | letterlist) endoflist? wr_answers_block?;
 
 numlist: numlist_prefix content;
 letterlist: (letterlist_prefix_regular|letterlist_prefix_correct) content;
@@ -41,9 +41,16 @@ question_header_parameter
 end_answers_block
     :   end_answer_token end_answers_item*
     ;
+wr_answers_block
+    :   wr_answer_token content
+    ;
 
 end_answer_token
     :   END_ANSWER
+    ;
+
+wr_answer_token
+    :   WR_ANSWER
     ;
 
 end_answers_item
@@ -91,6 +98,7 @@ fragment D:   'D' | 'd';
 fragment E:   'E' | 'e';
 fragment F:   'F' | 'f';
 fragment I:   'I' | 'i';
+fragment K:   'K' | 'k';
 fragment L:   'L' | 'l';
 fragment M:   'M' | 'm';
 fragment N:   'N' | 'n';
@@ -124,6 +132,7 @@ TITLE:  NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T I T L E S? WHITESPACE* ;
 POINTS:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* P O I N T S? WHITESPACE*  ;
 TYPE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T Y P E S? WHITESPACE*;
 RANDOMIZE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
+WR_ANSWER:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R WHITESPACE* K E Y COLON WHITESPACE*;
 END_ANSWER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R (S)? WHITESPACE* COLON WHITESPACE*;
 
 
