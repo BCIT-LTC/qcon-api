@@ -9,10 +9,9 @@ import re
 class L1Listener(ParseTreeListener):
     def __init__(self, question_library):
         self.questions = []
-    
+
     def get_results(self):
         return self.questions
-
     # Enter a parse tree produced by L1Parser#l1.
     def enterL1(self, ctx:L1Parser.L1Context):
         pass
@@ -30,7 +29,7 @@ class L1Listener(ParseTreeListener):
     def exitSectionheading(self, ctx:L1Parser.SectionheadingContext):
         if ctx.content() != None:
             x = re.sub(r"\n\s*\>\s*", "", ctx.content().getText())
-            self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':True, 'questionheader':False, 'endanswer': False})
+            self.questions.append({'prefix':'', 'content': x +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':True, 'questionheader':False, 'wr_answertoken': False, 'endanswer': False})
             pass
 
 
@@ -53,7 +52,7 @@ class L1Listener(ParseTreeListener):
         prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.numlist_prefix().getText())
         content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
         # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
-        self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
+        self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'wr_answertoken': False, 'endanswer': False})
         pass
 
 
@@ -67,13 +66,13 @@ class L1Listener(ParseTreeListener):
             prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.letterlist_prefix_regular().getText())
             content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
             # self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True})
-            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
+            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': False, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'wr_answertoken': False, 'endanswer': False})
 
         if ctx.letterlist_prefix_correct() != None:
             prefix = re.sub(r"\n\s*\>\s*", "\n", ctx.letterlist_prefix_correct().getText())
             content = re.sub(r"\n\s*\>\s*", "\n", ctx.content().getText())
             # self.questions.append({'prefix':ctx.letterlist_prefix_correct().getText(), 'content':ctx.content().getText(), 'correctprefix': True, 'listitem': True})
-            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': True, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'endanswer': False})
+            self.questions.append({'prefix':prefix, 'content':content, 'correctprefix': True, 'listitem': True, 'sectionheader':False, 'questionheader':False, 'wr_answertoken': False, 'endanswer': False})
         pass
 
 
@@ -90,7 +89,7 @@ class L1Listener(ParseTreeListener):
                 content += re.sub(r"\n\s*\>\s*", "\n", element.getText())
             # content = re.sub(r"\n\s*\>\s*", "\n", content)    
             # self.questions.append({'prefix':'', 'content': x, 'correctprefix': False, 'listitem': False})
-            self.questions.append({'prefix':'', 'content':content, 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':True, 'endanswer': False})
+            self.questions.append({'prefix':'', 'content':content, 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':True, 'wr_answertoken': False, 'endanswer': False})
         pass
 
 
@@ -130,17 +129,37 @@ class L1Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by L1Parser#end_answers_block.
+     # Enter a parse tree produced by L1Parser#end_answers_block.
     def enterEnd_answers_block(self, ctx:L1Parser.End_answers_blockContext):
         if ctx.end_answer_token() != None:
             content = ctx.end_answer_token().getText()
             content = re.sub(r"\n\s*\>\s*", "", content)
 
-            self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'endanswer': True})
+            self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'wr_answertoken': False, 'endanswer': True})
         pass
 
     # Exit a parse tree produced by L1Parser#end_answers_block.
     def exitEnd_answers_block(self, ctx:L1Parser.End_answers_blockContext):
+        pass
+
+
+    # Enter a parse tree produced by L1Parser#wr_answers_block.
+    def enterWr_answers_block(self, ctx:L1Parser.Wr_answers_blockContext):
+        pass
+
+    # Exit a parse tree produced by L1Parser#wr_answers_block.
+    def exitWr_answers_block(self, ctx:L1Parser.Wr_answers_blockContext):
+        if ctx.wr_answer_token() != None:
+            content = ctx.wr_answer_token().getText()
+            content = re.sub(r"\n\s*\>\s*", "", content)
+
+            self.questions.append({'prefix':'', 'content': '', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'wr_answertoken': True, 'endanswer': False})
+               
+        if ctx.content() != None:
+            content = ctx.content().getText()
+            content = re.sub(r"\n\s*\>\s*", "", content)
+            self.questions.append({'prefix':'', 'content': content +'\n', 'correctprefix': False, 'listitem': False, 'sectionheader':False, 'questionheader':False, 'wr_answertoken': False, 'endanswer': False})
+              
         pass
 
 
@@ -150,6 +169,15 @@ class L1Listener(ParseTreeListener):
 
     # Exit a parse tree produced by L1Parser#end_answer_token.
     def exitEnd_answer_token(self, ctx:L1Parser.End_answer_tokenContext):
+        pass
+
+
+    # Enter a parse tree produced by L1Parser#wr_answer_token.
+    def enterWr_answer_token(self, ctx:L1Parser.Wr_answer_tokenContext):
+        pass
+
+    # Exit a parse tree produced by L1Parser#wr_answer_token.
+    def exitWr_answer_token(self, ctx:L1Parser.Wr_answer_tokenContext):
         pass
 
 
