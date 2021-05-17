@@ -13,6 +13,7 @@ section_title
 
 question
     :   question_header? start_question question_body answer_list
+    |   question_header? start_question question_body wr_answer
     |   question_header? start_question question_body
     ;
 
@@ -105,6 +106,10 @@ list_answer_item
 
 answer_prefix
     :   RIGHT_ANSWER
+    ;
+
+wr_answer
+    :   WR_ANSWER ALL_CHARACTER+
     ;
 
 end_answers
