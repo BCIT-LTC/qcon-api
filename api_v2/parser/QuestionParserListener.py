@@ -534,7 +534,7 @@ class QuestionParserListener(ParseTreeListener):
         answer_body = self.markdown_to_html(answer_text)
         answer_body = self.trim_text(answer_body)
         self.answer.answer_body = answer_body
-        
+
         # print("\n--------------------------LIST ITEM-------------------------------")
         # print(answer_body)
 
@@ -603,7 +603,34 @@ class QuestionParserListener(ParseTreeListener):
     def exitAnswer_prefix(self, ctx:QuestionParser.Answer_prefixContext):
         pass
 
- # Enter a parse tree produced by QuestionParser#end_answers.
+    # Enter a parse tree produced by QuestionParser#wr_answer.
+    def enterWr_answer(self, ctx:QuestionParser.Wr_answerContext):
+        self.question.question_type = 'WR'
+        self.question.randomize_answer = False
+        self.question.save()
+
+        from api_v2.models import Answer
+        new_answer = Answer()
+        self.answer = new_answer
+        self.answer.question = self.question
+        self.answer.is_correct = False
+        self.current_answer_order += 1
+        self.answer.order = self.current_answer_order
+        self.answer.save()
+        pass
+
+    # Exit a parse tree produced by QuestionParser#wr_answer.
+    def exitWr_answer(self, ctx:QuestionParser.Wr_answerContext):
+        wr_answer_text = ""
+        for answer_content in ctx.ALL_CHARACTER():
+            wr_answer_text += answer_content.getText()
+        answer_body = self.markdown_to_html(wr_answer_text)
+        answer_body = self.trim_text(answer_body)
+        self.answer.answer_body = answer_body
+        self.answer.save()
+        pass
+
+    # Enter a parse tree produced by QuestionParser#end_answers.
     def enterEnd_answers(self, ctx:QuestionParser.End_answersContext):
         pass
 

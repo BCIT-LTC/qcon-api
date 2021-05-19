@@ -249,6 +249,10 @@ START_ANSWER
     :   NEWLINE+ '##########_START_ANSWER_##########'               -> mode(ANSWER_CONTENT)
     ;
 
+WR_ANSWER
+    :   NEWLINE+ '##########_WR_ANSWER_##########'                  -> mode(WR_CONTENT)
+    ;
+
 QUESTION_END_ANSWERS
     :   NEWLINE+ END_ANSWERS_MARKER NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE* -> type(END_ANSWERS), mode(ANSWER_KEY)
     ;
@@ -323,6 +327,25 @@ ANSWER_ESCAPED_OPEN_BRACKET
 
 ANSWER_ESCAPED_CLOSE_BRACKET
     :   BACKSLASH CLOSE_BRACKET                                     -> type(ESCAPED_CLOSE_BRACKET)
+    ;
+
+// --------------------- Everything AFTER WR_ANSWER marker ---------------------
+mode WR_CONTENT;
+
+WR_START_HEADER
+    :   NEWLINE+ QUESTION_HEADER_MARKER                             -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
+    ;
+
+WR_START_QUESTION
+    :   NEWLINE+ START_QUESTION_MARKER NEWLINE+ WHITESPACE* NUMBER WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* -> type(START_QUESTION), mode(QUESTION_CONTENT)
+    ;
+
+WR_END_ANSWERS
+    :   NEWLINE+ END_ANSWERS_MARKER NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE* -> type(END_ANSWERS), mode(ANSWER_KEY)
+    ;
+
+WR_ALL_CHARACTER
+    :   CHAR                                                        -> type(ALL_CHARACTER)
     ;
 
 // --------------------- Everything AFTER END_ANSWERS marker ---------------------

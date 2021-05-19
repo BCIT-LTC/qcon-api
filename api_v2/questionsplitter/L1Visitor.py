@@ -64,8 +64,18 @@ class L1Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by L1Parser#wr_answers_block.
+    def visitWr_answers_block(self, ctx:L1Parser.Wr_answers_blockContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by L1Parser#end_answer_token.
     def visitEnd_answer_token(self, ctx:L1Parser.End_answer_tokenContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by L1Parser#wr_answer_token.
+    def visitWr_answer_token(self, ctx:L1Parser.Wr_answer_tokenContext):
         return self.visitChildren(ctx)
 
 

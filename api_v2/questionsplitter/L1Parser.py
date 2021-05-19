@@ -11,45 +11,51 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\16")
-        buf.write("\u0082\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\17")
+        buf.write("\u008e\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
-        buf.write("\4\24\t\24\3\2\5\2*\n\2\3\2\7\2-\n\2\f\2\16\2\60\13\2")
-        buf.write("\3\2\5\2\63\n\2\3\2\3\2\3\3\3\3\3\4\5\4:\n\4\3\4\3\4\5")
-        buf.write("\4>\n\4\3\4\5\4A\n\4\3\5\3\5\3\5\3\6\3\6\5\6H\n\6\3\6")
-        buf.write("\3\6\3\7\6\7M\n\7\r\7\16\7N\3\b\3\b\3\t\3\t\3\n\3\n\3")
-        buf.write("\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13")
-        buf.write("\3\13\5\13c\n\13\3\f\3\f\7\fg\n\f\f\f\16\fj\13\f\3\r\3")
-        buf.write("\r\3\16\5\16o\n\16\3\16\3\16\3\17\3\17\3\20\3\20\3\21")
-        buf.write("\3\21\3\22\3\22\3\23\3\23\3\24\6\24~\n\24\r\24\16\24\177")
-        buf.write("\3\24\2\2\25\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"")
-        buf.write("$&\2\3\3\2\6\b\2|\2)\3\2\2\2\4\66\3\2\2\2\69\3\2\2\2\b")
-        buf.write("B\3\2\2\2\nG\3\2\2\2\fL\3\2\2\2\16P\3\2\2\2\20R\3\2\2")
-        buf.write("\2\22T\3\2\2\2\24b\3\2\2\2\26d\3\2\2\2\30k\3\2\2\2\32")
-        buf.write("n\3\2\2\2\34r\3\2\2\2\36t\3\2\2\2 v\3\2\2\2\"x\3\2\2\2")
-        buf.write("$z\3\2\2\2&}\3\2\2\2(*\5\4\3\2)(\3\2\2\2)*\3\2\2\2*.\3")
-        buf.write("\2\2\2+-\5\6\4\2,+\3\2\2\2-\60\3\2\2\2.,\3\2\2\2./\3\2")
-        buf.write("\2\2/\62\3\2\2\2\60.\3\2\2\2\61\63\5\26\f\2\62\61\3\2")
-        buf.write("\2\2\62\63\3\2\2\2\63\64\3\2\2\2\64\65\7\2\2\3\65\3\3")
-        buf.write("\2\2\2\66\67\5&\24\2\67\5\3\2\2\28:\5\f\7\298\3\2\2\2")
-        buf.write("9:\3\2\2\2:=\3\2\2\2;>\5\b\5\2<>\5\n\6\2=;\3\2\2\2=<\3")
-        buf.write("\2\2\2>@\3\2\2\2?A\5\22\n\2@?\3\2\2\2@A\3\2\2\2A\7\3\2")
-        buf.write("\2\2BC\5\34\17\2CD\5&\24\2D\t\3\2\2\2EH\5\16\b\2FH\5\20")
-        buf.write("\t\2GE\3\2\2\2GF\3\2\2\2HI\3\2\2\2IJ\5&\24\2J\13\3\2\2")
-        buf.write("\2KM\5\24\13\2LK\3\2\2\2MN\3\2\2\2NL\3\2\2\2NO\3\2\2\2")
-        buf.write("O\r\3\2\2\2PQ\7\5\2\2Q\17\3\2\2\2RS\t\2\2\2S\21\3\2\2")
-        buf.write("\2TU\7\3\2\2U\23\3\2\2\2VW\5 \21\2WX\5&\24\2Xc\3\2\2\2")
-        buf.write("YZ\5\36\20\2Z[\5&\24\2[c\3\2\2\2\\]\5\"\22\2]^\5&\24\2")
-        buf.write("^c\3\2\2\2_`\5$\23\2`a\5&\24\2ac\3\2\2\2bV\3\2\2\2bY\3")
-        buf.write("\2\2\2b\\\3\2\2\2b_\3\2\2\2c\25\3\2\2\2dh\5\30\r\2eg\5")
-        buf.write("\32\16\2fe\3\2\2\2gj\3\2\2\2hf\3\2\2\2hi\3\2\2\2i\27\3")
-        buf.write("\2\2\2jh\3\2\2\2kl\7\r\2\2l\31\3\2\2\2mo\5&\24\2nm\3\2")
-        buf.write("\2\2no\3\2\2\2op\3\2\2\2pq\5\b\5\2q\33\3\2\2\2rs\7\4\2")
-        buf.write("\2s\35\3\2\2\2tu\7\t\2\2u\37\3\2\2\2vw\7\n\2\2w!\3\2\2")
-        buf.write("\2xy\7\13\2\2y#\3\2\2\2z{\7\f\2\2{%\3\2\2\2|~\7\16\2\2")
-        buf.write("}|\3\2\2\2~\177\3\2\2\2\177}\3\2\2\2\177\u0080\3\2\2\2")
-        buf.write("\u0080\'\3\2\2\2\16).\629=@GNbhn\177")
+        buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\3\2\5\2.\n\2\3\2\7\2\61")
+        buf.write("\n\2\f\2\16\2\64\13\2\3\2\5\2\67\n\2\3\2\3\2\3\3\3\3\3")
+        buf.write("\4\5\4>\n\4\3\4\3\4\5\4B\n\4\3\4\5\4E\n\4\3\4\5\4H\n\4")
+        buf.write("\3\5\3\5\3\5\3\6\3\6\5\6O\n\6\3\6\3\6\3\7\6\7T\n\7\r\7")
+        buf.write("\16\7U\3\b\3\b\3\t\3\t\3\n\3\n\3\13\3\13\3\13\3\13\3\13")
+        buf.write("\3\13\3\13\3\13\3\13\3\13\3\13\3\13\5\13j\n\13\3\f\3\f")
+        buf.write("\7\fn\n\f\f\f\16\fq\13\f\3\r\3\r\3\r\3\16\3\16\3\17\3")
+        buf.write("\17\3\20\5\20{\n\20\3\20\3\20\3\21\3\21\3\22\3\22\3\23")
+        buf.write("\3\23\3\24\3\24\3\25\3\25\3\26\6\26\u008a\n\26\r\26\16")
+        buf.write("\26\u008b\3\26\2\2\27\2\4\6\b\n\f\16\20\22\24\26\30\32")
+        buf.write("\34\36 \"$&(*\2\3\3\2\6\b\2\u0087\2-\3\2\2\2\4:\3\2\2")
+        buf.write("\2\6=\3\2\2\2\bI\3\2\2\2\nN\3\2\2\2\fS\3\2\2\2\16W\3\2")
+        buf.write("\2\2\20Y\3\2\2\2\22[\3\2\2\2\24i\3\2\2\2\26k\3\2\2\2\30")
+        buf.write("r\3\2\2\2\32u\3\2\2\2\34w\3\2\2\2\36z\3\2\2\2 ~\3\2\2")
+        buf.write("\2\"\u0080\3\2\2\2$\u0082\3\2\2\2&\u0084\3\2\2\2(\u0086")
+        buf.write("\3\2\2\2*\u0089\3\2\2\2,.\5\4\3\2-,\3\2\2\2-.\3\2\2\2")
+        buf.write(".\62\3\2\2\2/\61\5\6\4\2\60/\3\2\2\2\61\64\3\2\2\2\62")
+        buf.write("\60\3\2\2\2\62\63\3\2\2\2\63\66\3\2\2\2\64\62\3\2\2\2")
+        buf.write("\65\67\5\26\f\2\66\65\3\2\2\2\66\67\3\2\2\2\678\3\2\2")
+        buf.write("\289\7\2\2\39\3\3\2\2\2:;\5*\26\2;\5\3\2\2\2<>\5\f\7\2")
+        buf.write("=<\3\2\2\2=>\3\2\2\2>A\3\2\2\2?B\5\b\5\2@B\5\n\6\2A?\3")
+        buf.write("\2\2\2A@\3\2\2\2BD\3\2\2\2CE\5\22\n\2DC\3\2\2\2DE\3\2")
+        buf.write("\2\2EG\3\2\2\2FH\5\30\r\2GF\3\2\2\2GH\3\2\2\2H\7\3\2\2")
+        buf.write("\2IJ\5 \21\2JK\5*\26\2K\t\3\2\2\2LO\5\16\b\2MO\5\20\t")
+        buf.write("\2NL\3\2\2\2NM\3\2\2\2OP\3\2\2\2PQ\5*\26\2Q\13\3\2\2\2")
+        buf.write("RT\5\24\13\2SR\3\2\2\2TU\3\2\2\2US\3\2\2\2UV\3\2\2\2V")
+        buf.write("\r\3\2\2\2WX\7\5\2\2X\17\3\2\2\2YZ\t\2\2\2Z\21\3\2\2\2")
+        buf.write("[\\\7\3\2\2\\\23\3\2\2\2]^\5$\23\2^_\5*\26\2_j\3\2\2\2")
+        buf.write("`a\5\"\22\2ab\5*\26\2bj\3\2\2\2cd\5&\24\2de\5*\26\2ej")
+        buf.write("\3\2\2\2fg\5(\25\2gh\5*\26\2hj\3\2\2\2i]\3\2\2\2i`\3\2")
+        buf.write("\2\2ic\3\2\2\2if\3\2\2\2j\25\3\2\2\2ko\5\32\16\2ln\5\36")
+        buf.write("\20\2ml\3\2\2\2nq\3\2\2\2om\3\2\2\2op\3\2\2\2p\27\3\2")
+        buf.write("\2\2qo\3\2\2\2rs\5\34\17\2st\5*\26\2t\31\3\2\2\2uv\7\16")
+        buf.write("\2\2v\33\3\2\2\2wx\7\r\2\2x\35\3\2\2\2y{\5*\26\2zy\3\2")
+        buf.write("\2\2z{\3\2\2\2{|\3\2\2\2|}\5\b\5\2}\37\3\2\2\2~\177\7")
+        buf.write("\4\2\2\177!\3\2\2\2\u0080\u0081\7\t\2\2\u0081#\3\2\2\2")
+        buf.write("\u0082\u0083\7\n\2\2\u0083%\3\2\2\2\u0084\u0085\7\13\2")
+        buf.write("\2\u0085\'\3\2\2\2\u0086\u0087\7\f\2\2\u0087)\3\2\2\2")
+        buf.write("\u0088\u008a\7\17\2\2\u0089\u0088\3\2\2\2\u008a\u008b")
+        buf.write("\3\2\2\2\u008b\u0089\3\2\2\2\u008b\u008c\3\2\2\2\u008c")
+        buf.write("+\3\2\2\2\17-\62\66=ADGNUioz\u008b")
         return buf.getvalue()
 
 
@@ -67,8 +73,8 @@ class L1Parser ( Parser ):
 
     symbolicNames = [ "<INVALID>", "ENDOFLIST", "NUMLIST_PREFIX", "LETTERLIST_PREFIX", 
                       "STAR_AFTER_DOT", "STAR_BEFORE_DOT", "STAR_BEFORE_LETTER", 
-                      "TITLE", "POINTS", "TYPE", "RANDOMIZE", "END_ANSWER", 
-                      "ALL_CHARACTER" ]
+                      "TITLE", "POINTS", "TYPE", "RANDOMIZE", "WR_ANSWER", 
+                      "END_ANSWER", "ALL_CHARACTER" ]
 
     RULE_l1 = 0
     RULE_sectionheading = 1
@@ -81,20 +87,23 @@ class L1Parser ( Parser ):
     RULE_endoflist = 8
     RULE_question_header_parameter = 9
     RULE_end_answers_block = 10
-    RULE_end_answer_token = 11
-    RULE_end_answers_item = 12
-    RULE_numlist_prefix = 13
-    RULE_title = 14
-    RULE_points = 15
-    RULE_questiontype = 16
-    RULE_randomize = 17
-    RULE_content = 18
+    RULE_wr_answers_block = 11
+    RULE_end_answer_token = 12
+    RULE_wr_answer_token = 13
+    RULE_end_answers_item = 14
+    RULE_numlist_prefix = 15
+    RULE_title = 16
+    RULE_points = 17
+    RULE_questiontype = 18
+    RULE_randomize = 19
+    RULE_content = 20
 
     ruleNames =  [ "l1", "sectionheading", "rootlist", "numlist", "letterlist", 
                    "question_header", "letterlist_prefix_regular", "letterlist_prefix_correct", 
                    "endoflist", "question_header_parameter", "end_answers_block", 
-                   "end_answer_token", "end_answers_item", "numlist_prefix", 
-                   "title", "points", "questiontype", "randomize", "content" ]
+                   "wr_answers_block", "end_answer_token", "wr_answer_token", 
+                   "end_answers_item", "numlist_prefix", "title", "points", 
+                   "questiontype", "randomize", "content" ]
 
     EOF = Token.EOF
     ENDOFLIST=1
@@ -107,8 +116,9 @@ class L1Parser ( Parser ):
     POINTS=8
     TYPE=9
     RANDOMIZE=10
-    END_ANSWER=11
-    ALL_CHARACTER=12
+    WR_ANSWER=11
+    END_ANSWER=12
+    ALL_CHARACTER=13
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -170,33 +180,33 @@ class L1Parser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 39
+            self.state = 43
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==L1Parser.ALL_CHARACTER:
-                self.state = 38
+                self.state = 42
                 self.sectionheading()
 
-
-            self.state = 44
-            self._errHandler.sync(self)
-            _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << L1Parser.NUMLIST_PREFIX) | (1 << L1Parser.LETTERLIST_PREFIX) | (1 << L1Parser.STAR_AFTER_DOT) | (1 << L1Parser.STAR_BEFORE_DOT) | (1 << L1Parser.STAR_BEFORE_LETTER) | (1 << L1Parser.TITLE) | (1 << L1Parser.POINTS) | (1 << L1Parser.TYPE) | (1 << L1Parser.RANDOMIZE))) != 0):
-                self.state = 41
-                self.rootlist()
-                self.state = 46
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
 
             self.state = 48
             self._errHandler.sync(self)
             _la = self._input.LA(1)
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << L1Parser.NUMLIST_PREFIX) | (1 << L1Parser.LETTERLIST_PREFIX) | (1 << L1Parser.STAR_AFTER_DOT) | (1 << L1Parser.STAR_BEFORE_DOT) | (1 << L1Parser.STAR_BEFORE_LETTER) | (1 << L1Parser.TITLE) | (1 << L1Parser.POINTS) | (1 << L1Parser.TYPE) | (1 << L1Parser.RANDOMIZE))) != 0):
+                self.state = 45
+                self.rootlist()
+                self.state = 50
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 52
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
             if _la==L1Parser.END_ANSWER:
-                self.state = 47
+                self.state = 51
                 self.end_answers_block()
 
 
-            self.state = 50
+            self.state = 54
             self.match(L1Parser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -243,7 +253,7 @@ class L1Parser ( Parser ):
         self.enterRule(localctx, 2, self.RULE_sectionheading)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 52
+            self.state = 56
             self.content()
         except RecognitionException as re:
             localctx.exception = re
@@ -276,6 +286,10 @@ class L1Parser ( Parser ):
             return self.getTypedRuleContext(L1Parser.EndoflistContext,0)
 
 
+        def wr_answers_block(self):
+            return self.getTypedRuleContext(L1Parser.Wr_answers_blockContext,0)
+
+
         def getRuleIndex(self):
             return L1Parser.RULE_rootlist
 
@@ -303,34 +317,42 @@ class L1Parser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 55
+            self.state = 59
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << L1Parser.TITLE) | (1 << L1Parser.POINTS) | (1 << L1Parser.TYPE) | (1 << L1Parser.RANDOMIZE))) != 0):
-                self.state = 54
+                self.state = 58
                 self.question_header()
 
 
-            self.state = 59
+            self.state = 63
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [L1Parser.NUMLIST_PREFIX]:
-                self.state = 57
+                self.state = 61
                 self.numlist()
                 pass
             elif token in [L1Parser.LETTERLIST_PREFIX, L1Parser.STAR_AFTER_DOT, L1Parser.STAR_BEFORE_DOT, L1Parser.STAR_BEFORE_LETTER]:
-                self.state = 58
+                self.state = 62
                 self.letterlist()
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 62
+            self.state = 66
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==L1Parser.ENDOFLIST:
-                self.state = 61
+                self.state = 65
                 self.endoflist()
+
+
+            self.state = 69
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            if _la==L1Parser.WR_ANSWER:
+                self.state = 68
+                self.wr_answers_block()
 
 
         except RecognitionException as re:
@@ -382,9 +404,9 @@ class L1Parser ( Parser ):
         self.enterRule(localctx, 6, self.RULE_numlist)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 64
+            self.state = 71
             self.numlist_prefix()
-            self.state = 65
+            self.state = 72
             self.content()
         except RecognitionException as re:
             localctx.exception = re
@@ -439,21 +461,21 @@ class L1Parser ( Parser ):
         self.enterRule(localctx, 8, self.RULE_letterlist)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 69
+            self.state = 76
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [L1Parser.LETTERLIST_PREFIX]:
-                self.state = 67
+                self.state = 74
                 self.letterlist_prefix_regular()
                 pass
             elif token in [L1Parser.STAR_AFTER_DOT, L1Parser.STAR_BEFORE_DOT, L1Parser.STAR_BEFORE_LETTER]:
-                self.state = 68
+                self.state = 75
                 self.letterlist_prefix_correct()
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 71
+            self.state = 78
             self.content()
         except RecognitionException as re:
             localctx.exception = re
@@ -504,13 +526,13 @@ class L1Parser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 74 
+            self.state = 81 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 73
+                self.state = 80
                 self.question_header_parameter()
-                self.state = 76 
+                self.state = 83 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << L1Parser.TITLE) | (1 << L1Parser.POINTS) | (1 << L1Parser.TYPE) | (1 << L1Parser.RANDOMIZE))) != 0)):
@@ -560,7 +582,7 @@ class L1Parser ( Parser ):
         self.enterRule(localctx, 12, self.RULE_letterlist_prefix_regular)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 78
+            self.state = 85
             self.match(L1Parser.LETTERLIST_PREFIX)
         except RecognitionException as re:
             localctx.exception = re
@@ -613,7 +635,7 @@ class L1Parser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 80
+            self.state = 87
             _la = self._input.LA(1)
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << L1Parser.STAR_AFTER_DOT) | (1 << L1Parser.STAR_BEFORE_DOT) | (1 << L1Parser.STAR_BEFORE_LETTER))) != 0)):
                 self._errHandler.recoverInline(self)
@@ -664,7 +686,7 @@ class L1Parser ( Parser ):
         self.enterRule(localctx, 16, self.RULE_endoflist)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 82
+            self.state = 89
             self.match(L1Parser.ENDOFLIST)
         except RecognitionException as re:
             localctx.exception = re
@@ -726,35 +748,35 @@ class L1Parser ( Parser ):
         localctx = L1Parser.Question_header_parameterContext(self, self._ctx, self.state)
         self.enterRule(localctx, 18, self.RULE_question_header_parameter)
         try:
-            self.state = 96
+            self.state = 103
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [L1Parser.POINTS]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 84
+                self.state = 91
                 self.points()
-                self.state = 85
+                self.state = 92
                 self.content()
                 pass
             elif token in [L1Parser.TITLE]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 87
+                self.state = 94
                 self.title()
-                self.state = 88
+                self.state = 95
                 self.content()
                 pass
             elif token in [L1Parser.TYPE]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 90
+                self.state = 97
                 self.questiontype()
-                self.state = 91
+                self.state = 98
                 self.content()
                 pass
             elif token in [L1Parser.RANDOMIZE]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 93
+                self.state = 100
                 self.randomize()
-                self.state = 94
+                self.state = 101
                 self.content()
                 pass
             else:
@@ -813,18 +835,71 @@ class L1Parser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 98
+            self.state = 105
             self.end_answer_token()
-            self.state = 102
+            self.state = 109
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==L1Parser.NUMLIST_PREFIX or _la==L1Parser.ALL_CHARACTER:
-                self.state = 99
+                self.state = 106
                 self.end_answers_item()
-                self.state = 104
+                self.state = 111
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class Wr_answers_blockContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def wr_answer_token(self):
+            return self.getTypedRuleContext(L1Parser.Wr_answer_tokenContext,0)
+
+
+        def content(self):
+            return self.getTypedRuleContext(L1Parser.ContentContext,0)
+
+
+        def getRuleIndex(self):
+            return L1Parser.RULE_wr_answers_block
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterWr_answers_block" ):
+                listener.enterWr_answers_block(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitWr_answers_block" ):
+                listener.exitWr_answers_block(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitWr_answers_block" ):
+                return visitor.visitWr_answers_block(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+
+
+    def wr_answers_block(self):
+
+        localctx = L1Parser.Wr_answers_blockContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 22, self.RULE_wr_answers_block)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 112
+            self.wr_answer_token()
+            self.state = 113
+            self.content()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -866,11 +941,57 @@ class L1Parser ( Parser ):
     def end_answer_token(self):
 
         localctx = L1Parser.End_answer_tokenContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 22, self.RULE_end_answer_token)
+        self.enterRule(localctx, 24, self.RULE_end_answer_token)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 105
+            self.state = 115
             self.match(L1Parser.END_ANSWER)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class Wr_answer_tokenContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def WR_ANSWER(self):
+            return self.getToken(L1Parser.WR_ANSWER, 0)
+
+        def getRuleIndex(self):
+            return L1Parser.RULE_wr_answer_token
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterWr_answer_token" ):
+                listener.enterWr_answer_token(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitWr_answer_token" ):
+                listener.exitWr_answer_token(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitWr_answer_token" ):
+                return visitor.visitWr_answer_token(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+
+
+    def wr_answer_token(self):
+
+        localctx = L1Parser.Wr_answer_tokenContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 26, self.RULE_wr_answer_token)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 117
+            self.match(L1Parser.WR_ANSWER)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -917,19 +1038,19 @@ class L1Parser ( Parser ):
     def end_answers_item(self):
 
         localctx = L1Parser.End_answers_itemContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 24, self.RULE_end_answers_item)
+        self.enterRule(localctx, 28, self.RULE_end_answers_item)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 108
+            self.state = 120
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==L1Parser.ALL_CHARACTER:
-                self.state = 107
+                self.state = 119
                 self.content()
 
 
-            self.state = 110
+            self.state = 122
             self.numlist()
         except RecognitionException as re:
             localctx.exception = re
@@ -972,10 +1093,10 @@ class L1Parser ( Parser ):
     def numlist_prefix(self):
 
         localctx = L1Parser.Numlist_prefixContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_numlist_prefix)
+        self.enterRule(localctx, 30, self.RULE_numlist_prefix)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 112
+            self.state = 124
             self.match(L1Parser.NUMLIST_PREFIX)
         except RecognitionException as re:
             localctx.exception = re
@@ -1018,10 +1139,10 @@ class L1Parser ( Parser ):
     def title(self):
 
         localctx = L1Parser.TitleContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 28, self.RULE_title)
+        self.enterRule(localctx, 32, self.RULE_title)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 114
+            self.state = 126
             self.match(L1Parser.TITLE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1064,10 +1185,10 @@ class L1Parser ( Parser ):
     def points(self):
 
         localctx = L1Parser.PointsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 30, self.RULE_points)
+        self.enterRule(localctx, 34, self.RULE_points)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 116
+            self.state = 128
             self.match(L1Parser.POINTS)
         except RecognitionException as re:
             localctx.exception = re
@@ -1110,10 +1231,10 @@ class L1Parser ( Parser ):
     def questiontype(self):
 
         localctx = L1Parser.QuestiontypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 32, self.RULE_questiontype)
+        self.enterRule(localctx, 36, self.RULE_questiontype)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 118
+            self.state = 130
             self.match(L1Parser.TYPE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1156,10 +1277,10 @@ class L1Parser ( Parser ):
     def randomize(self):
 
         localctx = L1Parser.RandomizeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_randomize)
+        self.enterRule(localctx, 38, self.RULE_randomize)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 120
+            self.state = 132
             self.match(L1Parser.RANDOMIZE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1205,22 +1326,22 @@ class L1Parser ( Parser ):
     def content(self):
 
         localctx = L1Parser.ContentContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_content)
+        self.enterRule(localctx, 40, self.RULE_content)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 123 
+            self.state = 135 
             self._errHandler.sync(self)
             _alt = 1
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt == 1:
-                    self.state = 122
+                    self.state = 134
                     self.match(L1Parser.ALL_CHARACTER)
 
                 else:
                     raise NoViableAltException(self)
-                self.state = 125 
+                self.state = 137 
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,12,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
