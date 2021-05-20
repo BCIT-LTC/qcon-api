@@ -1,0 +1,22 @@
+# Ideal Standard - Multiple Choice (MC) - Qcon format - Plain - answers @ end
+
+1. Match to portuguese:
+a. Home = Casa
+b. Horse = Cavalo
+c. Please = Por favor
+d. Welcome = Bem Vindo
+
+2. Match Canada Day's:
+@ See Chapter 2, page 42.
+a. Canada Day = July 1
+b. British Columbia Day = August 5
+c. Labour Day = September 2
+d. Remembrance Day = November 11
+
+Title: Amplitude (3) [Ch. 4.1]
+3. Mach craft with the person:
+@ See Chapter 2, page 42.
+a. Michelangelo = Painting
+b. Socrates = Philosopher
+c. Alberto Santos-Dumont = Inventor
+d. Rafael Moraes = Programmer
