@@ -144,7 +144,11 @@ def L1Converter(question_library):
         
     thestring = ''
     for text in collectionofstrings:
-        thestring += text
+        # add newline because of soft return problem
+        thestring += text + '\n'
+    
+    # this is just to remove newline with no text
+    thestring = "\n".join([ll.rstrip() for ll in thestring.splitlines() if ll.strip()])
 
     return thestring
 
