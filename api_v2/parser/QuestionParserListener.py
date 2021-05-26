@@ -14,8 +14,6 @@ if __name__ is not None and "." in __name__:
 else:
     from QuestionParser import QuestionParser
 
-
-
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
@@ -726,6 +724,12 @@ class QuestionParserListener(ParseTreeListener):
                                       \n\t Right answer allowed : 1 \
                                       \n\t Right answer found   : {question.correct_answers_length}"
                     logger.error(error_message)
+
+                    from api_v2.models import ErrorType
+                    error_type = ErrorType.objects.get(type="MC1")
+                    from api_v2.models import QuestionError
+                    new_error = QuestionError(question=question, type=error_type, message=error_message, action="FIX MC")
+                    new_error.save()
 
 
             elif question.question_type == 'TF':
