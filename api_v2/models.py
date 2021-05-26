@@ -365,7 +365,25 @@ class Fib(models.Model):
                                  on_delete=models.CASCADE)
     type = models.CharField(max_length=7, null=False)
     text = models.TextField(blank=True, null=True)
-    order = models.PositiveSmallIntegerField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True) 
+
+
+class ErrorType(models.Model):
+    type = models.CharField(max_length=7, primary_key=True)
+    link = models.TextField(max_length=12, null=False)
+
+    def __str__(self):
+        return str(self.type)
+
+class QuestionError(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.RESTRICT)
+    type = models.ForeignKey(ErrorType, on_delete=models.RESTRICT)
+    message = models.TextField(max_length=50)
+    action = models.TextField(max_length=50)
+
+    def __str__(self):
+        return str(self.id)
 
 
 class CustomToken(Token):
