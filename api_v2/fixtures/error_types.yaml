@@ -1,0 +1,10 @@
+- model: api_v2.ErrorType
+  pk: 1
+  fields:
+    type: MC1
+    link: qcon.ltc.bcit.ca/faq#mc1
+- model: api_v2.ErrorType
+  pk: 2
+  fields:
+    type: TF1
+    link: qcon.ltc.bcit.ca/faq#tf1
