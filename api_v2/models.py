@@ -99,15 +99,14 @@ class QuestionLibrary(models.Model):
 # Prevents illegal characters for the filename
 
     def filter_section_name(self):
-
+        section_name = self.section_name.strip()
+        section_name = section_name.lower()
         filtered_section_name = re.sub(
-            r"<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "_",
-            self.section_name)
+            r"\s+|<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "-", section_name)
 
         # Limit the filename to 30 characters
         filtered_section_name = (
-            filtered_section_name[:50] +
-            '_') if len(filtered_section_name) > 50 else filtered_section_name
+            filtered_section_name[:50]) if len(filtered_section_name) > 50 else filtered_section_name
 
         self.filtered_section_name = filtered_section_name
 
@@ -125,7 +124,7 @@ class QuestionLibrary(models.Model):
                 to=
                 'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
                 extra_args=[
-                    '--extract-media=' + self.folder_path, '--no-highlight',
+                    '--extract-media=' + self.image_path, '--no-highlight',
                     '--self-contained', '--atx-headers', '--preserve-tabs',
                     '--wrap=preserve', '--indent=false'
                 ])
@@ -217,7 +216,7 @@ class QuestionLibrary(models.Model):
             for idx, img in enumerate(img_elements):
                 element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
                 new_img = '<img src="{0}" alt="{1}" />'.format(
-                    './media/' + basename(element[0]), basename(element[0]))
+                    'assessment-assets/' + self.filtered_section_name + '/' + basename(element[0]), basename(element[0]))
                 questiondb_string = questiondb_string.replace(
                     img_elements[idx], new_img)
 
@@ -259,8 +258,6 @@ class QuestionLibrary(models.Model):
 
     def zip_files(self):
 
-        self.filter_section_name()
-
         try:
             with ZipFile(
                     self.folder_path + "/" + self.filtered_section_name +
@@ -270,7 +267,7 @@ class QuestionLibrary(models.Model):
                 for root, dirs, files in walk(self.image_path):
                     for filename in files:
                         myzip.write(path.join(root, filename),
-                                    '/media/' + filename)
+                                    '/assessment-assets/' + self.filtered_section_name + '/' + filename)
 
             self.zip_file.name = str(
                 self.transaction) + "/" + self.filtered_section_name + '.zip'

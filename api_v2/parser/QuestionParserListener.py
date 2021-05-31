@@ -218,6 +218,7 @@ class QuestionParserListener(ParseTreeListener):
         section_name = self.trim_text(section_name)
         self.question_library.section_name = section_name
         self.question_library.save()
+        self.question_library.filter_section_name()
         pass
 
     # Enter a parse tree produced by QuestionParser#question.
