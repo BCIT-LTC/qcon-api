@@ -1,10 +1,20 @@
 - model: api_v2.ErrorType
   pk: 1
   fields:
-    type: MC1
+    errortype: MC1
     link: qcon.ltc.bcit.ca/faq#mc1
 - model: api_v2.ErrorType
   pk: 2
   fields:
-    type: TF1
+    errortype: TF1
     link: qcon.ltc.bcit.ca/faq#tf1
+- model: api_v2.ErrorType
+  pk: 3
+  fields:
+    errortype: TF2
+    link: qcon.ltc.bcit.ca/faq#tf2
+- model: api_v2.ErrorType
+  pk: 4
+  fields:
+    errortype: TF3
+    link: qcon.ltc.bcit.ca/faq#tf3
