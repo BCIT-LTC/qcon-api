@@ -9,10 +9,6 @@ echo "--------------------------------------------------------------------------
 python manage.py migrate
 echo "-------------------------------------------------------------------------------------------\n"
 
-# >&2 echo "Run fixtures"
-# python manage.py loaddata error_types
-# echo "-------------------------------------------------------------------------------------------\n"
-
 #Collect static files
 >&2 echo "Collect static"
 python manage.py collectstatic --noinput
