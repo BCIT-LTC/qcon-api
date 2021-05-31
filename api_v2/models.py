@@ -21,8 +21,9 @@ from django.core.files.base import ContentFile
 # from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
+from enum import Enum
 # from django.conf import settings
-# from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -165,6 +166,7 @@ class QuestionLibrary(models.Model):
             self.transaction.save()
             RunConversion_Logger.info("[" + str(self.transaction) + "] " +
                                       "Parser Finished")
+            # TODO COUNT NUMBER OF QUESTION ERRORS
         except:
             RunConversion_Logger.error("[" + str(self.transaction) + "] " +
                                        "Parser Failed")
@@ -328,7 +330,8 @@ class Question(models.Model):
     correct_answers_length = models.PositiveBigIntegerField(blank=True,
                                                             null=True,
                                                             default=0)
-    error = models.TextField(blank=True, null=True)
+
+    # error = models.TextField(blank=True, null=True)
 
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
@@ -379,10 +382,22 @@ class Fib(models.Model):
 #         return str(self.errortype)
 
 
+class ErrorType(str, Enum):  # A subclass of Enum
+    MC1 = "MC1"
+    TF1 = "TF1"
+    TF2 = "TF2"
+    TF3 = "TF3"
+
 class QuestionError(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete=models.RESTRICT)
-    type = models.ForeignKey(ErrorType, on_delete=models.RESTRICT)
+    question = models.ForeignKey(Question,
+                                 related_name='questionerrors',
+                                 on_delete=models.CASCADE)
+    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
+    errortype = models.TextField(max_length=50,
+                                 choices=[
+                                     (tag, tag.value) for tag in ErrorType
+                                 ])  # Choices is a list of Tuple)
     message = models.TextField(max_length=50)
     action = models.TextField(max_length=50)
 
@@ -394,7 +409,6 @@ class CustomToken(Token):
     """
     The extended authorization token model to support tokens generated from external sources
     """
-
     def save(self, *args, **kwargs):
         # print(self.user)
         # print(self.key)
