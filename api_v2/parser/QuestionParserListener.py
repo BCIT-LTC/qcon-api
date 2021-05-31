@@ -15,7 +15,7 @@ else:
     from QuestionParser import QuestionParser
 
 
-from .ErrorHandler import HandlerQuestionError
+from api_v2.ErrorHandler import HandleQuestionError
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
@@ -730,7 +730,7 @@ class QuestionParserListener(ParseTreeListener):
 
                
                     # HandlerQuestionError(self, question, "MC1", error_message, "FIX MC")
-                    HandlerQuestionError(self, question, QuestionErrorType.MC1, error_message, "FIX MC")
+                    HandleQuestionError(self, question, QuestionErrorType.MC1, error_message, "FIX MC")
 
             elif question.question_type == 'TF':
                 if self.is_true_false(question) == True:
@@ -754,19 +754,19 @@ class QuestionParserListener(ParseTreeListener):
                         error_message = "\n\t There must be two answer items."
                         
                         # HandlerQuestionError(self, question, "TF1", error_message, "FIX TF1")
-                        HandlerQuestionError(self, question, QuestionErrorType.TF1, error_message, "FIX TF1")
+                        HandleQuestionError(self, question, QuestionErrorType.TF1, error_message, "FIX TF1")
                         
                     if is_true_exist == False:
                         error_message = "\n\t One of the answer item must only consist of the word 'True'."
 
                         # HandlerQuestionError(self, question, "TF2", error_message, "FIX TF2")
-                        HandlerQuestionError(self, question, QuestionErrorType.TF2, error_message, "FIX TF2")
+                        HandleQuestionError(self, question, QuestionErrorType.TF2, error_message, "FIX TF2")
 
                     if is_false_exist == False:
                         error_message = "\n\t One of the answer item must only consist of the word 'False'."
                         
                         # HandlerQuestionError(self, question, "TF3", error_message, "FIX TF3")
-                        HandlerQuestionError(self, question, QuestionErrorType.TF3, error_message, "FIX TF3")
+                        HandleQuestionError(self, question, QuestionErrorType.TF3, error_message, "FIX TF3")
                         
                     logger.error(error_message)
 
