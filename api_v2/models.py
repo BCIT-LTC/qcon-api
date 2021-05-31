@@ -404,6 +404,25 @@ class QuestionError(models.Model):
     def __str__(self):
         return str(self.id)
 
+class DocumentErrorType(str, Enum):  # A subclass of Enum
+    SPLITTER1 = "SPLITTER1"
+    SPLITTER2 = "SPLITTER2"
+
+class DocumentError(models.Model):
+    id = models.AutoField(primary_key=True)
+    document = models.ForeignKey(QuestionLibrary,
+                                 related_name='documenterrors',
+                                 on_delete=models.CASCADE)
+    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
+    errortype = models.TextField(max_length=50,
+                                 choices=[
+                                     (tag, tag.value) for tag in DocumentErrorType
+                                 ])  # Choices is a list of Tuple)
+    message = models.TextField(max_length=50)
+    action = models.TextField(max_length=50)
+
+    def __str__(self):
+        return str(self.id)
 
 class CustomToken(Token):
     """
