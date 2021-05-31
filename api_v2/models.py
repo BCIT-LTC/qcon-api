@@ -368,12 +368,13 @@ class Fib(models.Model):
     order = models.PositiveSmallIntegerField(blank=True, null=True) 
 
 
-class ErrorType(models.Model):
-    type = models.CharField(max_length=7, primary_key=True)
-    link = models.TextField(max_length=12, null=False)
+# class ErrorType(models.Model):
+#     errortype = models.CharField(max_length=7, primary_key=True)
+#     link = models.TextField(max_length=12, null=False)
 
-    def __str__(self):
-        return str(self.type)
+#     def __str__(self):
+#         return str(self.errortype)
+
 
 class QuestionError(models.Model):
     id = models.AutoField(primary_key=True)
