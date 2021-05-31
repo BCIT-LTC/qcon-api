@@ -379,7 +379,7 @@ class Fib(models.Model):
 #         return str(self.errortype)
 
 
-class ErrorType(str, Enum):  # A subclass of Enum
+class QuestionErrorType(str, Enum):  # A subclass of Enum
     MC1 = "MC1"
     TF1 = "TF1"
     TF2 = "TF2"
@@ -393,7 +393,7 @@ class QuestionError(models.Model):
     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
     errortype = models.TextField(max_length=50,
                                  choices=[
-                                     (tag, tag.value) for tag in ErrorType
+                                     (tag, tag.value) for tag in QuestionErrorType
                                  ])  # Choices is a list of Tuple)
     message = models.TextField(max_length=50)
     action = models.TextField(max_length=50)
