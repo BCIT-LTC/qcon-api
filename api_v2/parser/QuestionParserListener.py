@@ -699,6 +699,12 @@ class QuestionParserListener(ParseTreeListener):
         html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
         soup_text = BeautifulSoup(html_text, "html.parser")
         soup_text_math = soup_text.find_all("span", {"class": "math"})
+        soup_text_img = soup_text.find_all("img")
+
+        if len(soup_text_img) > 0:
+            for tag in soup_text_img:
+                for attribute in ["class", "id", "title", "style", "alt"]:
+                    del tag[attribute]
 
         if len(soup_text_math) > 0:
             for span_math in soup_text_math:
