@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import QuestionLibrary, Transaction, Question, Answer, Fib
+from .models import QuestionLibrary, Transaction, Question, Answer, Fib, QuestionError
 from django.conf import settings
 # from django_q.tasks import async_task
-
+import json
 
 def validate_file(value):
     if value.name.split(".")[1] != "docx":
@@ -233,17 +233,42 @@ class AnswerSerializer(serializers.ModelSerializer):
             'match_left', 'match_right', 'order'
         ]
 
+# class ErrorTypeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ErrorType
+#         fields = [
+#             'errortype', 'link'
+#         ]
+
+# class EnumEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if type(obj) in PUBLIC_ENUMS.values():
+#             return {"__enum__": str(obj)}
+#         return json.JSONEncoder.default(self, obj)
+
+class QuestionErrorSerializer(serializers.ModelSerializer):
+    # errortypes = ErrorTypeSerializer(many=True, read_only=True)
+
+    # errortype = EnumEncoder
+
+    class Meta:
+        model = QuestionError
+        fields = [
+            'message', 'action', 'errortype'
+        ]
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
     fib = FibSerializer(many=True, read_only=True)
+    questionerrors = QuestionErrorSerializer(many=True, read_only=True)
 
     class Meta:
         model = Question
         fields = [
             'prefix', 'title', 'points', 'randomize_answer', 'question_type',
             'question_body', 'question_feedback', 'hint',
-            'correct_answers_length', 'error', 'answers', 'fib'
+            'correct_answers_length', 'questionerrors', 'answers', 'fib'
         ]
 
 

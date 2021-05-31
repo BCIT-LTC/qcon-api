@@ -14,6 +14,8 @@ if __name__ is not None and "." in __name__:
 else:
     from QuestionParser import QuestionParser
 
+
+from .ErrorHandler import HandlerQuestionError
 # This class defines a complete listener for a parse tree produced by QuestionParser.
 class QuestionParserListener(ParseTreeListener):
     def __init__(self, question_library):
@@ -728,6 +730,7 @@ class QuestionParserListener(ParseTreeListener):
         return html_text
 
     def process_question(self, question):
+        from api_v2.models import ErrorType        
         logger = logging.getLogger('api_v2.QuestionParserListener.process_question')
         if question.question_type != None:
             if question.question_type == 'MC':
@@ -740,12 +743,9 @@ class QuestionParserListener(ParseTreeListener):
                                       \n\t Right answer found   : {question.correct_answers_length}"
                     logger.error(error_message)
 
-                    from api_v2.models import ErrorType
-                    error_type = ErrorType.objects.get(type="MC1")
-                    from api_v2.models import QuestionError
-                    new_error = QuestionError(question=question, type=error_type, message=error_message, action="FIX MC")
-                    new_error.save()
-
+               
+                    # HandlerQuestionError(self, question, "MC1", error_message, "FIX MC")
+                    HandlerQuestionError(self, question, ErrorType.MC1, error_message, "FIX MC")
 
             elif question.question_type == 'TF':
                 if self.is_true_false(question) == True:
@@ -764,13 +764,25 @@ class QuestionParserListener(ParseTreeListener):
                                 is_false_exist = True
 
                     error_message = f"\n302, Question {question.prefix} format doesn't match True/False type format."
+
                     if answers_length != 2:
-                        error_message += "\n\t There must be two answer items."
-                    
+                        error_message = "\n\t There must be two answer items."
+                        
+                        # HandlerQuestionError(self, question, "TF1", error_message, "FIX TF1")
+                        HandlerQuestionError(self, question, ErrorType.TF1, error_message, "FIX TF1")
+                        
                     if is_true_exist == False:
-                        error_message += "\n\t One of the answer item must only consist of the word 'True'."
+                        error_message = "\n\t One of the answer item must only consist of the word 'True'."
+
+                        # HandlerQuestionError(self, question, "TF2", error_message, "FIX TF2")
+                        HandlerQuestionError(self, question, ErrorType.TF2, error_message, "FIX TF2")
+
                     if is_false_exist == False:
-                        error_message += "\n\t One of the answer item must only consist of the word 'False'."
+                        error_message = "\n\t One of the answer item must only consist of the word 'False'."
+                        
+                        # HandlerQuestionError(self, question, "TF3", error_message, "FIX TF3")
+                        HandlerQuestionError(self, question, ErrorType.TF3, error_message, "FIX TF3")
+                        
                     logger.error(error_message)
 
 
