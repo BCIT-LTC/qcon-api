@@ -385,7 +385,21 @@ class QuestionErrorType(str, Enum):  # A subclass of Enum
     TF1 = "TF1"
     TF2 = "TF2"
     TF3 = "TF3"
-
+    TF4 = "TF4"
+    MS1 = "MS1"
+    MT1 = "MT1"
+    MT2 = "MT2"
+    MT3 = "MT3"
+    ORD1 = "ORD1"
+    ORD2 = "ORD2"
+    ORD3 = "ORD3"
+    FIB1 = "FIB1"
+    FIB2 = "FIB2"
+    WR1 = "WR1"
+    HEADER1 = "HEADER1"
+    HEADER2 = "HEADER2"
+    HEADER3 = "HEADER3"
+    END1 = "END1"
 
 class QuestionError(models.Model):
     id = models.AutoField(primary_key=True)

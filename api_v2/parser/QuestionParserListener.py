@@ -356,6 +356,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#points.
     def exitPoints(self, ctx:QuestionParser.PointsContext):
+        from api_v2.models import QuestionErrorType   
         points = self.trim_text(ctx.getText()).split(":")[1]
         points = self.markdown_to_plain(points)
         points = self.trim_text(points)
@@ -368,6 +369,7 @@ class QuestionParserListener(ParseTreeListener):
                 logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
                 error_message = f"\n310, Points must be greater than 0 and less than or equal to 9,999. \
                               \n\t Points is now set to default 1.0 instead of {points}."
+                HandleQuestionError(self.question, QuestionErrorType.HEADER1, error_message, "FIX HEADER1")
                 logger.error(error_message)
             
         except ValueError:
@@ -375,6 +377,7 @@ class QuestionParserListener(ParseTreeListener):
             logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
             error_message = f"\n310, Points must be in a decimal format. \
                               \n\t Points is now set to default 1.0 instead of {points}."
+            HandleQuestionError(self.question, QuestionErrorType.HEADER2, error_message, "FIX HEADER2")
             logger.error(error_message)
 
         self.question.save()
@@ -636,6 +639,7 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#end_answers.
     def exitEnd_answers(self, ctx:QuestionParser.End_answersContext):
+        from api_v2.models import QuestionErrorType 
         if len(self.questions) == len(ctx.end_answers_item()) :
             self.end_answers = []
             # print("\n--------------------------END ANSWERS-------------------------------")
@@ -667,6 +671,7 @@ class QuestionParserListener(ParseTreeListener):
             error_message = f"\n301, Total number of questions doesn't match total answer key. \
                               \n\t Total Questions  : {len(self.questions)} \
                               \n\t Total Answer Key : {len(ctx.end_answers_item())}"
+            HandleQuestionError(self.question, QuestionErrorType.END1, error_message, "FIX END1")
             logger.error(error_message)
         pass
 
@@ -727,10 +732,8 @@ class QuestionParserListener(ParseTreeListener):
                                       \n\t Right answer allowed : 1 \
                                       \n\t Right answer found   : {question.correct_answers_length}"
                     logger.error(error_message)
-
                
-                    # HandlerQuestionError(self, question, "MC1", error_message, "FIX MC")
-                    HandleQuestionError(question, QuestionErrorType.MC1, error_message, "FIX MC")
+                    HandleQuestionError(question, QuestionErrorType.MC1, error_message, "FIX MC1")
 
             elif question.question_type == 'TF':
                 if self.is_true_false(question) == True:
@@ -749,26 +752,21 @@ class QuestionParserListener(ParseTreeListener):
                                 is_false_exist = True
 
                     error_message = f"\n302, Question {question.prefix} format doesn't match True/False type format."
+                    HandleQuestionError(question, QuestionErrorType.TF1, error_message, "FIX TF1")
+                    logger.error(error_message)
 
                     if answers_length != 2:
-                        error_message = "\n\t There must be two answer items."
-                        
-                        # HandlerQuestionError(self, question, "TF1", error_message, "FIX TF1")
-                        HandleQuestionError(question, QuestionErrorType.TF1, error_message, "FIX TF1")
-                        
+                        error_message = "\n\t There must be two answer items."                        
+                        HandleQuestionError(question, QuestionErrorType.TF2, error_message, "FIX TF2")
+                        logger.error(error_message)
                     if is_true_exist == False:
                         error_message = "\n\t One of the answer item must only consist of the word 'True'."
-
-                        # HandlerQuestionError(self, question, "TF2", error_message, "FIX TF2")
-                        HandleQuestionError(question, QuestionErrorType.TF2, error_message, "FIX TF2")
-
-                    if is_false_exist == False:
-                        error_message = "\n\t One of the answer item must only consist of the word 'False'."
-                        
-                        # HandlerQuestionError(self, question, "TF3", error_message, "FIX TF3")
                         HandleQuestionError(question, QuestionErrorType.TF3, error_message, "FIX TF3")
-                        
-                    logger.error(error_message)
+                        logger.error(error_message)
+                    if is_false_exist == False:
+                        error_message = "\n\t One of the answer item must only consist of the word 'False'."                                                
+                        HandleQuestionError(question, QuestionErrorType.TF4, error_message, "FIX TF4")                        
+                        logger.error(error_message)
 
 
             elif question.question_type == 'MS':
@@ -780,6 +778,7 @@ class QuestionParserListener(ParseTreeListener):
                     error_message = f"\n302, Question {question.prefix} format doesn't match Multi-Select type format. \
                                       \n\t Minimum answer item needed : 1 \
                                       \n\t Answer item found          : {answers_length}"
+                    HandleQuestionError(question, QuestionErrorType.MS1, error_message, "FIX MS")
                     logger.error(error_message)
 
 
@@ -798,13 +797,17 @@ class QuestionParserListener(ParseTreeListener):
                                 if answer.answer_body.count("=") > 1:
                                     is_one_equal_sign = False
                     error_message = f"\n302, Question {question.prefix} format doesn't match Matching type format."
+                    HandleQuestionError(question, QuestionErrorType.MT1, error_message, "FIX MT1")
+                    logger.error(error_message)
                     if count_equal_sign < len(question.get_answers()):
                         missing_count = len(question.get_answers()) - count_equal_sign
-                        error_message += f"\n\t Answer list is missing {missing_count} '=' separator."
+                        error_message = f"\n\t Answer list is missing {missing_count} '=' separator."
+                        HandleQuestionError(question, QuestionErrorType.MT2, error_message, "FIX MT2")
+                        logger.error(error_message)
                     if is_one_equal_sign == False:
-                        error_message += "\n\t More than one '=' separator was found on the answer list."
-                    logger.error(error_message)
-
+                        error_message = "\n\t More than one '=' separator was found on the answer list."
+                        HandleQuestionError(question, QuestionErrorType.MT3, error_message, "FIX MT3")
+                        logger.error(error_message)
 
             elif question.question_type == 'ORD':
                 if self.is_ordering(question) == True:
@@ -813,12 +816,17 @@ class QuestionParserListener(ParseTreeListener):
                 else:
                     answers_length = len(question.get_answers())
                     error_message = f"\n302, Question {question.prefix} format doesn't match Ordering type format."
-                    if answers_length <=1:
-                        error_message += f"\n\t Minimum answer item needed : 2 \
-                                           \n\t Answer item found          : {answers_length}"
-                    if question.correct_answers_length != None:
-                         error_message += "\n\t Answer item shouldn't start with a '*' symbol."
+                    HandleQuestionError(question, QuestionErrorType.ORD1, error_message, "FIX ORD1")
                     logger.error(error_message)
+                    if answers_length <=1:
+                        error_message = f"\n\t Minimum answer item needed : 2 \
+                                           \n\t Answer item found          : {answers_length}"
+                        HandleQuestionError(question, QuestionErrorType.ORD2, error_message, "FIX ORD2")
+                        logger.error(error_message)
+                    if question.correct_answers_length != None:
+                        error_message = "\n\t Answer item shouldn't start with a '*' symbol."
+                        HandleQuestionError(question, QuestionErrorType.ORD3, error_message, "FIX ORD3")
+                        logger.error(error_message)
 
 
             elif question.question_type == 'FIB':
@@ -829,9 +837,12 @@ class QuestionParserListener(ParseTreeListener):
                     question_fib_length = len(re.findall(r"\[(.*?)\]", question.question_body))
                     answers_length = len(question.get_fib_answers())
                     error_message = f"\n302, Question {question.prefix} format doesn't match Fill In the Blanks type format."
+                    HandleQuestionError(question, QuestionErrorType.FIB1, error_message, "FIX FIB1")
+                    logger.error(error_message)
                     if question_fib_length != answers_length:
                         error_message = "\n\tPlease check your question format or email us at courseproduction@bcit.ca."
-                    logger.error(error_message)
+                        HandleQuestionError(question, QuestionErrorType.FIB2, error_message, "FIX FIB2")
+                        logger.error(error_message)
                 pass
 
 
@@ -840,6 +851,7 @@ class QuestionParserListener(ParseTreeListener):
                 pass
             else:
                 error_message = f"\n304, Question {question.prefix} doesn't match any type of questions."
+                HandleQuestionError(question, QuestionErrorType.WR1, error_message, "FIX WR1")
                 logger.error(error_message)
                 pass
         else:
@@ -880,6 +892,7 @@ class QuestionParserListener(ParseTreeListener):
                 question.randomize_answer = False
             else:
                 error_message = f"\n303, Type {question.question_type} doesn't exist for Question {question.prefix}."
+                HandleQuestionError(question, QuestionErrorType.HEADER3, error_message, "FIX HEADER3")
                 logger.error(error_message)
             question.save()
 
