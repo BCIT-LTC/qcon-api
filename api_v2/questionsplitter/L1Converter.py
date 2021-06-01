@@ -39,9 +39,6 @@ def L1Converter(question_library):
                             DocumentErrorType.SPLITTER1, error_message,
                             "FIX SPlitter 1")
 
-        question_library.error = error_message
-        question_library.save()
-
     # Populate L1
     # Normalize array and grab indentations
     listofL1Elements = []
@@ -78,7 +75,7 @@ def L1Converter(question_library):
     questions_separated, number_of_questions = question_separate(
         listofL1Elements, 0, 0)
 
-    # Check if number of questions is equal to higher index value found
+    # ===============================  Check if number of questions is equal to higher index value found  ===========================
 
     highest_numbered_index = 0
     for element in questions_separated:
@@ -86,22 +83,17 @@ def L1Converter(question_library):
             if int(element.prefix) > int(highest_numbered_index):
                 highest_numbered_index = element.prefix
     # print("questions detected: " + str(number_of_questions) + " expected: " + str(highest_numbered_index))
-
     if int(number_of_questions) != int(highest_numbered_index):
         L1Converter_Logger.error("Detected: " + str(number_of_questions) +
                                  " Expected: " + str(highest_numbered_index))
+        
         error_message = "Detected: " + str(
             number_of_questions) + " Expected: " + str(highest_numbered_index)
-
-        question_library.error = error_message
-
         HandleDocumentError(question_library,
                             DocumentErrorType.SPLITTER2, error_message,
                             "FIX Splitter 2")
-
-        question_library.save()
-
-    # Split AnswerBlock by marking beginning of it
+        return ""
+    # ===============================  Split AnswerBlock by marking beginning of it  ==================================================
 
     ending_found = True
     for i in range(len(questions_separated) - 1, 0, -1):
