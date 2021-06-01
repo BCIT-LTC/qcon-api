@@ -233,30 +233,19 @@ class AnswerSerializer(serializers.ModelSerializer):
             'match_left', 'match_right', 'order'
         ]
 
-# class ErrorTypeSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ErrorType
-#         fields = [
-#             'errortype', 'link'
-#         ]
-
-# class EnumEncoder(json.JSONEncoder):
-#     def default(self, obj):
-#         if type(obj) in PUBLIC_ENUMS.values():
-#             return {"__enum__": str(obj)}
-#         return json.JSONEncoder.default(self, obj)
-
 class QuestionErrorSerializer(serializers.ModelSerializer):
-    # errortypes = ErrorTypeSerializer(many=True, read_only=True)
-
-    # errortype = EnumEncoder
-
     class Meta:
         model = QuestionError
         fields = [
             'message', 'action', 'errortype'
         ]
 
+class DocumentErrorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionError
+        fields = [
+            'message', 'action', 'errortype'
+        ]
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
@@ -277,4 +266,4 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionLibrary
-        fields = ['section_name', 'randomize_answer', 'error', 'questions']
+        fields = ['section_name', 'randomize_answer', 'documenterrors', 'questions']
