@@ -11,9 +11,11 @@ import pypandoc
 import re
 import logging
 L1Converter_Logger = logging.getLogger('api_v2.questionsplitter.L1Converter')
+from api_v2.ErrorHandler import HandleDocumentError
 
 
 def L1Converter(question_library):
+    from api_v2.models import DocumentErrorType
     try:
         input = InputStream(question_library.pandoc_string)
         lexer = L1Lexer(input)
@@ -31,7 +33,13 @@ def L1Converter(question_library):
         L1Converter_Logger.error("[" + str(question_library.transaction.id) +
                                  "]" +
                                  "ANTLR LEXER failed and cannot continue")
-        question_library.error = "Error Splitting the questions"
+
+        error_message = "Error Splitting the questions"
+        HandleDocumentError(question_library, question_library,
+                            DocumentErrorType.SPLITTER1, error_message,
+                            "FIX SPlitter 1")
+
+        question_library.error = error_message
         question_library.save()
 
     # Populate L1
@@ -82,8 +90,15 @@ def L1Converter(question_library):
     if int(number_of_questions) != int(highest_numbered_index):
         L1Converter_Logger.error("Detected: " + str(number_of_questions) +
                                  " Expected: " + str(highest_numbered_index))
-        question_library.error = "Detected: " + str(
+        error_message = "Detected: " + str(
             number_of_questions) + " Expected: " + str(highest_numbered_index)
+
+        question_library.error = error_message
+
+        HandleDocumentError(question_library,
+                            DocumentErrorType.SPLITTER2, error_message,
+                            "FIX Splitter 2")
+
         question_library.save()
 
     # Split AnswerBlock by marking beginning of it
@@ -141,14 +156,15 @@ def L1Converter(question_library):
                 collectionofstrings.append('##########_WR_ANSWER_##########\n')
             else:
                 collectionofstrings.append(questions_separated[i].content)
-        
+
     thestring = ''
     for text in collectionofstrings:
         # add newline because of soft return problem
         thestring += text + '\n'
-    
+
     # this is just to remove newline with no text
-    thestring = "\n".join([ll.rstrip() for ll in thestring.splitlines() if ll.strip()])
+    thestring = "\n".join(
+        [ll.rstrip() for ll in thestring.splitlines() if ll.strip()])
 
     return thestring
 

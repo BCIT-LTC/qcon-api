@@ -1,4 +1,4 @@
-def HandleQuestionError(self, question, errortype, error_message, action):
+def HandleQuestionError(question, errortype, error_message, action):
     try:    
        
         from api_v2.models import QuestionError
@@ -10,7 +10,7 @@ def HandleQuestionError(self, question, errortype, error_message, action):
 
     return None
 
-def HandleDocumentError(self, document, errortype, error_message, action):
+def HandleDocumentError(document, errortype, error_message, action):
     try:    
 
         from api_v2.models import DocumentError
