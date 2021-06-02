@@ -124,7 +124,7 @@ class QuestionLibrary(models.Model):
                 to=
                 'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
                 extra_args=[
-                    '--extract-media=' + self.image_path, '--no-highlight',
+                    '--extract-media=' + self.folder_path, '--no-highlight',
                     '--self-contained', '--atx-headers', '--preserve-tabs',
                     '--wrap=preserve', '--indent=false'
                 ])

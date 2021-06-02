@@ -35,7 +35,7 @@ class UploadSerializer(serializers.Serializer):
 
         newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/assessment-assets/' + newconversion.filtered_section_name + '/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
         # async_task('api_v2.tasks.runconversion', newconversion)
@@ -73,7 +73,7 @@ class WordToZipSerializer(serializers.Serializer):
         newconversion.filter_section_name()
         newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/assessment-assets/' + newconversion.filtered_section_name + '/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
@@ -127,7 +127,7 @@ class WordToJsonZipSerializer(serializers.Serializer):
         newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
         # This might be replaced if User enter section name on the form or have H1 inside the document
-        newconversion.image_path = newconversion.folder_path + '/assessment-assets/' + newconversion.filtered_section_name + '/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
@@ -175,7 +175,7 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.filter_section_name()
         newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/assessment-assets/' + newconversion.filtered_section_name + '/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
