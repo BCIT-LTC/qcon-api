@@ -703,9 +703,14 @@ class QuestionParserListener(ParseTreeListener):
         soup_text_img = soup_text.find_all("img")
 
         if len(soup_text_img) > 0:
-            for tag in soup_text_img:
+            for img in soup_text_img:
                 for attribute in ["class", "id", "title", "style", "alt"]:
-                    del tag[attribute]
+                    del img[attribute]
+                image_source = img['src']
+                src_re_pattern = r"^\/code\/temp\/\d+\/media\/(.*)"
+                image_filename = re.search(src_re_pattern, image_source).group(1)
+                new_src = 'assessment-assets/' + self.question_library.filtered_section_name + '/' + image_filename
+                img['src'] = new_src
 
         if len(soup_text_math) > 0:
             for span_math in soup_text_math:
