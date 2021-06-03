@@ -77,7 +77,8 @@ question_body
     ;
     
 content
-    :   MEDIA                                                           # Media
+    :   IMAGE_TAG                                                       # ImageTag
+    |   MEDIA                                                           # Media
     |   HYPERLINK                                                       # Hyperlink
     |   ESCAPED_OPEN_BRACKET ALL_CHARACTER+ ESCAPED_CLOSE_BRACKET       # FibAnswer
     |   ALL_CHARACTER+                                                  # ContentCharacters

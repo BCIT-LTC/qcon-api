@@ -11,8 +11,8 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\35")
-        buf.write("\u01ff\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\36")
+        buf.write("\u0200\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
         buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\3\2\5\2.\n\2\3\2\7\2\61")
@@ -53,28 +53,28 @@ def serializedATN():
         buf.write("\n\6\3\6\5\6\u018f\n\6\5\6\u0191\n\6\3\7\3\7\3\7\3\7\3")
         buf.write("\7\3\7\3\7\3\7\5\7\u019b\n\7\3\b\3\b\3\t\3\t\3\n\3\n\5")
         buf.write("\n\u01a3\n\n\3\13\6\13\u01a6\n\13\r\13\16\13\u01a7\3\13")
-        buf.write("\5\13\u01ab\n\13\3\f\3\f\3\f\3\f\6\f\u01b1\n\f\r\f\16")
-        buf.write("\f\u01b2\3\f\3\f\6\f\u01b7\n\f\r\f\16\f\u01b8\5\f\u01bb")
-        buf.write("\n\f\3\r\3\r\6\r\u01bf\n\r\r\r\16\r\u01c0\3\16\3\16\6")
-        buf.write("\16\u01c5\n\16\r\16\16\16\u01c6\3\16\3\16\3\16\6\16\u01cc")
-        buf.write("\n\16\r\16\16\16\u01cd\5\16\u01d0\n\16\3\17\3\17\6\17")
-        buf.write("\u01d4\n\17\r\17\16\17\u01d5\3\17\5\17\u01d9\n\17\3\20")
-        buf.write("\3\20\3\21\3\21\6\21\u01df\n\21\r\21\16\21\u01e0\3\21")
-        buf.write("\5\21\u01e4\n\21\3\22\3\22\3\23\3\23\6\23\u01ea\n\23\r")
-        buf.write("\23\16\23\u01eb\3\24\3\24\6\24\u01f0\n\24\r\24\16\24\u01f1")
-        buf.write("\3\25\3\25\6\25\u01f6\n\25\r\25\16\25\u01f7\3\25\5\25")
-        buf.write("\u01fb\n\25\3\26\3\26\3\26\2\2\27\2\4\6\b\n\f\16\20\22")
-        buf.write("\24\26\30\32\34\36 \"$&(*\2\2\2\u0285\2-\3\2\2\2\4:\3")
+        buf.write("\5\13\u01ab\n\13\3\f\3\f\3\f\3\f\3\f\6\f\u01b2\n\f\r\f")
+        buf.write("\16\f\u01b3\3\f\3\f\6\f\u01b8\n\f\r\f\16\f\u01b9\5\f\u01bc")
+        buf.write("\n\f\3\r\3\r\6\r\u01c0\n\r\r\r\16\r\u01c1\3\16\3\16\6")
+        buf.write("\16\u01c6\n\16\r\16\16\16\u01c7\3\16\3\16\3\16\6\16\u01cd")
+        buf.write("\n\16\r\16\16\16\u01ce\5\16\u01d1\n\16\3\17\3\17\6\17")
+        buf.write("\u01d5\n\17\r\17\16\17\u01d6\3\17\5\17\u01da\n\17\3\20")
+        buf.write("\3\20\3\21\3\21\6\21\u01e0\n\21\r\21\16\21\u01e1\3\21")
+        buf.write("\5\21\u01e5\n\21\3\22\3\22\3\23\3\23\6\23\u01eb\n\23\r")
+        buf.write("\23\16\23\u01ec\3\24\3\24\6\24\u01f1\n\24\r\24\16\24\u01f2")
+        buf.write("\3\25\3\25\6\25\u01f7\n\25\r\25\16\25\u01f8\3\25\5\25")
+        buf.write("\u01fc\n\25\3\26\3\26\3\26\2\2\27\2\4\6\b\n\f\16\20\22")
+        buf.write("\24\26\30\32\34\36 \"$&(*\2\2\2\u0287\2-\3\2\2\2\4:\3")
         buf.write("\2\2\2\6T\3\2\2\2\bV\3\2\2\2\n\u0190\3\2\2\2\f\u019a\3")
         buf.write("\2\2\2\16\u019c\3\2\2\2\20\u019e\3\2\2\2\22\u01a2\3\2")
-        buf.write("\2\2\24\u01a5\3\2\2\2\26\u01ba\3\2\2\2\30\u01bc\3\2\2")
-        buf.write("\2\32\u01cf\3\2\2\2\34\u01d1\3\2\2\2\36\u01da\3\2\2\2")
-        buf.write(" \u01dc\3\2\2\2\"\u01e5\3\2\2\2$\u01e7\3\2\2\2&\u01ed")
-        buf.write("\3\2\2\2(\u01f3\3\2\2\2*\u01fc\3\2\2\2,.\5\4\3\2-,\3\2")
+        buf.write("\2\2\24\u01a5\3\2\2\2\26\u01bb\3\2\2\2\30\u01bd\3\2\2")
+        buf.write("\2\32\u01d0\3\2\2\2\34\u01d2\3\2\2\2\36\u01db\3\2\2\2")
+        buf.write(" \u01dd\3\2\2\2\"\u01e6\3\2\2\2$\u01e8\3\2\2\2&\u01ee")
+        buf.write("\3\2\2\2(\u01f4\3\2\2\2*\u01fd\3\2\2\2,.\5\4\3\2-,\3\2")
         buf.write("\2\2-.\3\2\2\2.\62\3\2\2\2/\61\5\6\4\2\60/\3\2\2\2\61")
         buf.write("\64\3\2\2\2\62\60\3\2\2\2\62\63\3\2\2\2\63\66\3\2\2\2")
         buf.write("\64\62\3\2\2\2\65\67\5&\24\2\66\65\3\2\2\2\66\67\3\2\2")
-        buf.write("\2\678\3\2\2\289\7\2\2\39\3\3\2\2\2:<\7\f\2\2;=\7\t\2")
+        buf.write("\2\678\3\2\2\289\7\2\2\39\3\3\2\2\2:<\7\r\2\2;=\7\n\2")
         buf.write("\2<;\3\2\2\2=>\3\2\2\2><\3\2\2\2>?\3\2\2\2?\5\3\2\2\2")
         buf.write("@B\5\n\6\2A@\3\2\2\2AB\3\2\2\2BC\3\2\2\2CD\5\b\5\2DE\5")
         buf.write("\24\13\2EF\5\32\16\2FU\3\2\2\2GI\5\n\6\2HG\3\2\2\2HI\3")
@@ -234,68 +234,69 @@ def serializedATN():
         buf.write("\u0128\3\2\2\2\u0190\u0135\3\2\2\2\u0190\u0142\3\2\2\2")
         buf.write("\u0190\u014f\3\2\2\2\u0190\u015c\3\2\2\2\u0190\u0169\3")
         buf.write("\2\2\2\u0190\u0176\3\2\2\2\u0190\u0183\3\2\2\2\u0191\13")
-        buf.write("\3\2\2\2\u0192\u019b\7\21\2\2\u0193\u019b\7\22\2\2\u0194")
-        buf.write("\u019b\7\23\2\2\u0195\u019b\7\24\2\2\u0196\u019b\7\25")
-        buf.write("\2\2\u0197\u019b\7\26\2\2\u0198\u019b\7\27\2\2\u0199\u019b")
-        buf.write("\7\30\2\2\u019a\u0192\3\2\2\2\u019a\u0193\3\2\2\2\u019a")
+        buf.write("\3\2\2\2\u0192\u019b\7\22\2\2\u0193\u019b\7\23\2\2\u0194")
+        buf.write("\u019b\7\24\2\2\u0195\u019b\7\25\2\2\u0196\u019b\7\26")
+        buf.write("\2\2\u0197\u019b\7\27\2\2\u0198\u019b\7\30\2\2\u0199\u019b")
+        buf.write("\7\31\2\2\u019a\u0192\3\2\2\2\u019a\u0193\3\2\2\2\u019a")
         buf.write("\u0194\3\2\2\2\u019a\u0195\3\2\2\2\u019a\u0196\3\2\2\2")
         buf.write("\u019a\u0197\3\2\2\2\u019a\u0198\3\2\2\2\u019a\u0199\3")
-        buf.write("\2\2\2\u019b\r\3\2\2\2\u019c\u019d\7\r\2\2\u019d\17\3")
-        buf.write("\2\2\2\u019e\u019f\7\16\2\2\u019f\21\3\2\2\2\u01a0\u01a3")
-        buf.write("\7\17\2\2\u01a1\u01a3\7\20\2\2\u01a2\u01a0\3\2\2\2\u01a2")
+        buf.write("\2\2\2\u019b\r\3\2\2\2\u019c\u019d\7\16\2\2\u019d\17\3")
+        buf.write("\2\2\2\u019e\u019f\7\17\2\2\u019f\21\3\2\2\2\u01a0\u01a3")
+        buf.write("\7\20\2\2\u01a1\u01a3\7\21\2\2\u01a2\u01a0\3\2\2\2\u01a2")
         buf.write("\u01a1\3\2\2\2\u01a3\23\3\2\2\2\u01a4\u01a6\5\26\f\2\u01a5")
         buf.write("\u01a4\3\2\2\2\u01a6\u01a7\3\2\2\2\u01a7\u01a5\3\2\2\2")
         buf.write("\u01a7\u01a8\3\2\2\2\u01a8\u01aa\3\2\2\2\u01a9\u01ab\5")
         buf.write("\30\r\2\u01aa\u01a9\3\2\2\2\u01aa\u01ab\3\2\2\2\u01ab")
-        buf.write("\25\3\2\2\2\u01ac\u01bb\7\7\2\2\u01ad\u01bb\7\b\2\2\u01ae")
-        buf.write("\u01b0\7\n\2\2\u01af\u01b1\7\t\2\2\u01b0\u01af\3\2\2\2")
-        buf.write("\u01b1\u01b2\3\2\2\2\u01b2\u01b0\3\2\2\2\u01b2\u01b3\3")
-        buf.write("\2\2\2\u01b3\u01b4\3\2\2\2\u01b4\u01bb\7\13\2\2\u01b5")
-        buf.write("\u01b7\7\t\2\2\u01b6\u01b5\3\2\2\2\u01b7\u01b8\3\2\2\2")
-        buf.write("\u01b8\u01b6\3\2\2\2\u01b8\u01b9\3\2\2\2\u01b9\u01bb\3")
-        buf.write("\2\2\2\u01ba\u01ac\3\2\2\2\u01ba\u01ad\3\2\2\2\u01ba\u01ae")
-        buf.write("\3\2\2\2\u01ba\u01b6\3\2\2\2\u01bb\27\3\2\2\2\u01bc\u01be")
-        buf.write("\7\6\2\2\u01bd\u01bf\5\26\f\2\u01be\u01bd\3\2\2\2\u01bf")
-        buf.write("\u01c0\3\2\2\2\u01c0\u01be\3\2\2\2\u01c0\u01c1\3\2\2\2")
-        buf.write("\u01c1\31\3\2\2\2\u01c2\u01c4\7\31\2\2\u01c3\u01c5\5\34")
-        buf.write("\17\2\u01c4\u01c3\3\2\2\2\u01c5\u01c6\3\2\2\2\u01c6\u01c4")
-        buf.write("\3\2\2\2\u01c6\u01c7\3\2\2\2\u01c7\u01d0\3\2\2\2\u01c8")
-        buf.write("\u01cb\7\31\2\2\u01c9\u01cc\5 \21\2\u01ca\u01cc\5\34\17")
-        buf.write("\2\u01cb\u01c9\3\2\2\2\u01cb\u01ca\3\2\2\2\u01cc\u01cd")
-        buf.write("\3\2\2\2\u01cd\u01cb\3\2\2\2\u01cd\u01ce\3\2\2\2\u01ce")
-        buf.write("\u01d0\3\2\2\2\u01cf\u01c2\3\2\2\2\u01cf\u01c8\3\2\2\2")
-        buf.write("\u01d0\33\3\2\2\2\u01d1\u01d3\5\36\20\2\u01d2\u01d4\5")
-        buf.write("\26\f\2\u01d3\u01d2\3\2\2\2\u01d4\u01d5\3\2\2\2\u01d5")
-        buf.write("\u01d3\3\2\2\2\u01d5\u01d6\3\2\2\2\u01d6\u01d8\3\2\2\2")
-        buf.write("\u01d7\u01d9\5\30\r\2\u01d8\u01d7\3\2\2\2\u01d8\u01d9")
-        buf.write("\3\2\2\2\u01d9\35\3\2\2\2\u01da\u01db\7\34\2\2\u01db\37")
-        buf.write("\3\2\2\2\u01dc\u01de\5\"\22\2\u01dd\u01df\5\26\f\2\u01de")
-        buf.write("\u01dd\3\2\2\2\u01df\u01e0\3\2\2\2\u01e0\u01de\3\2\2\2")
-        buf.write("\u01e0\u01e1\3\2\2\2\u01e1\u01e3\3\2\2\2\u01e2\u01e4\5")
-        buf.write("\30\r\2\u01e3\u01e2\3\2\2\2\u01e3\u01e4\3\2\2\2\u01e4")
-        buf.write("!\3\2\2\2\u01e5\u01e6\7\33\2\2\u01e6#\3\2\2\2\u01e7\u01e9")
-        buf.write("\7\32\2\2\u01e8\u01ea\7\t\2\2\u01e9\u01e8\3\2\2\2\u01ea")
-        buf.write("\u01eb\3\2\2\2\u01eb\u01e9\3\2\2\2\u01eb\u01ec\3\2\2\2")
-        buf.write("\u01ec%\3\2\2\2\u01ed\u01ef\7\5\2\2\u01ee\u01f0\5(\25")
-        buf.write("\2\u01ef\u01ee\3\2\2\2\u01f0\u01f1\3\2\2\2\u01f1\u01ef")
-        buf.write("\3\2\2\2\u01f1\u01f2\3\2\2\2\u01f2\'\3\2\2\2\u01f3\u01f5")
-        buf.write("\5*\26\2\u01f4\u01f6\5\26\f\2\u01f5\u01f4\3\2\2\2\u01f6")
-        buf.write("\u01f7\3\2\2\2\u01f7\u01f5\3\2\2\2\u01f7\u01f8\3\2\2\2")
-        buf.write("\u01f8\u01fa\3\2\2\2\u01f9\u01fb\5\30\r\2\u01fa\u01f9")
-        buf.write("\3\2\2\2\u01fa\u01fb\3\2\2\2\u01fb)\3\2\2\2\u01fc\u01fd")
-        buf.write("\7\35\2\2\u01fd+\3\2\2\2\177-\62\66>AHOTZ]`cgjmptwz}\u0081")
-        buf.write("\u0084\u0087\u008a\u008e\u0091\u0094\u0097\u009b\u009e")
-        buf.write("\u00a1\u00a4\u00a8\u00ab\u00ae\u00b1\u00b5\u00b8\u00bb")
-        buf.write("\u00be\u00c2\u00c5\u00c8\u00cb\u00cf\u00d2\u00d5\u00d8")
-        buf.write("\u00dc\u00df\u00e2\u00e5\u00e9\u00ec\u00ef\u00f2\u00f6")
-        buf.write("\u00f9\u00fc\u00ff\u0103\u0106\u0109\u010c\u0110\u0113")
-        buf.write("\u0116\u0119\u011d\u0120\u0123\u0126\u012a\u012d\u0130")
-        buf.write("\u0133\u0137\u013a\u013d\u0140\u0144\u0147\u014a\u014d")
-        buf.write("\u0151\u0154\u0157\u015a\u015e\u0161\u0164\u0167\u016b")
-        buf.write("\u016e\u0171\u0174\u0178\u017b\u017e\u0181\u0185\u0188")
-        buf.write("\u018b\u018e\u0190\u019a\u01a2\u01a7\u01aa\u01b2\u01b8")
-        buf.write("\u01ba\u01c0\u01c6\u01cb\u01cd\u01cf\u01d5\u01d8\u01e0")
-        buf.write("\u01e3\u01eb\u01f1\u01f7\u01fa")
+        buf.write("\25\3\2\2\2\u01ac\u01bc\7\b\2\2\u01ad\u01bc\7\7\2\2\u01ae")
+        buf.write("\u01bc\7\t\2\2\u01af\u01b1\7\13\2\2\u01b0\u01b2\7\n\2")
+        buf.write("\2\u01b1\u01b0\3\2\2\2\u01b2\u01b3\3\2\2\2\u01b3\u01b1")
+        buf.write("\3\2\2\2\u01b3\u01b4\3\2\2\2\u01b4\u01b5\3\2\2\2\u01b5")
+        buf.write("\u01bc\7\f\2\2\u01b6\u01b8\7\n\2\2\u01b7\u01b6\3\2\2\2")
+        buf.write("\u01b8\u01b9\3\2\2\2\u01b9\u01b7\3\2\2\2\u01b9\u01ba\3")
+        buf.write("\2\2\2\u01ba\u01bc\3\2\2\2\u01bb\u01ac\3\2\2\2\u01bb\u01ad")
+        buf.write("\3\2\2\2\u01bb\u01ae\3\2\2\2\u01bb\u01af\3\2\2\2\u01bb")
+        buf.write("\u01b7\3\2\2\2\u01bc\27\3\2\2\2\u01bd\u01bf\7\6\2\2\u01be")
+        buf.write("\u01c0\5\26\f\2\u01bf\u01be\3\2\2\2\u01c0\u01c1\3\2\2")
+        buf.write("\2\u01c1\u01bf\3\2\2\2\u01c1\u01c2\3\2\2\2\u01c2\31\3")
+        buf.write("\2\2\2\u01c3\u01c5\7\32\2\2\u01c4\u01c6\5\34\17\2\u01c5")
+        buf.write("\u01c4\3\2\2\2\u01c6\u01c7\3\2\2\2\u01c7\u01c5\3\2\2\2")
+        buf.write("\u01c7\u01c8\3\2\2\2\u01c8\u01d1\3\2\2\2\u01c9\u01cc\7")
+        buf.write("\32\2\2\u01ca\u01cd\5 \21\2\u01cb\u01cd\5\34\17\2\u01cc")
+        buf.write("\u01ca\3\2\2\2\u01cc\u01cb\3\2\2\2\u01cd\u01ce\3\2\2\2")
+        buf.write("\u01ce\u01cc\3\2\2\2\u01ce\u01cf\3\2\2\2\u01cf\u01d1\3")
+        buf.write("\2\2\2\u01d0\u01c3\3\2\2\2\u01d0\u01c9\3\2\2\2\u01d1\33")
+        buf.write("\3\2\2\2\u01d2\u01d4\5\36\20\2\u01d3\u01d5\5\26\f\2\u01d4")
+        buf.write("\u01d3\3\2\2\2\u01d5\u01d6\3\2\2\2\u01d6\u01d4\3\2\2\2")
+        buf.write("\u01d6\u01d7\3\2\2\2\u01d7\u01d9\3\2\2\2\u01d8\u01da\5")
+        buf.write("\30\r\2\u01d9\u01d8\3\2\2\2\u01d9\u01da\3\2\2\2\u01da")
+        buf.write("\35\3\2\2\2\u01db\u01dc\7\35\2\2\u01dc\37\3\2\2\2\u01dd")
+        buf.write("\u01df\5\"\22\2\u01de\u01e0\5\26\f\2\u01df\u01de\3\2\2")
+        buf.write("\2\u01e0\u01e1\3\2\2\2\u01e1\u01df\3\2\2\2\u01e1\u01e2")
+        buf.write("\3\2\2\2\u01e2\u01e4\3\2\2\2\u01e3\u01e5\5\30\r\2\u01e4")
+        buf.write("\u01e3\3\2\2\2\u01e4\u01e5\3\2\2\2\u01e5!\3\2\2\2\u01e6")
+        buf.write("\u01e7\7\34\2\2\u01e7#\3\2\2\2\u01e8\u01ea\7\33\2\2\u01e9")
+        buf.write("\u01eb\7\n\2\2\u01ea\u01e9\3\2\2\2\u01eb\u01ec\3\2\2\2")
+        buf.write("\u01ec\u01ea\3\2\2\2\u01ec\u01ed\3\2\2\2\u01ed%\3\2\2")
+        buf.write("\2\u01ee\u01f0\7\5\2\2\u01ef\u01f1\5(\25\2\u01f0\u01ef")
+        buf.write("\3\2\2\2\u01f1\u01f2\3\2\2\2\u01f2\u01f0\3\2\2\2\u01f2")
+        buf.write("\u01f3\3\2\2\2\u01f3\'\3\2\2\2\u01f4\u01f6\5*\26\2\u01f5")
+        buf.write("\u01f7\5\26\f\2\u01f6\u01f5\3\2\2\2\u01f7\u01f8\3\2\2")
+        buf.write("\2\u01f8\u01f6\3\2\2\2\u01f8\u01f9\3\2\2\2\u01f9\u01fb")
+        buf.write("\3\2\2\2\u01fa\u01fc\5\30\r\2\u01fb\u01fa\3\2\2\2\u01fb")
+        buf.write("\u01fc\3\2\2\2\u01fc)\3\2\2\2\u01fd\u01fe\7\36\2\2\u01fe")
+        buf.write("+\3\2\2\2\177-\62\66>AHOTZ]`cgjmptwz}\u0081\u0084\u0087")
+        buf.write("\u008a\u008e\u0091\u0094\u0097\u009b\u009e\u00a1\u00a4")
+        buf.write("\u00a8\u00ab\u00ae\u00b1\u00b5\u00b8\u00bb\u00be\u00c2")
+        buf.write("\u00c5\u00c8\u00cb\u00cf\u00d2\u00d5\u00d8\u00dc\u00df")
+        buf.write("\u00e2\u00e5\u00e9\u00ec\u00ef\u00f2\u00f6\u00f9\u00fc")
+        buf.write("\u00ff\u0103\u0106\u0109\u010c\u0110\u0113\u0116\u0119")
+        buf.write("\u011d\u0120\u0123\u0126\u012a\u012d\u0130\u0133\u0137")
+        buf.write("\u013a\u013d\u0140\u0144\u0147\u014a\u014d\u0151\u0154")
+        buf.write("\u0157\u015a\u015e\u0161\u0164\u0167\u016b\u016e\u0171")
+        buf.write("\u0174\u0178\u017b\u017e\u0181\u0185\u0188\u018b\u018e")
+        buf.write("\u0190\u019a\u01a2\u01a7\u01aa\u01b3\u01b9\u01bb\u01c1")
+        buf.write("\u01c7\u01cc\u01ce\u01d0\u01d6\u01d9\u01e1\u01e4\u01ec")
+        buf.write("\u01f2\u01f8\u01fb")
         return buf.getvalue()
 
 
@@ -312,13 +313,13 @@ class QuestionParser ( Parser ):
     literalNames = [  ]
 
     symbolicNames = [ "<INVALID>", "START_QUESTION_HEADER", "START_QUESTION", 
-                      "END_ANSWERS", "FEEDBACK_MARKER", "MEDIA", "HYPERLINK", 
-                      "ALL_CHARACTER", "ESCAPED_OPEN_BRACKET", "ESCAPED_CLOSE_BRACKET", 
-                      "SECTION_TITLE", "TITLE", "POINTS", "RANDOMIZE_TRUE", 
-                      "RANDOMIZE_FALSE", "TYPE_MC", "TYPE_TF", "TYPE_MS", 
-                      "TYPE_MT", "TYPE_ORD", "TYPE_FIB", "TYPE_WR", "TYPE_OTHER", 
-                      "START_ANSWER", "WR_ANSWER", "RIGHT_ANSWER", "LIST_PREFIX", 
-                      "QUESTION_PREFIX" ]
+                      "END_ANSWERS", "FEEDBACK_MARKER", "MEDIA", "IMAGE_TAG", 
+                      "HYPERLINK", "ALL_CHARACTER", "ESCAPED_OPEN_BRACKET", 
+                      "ESCAPED_CLOSE_BRACKET", "SECTION_TITLE", "TITLE", 
+                      "POINTS", "RANDOMIZE_TRUE", "RANDOMIZE_FALSE", "TYPE_MC", 
+                      "TYPE_TF", "TYPE_MS", "TYPE_MT", "TYPE_ORD", "TYPE_FIB", 
+                      "TYPE_WR", "TYPE_OTHER", "START_ANSWER", "WR_ANSWER", 
+                      "RIGHT_ANSWER", "LIST_PREFIX", "QUESTION_PREFIX" ]
 
     RULE_parse_question = 0
     RULE_section_title = 1
@@ -355,28 +356,29 @@ class QuestionParser ( Parser ):
     END_ANSWERS=3
     FEEDBACK_MARKER=4
     MEDIA=5
-    HYPERLINK=6
-    ALL_CHARACTER=7
-    ESCAPED_OPEN_BRACKET=8
-    ESCAPED_CLOSE_BRACKET=9
-    SECTION_TITLE=10
-    TITLE=11
-    POINTS=12
-    RANDOMIZE_TRUE=13
-    RANDOMIZE_FALSE=14
-    TYPE_MC=15
-    TYPE_TF=16
-    TYPE_MS=17
-    TYPE_MT=18
-    TYPE_ORD=19
-    TYPE_FIB=20
-    TYPE_WR=21
-    TYPE_OTHER=22
-    START_ANSWER=23
-    WR_ANSWER=24
-    RIGHT_ANSWER=25
-    LIST_PREFIX=26
-    QUESTION_PREFIX=27
+    IMAGE_TAG=6
+    HYPERLINK=7
+    ALL_CHARACTER=8
+    ESCAPED_OPEN_BRACKET=9
+    ESCAPED_CLOSE_BRACKET=10
+    SECTION_TITLE=11
+    TITLE=12
+    POINTS=13
+    RANDOMIZE_TRUE=14
+    RANDOMIZE_FALSE=15
+    TYPE_MC=16
+    TYPE_TF=17
+    TYPE_MS=18
+    TYPE_MT=19
+    TYPE_ORD=20
+    TYPE_FIB=21
+    TYPE_WR=22
+    TYPE_OTHER=23
+    START_ANSWER=24
+    WR_ANSWER=25
+    RIGHT_ANSWER=26
+    LIST_PREFIX=27
+    QUESTION_PREFIX=28
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -2090,7 +2092,7 @@ class QuestionParser ( Parser ):
                 self.state = 421 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.IMAGE_TAG) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
                     break
 
             self.state = 424
@@ -2124,6 +2126,24 @@ class QuestionParser ( Parser ):
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
+
+
+    class ImageTagContext(ContentContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QuestionParser.ContentContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def IMAGE_TAG(self):
+            return self.getToken(QuestionParser.IMAGE_TAG, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterImageTag" ):
+                listener.enterImageTag(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitImageTag" ):
+                listener.exitImageTag(self)
 
 
     class ContentCharactersContext(ContentContext):
@@ -2215,55 +2235,61 @@ class QuestionParser ( Parser ):
         self.enterRule(localctx, 20, self.RULE_content)
         self._la = 0 # Token type
         try:
-            self.state = 440
+            self.state = 441
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [QuestionParser.MEDIA]:
-                localctx = QuestionParser.MediaContext(self, localctx)
+            if token in [QuestionParser.IMAGE_TAG]:
+                localctx = QuestionParser.ImageTagContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 426
+                self.match(QuestionParser.IMAGE_TAG)
+                pass
+            elif token in [QuestionParser.MEDIA]:
+                localctx = QuestionParser.MediaContext(self, localctx)
+                self.enterOuterAlt(localctx, 2)
+                self.state = 427
                 self.match(QuestionParser.MEDIA)
                 pass
             elif token in [QuestionParser.HYPERLINK]:
                 localctx = QuestionParser.HyperlinkContext(self, localctx)
-                self.enterOuterAlt(localctx, 2)
-                self.state = 427
+                self.enterOuterAlt(localctx, 3)
+                self.state = 428
                 self.match(QuestionParser.HYPERLINK)
                 pass
             elif token in [QuestionParser.ESCAPED_OPEN_BRACKET]:
                 localctx = QuestionParser.FibAnswerContext(self, localctx)
-                self.enterOuterAlt(localctx, 3)
-                self.state = 428
+                self.enterOuterAlt(localctx, 4)
+                self.state = 429
                 self.match(QuestionParser.ESCAPED_OPEN_BRACKET)
-                self.state = 430 
+                self.state = 431 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 429
+                    self.state = 430
                     self.match(QuestionParser.ALL_CHARACTER)
-                    self.state = 432 
+                    self.state = 433 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==QuestionParser.ALL_CHARACTER):
                         break
 
-                self.state = 434
+                self.state = 435
                 self.match(QuestionParser.ESCAPED_CLOSE_BRACKET)
                 pass
             elif token in [QuestionParser.ALL_CHARACTER]:
                 localctx = QuestionParser.ContentCharactersContext(self, localctx)
-                self.enterOuterAlt(localctx, 4)
-                self.state = 436 
+                self.enterOuterAlt(localctx, 5)
+                self.state = 437 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 435
+                        self.state = 436
                         self.match(QuestionParser.ALL_CHARACTER)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 438 
+                    self.state = 439 
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,110,self._ctx)
 
@@ -2317,18 +2343,18 @@ class QuestionParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 442
+            self.state = 443
             self.match(QuestionParser.FEEDBACK_MARKER)
-            self.state = 444 
+            self.state = 445 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 443
+                self.state = 444
                 self.content()
-                self.state = 446 
+                self.state = 447 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.IMAGE_TAG) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
                     break
 
         except RecognitionException as re:
@@ -2417,21 +2443,21 @@ class QuestionParser ( Parser ):
         self.enterRule(localctx, 24, self.RULE_answer_list)
         self._la = 0 # Token type
         try:
-            self.state = 461
+            self.state = 462
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,116,self._ctx)
             if la_ == 1:
                 localctx = QuestionParser.ListNoAnswerContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 448
+                self.state = 449
                 self.match(QuestionParser.START_ANSWER)
-                self.state = 450 
+                self.state = 451 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 449
+                    self.state = 450
                     self.list_item()
-                    self.state = 452 
+                    self.state = 453 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==QuestionParser.LIST_PREFIX):
@@ -2442,27 +2468,27 @@ class QuestionParser ( Parser ):
             elif la_ == 2:
                 localctx = QuestionParser.ListWithAnswerContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 454
+                self.state = 455
                 self.match(QuestionParser.START_ANSWER)
-                self.state = 457 
+                self.state = 458 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 457
+                    self.state = 458
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
                     if token in [QuestionParser.RIGHT_ANSWER]:
-                        self.state = 455
+                        self.state = 456
                         self.list_answer_item()
                         pass
                     elif token in [QuestionParser.LIST_PREFIX]:
-                        self.state = 456
+                        self.state = 457
                         self.list_item()
                         pass
                     else:
                         raise NoViableAltException(self)
 
-                    self.state = 459 
+                    self.state = 460 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==QuestionParser.RIGHT_ANSWER or _la==QuestionParser.LIST_PREFIX):
@@ -2522,25 +2548,25 @@ class QuestionParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 463
+            self.state = 464
             self.list_prefix()
-            self.state = 465 
+            self.state = 466 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 464
+                self.state = 465
                 self.content()
-                self.state = 467 
+                self.state = 468 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.IMAGE_TAG) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
                     break
 
-            self.state = 470
+            self.state = 471
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==QuestionParser.FEEDBACK_MARKER:
-                self.state = 469
+                self.state = 470
                 self.feedback()
 
 
@@ -2582,7 +2608,7 @@ class QuestionParser ( Parser ):
         self.enterRule(localctx, 28, self.RULE_list_prefix)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 472
+            self.state = 473
             self.match(QuestionParser.LIST_PREFIX)
         except RecognitionException as re:
             localctx.exception = re
@@ -2635,25 +2661,25 @@ class QuestionParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 474
+            self.state = 475
             self.answer_prefix()
-            self.state = 476 
+            self.state = 477 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 475
+                self.state = 476
                 self.content()
-                self.state = 478 
+                self.state = 479 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.IMAGE_TAG) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
                     break
 
-            self.state = 481
+            self.state = 482
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==QuestionParser.FEEDBACK_MARKER:
-                self.state = 480
+                self.state = 481
                 self.feedback()
 
 
@@ -2695,7 +2721,7 @@ class QuestionParser ( Parser ):
         self.enterRule(localctx, 32, self.RULE_answer_prefix)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 483
+            self.state = 484
             self.match(QuestionParser.RIGHT_ANSWER)
         except RecognitionException as re:
             localctx.exception = re
@@ -2742,15 +2768,15 @@ class QuestionParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 485
+            self.state = 486
             self.match(QuestionParser.WR_ANSWER)
-            self.state = 487 
+            self.state = 488 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 486
+                self.state = 487
                 self.match(QuestionParser.ALL_CHARACTER)
-                self.state = 489 
+                self.state = 490 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==QuestionParser.ALL_CHARACTER):
@@ -2802,15 +2828,15 @@ class QuestionParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 491
+            self.state = 492
             self.match(QuestionParser.END_ANSWERS)
-            self.state = 493 
+            self.state = 494 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 492
+                self.state = 493
                 self.end_answers_item()
-                self.state = 495 
+                self.state = 496 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==QuestionParser.QUESTION_PREFIX):
@@ -2867,25 +2893,25 @@ class QuestionParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 497
+            self.state = 498
             self.question_prefix()
-            self.state = 499 
+            self.state = 500 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 498
+                self.state = 499
                 self.content()
-                self.state = 501 
+                self.state = 502 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << QuestionParser.MEDIA) | (1 << QuestionParser.IMAGE_TAG) | (1 << QuestionParser.HYPERLINK) | (1 << QuestionParser.ALL_CHARACTER) | (1 << QuestionParser.ESCAPED_OPEN_BRACKET))) != 0)):
                     break
 
-            self.state = 504
+            self.state = 505
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==QuestionParser.FEEDBACK_MARKER:
-                self.state = 503
+                self.state = 504
                 self.feedback()
 
 
@@ -2927,7 +2953,7 @@ class QuestionParser ( Parser ):
         self.enterRule(localctx, 40, self.RULE_question_prefix)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 506
+            self.state = 507
             self.match(QuestionParser.QUESTION_PREFIX)
         except RecognitionException as re:
             localctx.exception = re
