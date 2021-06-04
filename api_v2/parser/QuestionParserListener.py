@@ -746,9 +746,9 @@ class QuestionParserListener(ParseTreeListener):
                     error_message = f"\n302, Question {question.prefix} format doesn't match Multiple Choice type format. \
                                       \n\t Right answer allowed : 1 \
                                       \n\t Right answer found   : {question.correct_answers_length}"
+                    HandleQuestionError(question, QuestionErrorType.MC1, error_message, "FIX MC1")
                     logger.error(error_message)
                
-                    HandleQuestionError(question, QuestionErrorType.MC1, error_message, "FIX MC1")
 
             elif question.question_type == 'TF':
                 if self.is_true_false(question) == True:
