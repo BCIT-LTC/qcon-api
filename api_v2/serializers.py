@@ -237,9 +237,8 @@ class QuestionErrorSerializer(serializers.ModelSerializer):
 class DocumentErrorSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionError
-        fields = [
-            'message', 'action', 'errortype'
-        ]
+        fields = ['message', 'action', 'errortype']
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
@@ -257,6 +256,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
+    documenterrors = DocumentErrorSerializer(many=True, read_only=True)
 
     class Meta:
         model = QuestionLibrary
