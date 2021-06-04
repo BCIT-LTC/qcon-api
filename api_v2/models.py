@@ -90,6 +90,14 @@ class QuestionLibrary(models.Model):
                                        blank=True,
                                        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    total_question_errors = models.DecimalField(max_digits=2,
+                                       decimal_places=0,
+                                       blank=True,
+                                       null=True)
+    total_document_errors = models.DecimalField(max_digits=2,
+                                       decimal_places=0,
+                                       blank=True,
+                                       null=True)
 
     class Meta:
         verbose_name_plural = "question libraries"
@@ -164,7 +172,23 @@ class QuestionLibrary(models.Model):
             self.transaction.save()
             RunConversion_Logger.info("[" + str(self.transaction) + "] " +
                                       "Parser Finished")
-            # TODO COUNT NUMBER OF QUESTION ERRORS
+            # # COUNT NUMBER OF DOCUMENT ERRORS
+
+            # doc_errorlist = DocumentError.objects.filter(document=self)
+            # print("DOC ERROPOROOR")
+            # print(doc_errorlist.count())
+            # self.total_document_errors = doc_errorlist.count()
+
+            # # COUNT NUMBER OF QUESTION ERRORS
+            # questionlist = Question.objects.filter(question_library=self)
+            # for q in questionlist:
+            #     q_errorlist = QuestionError.objects.filter(question=q)
+            #     self.total_question_errors = q_errorlist.count()
+            #     # print("QUESTION ERORORO")
+            #     # print(q_errorlist.count())
+
+
+
         except:
             RunConversion_Logger.error("[" + str(self.transaction) + "] " +
                                        "Parser Failed")
@@ -400,6 +424,7 @@ class QuestionErrorType(str, Enum):  # A subclass of Enum
     HEADER2 = "HEADER2"
     HEADER3 = "HEADER3"
     END1 = "END1"
+
 
 class QuestionError(models.Model):
     id = models.AutoField(primary_key=True)

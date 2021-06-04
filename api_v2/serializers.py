@@ -1,11 +1,25 @@
 from rest_framework import serializers
-from .models import QuestionLibrary, Transaction, Question, Answer, Fib, QuestionError
+from .models import QuestionLibrary, Transaction, Question, Answer, Fib, QuestionError, DocumentError
 # from django_q.tasks import async_task
 import json
+
 
 def validate_file(value):
     if value.name.split(".")[1] != "docx":
         raise serializers.ValidationError("not a valid word file")
+
+
+def count_errors(questionlibrary):
+    # COUNT NUMBER OF DOCUMENT ERRORS
+    doc_errorlist = DocumentError.objects.filter(document=questionlibrary)
+    questionlibrary.total_document_errors = doc_errorlist.count()
+
+    # COUNT NUMBER OF QUESTION ERRORS
+    questionlist = Question.objects.filter(question_library=questionlibrary)
+    for q in questionlist:
+        q_errorlist = QuestionError.objects.filter(question=q)
+        questionlibrary.total_question_errors = q_errorlist.count()
+    questionlibrary.save()
 
 
 class UploadSerializer(serializers.Serializer):
@@ -66,7 +80,7 @@ class WordToZipSerializer(serializers.Serializer):
 
         newconversion.randomize_answer = validated_data.get(
             'randomize', validated_data)
-            
+
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         newconversion.folder_path = '/code/temp/' + \
             str(newconversion.transaction)
@@ -85,10 +99,14 @@ class WordToZipSerializer(serializers.Serializer):
         newconversion.create_pandocstring()
         # ===========  2  ==================
         newconversion.run_parser()
-        # ===========  3, 4, 5  ==================
-        newconversion.create_xml_files()
-        # ===========  6  ==================
-        newconversion.zip_files()
+
+        count_errors(newconversion)
+
+        if newconversion.total_document_errors == 0:
+            # ===========  3, 4, 5  ==================
+            newconversion.create_xml_files()
+            # ===========  6  ==================
+            newconversion.zip_files()
 
         return newconversion
 
@@ -137,11 +155,15 @@ class WordToJsonZipSerializer(serializers.Serializer):
         newconversion.create_pandocstring()
         # ===========  2  ==================
         newconversion.run_parser()
-        # ===========  3, 4, 5  ==================
-        newconversion.create_xml_files()
-        # ===========  6  ==================
-        newconversion.zip_files()
-        # ===========  7  ==================
+
+        count_errors(newconversion)
+
+        if newconversion.total_document_errors == 0:
+            # ===========  3, 4, 5  ==================
+            newconversion.create_xml_files()
+            # ===========  6  ==================
+            newconversion.zip_files()
+            # ===========  7  ==================
 
         return newconversion
 
@@ -178,6 +200,8 @@ class WordToJsonSerializer(serializers.Serializer):
         # ===========  2  ==================
         newconversion.run_parser()
 
+        count_errors(newconversion)
+
         return newconversion
 
     def update(self, instance, validated_data):
@@ -185,26 +209,6 @@ class WordToJsonSerializer(serializers.Serializer):
                                                 instance.temp_file)
         instance.save()
         return instance
-
-
-# class SectionSerializer(serializers.Serializer):
-
-#     section_name = serializers.CharField(max_length=100, min_length=1)
-#     id = serializers.DecimalField(max_digits=8, decimal_places=0)
-
-#     # def create(self, validated_data):
-#     #     # newconversion = QuestionLibrary.objects.create(**validated_data)
-#     #     newconversion = QuestionLibrary.objects.create()
-#     #     newconversion.temp_file = validated_data.get('section_name', validated_data)
-#     #     newconversion.save()
-#     #     return newconversion
-
-#     def update(self, instance, validated_data):
-#         instance.section_name = validated_data.get(
-#             'section_name', instance.section_name)
-#         instance.id = validated_data.get('id', instance.id)
-#         instance.save()
-#         return instance
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -227,12 +231,12 @@ class AnswerSerializer(serializers.ModelSerializer):
             'match_left', 'match_right', 'order'
         ]
 
+
 class QuestionErrorSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionError
-        fields = [
-            'message', 'action', 'errortype'
-        ]
+        fields = ['message', 'action', 'errortype']
+
 
 class DocumentErrorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -260,4 +264,7 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionLibrary
-        fields = ['section_name', 'randomize_answer', 'documenterrors', 'questions']
+        fields = [
+            'section_name', 'randomize_answer', 'total_question_errors',
+            'total_document_errors', 'documenterrors', 'questions'
+        ]
