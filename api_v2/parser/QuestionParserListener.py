@@ -417,8 +417,13 @@ class QuestionParserListener(ParseTreeListener):
         if self.question.title == None:
             question_title = self.html_to_plain(question_body)
             question_title = question_title.replace('\n', ' ').replace('[]', ' ')
-            self.question.title = self.trim_text(question_title)[0:127]
-        
+            question_title = self.trim_text(question_title)[0:127]
+            self.question.title = question_title
+        elif self.question.title.startswith('[IMG] ') == True:
+            if len(self.question.title) == 6:
+                question_title = '[IMG] ' + question_title
+                self.question.title = question_title[0:127]
+
         if self.question.points == None:
             self.question.points = 1.0
 
@@ -447,6 +452,21 @@ class QuestionParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by QuestionParser#Media.
     def exitMedia(self, ctx:QuestionParser.MediaContext):
+        pass
+
+        
+    # Enter a parse tree produced by QuestionParser#ImageTag.
+    def enterImageTag(self, ctx:QuestionParser.ImageTagContext):
+        pass
+
+    # Exit a parse tree produced by QuestionParser#ImageTag.
+    def exitImageTag(self, ctx:QuestionParser.ImageTagContext):
+        if self.question.title == None:
+            self.question.title = '[IMG] '
+            self.question.save()
+        elif self.question.title.startswith('[IMG] ') == False:
+            self.question.title = '[IMG] ' + self.question.title
+            self.question.save()
         pass
 
     # Enter a parse tree produced by QuestionParser#Hyperlink.
@@ -985,7 +1005,16 @@ class QuestionParserListener(ParseTreeListener):
                                 question_text = re.sub(regex_pattern_2, "", question_text, 1)
                                 re_question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
                                 question.question_body = re_question_body
-                                question.title = self.html_to_plain(re_question_body).replace('\n', ' ')
+                                question_title = self.html_to_plain(re_question_body).replace('\n', ' ')[0:127]
+                                if question.title.startswith('[IMG] ') == True:
+                                    if len(question.title) == 6:
+                                        question.title += question_title
+                                    else:
+                                        question_title = '[IMG] ' + question_title
+                                        question.title = question_title[0:127]
+                                else:
+                                    # TODO: The question title for FIB would always be replaced with the body content. Need to find a way to implement Title provided by user.
+                                    question.title = question_title
                                 question.save()
                                 if(len(question.get_fib_answers()) == index+1):
                                     trimmed_text = self.trim_text(self.html_to_plain(question_text))
