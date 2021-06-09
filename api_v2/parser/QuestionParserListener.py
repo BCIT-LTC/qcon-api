@@ -218,6 +218,7 @@ class QuestionParserListener(ParseTreeListener):
         section_name = self.trim_text(section_name)
         self.question_library.section_name = section_name
         self.question_library.save()
+        self.question_library.filter_section_name()
         pass
 
     # Enter a parse tree produced by QuestionParser#question.
@@ -344,9 +345,8 @@ class QuestionParserListener(ParseTreeListener):
     # Exit a parse tree produced by QuestionParser#title.
     def exitTitle(self, ctx:QuestionParser.TitleContext):
         title = self.trim_text(ctx.getText()).split(":")[1]
-        title = self.markdown_to_plain(title)
-        title = self.trim_text(title)[0:127]
-        self.question.title = title
+        title = self.markdown_to_plain(title).replace('\n', ' ').replace('[]', ' ')
+        self.question.title = self.trim_text(title)[0:127]
         self.question.save()
         pass
 
@@ -415,7 +415,9 @@ class QuestionParserListener(ParseTreeListener):
         question_body = self.trim_text(question_body)
 
         if self.question.title == None:
-            self.question.title = self.html_to_plain(question_body)[0:127]
+            question_title = self.html_to_plain(question_body)
+            question_title = question_title.replace('\n', ' ').replace('[]', ' ')
+            self.question.title = self.trim_text(question_title)[0:127]
         
         if self.question.points == None:
             self.question.points = 1.0
@@ -699,7 +701,20 @@ class QuestionParserListener(ParseTreeListener):
         html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
         soup_text = BeautifulSoup(html_text, "html.parser")
         soup_text_math = soup_text.find_all("span", {"class": "math"})
+        soup_text_img = soup_text.find_all("img")
 
+        if len(soup_text_img) > 0:
+            # Remove img unnecessary attributes
+            for img in soup_text_img:
+                for attribute in ["class", "id", "title", "style", "alt"]:
+                    del img[attribute]
+                image_source = img['src']
+                src_re_pattern = r"^\/code\/temp\/\d+\/media\/(.*)"
+                regex_image = re.search(src_re_pattern, image_source)
+                if regex_image.group(1) != None:
+                    new_src = 'assessment-assets/' + self.question_library.filtered_section_name + '/' + regex_image.group(1)
+                    img['src'] = new_src
+                
         if len(soup_text_math) > 0:
             for span_math in soup_text_math:
                 math_text = re.sub(r"\\(?=[^a-zA-Z\(\)\d\s:])", "", span_math.string)
@@ -970,7 +985,7 @@ class QuestionParserListener(ParseTreeListener):
                                 question_text = re.sub(regex_pattern_2, "", question_text, 1)
                                 re_question_body = re.sub(regex_pattern, "_______", question.question_body, 1)
                                 question.question_body = re_question_body
-                                question.title = self.html_to_plain(re_question_body)
+                                question.title = self.html_to_plain(re_question_body).replace('\n', ' ')
                                 question.save()
                                 if(len(question.get_fib_answers()) == index+1):
                                     trimmed_text = self.trim_text(self.html_to_plain(question_text))

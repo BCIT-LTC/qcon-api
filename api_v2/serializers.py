@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import QuestionLibrary, Transaction, Question, Answer, Fib
+from django.conf import settings
 # from django_q.tasks import async_task
 
 
@@ -29,11 +30,12 @@ class UploadSerializer(serializers.Serializer):
         newconversion.temp_file = validated_data.get('temp_file',
                                                      validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
+        newconversion.filter_section_name()
         # print(newconversion.section_name)
 
-        newconversion.folder_path = '/code/temp/' + \
+        newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/media/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
         # async_task('api_v2.tasks.runconversion', newconversion)
@@ -68,9 +70,10 @@ class WordToZipSerializer(serializers.Serializer):
             'randomize', validated_data)
             
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.folder_path = '/code/temp/' + \
+        newconversion.filter_section_name()
+        newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/media/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
@@ -120,9 +123,11 @@ class WordToJsonZipSerializer(serializers.Serializer):
             'randomize', validated_data)
 
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.folder_path = '/code/temp/' + \
+        newconversion.filter_section_name()
+        newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/media/'
+        # This might be replaced if User enter section name on the form or have H1 inside the document
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
@@ -167,9 +172,10 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.temp_file = validated_data.get('temp_file',
                                                      validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.folder_path = '/code/temp/' + \
+        newconversion.filter_section_name()
+        newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + '/media/'
+        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
