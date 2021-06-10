@@ -20,6 +20,19 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+
+#######################################################
+FROM squidfunk/mkdocs-material as docs-base
+
+RUN pip install Pygments pymdown-extensions
+
+WORKDIR /docs
+
+COPY . .
+
+RUN mkdocs build --site-dir /public
+
+
 #######################################################
 FROM python:3.9-alpine AS release  
 LABEL maintainer courseproduction@bcit.ca
@@ -35,6 +48,7 @@ COPY --from=qcon-base /usr/bin/pandoc /usr/local/bin/pandoc
 COPY --from=qcon-base /root/.cache /root/.cache
 COPY --from=qcon-base /opt/venv /opt/venv
 ENV PATH /opt/venv/bin:$PATH
+COPY --from=docs-base public docs/public
 
  
 RUN mkdir -p log && touch log/error.log \
