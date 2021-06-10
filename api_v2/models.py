@@ -417,6 +417,7 @@ class QuestionErrorType(str, Enum):  # A subclass of Enum
     FIB1 = "FIB1"
     FIB2 = "FIB2"
     WR1 = "WR1"
+    WR2 = "WR2"
     HEADER1 = "HEADER1"
     HEADER2 = "HEADER2"
     HEADER3 = "HEADER3"

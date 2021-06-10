@@ -862,7 +862,10 @@ class QuestionParserListener(ParseTreeListener):
 
 
             elif question.question_type == 'WR':
-                # TRUST USER & BUILD WR
+                if len(question.get_answers()) > 1:
+                    error_message = f"\n304, Question {question.prefix} type WR answer key contains a list. Please add 'Correct Answer:' before the answer."
+                    HandleQuestionError(question, QuestionErrorType.WR2, error_message, "FIX WR2")
+                    logger.error(error_message)
                 pass
             else:
                 error_message = f"\n304, Question {question.prefix} doesn't match any type of questions."
