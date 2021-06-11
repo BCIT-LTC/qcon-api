@@ -36,9 +36,12 @@ COPY --from=qcon-base /root/.cache /root/.cache
 COPY --from=qcon-base /opt/venv /opt/venv
 ENV PATH /opt/venv/bin:$PATH
 
- 
-RUN mkdir -p log && touch log/error.log \
-    && chmod g+w log/error.log
+# Prepare local logs
+RUN mkdir -p log \
+    && touch log/error.log \
+    && chmod g+w log/error.log \
+    && touch log/main.log \
+    && chmod g+w log/main.log
 
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 
