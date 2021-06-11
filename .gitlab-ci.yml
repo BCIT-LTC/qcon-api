@@ -3,6 +3,7 @@
 #While this example shows building to multiple registries for all branches, with a few modifications
 #  it can be used to build non-master branches to a "dev" container registry and only build master to 
 #  a production container registry
+
 image: 
   name: gcr.io/kaniko-project/executor:debug
   entrypoint: [""]
@@ -104,3 +105,39 @@ build-for-gitlab-project-registry:
   # these variables with this scope would need to be created if you copy this project to another group or instance
 #  environment:
 #    name: push-to-docker-hub
+
+deploy_staging:
+  environment: staging
+  stage: deploy
+  image: bitnami/kubectl:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - kubectl apply -k overlays/staging/
+# update overlays/staging/deployment.yaml to use pipeline variable ($CI_COMMIT_TAG) to pull appropriate image
+
+
+
+
+
+release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG      # Don't run this job when a tag is created manually
+      when: never
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == release   # Run when merging into release branch
+      # when: always
+  script:
+    - echo 'running release_job for $CI_COMMIT_TAG'
+  release:
+    name: 'Release $CI_COMMIT_TAG'
+    description: 'Created using the release-cli'
+    tag_name: '$CI_COMMIT_TAG'                                       # elsewhere in the pipeline.
+    ref: '$CI_COMMIT_TAG'
+
+
+
+
+deploy_production:
+  environment: production
