@@ -13,7 +13,16 @@ deploy:
   kustomize:
     paths:
     - overlays/dev
-# enable with `skaffold dev -p {profile.name}`
+#
+# 1. Set skaffold config:
+#    `skaffold config set default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api`
+#
+# 2. Run skaffold:
+#    `skaffold dev -p {profile.name}`     eg. skaffold dev -p k
+#
+# If you run into errors, you may find the following works:
+#    `skaffold dev -p {profile.name} --default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api --status-check=true`
+#
 profiles:
 - name: v
   deploy:

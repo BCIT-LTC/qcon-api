@@ -3,6 +3,5 @@ kind: Kustomization
 
 resources:
 - gitlab-reg-creds.yaml
-- storage.yaml
 - service.yaml
 - deployment.yaml

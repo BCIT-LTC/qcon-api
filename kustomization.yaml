@@ -1,4 +1,4 @@
 # kustomization.yaml contents
+
 resources:
-- ./overlays/dev
-- ./overlays/prod
+- overlays/prod

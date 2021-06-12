@@ -2,17 +2,17 @@ kind: GitRepo
 apiVersion: fleet.cattle.io/v1alpha1
 metadata:
   # Any name can be used here
-  name: qcon
+  name: qcon-api
   # For single cluster use fleet-local, otherwise use the namespace of
   # your choosing
-  namespace: default
+  namespace: qcon
 spec:
   # This can be a HTTPS or git URL.  If you are using a git URL then
   # clientSecretName will probably need to be set to supply a credential.
   # repo is the only required parameter for a repo to be monitored.
   #
 #  repo: https://github.com/rancher/fleet-examples
-  repo: https://issues.ltc.bcit.ca/prototypes/qcon
+  repo: https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api
 
   # Enforce all resources go to this target namespace. If a cluster scoped
   # resource is found the deployment will fail.
