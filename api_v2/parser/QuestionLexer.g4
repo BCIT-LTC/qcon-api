@@ -1,6 +1,6 @@
 lexer grammar QuestionLexer;
 
-tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
+tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, FEEDBACK_MARKER, MEDIA, IMAGE_TAG, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
 
 fragment QUESTION_HEADER_MARKER
     :   '##########_QUESTION_HEADER_##########'
@@ -159,6 +159,11 @@ fragment ALPHANUMERIC
     :   (LOWERCASE | UPPERCASE | NUMBER)
     ;
 
+fragment NOT_TAG_ENDING
+    :   '/' ~'>'
+    |   ~'/' .
+    ; 
+
 // --------------------- DEFAULT MODE ---------------------
 DEFAULT_START_HEADER
     :   NEWLINE+ QUESTION_HEADER_MARKER                 -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
@@ -265,6 +270,12 @@ QUESTION_MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
     ;
 
+
+
+QUESTION_IMAGE
+    :   '<img ' NOT_TAG_ENDING+ '/>'                                -> type(IMAGE_TAG)
+    ;
+    
 QUESTION_HYPERLINK
     :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'          -> type(HYPERLINK)
     ;
@@ -311,6 +322,10 @@ ANSWER_FEEDBACK_MARKER
     
 ANSWER_MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
+    ;
+
+ANSWER_IMAGE
+    :   '<img ' NOT_TAG_ENDING+ '/>'                                -> type(IMAGE_TAG)
     ;
 
 ANSWER_HYPERLINK
@@ -361,6 +376,10 @@ KEY_FEEDBACK_MARKER
     
 KEY_MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
+    ;
+
+KEY_IMAGE
+    :   '<img ' NOT_TAG_ENDING+ '/>'                                -> type(IMAGE_TAG)
     ;
 
 KEY_HYPERLINK
