@@ -61,4 +61,4 @@ semver_release:
       --repository-url 'https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/'
       --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, '@semantic-release/gitlab'
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "release"
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "release"'
