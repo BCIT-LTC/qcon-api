@@ -58,7 +58,7 @@ semver_release:
       --repository-url 'https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/'
       --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH == "release"'
+    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 
 #This job is for building the image with Kaniko
