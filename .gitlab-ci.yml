@@ -27,18 +27,9 @@ semver_tagging_job:
     - semantic-release
       --branches main
       --repository-url 'https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/'
-      --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator'
+      --plugins '@semantic-release/commit-analyzer'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
-
-
-    # - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH && $CI_COMMIT_TAG'
-
-  # rules:
-  #   - if: $CI_COMMIT_TAG
-  #     when: never
-    # - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
 
 #This job is for running semantic-versioning for releasing whenever there is a merge request
 #on the release branch
@@ -60,10 +51,8 @@ semver_release:
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
-
 #This job is for building the image with Kaniko
 build_with_kaniko:
-  # Hidden job to use as an "extends" template
   stage: build
   image: 
     name: gcr.io/kaniko-project/executor:debug
@@ -71,6 +60,6 @@ build_with_kaniko:
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$CI_COMMIT_TAG
   rules:
      - if: '$CI_COMMIT_TAG'
