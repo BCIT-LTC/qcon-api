@@ -1,14 +1,35 @@
-apiVersion: skaffold/v2beta8
+apiVersion: skaffold/v2beta11
 kind: Config
 metadata:
-  name: qcon
+  name: qcon-api
 build:
   artifacts:
-  - image: qcon
+  - image: qcon-api
+    context: .
+  local:
+    useDockerCLI: true
+#    useBuildkit: true
 deploy:
-  kubectl:
-    manifests:
-    - storage.yaml
-    - deployment.yaml
-    - service.yaml
-    - ingress.yaml
+  kustomize:
+    paths:
+    - overlays/dev
+# enable with `skaffold dev -p {profile.name}`
+profiles:
+- name: v
+  deploy:
+    kustomize:
+      paths:
+      - overlays/dev
+      defaultNamespace: default-v
+- name: a
+  deploy:
+    kustomize:
+      paths:
+      - overlays/dev
+      defaultNamespace: default-a
+- name: k
+  deploy:
+    kustomize:
+      paths:
+      - overlays/dev
+      defaultNamespace: default-k

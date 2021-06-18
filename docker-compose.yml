@@ -1,31 +1,22 @@
 version: "3"
 
 services:
-  # db:
-  #   image: postgres
-  #   environment:
-  #     - POSTGRES_DB=postgres
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #     - db-volume:/var/lib/postgres
-  #   networks:
-  #     - app-network
-  #   ports:
-  #     - "5432:5432"
   app:
     build: .
-    # command: python manage.py runserver 0.0.0.0:9000
-    image: qcon
+    image: qconapi
+    environment:
+      - DEBUG=False
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - API_KEY=2222222222222222222222222222222222222222
+      - DJANGO_SECRET_KEY='d8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
     restart: always
     tty: true
     volumes:
       - .:/code
     ports:
       - "8000:8000"
-    # depends_on:
-    #   - db
-    working_dir: /code
+    # working_dir: /code
     networks:
       - app-network
 

@@ -13,3 +13,9 @@ test
 database
 
 migrations
+
+*.class
+*.interp
+*.tokens
+*.java
+.antlr
