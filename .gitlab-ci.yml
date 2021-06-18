@@ -24,6 +24,7 @@ build_with_kaniko:
 
 #This job is for running semantic-versioning for tagging the commits with the correct version 
 #on the main branch
+#refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
 semver_tagging_job:
   image: node:12-buster-slim
   stage: semver-tagging
