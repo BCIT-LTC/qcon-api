@@ -10,31 +10,10 @@ stages:
   # - test
   - release
 
-#This job is for running semantic-versioning for tagging the commits with the correct version 
-#on the main branch
-#refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
-semver_tagging_job:
-  image: node:12-buster-slim
-  stage: semver-tagging
-  before_script:
-    - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
-    - export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
-    - export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
-    - export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
-    - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
-    - npm install -g semantic-release
-  script:
-    - 'semantic-release
-      --branches main
-      --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
-      --plugins "@semantic-release/commit-analyzer"
-      --debug'
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
-      when: never
 
 #This job is for running semantic-versioning for releasing whenever there is a merge request
 #on the release branch
+#refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
 semver_release:
   image: node:12-buster-slim
   stage: release
