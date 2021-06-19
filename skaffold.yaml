@@ -1,3 +1,16 @@
+##### Development Settings (remote cluster deploy validation) #####
+#
+# 1. Set skaffold config:
+#    `skaffold config set default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api`
+#
+# 2. Run skaffold:
+#    `skaffold dev -p {profile.name}`     eg. skaffold dev -p k
+#
+# If you run into errors, you may find the following works:
+#    `skaffold dev -p {profile.name} --default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api --status-check=true`
+#
+# TODO: find a better way to limit network traffic namespacing between identical pod deployments
+#
 apiVersion: skaffold/v2beta11
 kind: Config
 metadata:
@@ -13,16 +26,6 @@ deploy:
   kustomize:
     paths:
     - overlays/dev
-#
-# 1. Set skaffold config:
-#    `skaffold config set default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api`
-#
-# 2. Run skaffold:
-#    `skaffold dev -p {profile.name}`     eg. skaffold dev -p k
-#
-# If you run into errors, you may find the following works:
-#    `skaffold dev -p {profile.name} --default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api --status-check=true`
-#
 profiles:
 - name: v
   deploy:
