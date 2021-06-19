@@ -22,16 +22,16 @@ semver_tagging_job:
     - export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
     - export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
     - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
-    - npm install -g semantic-release @semantic-release/git
+    - npm install -g semantic-release
   script:
     - 'semantic-release
-      --branches "main"
+      --branches main
       --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
-      --plugins "@semantic-release/commit-analyzer, @semantic-release/git"
-      --debug
-      --no-ff'
+      --plugins "@semantic-release/commit-analyzer"
+      --debug'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+      when: never
 
 #This job is for running semantic-versioning for releasing whenever there is a merge request
 #on the release branch
@@ -46,11 +46,11 @@ semver_release:
     - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
     - npm install -g semantic-release @semantic-release/gitlab
   script:
-    - semantic-release
+    - 'semantic-release
       --branches release
-      --repository-url 'https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/'
-      --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
-      --debug
+      --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
+      --plugins "@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab"
+      --debug'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
