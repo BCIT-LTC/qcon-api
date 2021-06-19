@@ -25,10 +25,9 @@ semver_tagging_job:
     - npm install -g semantic-release @semantic-release/gitlab
   script:
     - 'semantic-release
-      --branches "release"
+      --branches "[release, {name: main, prerelease: true}]"
       --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
-      --plugins "@semantic-release/commit-analyzer"
-      --dry-run'
+      --plugins "@semantic-release/commit-analyzer"'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
