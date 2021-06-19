@@ -27,8 +27,9 @@ semver_tagging_job:
     - 'semantic-release
       --branches "main"
       --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
-      --plugins "@semantic-release/commit-analyzer"
-      --debug'
+      --plugins "@semantic-release/commit-analyzer, @semantic-release/git"
+      --debug
+      --no-ff'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
