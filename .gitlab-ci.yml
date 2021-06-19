@@ -26,10 +26,11 @@
 
 stages:
   - build_image
-  - semver-tagging
   # - test
+  - semver-tagging
   - release
   - deploy
+
 
 # This job is for building the image with Kaniko (latest)
 build_latest_with_kaniko:
@@ -41,11 +42,14 @@ build_latest_with_kaniko:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - "/kaniko/executor --context $CI_PROJECT_DIR 
-      --dockerfile $CI_PROJECT_DIR/Dockerfile 
-      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$CI_COMMIT_TAG 
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+
+# TODO: Setup tests
+# run_functional_tests:
+#   stage: test
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_staging:
