@@ -25,7 +25,7 @@ semver_tagging_job:
     - npm install -g semantic-release
   script:
     - 'semantic-release
-      --branches main
+      --branches "main"
       --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
       --plugins "@semantic-release/commit-analyzer"
       --debug'
