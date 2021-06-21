@@ -5,6 +5,4 @@ spec:
     spec:
       containers:
       - name: qcon-api
-        env:
-        - name: DEBUG
-          value: "True"
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest

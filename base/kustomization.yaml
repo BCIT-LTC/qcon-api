@@ -3,5 +3,8 @@ kind: Kustomization
 
 resources:
 - gitlab-reg-creds.yaml
-- service.yaml
 - deployment.yaml
+- service.yaml
+
+# TODO: add ingress automatically when DNS delegation complete
+# - ingress.yaml

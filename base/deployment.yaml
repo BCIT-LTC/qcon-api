@@ -2,13 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-  labels:
-    app: qcon-api
 spec:
   selector:
     matchLabels:
       app: qcon-api
       tier: backend
+  replicas: 1
   template:
     metadata:
       labels:
@@ -17,7 +16,11 @@ spec:
     spec:
       containers:
       - name: qcon-api
-        image: qcon-api
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
         ports:
         - containerPort: 8000
       imagePullSecrets:
