@@ -1,8 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: qcon-api
 spec:
   template:
     spec:
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api/qcon-api:latest

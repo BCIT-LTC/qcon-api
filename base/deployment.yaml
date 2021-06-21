@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api/qcon-api:stable
         resources:
           requests:
             cpu: 100m
