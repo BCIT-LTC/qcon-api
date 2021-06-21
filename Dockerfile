@@ -50,10 +50,6 @@ COPY --from=qcon-base /opt/venv /opt/venv
 ENV PATH /opt/venv/bin:$PATH
 COPY --from=docs-base public docs/public
 
- 
-RUN mkdir -p log && touch log/error.log \
-    && chmod g+w log/error.log
-
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY manage.py .
