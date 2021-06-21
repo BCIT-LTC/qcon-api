@@ -1,6 +1,6 @@
 lexer grammar QuestionLexer;
 
-tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
+tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, FEEDBACK_MARKER, MEDIA, IMAGE_TAG, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
 
 fragment QUESTION_HEADER_MARKER
     :   '##########_QUESTION_HEADER_##########'
@@ -159,6 +159,11 @@ fragment ALPHANUMERIC
     :   (LOWERCASE | UPPERCASE | NUMBER)
     ;
 
+fragment NOT_TAG_ENDING
+    :   '/' ~'>'
+    |   ~'/' .
+    ; 
+
 // --------------------- DEFAULT MODE ---------------------
 DEFAULT_START_HEADER
     :   NEWLINE+ QUESTION_HEADER_MARKER                 -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
@@ -249,6 +254,10 @@ START_ANSWER
     :   NEWLINE+ '##########_START_ANSWER_##########'               -> mode(ANSWER_CONTENT)
     ;
 
+WR_ANSWER
+    :   NEWLINE+ '##########_WR_ANSWER_##########'                  -> mode(WR_CONTENT)
+    ;
+
 QUESTION_END_ANSWERS
     :   NEWLINE+ END_ANSWERS_MARKER NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE* -> type(END_ANSWERS), mode(ANSWER_KEY)
     ;
@@ -261,6 +270,12 @@ QUESTION_MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
     ;
 
+
+
+QUESTION_IMAGE
+    :   '<img ' NOT_TAG_ENDING+ '/>'                                -> type(IMAGE_TAG)
+    ;
+    
 QUESTION_HYPERLINK
     :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'          -> type(HYPERLINK)
     ;
@@ -309,6 +324,10 @@ ANSWER_MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
     ;
 
+ANSWER_IMAGE
+    :   '<img ' NOT_TAG_ENDING+ '/>'                                -> type(IMAGE_TAG)
+    ;
+
 ANSWER_HYPERLINK
     :   OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'          -> type(HYPERLINK)
     ;
@@ -325,6 +344,25 @@ ANSWER_ESCAPED_CLOSE_BRACKET
     :   BACKSLASH CLOSE_BRACKET                                     -> type(ESCAPED_CLOSE_BRACKET)
     ;
 
+// --------------------- Everything AFTER WR_ANSWER marker ---------------------
+mode WR_CONTENT;
+
+WR_START_HEADER
+    :   NEWLINE+ QUESTION_HEADER_MARKER                             -> type(START_QUESTION_HEADER), mode(HEADER_CONTENT)
+    ;
+
+WR_START_QUESTION
+    :   NEWLINE+ START_QUESTION_MARKER NEWLINE+ WHITESPACE* NUMBER WHITESPACE* BACKSLASH? (DOT | CLOSING_PARENTHESIS) WHITESPACE* -> type(START_QUESTION), mode(QUESTION_CONTENT)
+    ;
+
+WR_END_ANSWERS
+    :   NEWLINE+ END_ANSWERS_MARKER NEWLINE+ WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE* -> type(END_ANSWERS), mode(ANSWER_KEY)
+    ;
+
+WR_ALL_CHARACTER
+    :   CHAR                                                        -> type(ALL_CHARACTER)
+    ;
+
 // --------------------- Everything AFTER END_ANSWERS marker ---------------------
 mode ANSWER_KEY;
 
@@ -338,6 +376,10 @@ KEY_FEEDBACK_MARKER
     
 KEY_MEDIA
     :   '!' OPEN_BRACKET ~(']')* CLOSE_BRACKET '(' ~(')')* ')'      -> type(MEDIA)
+    ;
+
+KEY_IMAGE
+    :   '<img ' NOT_TAG_ENDING+ '/>'                                -> type(IMAGE_TAG)
     ;
 
 KEY_HYPERLINK

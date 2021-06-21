@@ -1,0 +1,40 @@
+site_name: Qcon-api
+repo_url: https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api
+repo_name: bcitltc/qcon-api
+# Set to false for local docs development
+strict: false
+theme:
+  name: material
+  palette:
+    primary: blue
+  font:
+    text: 'Work Sans'
+#  logo: 'assets/logo.svg'
+  features:
+#    - navigation.expand
+    - navigation.sections
+plugins:
+  - search
+markdown_extensions:
+  - meta
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      permalink: true
+nav:
+  - Introduction: index.md
+  - usage-examples.md
+  - parser-logic.md
+  - Developer Guide:
+      - architecture.md
+      - getting-started.md
+      - gitrepo-structure.md
+      - api-routes.md
+  - Install:
+        - docker.md
+        - kubernetes.md

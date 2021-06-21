@@ -48,6 +48,7 @@ def L1Converter(question_library):
         L1.listitem = element['listitem']
         L1.questionheader = element['questionheader']
         L1.sectionheader = element['sectionheader']
+        L1.wr_answertoken = element['wr_answertoken']
         L1.endanswers = element['endanswer']
         listofL1Elements.append(L1)
 
@@ -61,6 +62,7 @@ def L1Converter(question_library):
     #     print("answerblockseparator " + str(element.answerblockseparator))
     #     print("questionheader " + str(element.questionheader))
     #     print("sectionheader " + str(element.sectionheader))
+    #     print("wr_answertoken " + str(element.wr_answertoken))
     #     print("endanswer" + str(element.endanswers))
 
     # Split questions
@@ -133,13 +135,20 @@ def L1Converter(question_library):
                 collectionofstrings.append(questions_separated[i].prefix +
                                            ". " +
                                            questions_separated[i].content)
-        # THIS IS FOR REGULAR CONTENT (seperators, feedback markers, questionheader markers etc etc)
+        # THIS IS FOR REGULAR CONTENT (separators, feedback markers, questionheader markers, wr_answertoken)
         else:
-            collectionofstrings.append(questions_separated[i].content)
-
+            if questions_separated[i].wr_answertoken:
+                collectionofstrings.append('##########_WR_ANSWER_##########\n')
+            else:
+                collectionofstrings.append(questions_separated[i].content)
+        
     thestring = ''
     for text in collectionofstrings:
-        thestring += text
+        # add newline because of soft return problem
+        thestring += text + '\n'
+    
+    # this is just to remove newline with no text
+    thestring = "\n".join([ll.rstrip() for ll in thestring.splitlines() if ll.strip()])
 
     return thestring
 
@@ -157,11 +166,17 @@ def question_separate(data, index, question):
     # print("content " + str(data[index].content))
 
     if index == len(data) - 1:
-        if check_fib(data[index].content):
-            # print("FIB found at end")
-            data[index].questionseparator = True
-            return data, question + 1
-        # print("END question_separate")
+
+        # Test EDGE cases
+        # if check_fib(data[index].content):
+        #     data[index].questionseparator = True
+        #     return data, question + 1
+
+        if data[index].prefix.isnumeric():
+            if int(data[index].prefix) == int(question + 1):
+                data[index].questionseparator = True
+                return data, question + 1
+
         return data, question
 
     if data[index].prefix.isnumeric():
