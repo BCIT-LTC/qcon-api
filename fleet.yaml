@@ -6,7 +6,7 @@ metadata:
 spec:
   repo: https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api.git
   branch: release
-
+  defaultNamespace: qcon
   # For a private registry you must supply a clientSecretName. A default
   # secret can be set at the namespace level using the BundleRestriction
   # type. Secrets must be of the type "kubernetes.io/ssh-auth" or
@@ -20,7 +20,7 @@ spec:
   # insecureSkipTLSVerify: true
   #
   paths:
-  - simple
+  - overlays/prod
 
   # The service account that will be used to perform this deployment.
   # This is the name of the service account that exists in the
