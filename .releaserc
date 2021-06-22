@@ -1,3 +1,22 @@
 {
-    "branches": ["release", {name: "main", channel: "main", prerelease: true}]
+    "branches": ["release", {name: "main", channel: "main", prerelease: true}],
+    "plugins": [
+        "@semantic-release/commit-analyzer", {
+            "preset": "angular",
+            "releaseRules": [
+                {"type": "feat", "release": "minor"},
+                {"type": "fix", "release": "patch"},
+                {"type": "docs", "release": "patch"},
+                {"type": "perf", "release": "patch"},
+                {"type": "style", "release": "patch"}
+            ],
+            "parserOpts": {
+                "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+            }
+        },
+        "@semantic-release/release-notes-generator",
+        "@semantic-release/gitlab", {
+            "gitlabUrl": "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
+        }
+    ]
 }
