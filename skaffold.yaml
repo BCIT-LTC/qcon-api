@@ -4,18 +4,21 @@
 #    `skaffold config set default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api`
 #
 # 2. Run skaffold:
-#    `skaffold dev -p {profile.name}`     eg. skaffold dev -p k
+#    `skaffold dev -p {profile.name} --port-forward`     eg. skaffold dev -p k --port-forward
 #
 # If you run into errors, you may find the following works:
 #    `skaffold dev -p {profile.name} --default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api --status-check=true`
 #
-# TODO: find a better way to limit network traffic namespacing between identical pod deployments
+# TODO: find a better way to spin up identical pod deployments (to limit scope for pod network connectivity)
 #
 apiVersion: skaffold/v2beta11
 kind: Config
 metadata:
   name: qcon-api
 build:
+  tagPolicy:
+    gitCommit:
+      prefix: dev-
   artifacts:
   - image: qcon-api
     context: .
