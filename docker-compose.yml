@@ -18,13 +18,9 @@ services:
     ports:
       - "8000:8000"
       - "8002:8002"
-    # working_dir: /code
     networks:
       - app-network
 
-# volumes:
-#   db-volume: 
-
-networks:
+      networks:
   app-network:
     driver: bridge
