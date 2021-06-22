@@ -79,7 +79,7 @@ if [ $DEBUG = "true" ] || [ $DEBUG = "True" ] || [ $DEBUG = "TRUE" ];
     >&2 echo "Production Mode"
     #Start gunicorn server
     >&2 echo "Starting Gunicorn"
-    gunicorn --bind 0.0.0.0:8001 qcon.wsgi --daemon
+    gunicorn --bind 0.0.0.0:8001 --timeout 240 qcon.wsgi --daemon
     >&2 echo "Starting Nginx"
     exec "$@"
 fi
