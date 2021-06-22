@@ -31,9 +31,9 @@ stages:
   - deploy
 
 include:
-  template: "Security/SAST.gitlab-ci.yml"
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
 
-#
 # #### Re-usable configurations ####
 #
 # Kaniko template
@@ -43,17 +43,14 @@ include:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
 
-#
 # Deploy template
 .deploy:
   stage: deploy
   image: bitnami/kubectl:latest
 
-#
 # #### Jobs ####
 #
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
-
 security_scan:
   stage: test
   script:
