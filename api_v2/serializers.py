@@ -17,9 +17,11 @@ def count_errors(questionlibrary):
 
     # COUNT NUMBER OF QUESTION ERRORS
     questionlist = Question.objects.filter(question_library=questionlibrary)
+    num_question_errors = 0
     for q in questionlist:
         q_errorlist = QuestionError.objects.filter(question=q)
-        questionlibrary.total_question_errors = q_errorlist.count()
+        num_question_errors += q_errorlist.count()    
+    questionlibrary.total_question_errors = num_question_errors
     questionlibrary.save()
 
 
