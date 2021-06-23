@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 lexer grammar QuestionLexer;
 
 tokens {START_QUESTION_HEADER, START_QUESTION, END_ANSWERS, FEEDBACK_MARKER, MEDIA, HYPERLINK, ALL_CHARACTER, ESCAPED_OPEN_BRACKET, ESCAPED_CLOSE_BRACKET}
