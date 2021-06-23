@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """
 Django settings for qcon project.
 
@@ -172,7 +176,7 @@ LOGGING = {
             'style': '{',
         },
         'custom': {
-            'format': '{levelname} {asctime} {name} {message}',
+            'format': '{levelname} {asctime} {module} {name} {message}',
             'style': '{',
         },
     },
@@ -180,7 +184,7 @@ LOGGING = {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'custom'
         },
         # 'file': {
         #     'level': 'ERROR',
@@ -188,14 +192,14 @@ LOGGING = {
         #     'filename': '/code/log/main.log',
         #     'formatter': 'custom'
         # },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': '/code/log/main.log',
-            'when': 'D',  # daily 'D', you can use 'midnight' as well
-            'backupCount': 7,  # 7 days backup
-            'formatter': 'custom'
-        }
+        # 'file': {
+        #     'level': 'INFO',
+        #     'class': 'logging.handlers.TimedRotatingFileHandler',
+        #     'filename': '/code/log/main.log',
+        #     'when': 'D',  # daily 'D', you can use 'midnight' as well
+        #     'backupCount': 7,  # 7 days backup
+        #     'formatter': 'custom'
+        # }
     },
     'loggers': {
         'django': {
@@ -204,7 +208,7 @@ LOGGING = {
             'propagate': True,
         },
         'api_v2': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         }

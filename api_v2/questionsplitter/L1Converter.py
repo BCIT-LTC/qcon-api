@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from api_v2.questionsplitter.L1Lexer import L1Lexer
 from api_v2.questionsplitter.L1Listener import L1Listener
 from api_v2.questionsplitter.L1Parser import L1Parser
@@ -11,9 +15,11 @@ import pypandoc
 import re
 import logging
 L1Converter_Logger = logging.getLogger('api_v2.questionsplitter.L1Converter')
+from api_v2.ErrorHandler import HandleDocumentError
 
 
 def L1Converter(question_library):
+    from api_v2.models import DocumentErrorType
     try:
         input = InputStream(question_library.pandoc_string)
         lexer = L1Lexer(input)
@@ -31,8 +37,11 @@ def L1Converter(question_library):
         L1Converter_Logger.error("[" + str(question_library.transaction.id) +
                                  "]" +
                                  "ANTLR LEXER failed and cannot continue")
-        question_library.error = "Error Splitting the questions"
-        question_library.save()
+
+        error_message = "Error Splitting the questions"
+        HandleDocumentError(question_library, question_library,
+                            DocumentErrorType.SPLITTER1, error_message,
+                            "FIX SPlitter 1")
 
     # Populate L1
     # Normalize array and grab indentations
@@ -70,7 +79,7 @@ def L1Converter(question_library):
     questions_separated, number_of_questions = question_separate(
         listofL1Elements, 0, 0)
 
-    # Check if number of questions is equal to higher index value found
+    # ===============================  Check if number of questions is equal to higher index value found  ===========================
 
     highest_numbered_index = 0
     for element in questions_separated:
@@ -78,15 +87,17 @@ def L1Converter(question_library):
             if int(element.prefix) > int(highest_numbered_index):
                 highest_numbered_index = element.prefix
     # print("questions detected: " + str(number_of_questions) + " expected: " + str(highest_numbered_index))
-
     if int(number_of_questions) != int(highest_numbered_index):
         L1Converter_Logger.error("Detected: " + str(number_of_questions) +
                                  " Expected: " + str(highest_numbered_index))
-        question_library.error = "Detected: " + str(
+        
+        error_message = "Detected: " + str(
             number_of_questions) + " Expected: " + str(highest_numbered_index)
-        question_library.save()
-
-    # Split AnswerBlock by marking beginning of it
+        HandleDocumentError(question_library,
+                            DocumentErrorType.SPLITTER2, error_message,
+                            "FIX Splitter 2")
+        return ""
+    # ===============================  Split AnswerBlock by marking beginning of it  ==================================================
 
     ending_found = True
     for i in range(len(questions_separated) - 1, 0, -1):
@@ -141,14 +152,15 @@ def L1Converter(question_library):
                 collectionofstrings.append('##########_WR_ANSWER_##########\n')
             else:
                 collectionofstrings.append(questions_separated[i].content)
-        
+
     thestring = ''
     for text in collectionofstrings:
         # add newline because of soft return problem
         thestring += text + '\n'
-    
+
     # this is just to remove newline with no text
-    thestring = "\n".join([ll.rstrip() for ll in thestring.splitlines() if ll.strip()])
+    thestring = "\n".join(
+        [ll.rstrip() for ll in thestring.splitlines() if ll.strip()])
 
     return thestring
 

@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -73,6 +77,16 @@ class WordToZip(APIView):
                 'Content-Disposition'] = 'attachment; filename="' + filename + '"'
             return file_response
             # return JsonResponse(response, status=201)
+
+        # # TODO return jsonresponse with error details
+        # instance = serializer.save()
+        # question_library = QuestionLibrary.objects.get(
+        #     transaction=instance.transaction.id)
+        # question_library_serializer = QuestionLibrarySerializer(
+        #     question_library)
+
+        #     return JsonResponse(question_library_serializer.data, status=500)
+
         return JsonResponse(serializer.errors, status=400)
 
 class WordToJsonZip(APIView):

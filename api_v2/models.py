@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from os import makedirs, path
 from django.db import models
 
@@ -21,8 +25,9 @@ from django.core.files.base import ContentFile
 # from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
+from enum import Enum
 # from django.conf import settings
-# from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -89,8 +94,14 @@ class QuestionLibrary(models.Model):
                                        blank=True,
                                        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-    error = models.TextField(blank=True, null=True)
+    total_question_errors = models.DecimalField(max_digits=2,
+                                       decimal_places=0,
+                                       blank=True,
+                                       null=True)
+    total_document_errors = models.DecimalField(max_digits=2,
+                                       decimal_places=0,
+                                       blank=True,
+                                       null=True)
 
     class Meta:
         verbose_name_plural = "question libraries"
@@ -164,6 +175,23 @@ class QuestionLibrary(models.Model):
             self.transaction.save()
             RunConversion_Logger.info("[" + str(self.transaction) + "] " +
                                       "Parser Finished")
+            # # COUNT NUMBER OF DOCUMENT ERRORS
+
+            # doc_errorlist = DocumentError.objects.filter(document=self)
+            # print("DOC ERROPOROOR")
+            # print(doc_errorlist.count())
+            # self.total_document_errors = doc_errorlist.count()
+
+            # # COUNT NUMBER OF QUESTION ERRORS
+            # questionlist = Question.objects.filter(question_library=self)
+            # for q in questionlist:
+            #     q_errorlist = QuestionError.objects.filter(question=q)
+            #     self.total_question_errors = q_errorlist.count()
+            #     # print("QUESTION ERORORO")
+            #     # print(q_errorlist.count())
+
+
+
         except:
             RunConversion_Logger.error("[" + str(self.transaction) + "] " +
                                        "Parser Failed")
@@ -325,7 +353,8 @@ class Question(models.Model):
     correct_answers_length = models.PositiveBigIntegerField(blank=True,
                                                             null=True,
                                                             default=0)
-    error = models.TextField(blank=True, null=True)
+
+    # error = models.TextField(blank=True, null=True)
 
     def get_answers(self):
         return Answer.objects.filter(question=self.id)
@@ -368,11 +397,80 @@ class Fib(models.Model):
     order = models.PositiveSmallIntegerField(blank=True, null=True)
 
 
+# class ErrorType(models.Model):
+#     errortype = models.CharField(max_length=7, primary_key=True)
+#     link = models.TextField(max_length=12, null=False)
+
+#     def __str__(self):
+#         return str(self.errortype)
+
+
+class QuestionErrorType(str, Enum):  # A subclass of Enum
+    MC1 = "MC1"
+    TF1 = "TF1"
+    TF2 = "TF2"
+    TF3 = "TF3"
+    TF4 = "TF4"
+    MS1 = "MS1"
+    MT1 = "MT1"
+    MT2 = "MT2"
+    MT3 = "MT3"
+    ORD1 = "ORD1"
+    ORD2 = "ORD2"
+    ORD3 = "ORD3"
+    FIB1 = "FIB1"
+    FIB2 = "FIB2"
+    WR1 = "WR1"
+    WR2 = "WR2"
+    HEADER1 = "HEADER1"
+    HEADER2 = "HEADER2"
+    HEADER3 = "HEADER3"
+    END1 = "END1"
+
+
+class QuestionError(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question,
+                                 related_name='questionerrors',
+                                 on_delete=models.CASCADE)
+    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
+    errortype = models.TextField(max_length=50,
+                                 choices=[(tag, tag.value)
+                                          for tag in QuestionErrorType
+                                          ])  # Choices is a list of Tuple)
+    message = models.TextField(max_length=50)
+    action = models.TextField(max_length=50)
+
+    def __str__(self):
+        return str(self.id)
+
+
+class DocumentErrorType(str, Enum):  # A subclass of Enum
+    SPLITTER1 = "SPLITTER1"
+    SPLITTER2 = "SPLITTER2"
+
+
+class DocumentError(models.Model):
+    id = models.AutoField(primary_key=True)
+    document = models.ForeignKey(QuestionLibrary,
+                                 related_name='documenterrors',
+                                 on_delete=models.CASCADE)
+    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
+    errortype = models.TextField(max_length=50,
+                                 choices=[(tag, tag.value)
+                                          for tag in DocumentErrorType
+                                          ])  # Choices is a list of Tuple)
+    message = models.TextField(max_length=50)
+    action = models.TextField(max_length=50)
+
+    def __str__(self):
+        return str(self.id)
+
+
 class CustomToken(Token):
     """
     The extended authorization token model to support tokens generated from external sources
     """
-
     def save(self, *args, **kwargs):
         # print(self.user)
         # print(self.key)

@@ -23,61 +23,66 @@
 # - semantic versioning is automated by analyzing commit messages for keywords
 #   - refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
 
-
 stages:
-  - build_image
-  # - test
+  - test
+  - build
   - semver-tagging
   - release
   - deploy
 
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
 
-# This job is for building the image with Kaniko (latest)
-build_latest_with_kaniko:
-  stage: build_image
+# #### Re-usable configurations ####
+#
+# Kaniko template
+.build_with_kaniko:
+  stage: build
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
+
+# Deploy template
+.deploy:
+  stage: deploy
+  image: bitnami/kubectl:latest
+
+# #### Jobs ####
+#
+# Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
+security_scan:
+  stage: test
+  script:
+    - echo "running scan"
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG == "main"'
+
+# This job is for building the image with Kaniko (latest)
+build_latest:
+  extends: .build_with_kaniko
+  needs: ["security_scan"]
   script:
     - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - "/kaniko/executor --context $CI_PROJECT_DIR 
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json  
+    - "/kaniko/executor --context $CI_PROJECT_DIR
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
-# TODO: Setup tests
-# run_functional_tests:
-#   stage: test
-
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_staging:
+  extends: .deploy
+  needs: ["build_latest"]
   environment: staging
-  stage: deploy
-  image: bitnami/kubectl:latest
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_REF_SLUG == "main"'
   script:
       - echo "deploy to staging"
     # - kubectl apply -k overlays/staging/
-# update overlays/staging/deployment.yaml to use pipeline variable ($CI_COMMIT_TAG) to pull appropriate image
-
-# This job is for building the image with Kaniko (stable)
-build_stable_with_kaniko:
-  stage: build_image
-  image: 
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - "/kaniko/executor --context $CI_PROJECT_DIR 
-      --dockerfile $CI_PROJECT_DIR/Dockerfile 
-      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$CI_COMMIT_TAG 
-      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:stable"
-  rules:
-     - if: '$CI_COMMIT_TAG'
+# TODO: update overlays/staging/deployment.yaml to use pipeline variable ($CI_COMMIT_TAG) to pull appropriate image
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
@@ -92,20 +97,30 @@ semver_release:
     - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
     - npm install -g semantic-release @semantic-release/gitlab
   script:
-    - 'semantic-release
-      --branches release
-      --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
-      --plugins "@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab"
-      --debug'
+    - 'semantic-release'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
+# This job is for building the image with Kaniko (stable)
+build_stable:
+  extends: .build_with_kaniko
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json  
+    - "/kaniko/executor --context $CI_PROJECT_DIR 
+      --dockerfile $CI_PROJECT_DIR/Dockerfile 
+      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$CI_COMMIT_TAG 
+      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:stable"
+  rules:
+     - if: '$CI_COMMIT_TAG'
+
 # This job deploys the most recent `stable` image to the k8s prod cluster
 deploy_production:
-  # environment: production
-  stage: deploy
-  image: bitnami/kubectl:latest
+  extends: .deploy
+  needs: ["build_stable"]
+  environment: production
   rules:
     - if: $CI_COMMIT_TAG
   script:
       - echo "deploy to prod"
+    # - kubectl apply -k overlays/prod/

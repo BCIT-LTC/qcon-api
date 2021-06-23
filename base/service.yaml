@@ -4,6 +4,7 @@ metadata:
   name: qcon-api
   labels:
     app: qcon-api
+    tier: backend
 spec:
   type: NodePort
   selector:

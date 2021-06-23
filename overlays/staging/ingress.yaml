@@ -2,10 +2,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: qcon-ingress
-#  namespace: web-apps
 spec:
   rules:
-  - http:
+  - host: "qcon-api.dev.ltc.bcit.ca"
+    http:
       paths:
       - path: /
         pathType: Prefix
