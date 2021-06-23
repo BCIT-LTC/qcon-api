@@ -2,34 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-#  namespace: web-apps
-  labels:
-    app: qcon-api
 spec:
-  selector:
-    matchLabels:
-      app: qcon-api
-      tier: backend
-  replicas: 1
-  strategy:
-    type: Recreate
   template:
-    metadata:
-      labels:
-        app: qcon-api
-        tier: backend
     spec:
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/prototypes/qcon:stable
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-        volumeMounts:
-        - name: qcon-api-persistent-storage
-          mountPath: "/code"
-      volumes:
-      - name: qcon-api-persistent-storage
-        persistentVolumeClaim:
-          claimName: qcon-api-pv-claim
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api/qcon-api:latest

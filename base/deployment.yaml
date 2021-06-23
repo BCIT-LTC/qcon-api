@@ -2,37 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-  labels:
-    app: qcon-api
 spec:
   selector:
     matchLabels:
       app: qcon-api
       tier: backend
+  replicas: 1
   template:
     metadata:
       labels:
         app: qcon-api
         tier: backend
     spec:
-      imagePullSecrets:
-      - name: gitlab-reg-creds
       containers:
       - name: qcon-api
-        image: qcon-api
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api/qcon-api:stable
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
         ports:
         - containerPort: 8000
-        env:
-        - name: ADMIN_USERNAME
-          value: "admin"
-        - name: ADMIN_PASSWORD
-          value: "admin"
-        - name: DEBUG
-          value: "False"
-        - name: API_HTTP_ADDR
-          value: https://someurl.ca
-        - name: API_KEY
-          value: "2222222222222222222222222222222222222222"
-        - name: DJANGO_SECRET_KEY
-          value: "d8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=("
-status: {}
+      imagePullSecrets:
+      - name: gitlab-reg-creds
