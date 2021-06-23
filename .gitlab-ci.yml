@@ -99,11 +99,7 @@ semver_release:
     - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
     - npm install -g semantic-release @semantic-release/gitlab
   script:
-    - 'semantic-release
-      --branches release
-      --repository-url "https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/"
-      --plugins "@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab"
-      --debug'
+    - 'semantic-release'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
