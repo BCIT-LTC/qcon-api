@@ -30,8 +30,6 @@ echo "from api_v2.models import CustomToken; \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
 
-chmod -R 755 /var/lib/nginx
-
 #Start gunicorn server
 >&2 echo "Starting Gunicorn"
 gunicorn --bind 0.0.0.0:8001 --timeout 240 qcon.wsgi --daemon

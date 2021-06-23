@@ -55,6 +55,8 @@ COPY manage.py .
 COPY qcon qcon
 COPY api_v2 api_v2
 
+RUN chmod -R 755 /var/lib/nginx
+
 COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
 
