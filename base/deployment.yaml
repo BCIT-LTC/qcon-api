@@ -23,5 +23,15 @@ spec:
             memory: 100Mi
         ports:
         - containerPort: 8000
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 30
+        livenessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
       imagePullSecrets:
       - name: gitlab-reg-creds
