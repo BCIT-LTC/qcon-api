@@ -6,7 +6,6 @@ ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
 
 RUN set -ex \
     && apt-get update \
-    # && apt-get install -y nginx \
     && apt-get install -y --no-install-recommends build-essential gcc wget \
     && wget -O pandoc.deb "$GET_PANDOC_URL/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$ARCH.deb" \
     && dpkg -i pandoc.deb \
@@ -60,5 +59,4 @@ COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8000
-# CMD ["python","manage.py","runserver","0.0.0.0:8000"]
 CMD ["nginx", "-g", "daemon off;"]

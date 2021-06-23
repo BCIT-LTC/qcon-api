@@ -3,9 +3,10 @@ version: "3"
 services:
   app:
     build: .
+    command: python manage.py runserver 0.0.0.0:8002
     image: qconapi
     environment:
-      - DEBUG=False
+      - DEBUG=True
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=admin
       - API_KEY=2222222222222222222222222222222222222222
@@ -16,13 +17,10 @@ services:
       - .:/code
     ports:
       - "8000:8000"
-    # working_dir: /code
+      - "8002:8002"
     networks:
       - app-network
 
-# volumes:
-#   db-volume: 
-
-networks:
+      networks:
   app-network:
     driver: bridge
