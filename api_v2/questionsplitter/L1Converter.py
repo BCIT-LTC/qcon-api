@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from api_v2.questionsplitter.L1Lexer import L1Lexer
 from api_v2.questionsplitter.L1Listener import L1Listener
 from api_v2.questionsplitter.L1Parser import L1Parser
