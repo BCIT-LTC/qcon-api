@@ -61,7 +61,7 @@ security_scan:
   script:
     - echo "running scan"
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main"'
+    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job is for building the image with Kaniko (latest)
 build_latest:
@@ -82,7 +82,7 @@ deploy_staging:
   needs: ["build_latest"]
   environment: staging
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main"'
+    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
     # - kubectl apply -k overlays/staging/
