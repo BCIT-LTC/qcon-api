@@ -54,6 +54,7 @@ COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY manage.py .
 COPY qcon qcon
 COPY api_v2 api_v2
+COPY .env .env
 
 COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
