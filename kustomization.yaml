@@ -1,6 +1,0 @@
-# kustomization.yaml contents
-
-resources:
-- ./overlays/dev
-- ./overlays/staging
-- ./overlays/prod
