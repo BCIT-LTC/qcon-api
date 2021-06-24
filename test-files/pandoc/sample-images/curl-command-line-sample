@@ -1,4 +1,0 @@
-curl -XPOST -H 'Accept: application/json; indent=4' "http://localhost:8000/api/v1/file2question/" -F 'file=@/home/rnevesmoraes/Documents/projects/qcon/test/pandoc/sample-images/test-images.docx' -F 'preview=true'
-
-curl -XPOST -H 'Accept: application/json; indent=4' "http://localhost:8000/api/v1/file2question/" -F 'file=@/home/rnevesmoraes/Documents/projects/qcon/test/ideal-standard-wr-qcon-word-inline.docx' -F 'preview=true'
-
