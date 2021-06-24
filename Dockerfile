@@ -38,7 +38,7 @@ LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
 ENV PATH /code:$PATH
-RUN apk --update add nginx
+RUN apk --update add nginx bash
 
 WORKDIR /code
 VOLUME /code
@@ -54,6 +54,7 @@ COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY manage.py .
 COPY qcon qcon
 COPY api_v2 api_v2
+COPY .env .env
 
 RUN chmod -R 755 /var/lib/nginx
 
