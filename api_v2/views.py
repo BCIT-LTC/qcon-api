@@ -30,10 +30,14 @@ WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
 
 WordToZip_Logger = logging.getLogger('api_v2.views.WordToZip')
 
+
 class TokenAuthenticationWithBearer(TokenAuthentication):
     keyword = 'Bearer'
+
     def __init__(self):
         super(TokenAuthenticationWithBearer, self).__init__()
+
+
 class WordToZip(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
@@ -70,24 +74,23 @@ class WordToZip(APIView):
 
             WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
                                   ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
-
             filename = instance.zip_file.name.split("/")[1]
-            file_response = FileResponse(instance.zip_file)
-            file_response[
-                'Content-Disposition'] = 'attachment; filename="' + filename + '"'
-            return file_response
-            # return JsonResponse(response, status=201)
 
-        # # TODO return jsonresponse with error details
-        # instance = serializer.save()
-        # question_library = QuestionLibrary.objects.get(
-        #     transaction=instance.transaction.id)
-        # question_library_serializer = QuestionLibrarySerializer(
-        #     question_library)
+            theresponse = None
 
-        #     return JsonResponse(question_library_serializer.data, status=500)
+            if (instance.total_question_errors +
+                    instance.total_document_errors == 0):
+                theresponse = FileResponse(instance.zip_file)
+                theresponse[
+                    'Content-Disposition'] = 'attachment; filename="' + filename + '"'
+            else:
+                serialized_data = QuestionLibrarySerializer(instance)
+                theresponse = JsonResponse(serialized_data.data, status=204)
+
+            return theresponse
 
         return JsonResponse(serializer.errors, status=400)
+
 
 class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
