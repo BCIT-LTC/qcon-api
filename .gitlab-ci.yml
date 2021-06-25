@@ -61,10 +61,10 @@ security_scan:
   script:
     - echo "running scan"
   rules:
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH'
-      when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
-      when: never
+    # control for when branch pipelines run (only on main branch)
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    # control for when branch pipelines run (only on release branch)
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job is for building the image with Kaniko (latest)
 build_latest:
