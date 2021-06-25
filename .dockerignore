@@ -8,3 +8,5 @@ env
 .DS_Store
 .dockerignore
 .gitignore
+temp
+**/migrations

@@ -1,5 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 set -e
+
+# set env vars
+source .env
+export $(cut -d = -f 1 .env)
+rm .env
+# TODO: unset vars for running container
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2
@@ -29,8 +35,6 @@ echo "from api_v2.models import CustomToken; \
         print('API Token: ' + str(CustomToken.objects.get(user=theuser)))" \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
-
-chmod -R 755 /var/lib/nginx
 
 #Start gunicorn server
 >&2 echo "Starting Gunicorn"
