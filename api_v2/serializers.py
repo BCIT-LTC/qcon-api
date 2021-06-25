@@ -28,47 +28,6 @@ def count_errors(questionlibrary):
     questionlibrary.total_question_errors = num_question_errors
     questionlibrary.save()
 
-
-class UploadSerializer(serializers.Serializer):
-
-    temp_file = serializers.FileField(validators=[validate_file],
-                                      max_length=100,
-                                      allow_empty_file=False,
-                                      use_url=True)
-
-    # section_name = serializers.CharField( max_length=100, allow_null=True, allow_blank=True, required=False)
-
-    def create(self, validated_data):
-        # newconversion = QuestionLibrary.objects.create(**validated_data)
-        newtransaction = Transaction(client='qconweb')
-        newtransaction.save()
-
-        newconversion = QuestionLibrary.objects.create()
-        newconversion.transaction = newtransaction
-        # print("transaction " + str(newconversion.transaction))
-        # print("qlibratry " + str(newtransaction.questionlibrary))
-        newconversion.temp_file = validated_data.get('temp_file',
-                                                     validated_data)
-        newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.filter_section_name()
-        # print(newconversion.section_name)
-
-        newconversion.folder_path = settings.MEDIA_ROOT + \
-            str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
-        newconversion.create_directory()
-        newconversion.save()
-        # async_task('api_v2.tasks.runconversion', newconversion)
-
-        return newconversion.transaction
-
-    def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get('temp_file',
-                                                instance.temp_file)
-        instance.save()
-        return instance
-
-
 class WordToZipSerializer(serializers.Serializer):
 
     temp_file = serializers.FileField(validators=[validate_file],
