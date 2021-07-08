@@ -6,6 +6,9 @@
 # 2. Run skaffold:
 #    `skaffold dev -p {profile.name} --port-forward -f deploy/skaffold.yaml`
 #
+# 3. Login to image registry:
+#     `docker login registry.dev.ltc.bcit.ca`
+#
 # TODO: find a better way to spin up identical pod deployments (to limit scope for pod network connectivity)
 #
 apiVersion: skaffold/v2beta11
@@ -18,29 +21,29 @@ build:
       prefix: dev-
   artifacts:
   - image: qcon-api
-    context: .
+    context: ../
   local:
     useBuildkit: true
 deploy:
   kustomize:
     paths:
-    - deploy/overlays/dev
+    - overlays/dev
 profiles:
 - name: v
   deploy:
     kustomize:
       paths:
-      - deploy/overlays/dev
+      - overlays/dev
       defaultNamespace: default-v
 - name: a
   deploy:
     kustomize:
       paths:
-      - deploy/overlays/dev
+      - overlays/dev
       defaultNamespace: default-a
 - name: k
   deploy:
     kustomize:
       paths:
-      - deploy/overlays/dev
+      - overlays/dev
       defaultNamespace: default-k
