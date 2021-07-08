@@ -80,7 +80,11 @@ build_latest:
 deploy_staging:
   extends: .deploy
   needs: ["build_latest"]
-  environment: staging
+  environment:
+    name: staging
+    url: https://builds.dev.ltc.bcit.ca/$CI_COMMIT_BRANCH
+    kubernetes:
+      namespace: staging
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
