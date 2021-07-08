@@ -112,8 +112,8 @@ class QuestionLibrary(models.Model):
     def filter_section_name(self):
         section_name = self.section_name.strip()
         section_name = section_name.lower()
-        filtered_section_name = re.sub(
-            r"\s+|<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "-", section_name)
+        filtered_section_name = re.sub('[\W_]+', ' ', section_name).strip()
+        filtered_section_name = filtered_section_name.replace(' ', '-')
 
         # Limit the filename to 30 characters
         filtered_section_name = (
