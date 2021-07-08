@@ -3,11 +3,14 @@
 # 1. Set skaffold config:
 #    `skaffold config set default-repo registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api`
 #
+# 2. Login to image registry:
+#     `docker login registry.dev.ltc.bcit.ca`
+#
+# 3. Set Kubernetes cluster context:
+#     `kubectl config set context --namespace=default-{profile.name} k8s-dev-cp`
+#
 # 2. Run skaffold:
 #    `skaffold dev -p {profile.name} --port-forward -f deploy/skaffold.yaml`
-#
-# 3. Login to image registry:
-#     `docker login registry.dev.ltc.bcit.ca`
 #
 # TODO: find a better way to spin up identical pod deployments (to limit scope for pod network connectivity)
 #
