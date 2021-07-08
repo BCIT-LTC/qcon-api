@@ -34,4 +34,4 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
       imagePullSecrets:
-      - name: gitlab-reg-creds
+      - name: dependabot-web-apps
