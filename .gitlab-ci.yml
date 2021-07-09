@@ -100,8 +100,8 @@ read_secrets:
   stage: test
   secrets:
     SOME_SECRET:
-      vault: "staging/foo@ops"  # translates to secret `ops/staging`, field `foo`
-      file: false
+      vault: staging/foo@ops  # translates to secret `ops/staging`, field `foo`
+      # file: false
   script:
     - echo $SOME_SECRET
 
