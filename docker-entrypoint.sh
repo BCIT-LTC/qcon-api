@@ -4,7 +4,6 @@ set -e
 # set env vars
 source .env
 export $(cut -d = -f 1 .env)
-rm .env
 # TODO: unset vars for running container
 
 >&2 echo "make Database migrations"
