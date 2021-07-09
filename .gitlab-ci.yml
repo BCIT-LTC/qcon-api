@@ -98,14 +98,15 @@ deploy_staging:
 
 read_secrets:
   stage: test
-  secrets:
-    VAULT_SECRET:
-      vault: "staging/foo@ops"  # translates to secret `ops/staging`, field `foo`
+  # secrets:
+  #   VAULT_SECRET:
+  #     vault: "staging/foo@ops"  # translates to secret `ops/staging`, field `foo`
   script:
     - export VAULT_ADDR=https://vault.ltc.bcit.ca:8200
     - export VAULT_TOKEN="$(vault write -field=token auth/jwt/login role=web-apps-staging jwt=$CI_JOB_JWT)"
     - export VAULT_SECRET="$(vault kv get -field=foo ops/staging)"
     - echo $VAULT_SECRET
+    - echo $CI_JOB_JWT
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
