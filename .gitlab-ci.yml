@@ -39,6 +39,10 @@ include:
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
 
+variables:
+  VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
+  VAULT_AUTH_ROLE: "web-apps-staging"
+
 # #### Re-usable configurations ####
 #
 # Kaniko template
@@ -89,8 +93,16 @@ deploy_staging:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
+      - echo "$VAULT_SECRET"
     # - kubectl apply -k overlays/staging
 # TODO: update overlays/staging/deployment.yaml to use pipeline variable ($CI_COMMIT_TAG) to pull appropriate image
+
+read_secrets:
+  secrets:
+    VAULT_SECRET:
+      vault: "staging/foo@ops"  # translates to secret `ops/data/production/db`, field `password`
+  script:
+  - echo "$VAULT_SECRET"
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
