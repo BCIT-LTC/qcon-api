@@ -9,6 +9,5 @@ bases:
 patchesStrategicMerge:
   - deployment.yaml
 
-# TODO: add an ingress for staging
-# resources:
-# - ingress.yaml
+resources:
+  - ingress.yaml
