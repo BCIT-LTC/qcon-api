@@ -3,4 +3,4 @@
 bases:
 # - overlays/dev
 # - overlays/staging
-- overlays/prod
+  - overlays/prod
