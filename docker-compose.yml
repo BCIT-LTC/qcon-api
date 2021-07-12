@@ -15,9 +15,14 @@ services:
     ports:
       - "8000:8000"
       - "8002:8002"
+    hostname: api.local
     networks:
-      - app-network
+      qcon-network:
+        aliases:
+          - api.local
 
 networks:
-  app-network:
+  qcon-network:
+    # external: true
     driver: bridge
+    name: qcon-network
