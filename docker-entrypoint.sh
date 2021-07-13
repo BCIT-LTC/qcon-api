@@ -4,6 +4,7 @@ set -e
 # set env vars
 source .env
 export $(cut -d = -f 1 .env)
+# rm .env
 # TODO: unset vars for running container
 
 >&2 echo "make Database migrations"
@@ -38,4 +39,6 @@ echo "--------------------------------------------------------------------------
 #Start gunicorn server
 >&2 echo "Starting Gunicorn"
 gunicorn --bind 0.0.0.0:8001 --timeout 240 qcon.wsgi --daemon
+
+# python manage.py runserver 0.0.0.0:8002
 exec "$@"
