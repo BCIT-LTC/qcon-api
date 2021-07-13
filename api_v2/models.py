@@ -112,9 +112,12 @@ class QuestionLibrary(models.Model):
     def filter_section_name(self):
         section_name = self.section_name.strip()
         section_name = section_name.lower()
-        filtered_section_name = re.sub(
-            r"\s+|<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "-", section_name)
+        filtered_section_name = re.sub('[\W_]+', ' ', section_name).strip()
+        filtered_section_name = filtered_section_name.replace(' ', '-')
 
+        # If the file name is illegal Windows string, replace with "Converted-Exam"
+        filtered_section_name = filtered_section_name.replace('^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam', re.IGNORECASE)
+        
         # Limit the filename to 30 characters
         filtered_section_name = (
             filtered_section_name[:50]) if len(filtered_section_name) > 50 else filtered_section_name
