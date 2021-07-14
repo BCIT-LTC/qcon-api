@@ -76,18 +76,16 @@ class WordToZip(APIView):
                                   ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
             filename = instance.zip_file.name.split("/")[1]
 
-            theresponse = None
-
             if (instance.total_question_errors +
                     instance.total_document_errors == 0):
                 theresponse = FileResponse(instance.zip_file)
                 theresponse[
                     'Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                return theresponse
             else:
                 serialized_data = QuestionLibrarySerializer(instance)
-                theresponse = JsonResponse(serialized_data.data, status=204)
-
-            return theresponse
+                theresponse = JsonResponse(serialized_data.data, status=200)
+                return theresponse
 
         return JsonResponse(serializer.errors, status=400)
 
