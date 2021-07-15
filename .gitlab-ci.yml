@@ -101,6 +101,7 @@ read_secrets:
   secrets:
     SOME_SECRET:
       vault: staging/foo@ops  # translates to secret `ops/staging`, field `foo`
+      file: false
   script:
     - echo $SOME_SECRET
 
