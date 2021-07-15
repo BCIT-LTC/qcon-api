@@ -143,5 +143,4 @@ deploy_production:
     - if: $CI_COMMIT_TAG
   script:
       - echo "deploy to prod"
-    # - kubectl apply -k overlays/prod/j
-#nothing
+    # - kubectl apply -k overlays/prod
