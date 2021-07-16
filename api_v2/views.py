@@ -5,7 +5,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
-from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer
+from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer, QuestionLibraryErrorsSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,7 +18,7 @@ from rest_framework.parsers import FileUploadParser
 from django.core.files.base import ContentFile
 # from os import makedirs, path, walk
 
-from .models import QuestionLibrary
+from .models import QuestionError, QuestionLibrary
 from .models import Question
 from .models import Transaction
 
@@ -83,7 +83,27 @@ class WordToZip(APIView):
                     'Content-Disposition'] = 'attachment; filename="' + filename + '"'
                 return theresponse
             else:
-                serialized_data = QuestionLibrarySerializer(instance)
+                #Query only the records that contain errors
+                
+                # errorlist = QuestionError.objects.filter()
+                questionlist = Question.objects.filter(question_library=instance)
+
+                # filtered_questionlist_ids = []
+                # for q in questionlist:
+                #     q_errorlist = QuestionError.objects.filter(question=q)
+                #     if q_errorlist.count() > 0:
+                #         filtered_questionlist_ids.append(q.id)
+
+                # for thevalue in filtered_questionlist_ids:
+                #     print(str(thevalue) + " fd")
+
+                # filtered_questionlist_queryset = questionlist.filter(id__in=filtered_questionlist_ids)
+
+                # for f in filtered_questionlist_queryset:
+                #     print(f.prefix)
+
+                # serialized_data = QuestionLibrarySerializer(instance)
+                serialized_data = QuestionLibraryErrorsSerializer(instance)
                 theresponse = JsonResponse(serialized_data.data, status=200)
                 return theresponse
 

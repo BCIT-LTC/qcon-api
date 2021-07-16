@@ -239,3 +239,49 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
             'section_name', 'randomize_answer', 'total_question_errors',
             'total_document_errors', 'documenterrors', 'questions'
         ]
+
+
+# ===================================== for /WORDZIP(CURL commands)
+
+
+class QuestionErrorSimpleSerializer(serializers.ModelSerializer):
+    # questionerrors = QuestionErrorSerializer(many=True, read_only=True)
+    
+    questionerrors = serializers.SerializerMethodField('get_question_errors')
+
+    def get_question_errors(self, Question):
+        qs = QuestionError.objects.filter(question=Question)
+        serializer = QuestionErrorSerializer(instance=qs, many=True, read_only=True)
+        return serializer.data
+    # class ProductSerializer(serializers.ModelSerializer):
+    # likes = serializers.SerializerMethodField('get_likes')
+
+    # def get_likes(self, product):
+    #     qs = Like.objects.filter(whether_like=True, product=product)
+    #     serializer = LikeSerializer(instance=qs, many=True)
+    #     return serializer.data
+
+    # class Meta:
+    #     model = Product
+    #     fields = ('id', 'name', 'likes')
+
+    class Meta:
+        model = Question
+        fields = [
+            'prefix', 'questionerrors'
+        ]
+
+    def get_queryset(self):
+        queryset = Question.objects.all()
+        
+        return queryset
+
+class QuestionLibraryErrorsSerializer(serializers.ModelSerializer):
+    questions = QuestionErrorSimpleSerializer(many=True, read_only=True)
+    documenterrors = DocumentErrorSerializer(many=True, read_only=True)
+    class Meta:
+        model = QuestionLibrary
+        fields = [
+            'section_name', 'total_question_errors',
+            'total_document_errors', 'documenterrors', 'questions'
+        ]
