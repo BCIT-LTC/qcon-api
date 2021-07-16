@@ -66,15 +66,15 @@ security_scan:
 # This job is for building the image with Kaniko (latest)
 build_latest:
   extends: .build_with_kaniko
-  needs: ["security_scan"]
+  # needs: ["security_scan"]
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json  
     - "/kaniko/executor --context $CI_PROJECT_DIR
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+  # rules:
+  #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_staging:
@@ -85,10 +85,18 @@ deploy_staging:
     url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
     kubernetes:
       namespace: staging
+  # rules:
+  #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
   script:
       - echo "deploy to staging"
+    - 'kubectl create secret docker-registry gitlab-registry \
+    --docker-server="$CI_REGISTRY" \
+    --docker-username="$CI_DEPLOY_USER" \
+    --docker-password="$CI_DEPLOY_PASSWORD" \
+    --docker-email="$GITLAB_USER_EMAIL" -o yaml \
+    --dry-run=client | kubectl apply -f -'
     # - kubectl apply -k overlays/staging
 
 #   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
@@ -103,12 +111,6 @@ read_secrets:
       vault: dependabots/dependabot-web-apps@deploy-tokens  # translates to secret `ops/staging`, field `foo`
   script:
     - cat $SOME_SECRET
-    - 'kubectl create secret docker-registry gitlab-registry \
-    --docker-server="$CI_REGISTRY" \
-    --docker-username="$CI_DEPLOY_USER" \
-    --docker-password="$CI_DEPLOY_PASSWORD" \
-    --docker-email="$GITLAB_USER_EMAIL" -o yaml \
-    --dry-run=client | kubectl apply -f -'
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
