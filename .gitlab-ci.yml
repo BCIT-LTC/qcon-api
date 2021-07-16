@@ -87,16 +87,14 @@ deploy_staging:
       namespace: staging
   # rules:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
-  rules:
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
   script:
       - echo "deploy to staging"
-    - 'kubectl create secret docker-registry gitlab-registry \
-    --docker-server="$CI_REGISTRY" \
-    --docker-username="$CI_DEPLOY_USER" \
-    --docker-password="$CI_DEPLOY_PASSWORD" \
-    --docker-email="$GITLAB_USER_EMAIL" -o yaml \
-    --dry-run=client | kubectl apply -f -'
+      - 'kubectl create secret docker-registry gitlab-registry \
+      --docker-server="$CI_REGISTRY" \
+      --docker-username="$CI_DEPLOY_USER" \
+      --docker-password="$CI_DEPLOY_PASSWORD" \
+      --docker-email="$GITLAB_USER_EMAIL" -o yaml \
+      --dry-run=client | kubectl apply -f -'
     # - kubectl apply -k overlays/staging
 
 #   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
