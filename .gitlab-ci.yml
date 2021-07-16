@@ -1,7 +1,3 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
 ##### Pipeline Overview #####
 #
 # #### `main` branch ####
@@ -41,7 +37,7 @@ stages:
 
 variables:
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  VAULT_AUTH_ROLE: "web-apps-staging"
+  VAULT_AUTH_ROLE: "deploy-tokens"
 
 # #### Re-usable configurations ####
 #
@@ -94,13 +90,17 @@ deploy_staging:
   script:
       - echo "deploy to staging"
     # - kubectl apply -k overlays/staging
+
+#   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
+#   - pull latest image from GitLab registry (depenabot credentials from vault - deploy-tokens/dependabots/dependabot-web-apps)
+#   - deploy the image using kustomize, injecting secrets from vault (vault path to app secrets)
 # TODO: update overlays/staging/deployment.yaml to use pipeline variable ($CI_COMMIT_TAG) to pull appropriate image
 
 read_secrets:
   stage: test
   secrets:
     SOME_SECRET:
-      vault: staging/foo@ops  # translates to secret `ops/staging`, field `foo`
+      vault: dependabots/dependabot-web-apps@deploy-tokens  # translates to secret `ops/staging`, field `foo`
   script:
     - cat $SOME_SECRET
 
