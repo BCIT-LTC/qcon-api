@@ -103,6 +103,12 @@ read_secrets:
       vault: dependabots/dependabot-web-apps@deploy-tokens  # translates to secret `ops/staging`, field `foo`
   script:
     - cat $SOME_SECRET
+    - 'kubectl create secret docker-registry gitlab-registry \
+    --docker-server="$CI_REGISTRY" \
+    --docker-username="$CI_DEPLOY_USER" \
+    --docker-password="$CI_DEPLOY_PASSWORD" \
+    --docker-email="$GITLAB_USER_EMAIL" -o yaml \
+    --dry-run=client | kubectl apply -f -'
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
