@@ -132,11 +132,14 @@ read_secrets:
 
 stop_review:
   stage: deploy
+  image: bitnami/kubectl:latest
   script:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/staging
   environment:
     name: staging
+    kubernetes:
+      namespace: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
     action: stop
   when: manual
 
