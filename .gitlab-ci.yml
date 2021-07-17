@@ -56,8 +56,8 @@ variables:
     --label com.gitlab.ci.commiturl=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA
     --label com.gitlab.ci.cijoburl=$CI_JOB_URL
     --label com.gitlab.ci.mrurl=$CI_PROJECT_URL/-/merge_requests/$CI_MERGE_REQUEST_ID
-    --label app.gitlab.com/env: $CI_ENVIRONMENT_SLUG
-    --label app.gitlab.com/app: $CI_PROJECT_PATH_SLUG
+    --label app.gitlab.com/env=$CI_ENVIRONMENT_SLUG
+    --label app.gitlab.com/app=$CI_PROJECT_PATH_SLUG
 
 # #### Re-usable configurations ####
 #
@@ -160,10 +160,10 @@ deploy_staging:
 read_secrets:
   stage: test
   secrets:
-    SOME_SECRET:
+    DEPLOY_TOKEN:
       vault: dependabots/dependabot-web-apps@deploy-tokens  # translates to secret `ops/staging`, field `foo`
   script:
-    - cat $SOME_SECRET
+    - cat $DEPLOY_TOKEN
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
