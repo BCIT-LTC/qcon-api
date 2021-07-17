@@ -38,6 +38,9 @@ stages:
 variables:
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
   VAULT_AUTH_ROLE: "deploy-tokens"
+  IMAGE_LABELS: >
+      --label app.gitlab.com/env: $CI_ENVIRONMENT_SLUG
+      --label app.gitlab.com/app: $CI_PROJECT_PATH_SLUG
 
 # #### Re-usable configurations ####
 #
@@ -71,6 +74,7 @@ build_latest:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json  
     - "/kaniko/executor --context $CI_PROJECT_DIR
+      --label $IMAGE_LABELS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
   # rules:
@@ -89,6 +93,7 @@ deploy_staging:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
+      - echo "$CI_REGISTRY"
       - 'kubectl create secret docker-registry gitlab-registry
       --docker-server="$CI_REGISTRY"
       --docker-username="$CI_DEPLOY_USER"
