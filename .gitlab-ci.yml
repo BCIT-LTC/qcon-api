@@ -56,18 +56,19 @@ variables:
   stage: deploy
   image: bitnami/kubectl:latest
 
-debug_trace:
-  image: alpine
-  stage: deploy
-  environment:
-    name: staging
-    url: https://builds.dev.ltc.bcit.ca
-    kubernetes:
-      namespace: default
-  variables:
-    CI_DEBUG_TRACE: "true"
-  script:
-  - echo 'Testing debug trace'
+# debug_trace:
+#   image: alpine
+#   stage: deploy
+#   environment:
+#     name: staging
+#     url: https://builds.dev.ltc.bcit.ca
+#     kubernetes:
+#       namespace: default
+#   variables:
+#     CI_DEBUG_TRACE: "true"
+#   script:
+#   - echo 'Testing debug trace'
+
 
 # #### Jobs ####
 #
@@ -94,7 +95,7 @@ build_latest:
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_staging:
-  # extends: .deploy
+  extends: .deploy
   stage: deploy
   # needs: ["build_latest"]
   environment:
@@ -106,6 +107,7 @@ deploy_staging:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
+      - kubectl get ns
       # - 'kubectl create secret docker-registry gitlab-registry
       # --docker-server="$CI_REGISTRY"
       # --docker-username="$CI_DEPLOY_USER"
