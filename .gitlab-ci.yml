@@ -58,6 +58,7 @@ variables:
 
 debug_trace:
   image: alpine
+  stage: test
   variables:
     CI_DEBUG_TRACE: "true"
   script:
