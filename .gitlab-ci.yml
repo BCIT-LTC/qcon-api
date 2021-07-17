@@ -58,7 +58,12 @@ variables:
 
 debug_trace:
   image: alpine
-  stage: test
+  stage: deploy
+  environment:
+    name: staging
+    url: https://builds.dev.ltc.bcit.ca
+    kubernetes:
+      namespace: default
   variables:
     CI_DEBUG_TRACE: "true"
   script:
