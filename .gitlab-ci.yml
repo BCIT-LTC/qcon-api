@@ -100,21 +100,21 @@ deploy_staging:
   # needs: ["build_latest"]
   environment:
     name: staging
-    url: https://builds.dev.ltc.bcit.ca
+    url: https://builds.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: default
+      namespace: $CI_COMMIT_REF_SLUG
   # rules:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
-      - kubectl get ns
+      - kubectl create ns $CI_COMMIT_REF_SLUG
       # - 'kubectl create secret docker-registry gitlab-registry
       # --docker-server="$CI_REGISTRY"
       # --docker-username="$CI_DEPLOY_USER"
       # --docker-password="$CI_DEPLOY_PASSWORD"
       # --docker-email="$GITLAB_USER_EMAIL" -o yaml
       # --dry-run=client | kubectl apply -f -'
-    # - kubectl apply -k overlays/staging
+      - kubectl apply -k overlays/staging
 
 #   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
 #   - pull latest image from GitLab registry (depenabot credentials from vault - deploy-tokens/dependabots/dependabot-web-apps)
