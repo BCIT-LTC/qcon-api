@@ -95,15 +95,16 @@ build_latest:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
-deploy_staging:
+deploy_review:
   extends: .deploy
   stage: deploy
   # needs: ["build_latest"]
   environment:
     name: staging
-    url: https://builds.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG
+    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: $CI_COMMIT_REF_SLUG
+      # namespace: $CI_COMMIT_REF_SLUG
+    on_stop: stop_review
   # rules:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
@@ -129,6 +130,17 @@ read_secrets:
       vault: dependabots/dependabot-web-apps@deploy-tokens  # translates to secret `ops/staging`, field `foo`
   script:
     - cat $SOME_SECRET
+
+stop_review:
+  stage: deploy
+  script:
+    - echo "Remove review app"
+    - kubectl delete -k deploy/overlays/staging
+  environment:
+    name: staging
+    action: stop
+  when: manual
+
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
