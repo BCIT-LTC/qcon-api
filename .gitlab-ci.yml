@@ -38,6 +38,7 @@ stages:
 variables:
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
   VAULT_AUTH_ROLE: "deploy-tokens"
+  KUBE_NAMESPACE: "default"
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
 
@@ -54,6 +55,13 @@ variables:
 .deploy:
   stage: deploy
   image: bitnami/kubectl:latest
+
+debug_trace:
+  image: alpine
+  variables:
+    CI_DEBUG_TRACE: "true"
+  script:
+  - echo 'Testing debug trace'
 
 # #### Jobs ####
 #
@@ -80,23 +88,24 @@ build_latest:
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_staging:
-  extends: .deploy
-  needs: ["build_latest"]
+  # extends: .deploy
+  stage: deploy
+  # needs: ["build_latest"]
   environment:
     name: staging
-    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
+    url: https://builds.dev.ltc.bcit.ca
     kubernetes:
       namespace: default
   # rules:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
-      - 'kubectl create secret docker-registry gitlab-registry
-      --docker-server="$CI_REGISTRY"
-      --docker-username="$CI_DEPLOY_USER"
-      --docker-password="$CI_DEPLOY_PASSWORD"
-      --docker-email="$GITLAB_USER_EMAIL" -o yaml
-      --dry-run=client | kubectl apply -f -'
+      # - 'kubectl create secret docker-registry gitlab-registry
+      # --docker-server="$CI_REGISTRY"
+      # --docker-username="$CI_DEPLOY_USER"
+      # --docker-password="$CI_DEPLOY_PASSWORD"
+      # --docker-email="$GITLAB_USER_EMAIL" -o yaml
+      # --dry-run=client | kubectl apply -f -'
     # - kubectl apply -k overlays/staging
 
 #   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
