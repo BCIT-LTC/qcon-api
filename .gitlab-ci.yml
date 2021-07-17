@@ -39,7 +39,6 @@ variables:
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
   VAULT_AUTH_ROLE: "deploy-tokens"
-  KUBE_NAMESPACE: "default"
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
 
@@ -101,15 +100,15 @@ deploy_review:
   # needs: ["build_latest"]
   environment:
     name: staging
-    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG
+    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
     kubernetes:
-      # namespace: $CI_COMMIT_REF_SLUG
+      namespace: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
     on_stop: stop_review
   # rules:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
-      - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+      - kubectl create ns $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
       # - 'kubectl create secret docker-registry gitlab-registry
       # --docker-server="$CI_REGISTRY"
       # --docker-username="$CI_DEPLOY_USER"
