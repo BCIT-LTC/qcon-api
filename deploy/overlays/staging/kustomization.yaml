@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: qcon
+# namespace: qcon
 
 bases:
   - ../../base
@@ -10,5 +10,5 @@ patchesStrategicMerge:
   - deployment.yaml
 
 # TODO: add an ingress for staging
-# resources:
-# - ingress.yaml
+resources:
+- ingress.yaml

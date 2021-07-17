@@ -4,10 +4,10 @@ metadata:
   name: qcon-ingress
 spec:
   rules:
-  - host: "qcon-api.dev.ltc.bcit.ca"
+  - host: "staging.dev.ltc.bcit.ca"
     http:
       paths:
-      - path: /
+      - path: /qcon-api
         pathType: Prefix
         backend:
           service:
