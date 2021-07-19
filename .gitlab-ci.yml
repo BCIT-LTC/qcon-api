@@ -38,7 +38,7 @@ stages:
 variables:
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  VAULT_AUTH_ROLE: "deploy-tokens"
+  VAULT_AUTH_ROLE: "read-tokens-web-apps"
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
 
@@ -108,7 +108,7 @@ deploy_review:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
-      - kubectl create ns $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+      # - kubectl create ns $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
       # - 'kubectl create secret docker-registry gitlab-registry
       # --docker-server="$CI_REGISTRY"
       # --docker-username="$CI_DEPLOY_USER"
@@ -124,11 +124,14 @@ deploy_review:
 
 read_secrets:
   stage: test
+  # Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
   secrets:
-    SOME_SECRET:
-      vault: dependabots/dependabot-web-apps@deploy-tokens  # translates to secret `ops/staging`, field `foo`
+    DEPENDABOT_USERNAME:
+      vault: web-apps/dependabot-web-apps/CI_DEPLOY_USERNAME@tokens
+    DEPENDABOT_PASSWORD:
+      vault: web-apps/dependabot-web-apps/CI_DEPLOY_PASSWORD@tokens
   script:
-    - cat $SOME_SECRET
+    - cat $DEPENDABOT_USERNAME
 
 stop_review:
   stage: deploy
@@ -157,7 +160,10 @@ semver_release:
     - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
     - npm install -g semantic-release @semantic-release/gitlab
   script:
-    - 'semantic-release'
+    - semantic-release
+      --branches release
+      --repository-url "$CI_PROJECT_URL"
+      --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, '@semantic-release/gitlab'
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
@@ -183,4 +189,4 @@ deploy_production:
     - if: $CI_COMMIT_TAG
   script:
       - echo "deploy to prod"
-    # - kubectl apply -k overlays/prod
+# TODO: Get Fleet to pickup changes
