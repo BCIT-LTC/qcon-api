@@ -244,7 +244,7 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
 # ===================================== for /WORDZIP(CURL commands)
 
 
-class QuestionErrorSimpleSerializer(serializers.ModelSerializer):
+class QuestionErrorSummarySerializer(serializers.ModelSerializer):
     questionerrors = QuestionErrorSerializer(many=True, read_only=True)
    
     class Meta:
@@ -253,8 +253,7 @@ class QuestionErrorSimpleSerializer(serializers.ModelSerializer):
             'prefix', 'questionerrors'
         ]
 
-class QuestionLibraryErrorsSerializer(serializers.ModelSerializer):
-    # questions = QuestionErrorSimpleSerializer(many=True, read_only=True)
+class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
     documenterrors = DocumentErrorSerializer(many=True, read_only=True)
     questions = serializers.SerializerMethodField('get_questions')
 
@@ -266,7 +265,7 @@ class QuestionLibraryErrorsSerializer(serializers.ModelSerializer):
             if q_errorlist.count() > 0:
                 filtered_questionlist_ids.append(q.id)
         filtered_questionlist_queryset = questionlist.filter(id__in=filtered_questionlist_ids)
-        serializer = QuestionErrorSimpleSerializer(instance=filtered_questionlist_queryset, many=True, read_only=True)
+        serializer = QuestionErrorSummarySerializer(instance=filtered_questionlist_queryset, many=True, read_only=True)
         return serializer.data
     class Meta:
         model = QuestionLibrary
