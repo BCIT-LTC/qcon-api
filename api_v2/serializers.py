@@ -245,40 +245,29 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
 
 
 class QuestionErrorSimpleSerializer(serializers.ModelSerializer):
-    # questionerrors = QuestionErrorSerializer(many=True, read_only=True)
-    
-    questionerrors = serializers.SerializerMethodField('get_question_errors')
-
-    def get_question_errors(self, Question):
-        qs = QuestionError.objects.filter(question=Question)
-        serializer = QuestionErrorSerializer(instance=qs, many=True, read_only=True)
-        return serializer.data
-    # class ProductSerializer(serializers.ModelSerializer):
-    # likes = serializers.SerializerMethodField('get_likes')
-
-    # def get_likes(self, product):
-    #     qs = Like.objects.filter(whether_like=True, product=product)
-    #     serializer = LikeSerializer(instance=qs, many=True)
-    #     return serializer.data
-
-    # class Meta:
-    #     model = Product
-    #     fields = ('id', 'name', 'likes')
-
+    questionerrors = QuestionErrorSerializer(many=True, read_only=True)
+   
     class Meta:
         model = Question
         fields = [
             'prefix', 'questionerrors'
         ]
 
-    def get_queryset(self):
-        queryset = Question.objects.all()
-        
-        return queryset
-
 class QuestionLibraryErrorsSerializer(serializers.ModelSerializer):
-    questions = QuestionErrorSimpleSerializer(many=True, read_only=True)
+    # questions = QuestionErrorSimpleSerializer(many=True, read_only=True)
     documenterrors = DocumentErrorSerializer(many=True, read_only=True)
+    questions = serializers.SerializerMethodField('get_questions')
+
+    def get_questions(self, questionlibrary):        
+        questionlist = Question.objects.filter(question_library=questionlibrary)
+        filtered_questionlist_ids = []
+        for q in questionlist:
+            q_errorlist = QuestionError.objects.filter(question=q)
+            if q_errorlist.count() > 0:
+                filtered_questionlist_ids.append(q.id)
+        filtered_questionlist_queryset = questionlist.filter(id__in=filtered_questionlist_ids)
+        serializer = QuestionErrorSimpleSerializer(instance=filtered_questionlist_queryset, many=True, read_only=True)
+        return serializer.data
     class Meta:
         model = QuestionLibrary
         fields = [
