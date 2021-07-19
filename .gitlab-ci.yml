@@ -108,7 +108,7 @@ deploy_review:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
   script:
       - echo "deploy to staging"
-      # - kubectl create ns $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+      - kubectl create ns $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
       # - 'kubectl create secret docker-registry gitlab-registry
       # --docker-server="$CI_REGISTRY"
       # --docker-username="$CI_DEPLOY_USER"
