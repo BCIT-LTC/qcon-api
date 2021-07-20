@@ -114,7 +114,7 @@ deploy_review:
     CI_DEPLOY_USERNAME:
       vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_USERNAME@tokens
     DEPLOY_PASSWORD:
-      vault: dependabot-"$CI_PROJECT_NAME"/"$CI_DEPLOY_PASSWORD"@tokens
+      vault: dependabot-qcon-api/CI_DEPLOY_PASSWORD@tokens
   script:
     - echo "deploy to staging"
     - echo "$CI_DEPLOY_USERNAME"
