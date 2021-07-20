@@ -82,7 +82,7 @@ security_scan:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job is for building the image with Kaniko (latest)
-build_latest:
+.build_latest:
   extends: .build_with_kaniko
   # needs: ["security_scan"]
   script:
@@ -114,7 +114,7 @@ deploy_review:
     CI_DEPLOY_USERNAME:
       vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_USERNAME@tokens
     DEPLOY_PASSWORD:
-      vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_PASSWORD@tokens
+      vault: dependabot-"$CI_PROJECT_NAME"/"$CI_DEPLOY_PASSWORD"@tokens
   script:
     - echo "deploy to staging"
     - echo "$CI_DEPLOY_USERNAME"
