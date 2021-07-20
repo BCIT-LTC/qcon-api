@@ -116,15 +116,14 @@ deploy_review:
     PROJECT_TOKEN_PASSWORD:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
-    - echo "deploy to staging"
-    - echo "$(cat $PROJECT_TOKEN_USERNAME)"
-    # - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    # - kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
-    #   --docker-server=$PROJECT_REGISTRY \
-    #   --docker-username="$(cat $CI_DEPLOY_USERNAME)" \
-    #   --docker-password="(cat $CI_DEPLOY_PASSWORD)" \
-    #   --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -
-    # - kubectl apply -k deploy/overlays/staging
+    - echo "deploy to staging for review"
+    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
+      --docker-server=$PROJECT_REGISTRY \
+      --docker-username="$(cat $PROJECT_TOKEN_USERNAME)" \
+      --docker-password="$(cat $PROJECT_TOKEN_PASSWORD)" \
+      --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl apply -k deploy/overlays/staging
 
 #   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
 #   - pull latest image from GitLab registry (depenabot credentials from vault - deploy-tokens/dependabots/dependabot-web-apps)
