@@ -38,7 +38,7 @@ stages:
 variables:
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  VAULT_AUTH_ROLE: "read-tokens-web-apps"
+  VAULT_AUTH_ROLE: "read-tokens"
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
@@ -110,19 +110,19 @@ deploy_review:
   #
   # Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
   #
-  # secrets:
-  #   CI_DEPLOY_USERNAME:
-  #     vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_USERNAME@tokens
-  #   CI_DEPLOY_PASSWORD:
-  #     vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_PASSWORD@tokens
+  secrets:
+    CI_DEPLOY_USERNAME:
+      vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_USERNAME@tokens
+    CI_DEPLOY_PASSWORD:
+      vault: dependabot-$CI_PROJECT_NAME/$CI_DEPLOY_PASSWORD@tokens
   script:
     - |
       echo "deploy to staging"
       kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
       kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
       --docker-server=$PROJECT_REGISTRY \
-      --docker-username=$CI_REGISTRY_USER \
-      --docker-password=$CI_REGISTRY_PASSWORD \
+      --docker-username=$CI_DEPLOY_USERNAME \
+      --docker-password=$CI_DEPLOY_PASSWORD \
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -
       kubectl apply -k deploy/overlays/staging
 
