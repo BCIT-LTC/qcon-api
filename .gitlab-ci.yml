@@ -101,7 +101,7 @@ deploy_review:
   # needs: ["build_latest"]
   environment:
     name: staging
-    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG
+    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
     kubernetes:
       namespace: $CI_PROJECT_NAME
     on_stop: stop_review
