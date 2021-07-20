@@ -87,7 +87,7 @@ build_latest:
   # needs: ["security_scan"]
   script:
     - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json  
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
@@ -118,12 +118,14 @@ deploy_review:
   script:
     - |
       echo "deploy to staging"
+      cat "$CI_DEPLOY_USERNAME"
+      cat "CI_DEPLOY_PASSWORD"
       kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
       kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
       --docker-server=$PROJECT_REGISTRY \
-      --docker-username=$CI_DEPLOY_USERNAME \
-      --docker-password=$CI_DEPLOY_PASSWORD \
-      --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -
+      --docker-username="$(cat $CI_DEPLOY_USERNAME)" \
+      --docker-password="(cat $CI_DEPLOY_PASSWORD)" \
+      --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
       kubectl apply -k deploy/overlays/staging
 
 #   - spin up and connect to Rancher staging cluster (need .kube/config for staging)
