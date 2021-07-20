@@ -65,8 +65,8 @@ security_scan:
   stage: test
   script:
     - echo "running scan"
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+  # rules:
+  #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job is for building the image with Kaniko (latest)
 build_latest:
@@ -78,8 +78,8 @@ build_latest:
     - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+  # rules:
+  #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_review:
