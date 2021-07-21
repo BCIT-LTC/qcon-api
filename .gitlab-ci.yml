@@ -82,7 +82,9 @@ build_for_review:
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  stage: build 
+  stage: build
+  tags:
+    - dev-cp  
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -95,9 +97,11 @@ build_for_review:
 deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
+  tags:
+    - dev-cp
   environment:
-    name: review/$CI_COMMIT_REF_NAME
-    url: https://reviews.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
+    name: dev-cp
+    url: https://dev-cp.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     kubernetes:
       namespace: $CI_PROJECT_NAME
     on_stop: stop_review
@@ -124,6 +128,8 @@ deploy_review:
 stop_review:
   image: bitnami/kubectl:latest
   stage: deploy
+  tags:
+    - dev-cp  
   script:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/dev
