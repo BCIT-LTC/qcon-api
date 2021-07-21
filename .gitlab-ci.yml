@@ -116,8 +116,8 @@ deploy_review:
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
     - kubectl apply -k deploy/overlays/dev
     # - kubectl set image deploy/overlays/dev/deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
-  # rules:
-  #   - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+  rules:
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
 
 
 # Stop review environment
