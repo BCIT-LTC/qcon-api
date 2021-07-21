@@ -122,7 +122,7 @@ deploy_review:
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
     - kubectl apply -k deploy/overlays/dev
   rules:
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
 
 
 # Stop review environment
