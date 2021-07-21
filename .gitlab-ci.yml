@@ -22,6 +22,7 @@
 #   - GitLab CI/CD pipeline docs for Kaniko builds are here: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
 # - semantic versioning is automated by analyzing commit messages for keywords
 #   - refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
+# - Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
 
 stages:
   - test
@@ -99,14 +100,13 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   tags:
-    - dependabot  
+    - dev  
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://reviews.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     kubernetes:
       namespace: $CI_PROJECT_NAME
     on_stop: stop_review
-  # Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
   secrets:
     PROJECT_TOKEN_USERNAME:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
@@ -131,7 +131,7 @@ stop_review:
   image: bitnami/kubectl:latest
   stage: deploy
   tags:
-    - dependabot
+    - dev
   script:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/dev
@@ -150,7 +150,7 @@ build_latest:
     entrypoint: [""]
   stage: build
   tags:
-    - dependabot
+    - staging
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -166,7 +166,7 @@ deploy_latest:
   image: bitnami/kubectl:latest
   stage: deploy
   tags:
-    - dependabot
+    - staging
   environment:
     name: staging
     url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
@@ -199,7 +199,7 @@ build_stable:
     entrypoint: [""]
   stage: build
   tags:
-    - dependabot
+    - production
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json  
@@ -217,7 +217,7 @@ semver_release:
   image: node:12-buster-slim
   stage: semver-tag
   tags:
-    - dependabot  
+    - production  
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
     - export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
@@ -242,7 +242,7 @@ deploy_production:
   image: bitnami/kubectl:latest
   stage: deploy
   tags:
-    - dependabot
+    - production
   environment: production
   rules:
     - if: $CI_COMMIT_TAG
