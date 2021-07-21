@@ -134,7 +134,7 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/dev
   environment:
-    name: review/$CI_COMMIT_REF_NAME
+    name: dev-cp
     kubernetes:
       namespace: $CI_PROJECT_NAME
     action: stop
