@@ -41,8 +41,8 @@ variables:
   VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
   VAULT_AUTH_ROLE: "read-tokens"
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
-  KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
-  KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
+  # KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
+  # KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
 
 # #### Re-usable configurations ####
 #
