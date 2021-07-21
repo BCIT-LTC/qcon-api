@@ -114,13 +114,14 @@ deploy_review:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - echo "deploy to staging for review"
-    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
-      --docker-server=$PROJECT_REGISTRY \
-      --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
-      --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
-      --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
-    - kubectl apply -k deploy/overlays/dev
+    # - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+    # - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
+    #   --docker-server=$PROJECT_REGISTRY \
+    #   --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
+    #   --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
+    #   --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
+    # - kubectl apply -k deploy/overlays/dev
+    - kubectl set image deploy/overlays/dev/deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
 
