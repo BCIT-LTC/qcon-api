@@ -72,7 +72,7 @@ variables:
 security_scan:
   stage: test
   tags:
-    - dev-cp
+    - production
   script:
     - echo "running scan"
   # rules:
@@ -86,7 +86,7 @@ build_for_review:
     entrypoint: [""]
   stage: build
   tags:
-    - dev-cp
+    - production
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -100,10 +100,10 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   tags:
-    - dev-cp
+    - production
   environment:
-    name: dev-cp
-    url: https://dev-cp.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
+    name: production
+    url: https://production.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     kubernetes:
       namespace: $CI_PROJECT_NAME
     on_stop: stop_review
@@ -131,12 +131,12 @@ stop_review:
   image: bitnami/kubectl:latest
   stage: deploy
   tags:
-    - dev-cp  
+    - production  
   script:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/dev
   environment:
-    name: dev-cp
+    name: production
     kubernetes:
       namespace: $CI_PROJECT_NAME
     action: stop
