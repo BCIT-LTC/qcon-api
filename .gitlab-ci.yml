@@ -71,6 +71,8 @@ variables:
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 security_scan:
   stage: test
+  tags:
+    - dev-cp
   script:
     - echo "running scan"
   # rules:
@@ -84,7 +86,7 @@ build_for_review:
     entrypoint: [""]
   stage: build
   tags:
-    - dev-cp  
+    - dev-cp
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
