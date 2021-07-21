@@ -71,8 +71,6 @@ variables:
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 security_scan:
   stage: test
-  tags:
-    - dependabot
   script:
     - echo "running scan"
   # rules:
@@ -84,9 +82,7 @@ build_for_review:
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  stage: build
-  tags:
-    - dependabot  
+  stage: build 
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -99,8 +95,6 @@ build_for_review:
 deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
-  tags:
-    - dev  
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://reviews.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
@@ -130,8 +124,6 @@ deploy_review:
 stop_review:
   image: bitnami/kubectl:latest
   stage: deploy
-  tags:
-    - dev
   script:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/dev
@@ -149,8 +141,6 @@ build_latest:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   stage: build
-  tags:
-    - staging
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -165,8 +155,6 @@ build_latest:
 deploy_latest:
   image: bitnami/kubectl:latest
   stage: deploy
-  tags:
-    - staging
   environment:
     name: staging
     url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
