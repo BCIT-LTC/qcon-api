@@ -71,8 +71,6 @@ variables:
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 security_scan:
   stage: test
-  tags:
-    - production
   script:
     - echo "running scan"
   # rules:
@@ -85,8 +83,6 @@ build_for_review:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   stage: build
-  tags:
-    - production
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -99,11 +95,9 @@ build_for_review:
 deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
-  tags:
-    - production
   environment:
-    name: production
-    url: https://production.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
+    name: reviews
+    url: https://reviews.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     kubernetes:
       namespace: $CI_PROJECT_NAME
     on_stop: stop_review
@@ -129,14 +123,12 @@ deploy_review:
 # Stop review environment
 stop_review:
   image: bitnami/kubectl:latest
-  stage: deploy
-  tags:
-    - production  
+  stage: deploy 
   script:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/dev
   environment:
-    name: production
+    name: reviews
     kubernetes:
       namespace: $CI_PROJECT_NAME
     action: stop
@@ -149,6 +141,8 @@ build_latest:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   stage: build
+  tags:
+    - staging  
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -163,12 +157,14 @@ build_latest:
 deploy_latest:
   image: bitnami/kubectl:latest
   stage: deploy
+  tags:
+    - staging  
   environment:
     name: staging
     url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
     kubernetes:
       namespace: $CI_PROJECT_NAME
-  # no stop job for staging environment
+  # no stop job for staging environment (latest gets continuously overwritten)
   secrets:
     PROJECT_TOKEN_USERNAME:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
