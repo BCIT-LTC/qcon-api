@@ -131,6 +131,7 @@ class QuestionLibrary(models.Model):
 
     def create_pandocstring(self):
         try:
+            mdblockquotePath = "./api_v2/pandoc-filters/mdblockquote.lua"
 
             pandocstring = pypandoc.convert_file(
                 self.temp_file.path,
@@ -140,7 +141,7 @@ class QuestionLibrary(models.Model):
                 extra_args=[
                     '--extract-media=' + self.folder_path, '--no-highlight',
                     '--self-contained', '--atx-headers', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false'
+                    '--wrap=preserve', '--indent=false', '--lua-filter=' + mdblockquotePath
                 ])
 
             self.pandoc_string = "\n" + pandocstring
