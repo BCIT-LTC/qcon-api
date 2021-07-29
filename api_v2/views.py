@@ -87,7 +87,7 @@ class WordToZip(APIView):
                 questionlist = Question.objects.filter(question_library=instance)
 
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
-                theresponse = JsonResponse(serialized_data.data, status=200)
+                theresponse = JsonResponse(serialized_data.data, status=201)
 
                 WordToJsonZip_Logger.info(
                     "[" + str(instance.transaction) + "] " +
@@ -161,7 +161,7 @@ class WordToJsonZip(APIView):
                 questionlist = Question.objects.filter(question_library=instance)
 
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
-                theresponse = JsonResponse(serialized_data.data, status=200)
+                theresponse = JsonResponse(serialized_data.data, status=400)
 
                 WordToJsonZip_Logger.info(
                     "[" + str(instance.transaction) + "] " +
