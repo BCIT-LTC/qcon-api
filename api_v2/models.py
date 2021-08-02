@@ -334,6 +334,11 @@ class QuestionLibrary(models.Model):
             self.error = "ZIP file Failed"
             self.save()
 
+    def cleanup(self):
+        if not settings.DEBUG:
+            self.delete()
+
+
     def __str__(self):
         return str(self.transaction)
 
