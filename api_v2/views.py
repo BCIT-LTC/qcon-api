@@ -72,15 +72,14 @@ class WordToZip(APIView):
         if serializer.is_valid():
             instance = serializer.save()
 
-            WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
-                                  ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
             filename = instance.zip_file.name.split("/")[1]
 
             if (instance.total_question_errors +
                     instance.total_document_errors == 0):
                 theresponse = FileResponse(instance.zip_file)
-                theresponse[
-                    'Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                theresponse['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
                 return theresponse
             else:
                 #Query only the records that contain errors
@@ -88,7 +87,12 @@ class WordToZip(APIView):
                 questionlist = Question.objects.filter(question_library=instance)
 
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
-                theresponse = JsonResponse(serialized_data.data, status=200)
+                theresponse = JsonResponse(serialized_data.data, status=201)
+
+                WordToJsonZip_Logger.info(
+                    "[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
+
                 return theresponse
 
         return JsonResponse(serializer.errors, status=400)
@@ -141,18 +145,28 @@ class WordToJsonZip(APIView):
                                    name="output.json")
             instance.json_file = jsonfile
             instance.save()
+            if instance.total_document_errors == 0:
+                instance.create_zip_file_package()
 
-            instance.create_zip_file_package()
+                filename = instance.output_zip_file.name.split("/")[1]
+                file_response = FileResponse(instance.output_zip_file)
+                file_response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                
+                WordToJsonZip_Logger.info(
+                    "[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                return file_response
+            else:
+                #Query only the records that contain errors   
+                questionlist = Question.objects.filter(question_library=instance)
 
-            WordToJsonZip_Logger.info(
-                "[" + str(instance.transaction) + "] " +
-                ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                serialized_data = QuestionLibraryErrorSummarySerializer(instance)
+                theresponse = JsonResponse(serialized_data.data, status=400)
 
-            filename = instance.output_zip_file.name.split("/")[1]
-            file_response = FileResponse(instance.output_zip_file)
-            file_response[
-                'Content-Disposition'] = 'attachment; filename="' + filename + '"'
-            return file_response
+                WordToJsonZip_Logger.info(
+                    "[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>")
+                return theresponse
 
             # return Response("None")
         return JsonResponse(convertserializer.errors, status=400)
