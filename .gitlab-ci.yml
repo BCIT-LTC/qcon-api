@@ -91,6 +91,8 @@ build_for_review:
     - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA"
+  tags:
+    - staging
 
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
@@ -121,7 +123,8 @@ deploy_review:
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
-
+  tags:
+    - staging
 
 # Stop review environment
 stop_review:
@@ -136,7 +139,8 @@ stop_review:
       namespace: $CI_PROJECT_NAME
     action: stop
   when: manual
-
+  tags:
+    - staging
 
 # This job is for building the image with Kaniko (latest)
 build_latest:
