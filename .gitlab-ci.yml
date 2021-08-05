@@ -98,7 +98,7 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: reviews
+    name: reviews/$CI_COMMIT_REF
     url: https://reviews.dev.ltc.bcit.ca/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     kubernetes:
       namespace: $CI_PROJECT_NAME
@@ -120,6 +120,7 @@ deploy_review:
     # - kubectl set image deploy/overlays/dev/deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: $CI_COMMIT_BRANCH
 
 
 # Stop review environment
