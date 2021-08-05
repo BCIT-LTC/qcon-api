@@ -42,7 +42,7 @@ variables:
   VAULT_AUTH_ROLE: "read-tokens"
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
-  # KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
+  KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
 
 # #### Re-usable configurations ####
