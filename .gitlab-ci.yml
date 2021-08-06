@@ -97,7 +97,7 @@ build_for_review:
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA"
   tags:
-    - staging
+    - dev
 
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
@@ -105,7 +105,7 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: staging
+    name: dev
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     # kubernetes:
       # namespace: gitlab-runner
@@ -116,20 +116,20 @@ deploy_review:
     PROJECT_TOKEN_PASSWORD:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
-    - echo "deploy to staging for review"
+    - echo "deploy to dev for review"
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
       --docker-server=$PROJECT_REGISTRY \
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
       --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
-    - kubectl apply -k deploy/overlays/staging
+    - kubectl apply -k deploy/overlays/dev
     # - kubectl set image deploy/overlays/dev/deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
   tags:
-    - staging
+    - dev
 
 # Stop review environment
 stop_review:
@@ -137,15 +137,15 @@ stop_review:
   stage: deploy 
   script:
     - echo "Remove review app"
-    - kubectl delete -k deploy/overlays/staging
+    - kubectl delete -k deploy/overlays/dev
   environment:
-    name: staging
+    name: dev
     # kubernetes:
     #   namespace: $CI_PROJECT_NAME
     action: stop
   when: manual
   tags:
-    - staging
+    - dev
 
 # This job is for building the image with Kaniko (latest)
 build_latest:
@@ -173,9 +173,9 @@ deploy_latest:
     - staging  
   environment:
     name: staging
-    url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
-    kubernetes:
-      namespace: $CI_PROJECT_NAME
+    # url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
+    # kubernetes:
+      # namespace: $CI_PROJECT_NAME
   # no stop job for staging environment (latest gets continuously overwritten)
   secrets:
     PROJECT_TOKEN_USERNAME:
@@ -184,7 +184,7 @@ deploy_latest:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - echo "deploy to staging for review"
-    # - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
       --docker-server=$PROJECT_REGISTRY \
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
