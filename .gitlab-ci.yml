@@ -44,8 +44,8 @@ variables:
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   # KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
-  KUBERNETES_SERVICE_ACCOUNT_OVERWRITE_ALLOWED: "true"
-  KUBERNETES_SERVICE_ACCOUNT_OVERWRITE: gitlab-runner-gitlab-runner
+  # KUBERNETES_SERVICE_ACCOUNT_OVERWRITE_ALLOWED: "true"
+  # KUBERNETES_SERVICE_ACCOUNT_OVERWRITE: gitlab-runner-gitlab-runner
 
 # #### Re-usable configurations ####
 #
@@ -106,7 +106,7 @@ deploy_review:
     name: review/$CI_COMMIT_REF_NAME
     url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: gitlab-runner
+      # namespace: gitlab-runner
     on_stop: stop_review
   secrets:
     PROJECT_TOKEN_USERNAME:
@@ -135,7 +135,7 @@ stop_review:
   stage: deploy 
   script:
     - echo "Remove review app"
-    - kubectl delete -k deploy/overlays/dev
+    - kubectl delete -k deploy/overlays/staging
   environment:
     name: review/$CI_COMMIT_REF_NAME
     kubernetes:
