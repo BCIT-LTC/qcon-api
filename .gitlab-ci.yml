@@ -45,7 +45,7 @@ variables:
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
   KUBERNETES_SERVICE_ACCOUNT_OVERWRITE_ALLOWED: "true"
-  KUBERNETES_SERVICE_ACCOUNT_OVERWRITE: gitlab-runner
+  KUBERNETES_SERVICE_ACCOUNT_OVERWRITE: gitlab
 
 # #### Re-usable configurations ####
 #
