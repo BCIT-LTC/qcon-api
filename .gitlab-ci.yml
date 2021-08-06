@@ -106,7 +106,7 @@ deploy_review:
     name: review/$CI_COMMIT_REF_NAME
     url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: default
+      namespace: gitlab-runner
     on_stop: stop_review
   secrets:
     PROJECT_TOKEN_USERNAME:
@@ -121,7 +121,7 @@ deploy_review:
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
       --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
-    - kubectl apply -k deploy/overlays/dev
+    - kubectl apply -k deploy/overlays/staging
     # - kubectl set image deploy/overlays/dev/deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
