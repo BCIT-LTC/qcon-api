@@ -105,7 +105,7 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: dev
+    name: staging
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     # kubernetes:
       # namespace: gitlab-runner
@@ -118,12 +118,12 @@ deploy_review:
   script:
     - echo "deploy to staging for review"
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    # - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
-    #   --docker-server=$PROJECT_REGISTRY \
-    #   --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
-    #   --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
-    #   --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
-    # - kubectl apply -k deploy/overlays/staging
+    - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
+      --docker-server=$PROJECT_REGISTRY \
+      --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
+      --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
+      --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
+    - kubectl apply -k deploy/overlays/staging
     # - kubectl set image deploy/overlays/dev/deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
@@ -139,7 +139,7 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/staging
   environment:
-    name: dev
+    name: staging
     # kubernetes:
     #   namespace: $CI_PROJECT_NAME
     action: stop
