@@ -107,7 +107,7 @@ deploy_review:
   environment:
     name: dev
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
-    kubernetes:
+    # kubernetes:
       # namespace: gitlab-runner
     on_stop: stop_review
   secrets:
@@ -139,9 +139,9 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete -k deploy/overlays/staging
   environment:
-    name: review/$CI_COMMIT_REF_NAME
-    kubernetes:
-      namespace: $CI_PROJECT_NAME
+    name: dev
+    # kubernetes:
+    #   namespace: $CI_PROJECT_NAME
     action: stop
   when: manual
   tags:
