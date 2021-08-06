@@ -106,7 +106,7 @@ deploy_review:
     name: review/$CI_COMMIT_REF_NAME
     url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: $CI_PROJECT_NAME
+      namespace: default
     on_stop: stop_review
   secrets:
     PROJECT_TOKEN_USERNAME:
