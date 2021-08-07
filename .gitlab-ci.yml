@@ -95,7 +95,7 @@ build_for_review:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
-      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA"
+      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_REF_SLUG"
   tags:
     - dev
 
@@ -108,7 +108,7 @@ deploy_review:
     name: dev
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: $CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
+      namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     on_stop: stop_review
   secrets:
     PROJECT_TOKEN_USERNAME:
@@ -141,7 +141,7 @@ stop_review:
   environment:
     name: dev
     kubernetes:
-      namespace: $CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
+      namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
   when: manual
   tags:
