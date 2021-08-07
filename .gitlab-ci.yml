@@ -107,8 +107,8 @@ deploy_review:
   environment:
     name: dev
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
-    # kubernetes:
-      # namespace: gitlab-runner
+    kubernetes:
+      namespace: $CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     on_stop: stop_review
   secrets:
     PROJECT_TOKEN_USERNAME:
@@ -117,7 +117,7 @@ deploy_review:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - echo "deploy to dev for review"
-    # - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create ns $CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA -o yaml --dry-run=client | kubectl apply -f -
     - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
       --docker-server=$PROJECT_REGISTRY \
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
@@ -140,8 +140,8 @@ stop_review:
     - kubectl delete -k deploy/overlays/dev
   environment:
     name: dev
-    # kubernetes:
-    #   namespace: $CI_PROJECT_NAME
+    kubernetes:
+      namespace: $CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA
     action: stop
   when: manual
   tags:
