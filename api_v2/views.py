@@ -80,19 +80,19 @@ class WordToZip(APIView):
                 theresponse['Content-Disposition'] = 'attachment; filename="' + filename + '"'
                 WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                instance.cleanup()
                 return theresponse
             else:
-                #Query only the records that contain errors
-                
-                questionlist = Question.objects.filter(question_library=instance)
+                #Serializer to query only the records that contain errors
 
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
-                theresponse = JsonResponse(serialized_data.data, status=201)
 
                 WordToJsonZip_Logger.info(
                     "[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
 
+                theresponse = JsonResponse(serialized_data.data, status=201)
+                instance.cleanup()
                 return theresponse
 
         return JsonResponse(serializer.errors, status=400)
@@ -155,17 +155,17 @@ class WordToJsonZip(APIView):
                 WordToJsonZip_Logger.info(
                     "[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                instance.cleanup()
                 return file_response
             else:
                 #Query only the records that contain errors   
-                questionlist = Question.objects.filter(question_library=instance)
-
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
                 theresponse = JsonResponse(serialized_data.data, status=400)
 
                 WordToJsonZip_Logger.info(
                     "[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>")
+                instance.cleanup()
                 return theresponse
 
             # return Response("None")
@@ -201,19 +201,9 @@ class WordToJson(APIView):
                 transaction=instance.transaction.id)
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
-
+            
+            instance.cleanup()
             return JsonResponse(question_library_serializer.data, status=200)
 
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
-
-
-# Temporary endpoint for the admin view
-# class Download(APIView):
-#     # parser_classes = [MultiPartParser]
-#     # permission_classes = [IsAuthenticated]
-#     # serializer_class = UploadSerializer
-#     def get(self, request , id, filename):
-#         FILE = './temp/' + str(id) + '/' + filename
-#         file_response = FileResponse(open(FILE, 'rb'))
-#         return file_response

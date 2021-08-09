@@ -16,7 +16,7 @@ from api_v2.scorm.manifest import ManifestEntity, ManifestResourceEntity
 from xml.dom.minidom import parseString
 import xml.etree.cElementTree as ET
 from zipfile import *
-from os import makedirs, path, walk
+from os import makedirs, path, walk, rmdir, remove
 
 import re
 from os.path import basename
@@ -26,9 +26,11 @@ from django.core.files.base import ContentFile
 from rest_framework.authtoken.models import Token
 
 from enum import Enum
-# from django.conf import settings
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 # Create your models here.
 
 import logging
@@ -95,13 +97,13 @@ class QuestionLibrary(models.Model):
                                        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     total_question_errors = models.DecimalField(max_digits=2,
-                                       decimal_places=0,
-                                       blank=True,
-                                       null=True)
+                                                decimal_places=0,
+                                                blank=True,
+                                                null=True)
     total_document_errors = models.DecimalField(max_digits=2,
-                                       decimal_places=0,
-                                       blank=True,
-                                       null=True)
+                                                decimal_places=0,
+                                                blank=True,
+                                                null=True)
 
     class Meta:
         verbose_name_plural = "question libraries"
@@ -116,11 +118,14 @@ class QuestionLibrary(models.Model):
         filtered_section_name = filtered_section_name.replace(' ', '-')
 
         # If the file name is illegal Windows string, replace with "Converted-Exam"
-        filtered_section_name = filtered_section_name.replace('^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam', re.IGNORECASE)
-        
+        filtered_section_name = filtered_section_name.replace(
+            '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam',
+            re.IGNORECASE)
+
         # Limit the filename to 30 characters
         filtered_section_name = (
-            filtered_section_name[:50]) if len(filtered_section_name) > 50 else filtered_section_name
+            filtered_section_name[:50]
+        ) if len(filtered_section_name) > 50 else filtered_section_name
 
         self.filtered_section_name = filtered_section_name
 
@@ -194,8 +199,6 @@ class QuestionLibrary(models.Model):
             #     # print("QUESTION ERORORO")
             #     # print(q_errorlist.count())
 
-
-
         except:
             RunConversion_Logger.error("[" + str(self.transaction) + "] " +
                                        "Parser Failed")
@@ -248,7 +251,8 @@ class QuestionLibrary(models.Model):
             for idx, img in enumerate(img_elements):
                 element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
                 new_img = '<img src="{0}" alt="{1}" />'.format(
-                    'assessment-assets/' + self.filtered_section_name + '/' + basename(element[0]), basename(element[0]))
+                    'assessment-assets/' + self.filtered_section_name + '/' +
+                    basename(element[0]), basename(element[0]))
                 questiondb_string = questiondb_string.replace(
                     img_elements[idx], new_img)
 
@@ -298,8 +302,9 @@ class QuestionLibrary(models.Model):
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
                 for root, dirs, files in walk(self.image_path):
                     for filename in files:
-                        myzip.write(path.join(root, filename),
-                                    '/assessment-assets/' + self.filtered_section_name + '/' + filename)
+                        myzip.write(
+                            path.join(root, filename), '/assessment-assets/' +
+                            self.filtered_section_name + '/' + filename)
 
             self.zip_file.name = str(
                 self.transaction) + "/" + self.filtered_section_name + '.zip'
@@ -333,6 +338,11 @@ class QuestionLibrary(models.Model):
                                        "ZIP file with JSON package Failed")
             self.error = "ZIP file Failed"
             self.save()
+
+    def cleanup(self):
+        if not settings.DEBUG:
+            self.delete()
+
 
     def __str__(self):
         return str(self.transaction)
@@ -469,6 +479,28 @@ class DocumentError(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+@receiver(post_delete,
+          sender=QuestionLibrary,
+          dispatch_uid="delete_files")
+def delete_files(sender, instance, **kwargs):
+    if path.exists(settings.MEDIA_ROOT + str(instance)):
+        try:
+            for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance), topdown=False):
+                for name in files:
+                    remove(path.join(root, name))
+                for name in dirs:
+                    rmdir(path.join(root, name))
+        except OSError as e:
+            logger.error("[" + str(instance) + "] " + "Error deleting files")
+
+        try:
+            rmdir(settings.MEDIA_ROOT + str(instance))
+        except OSError as e:
+            print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
+
+    logger.info("[" + str(instance) + "] " + "Questionlibrary and Files Deleted")
 
 
 class CustomToken(Token):
