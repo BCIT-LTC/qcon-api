@@ -95,7 +95,7 @@ build_for_review:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
-      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_REF_SLUG"
+      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
   tags:
     - dev
 
@@ -123,8 +123,10 @@ deploy_review:
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
       --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
+    # - kustomize edit set image $CI_PROJECT_NAME=$CI_PROJECT_NAME:dev-$CI_COMMIT_REF_SLUG
+    - cd deploy/overlays/dev && kustomize edit set image $CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
     - kubectl apply -k deploy/overlays/dev
-    - kubectl set image deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_REF_SLUG
+    # - kubectl set image deployment/$CI_PROJECT_NAME CI_PROJECT_NAME=$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_REF_SLUG
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
@@ -137,7 +139,7 @@ stop_review:
   stage: deploy 
   script:
     - echo "Remove review app"
-    - kubectl delete -k deploy/overlays/dev
+    - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
   environment:
     name: dev
     kubernetes:
