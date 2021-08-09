@@ -102,7 +102,7 @@ build_for_review:
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_review:
-  image: bitnami/kubectl
+  image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api/kubectl
   stage: deploy
   environment:
     name: dev
