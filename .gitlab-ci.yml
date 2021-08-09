@@ -102,7 +102,7 @@ build_for_review:
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_review:
-  image: bitnami/kubectl
+  image: smartive/kustomize
   stage: deploy
   environment:
     name: dev
@@ -124,9 +124,8 @@ deploy_review:
       --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
     - "pushd deploy && \
+      kustomize edit set image $CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA && \
       kubectl apply -k overlays/dev"
-    - kustomize version
-      # kustomize edit set image $CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA && \
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
