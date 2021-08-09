@@ -123,8 +123,9 @@ deploy_review:
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
       --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
       --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
-    - pushd deploy/overlays/dev && kustomize edit set image $CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA
-    - popd && kubectl apply -k deploy/overlays/dev
+    - pushd deploy && \
+      kustomize edit set image $CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA && \
+      kubectl apply -k overlays/dev
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
