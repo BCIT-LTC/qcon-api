@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: dependabot-web-apps
-data:
-  .dockerconfigjson: eyJhdXRocyI6eyJyZWdpc3RyeS5kZXYubHRjLmJjaXQuY2EiOnsidXNlcm5hbWUiOiJkZXBlbmRhYm90LXdlYi1hcHBzIiwicGFzc3dvcmQiOiJDYkRCUGNWWkxiLVlwR0UtR0NXUCIsImVtYWlsIjoiY291cnNlcHJvZHVjdGlvbkBiY2l0LmNhIiwiYXV0aCI6IlpHVndaVzVrWVdKdmRDMTNaV0l0WVhCd2N6cERZa1JDVUdOV1dreGlMVmx3UjBVdFIwTlhVQT09In19fQ==
-type: kubernetes.io/dockerconfigjson
