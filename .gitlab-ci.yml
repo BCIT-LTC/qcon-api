@@ -58,6 +58,7 @@ variables:
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
 
+
 get-latest-git-version:
   stage: .pre
   image: 
@@ -78,13 +79,6 @@ get-latest-git-version:
   tags:
     - $TEAM_TAG
 
-# prepare_ns:
-#   stage: .pre
-#   image:
-#     name: bitnami/kubectl
-#   script:
-#   tags:
-#     - $TEAM_TAG
 
 # #### Re-usable configurations ####
 #
@@ -93,7 +87,6 @@ get-latest-git-version:
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  #Hidden job to use as an "extends" template
   stage: build
   script:
     - | 
@@ -132,13 +125,15 @@ get-latest-git-version:
 
 
 # Deploy template
-#   extends: .deploy
-# .deploy:
-#   stage: deploy
-#   tags:
-#     - dependabot
-#   image: bitnami/kubectl:latest
-
+.deploy:
+  image: bitnami/kubectl
+  stage: deploy
+  environment:
+    auto_stop_in: 1 week
+    on_stop: stop_review
+  rules:
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: $CI_COMMIT_BRANCH
   # needs: ["security_scan"]
 
 
@@ -166,20 +161,12 @@ build_for_review:
 
 # This job deploys the image tagged with feature branch commit to a k8s dev cluster
 deploy_review:
-  image: bitnami/kubectl:latest
-  stage: deploy
+  extends: .deploy
   environment:
     name: development
     url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
-    auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
-    on_stop: stop_review
-  # secrets:
-  #   PROJECT_TOKEN_USERNAME:
-  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
-  #   PROJECT_TOKEN_PASSWORD:
-  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
@@ -189,19 +176,15 @@ deploy_review:
       \n    newTag: dev-$CI_COMMIT_SHORT_SHA\" >> \
       deploy/overlays/dev/kustomization.yaml"
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-    # - kubectl annotate 
-  rules:
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-    - if: $CI_COMMIT_BRANCH
   tags:
     - $TEAM_TAG
 
+
 # Stop review environment
 stop_review:
-  image: bitnami/kubectl:latest
+  image: bitnami/kubectl
   stage: deploy 
   script:
-    - echo "Remove review app"
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
   environment:
     name: development
@@ -212,58 +195,33 @@ stop_review:
   tags:
     - $TEAM_TAG
 
+
 # This job is for building the image with Kaniko (latest)
 build_latest:
-  image: 
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: build
+  extends: .build_with_kaniko
+  environment:
+    name: staging
   tags:
     - staging  
-  script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
-      --dockerfile $CI_PROJECT_DIR/Dockerfile
-      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
 deploy_latest:
-  image: bitnami/kubectl:latest
-  stage: deploy
-  tags:
-    - staging  
+  extends: .deploy
   environment:
     name: staging
-    # url: https://staging.dev.ltc.bcit.ca/$CI_PROJECT_NAME
-    # kubernetes:
-      # namespace: $CI_PROJECT_NAME
-  # no stop job for staging environment (latest gets continuously overwritten)
-  # secrets:
-  #   PROJECT_TOKEN_USERNAME:
-  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
-  #   PROJECT_TOKEN_PASSWORD:
-  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+    url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+    kubernetes:
+      namespace: $CI_PROJECT_NAME
   script:
-    - echo "deploy to staging for review"
-    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    # - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
-    #   --docker-server=$PROJECT_REGISTRY \
-    #   --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
-    #   --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
-    #   --docker-email=$TEAM_EMAIL -o yaml --dry-run=client | kubectl apply -f -"    
-    - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
-      --docker-server=$PROJECT_REGISTRY \
-      --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
-      --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
-      --docker-email=$TEAM_EMAIL -o yaml --dry-run=client | kubectl apply -f -"
-      # TODO: patch a service account for this secret
-    - kubectl apply -k deploy/overlays/staging
+    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -  
+    - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   rules:
     - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+  tags:
+    - staging  
 
 
 # This job is for building the image with Kaniko (stable)
