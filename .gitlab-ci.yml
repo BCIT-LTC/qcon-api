@@ -78,14 +78,14 @@ get-latest-git-version:
   tags:
     - $TEAM_TAG
 
-# prepare_ns:
-#   stage: .pre
-#   image:
-#     name: bitnami/kubectl
-#   script:
-#       - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-#   tags:
-#     - $TEAM_TAG
+prepare_ns:
+  stage: .pre
+  image:
+    name: bitnami/kubectl
+  script:
+      - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+  tags:
+    - $TEAM_TAG
 
 # #### Re-usable configurations ####
 #
