@@ -161,7 +161,7 @@ security_scan:
 build_for_review:
   extends: .build_with_kaniko
   environment:
-    name: push-to-gitlab-registry
+    name: development
   tags:
     - $TEAM_TAG
 
