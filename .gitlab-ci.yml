@@ -151,7 +151,7 @@ get-latest-git-version:
 build_for_review:
   extends: .build_with_kaniko
   environment:
-    name: development
+    name: development/$CI_COMMIT_REF_NAME
   tags:
     - $TEAM_TAG
 
