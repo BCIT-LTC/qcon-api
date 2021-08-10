@@ -130,7 +130,6 @@ get-latest-git-version:
   stage: deploy
   environment:
     auto_stop_in: 1 week
-    on_stop: stop_review
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
@@ -167,6 +166,7 @@ deploy_review:
     url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+    on_stop: stop_review
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
