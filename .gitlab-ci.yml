@@ -43,8 +43,8 @@ variables:
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
-# Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
-  KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
+  # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
+  # KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
