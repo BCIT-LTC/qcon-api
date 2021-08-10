@@ -46,6 +46,7 @@ variables:
   # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
   # KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
   # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
+  KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
   DEV_URL: "https://reviews.dev.ltc.bcit.ca"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
