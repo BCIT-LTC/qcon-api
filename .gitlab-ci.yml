@@ -44,7 +44,7 @@ variables:
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
 # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
-  KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=c-p6z2c:p-tfh6k"
+  KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
@@ -101,7 +101,7 @@ build_for_review:
     - $TEAM_TAG
 
 
-# This job deploys the image tagged with `latest` to the k8s staging cluster
+# This job deploys the image tagged with feature branch commit to a k8s dev cluster
 deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
@@ -118,11 +118,6 @@ deploy_review:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-    # - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
-    #   --docker-server=$PROJECT_REGISTRY \
-    #   --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
-    #   --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
-    #   --docker-email=$TEAM_EMAIL -o yaml --dry-run=client | kubectl apply -f -"
     - "echo -e \" \
       \nimages: \
       \n  - name: qcon-api \
@@ -190,6 +185,11 @@ deploy_latest:
   script:
     - echo "deploy to staging for review"
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+    # - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
+    #   --docker-server=$PROJECT_REGISTRY \
+    #   --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
+    #   --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
+    #   --docker-email=$TEAM_EMAIL -o yaml --dry-run=client | kubectl apply -f -"    
     - "kubectl create secret docker-registry dependabot-$CI_PROJECT_NAME \
       --docker-server=$PROJECT_REGISTRY \
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
