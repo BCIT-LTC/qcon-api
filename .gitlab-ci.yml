@@ -85,7 +85,9 @@ get-latest-git-version:
   artifacts:
     paths:
       - VERSIONTAG.txt
-
+  tags:
+    - $TEAM_TAG
+    
 # #### Re-usable configurations ####
 #
 # Kaniko template
@@ -130,8 +132,7 @@ get-latest-git-version:
       mkdir -p /kaniko/.docker
       echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS $BUILD_DESTINATION
-  tags:
-    - $TEAM_TAG
+
 
 # Deploy template
 #   extends: .deploy
