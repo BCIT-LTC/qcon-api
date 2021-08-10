@@ -89,9 +89,9 @@ get-latest-git-version:
 #
 # Kaniko template
 .build_with_kaniko:
-image: 
-  name: gcr.io/kaniko-project/executor:debug
-  entrypoint: [""]
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   #Hidden job to use as an "extends" template
   stage: build
   script:
