@@ -46,7 +46,8 @@ variables:
   # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
   # KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
   # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
-  VERSIONLABELMETHOD: "LastVersionTagInGit" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
+  VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
+  DEV_URL: "https://reviews.dev.ltc.bcit.ca"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
@@ -55,18 +56,6 @@ variables:
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-    --label org.opencontainers.image.documentation=$CI_PROJECT_URL
-    --label org.opencontainers.image.licenses=$CI_PROJECT_URL
-    --label org.opencontainers.image.url=$CI_PROJECT_URL
-    --label vcs-url=$CI_PROJECT_URL
-    --label com.gitlab.ci.user=$CI_SERVER_URL/$GITLAB_USER_LOGIN
-    --label com.gitlab.ci.email=$GITLAB_USER_EMAIL
-    --label com.gitlab.ci.tagorbranch=$CI_COMMIT_REF_NAME
-    --label com.gitlab.ci.pipelineurl=$CI_PIPELINE_URL
-    --label com.gitlab.ci.commiturl=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA
-    --label com.gitlab.ci.cijoburl=$CI_JOB_URL
-    --label com.gitlab.ci.mrurl=$CI_PROJECT_URL/-/merge_requests/$CI_MERGE_REQUEST_ID
-  BUILD_DESTINATION: " --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
 
 get-latest-git-version:
   stage: .pre
@@ -87,7 +76,7 @@ get-latest-git-version:
       - VERSIONTAG.txt
   tags:
     - $TEAM_TAG
-    
+
 # #### Re-usable configurations ####
 #
 # Kaniko template
@@ -106,8 +95,6 @@ get-latest-git-version:
       #Description for opencontainers
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
       IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.title=$BUILDTITLE --label org.opencontainers.image.description=$BUILDTITLE"
-      #Add ref.name for opencontainers
-      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.ref.name=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
 
       #Build Version Label and Tag from git tag, LastVersionTagInGit was placed by a previous job artifact
       if [[ "$VERSIONLABELMETHOD" == "LastVersionTagInGit" ]]; then VERSIONLABEL=$(cat VERSIONTAG.txt); fi
@@ -117,8 +104,9 @@ get-latest-git-version:
         ADDITIONALTAGLIST="$ADDITIONALTAGLIST $VERSIONLABEL"
       fi
       
-      ADDITIONALTAGLIST="$ADDITIONALTAGLIST dev-$CI_COMMIT_SHORT_SHA"
+      ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
+      if [[ "$CI_COMMIT_BRANCH" == "release" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST stable"; fi
       if [[ -n "$ADDITIONALTAGLIST" ]]; then 
         for TAG in $ADDITIONALTAGLIST; do 
           FORMATTEDTAGLIST="${FORMATTEDTAGLIST} --tag $CI_REGISTRY_IMAGE:$TAG "; 
@@ -131,7 +119,7 @@ get-latest-git-version:
       echo "Kaniko arguments to run: --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS"
       mkdir -p /kaniko/.docker
       echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS $BUILD_DESTINATION
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
 
 
 # Deploy template
@@ -172,8 +160,8 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: development
-    # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+    name: development/$CI_COMMIT_REF_NAME
+    url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
@@ -192,6 +180,7 @@ deploy_review:
       \n    newTag: dev-$CI_COMMIT_SHORT_SHA\" >> \
       deploy/overlays/dev/kustomization.yaml"
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
+    - kubectl annotate 
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
@@ -206,7 +195,7 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
   environment:
-    name: development
+    name: development/$CI_COMMIT_REF_NAME
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
