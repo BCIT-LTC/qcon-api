@@ -78,13 +78,13 @@ get-latest-git-version:
   tags:
     - $TEAM_TAG
 
-prepare_ns:
-  stage: .pre
-  image:
-    name: bitnami/kubectl
-  script:
-  tags:
-    - $TEAM_TAG
+# prepare_ns:
+#   stage: .pre
+#   image:
+#     name: bitnami/kubectl
+#   script:
+#   tags:
+#     - $TEAM_TAG
 
 # #### Re-usable configurations ####
 #
