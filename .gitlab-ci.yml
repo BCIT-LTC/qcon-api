@@ -142,7 +142,7 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
   environment:
-    name: review/$CI_COMMIT_REF_SLUG
+    name: $TEAM_TAG
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
