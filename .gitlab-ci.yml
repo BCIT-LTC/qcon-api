@@ -83,7 +83,6 @@ prepare_ns:
   image:
     name: bitnami/kubectl
   script:
-      - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
   tags:
     - $TEAM_TAG
 
@@ -182,6 +181,7 @@ deploy_review:
   #   PROJECT_TOKEN_PASSWORD:
   #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
+    - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
       \nimages: \
       \n  - name: qcon-api \
@@ -189,7 +189,7 @@ deploy_review:
       \n    newTag: dev-$CI_COMMIT_SHORT_SHA\" >> \
       deploy/overlays/dev/kustomization.yaml"
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-    - kubectl annotate 
+    # - kubectl annotate 
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
