@@ -38,8 +38,8 @@ stages:
 
 variables:
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
-  VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  VAULT_AUTH_ROLE: "read-tokens"
+  # VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
+  # VAULT_AUTH_ROLE: "read-tokens"
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
   # KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   # KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
@@ -176,11 +176,11 @@ deploy_review:
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     on_stop: stop_review
-  secrets:
-    PROJECT_TOKEN_USERNAME:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
-    PROJECT_TOKEN_PASSWORD:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+  # secrets:
+  #   PROJECT_TOKEN_USERNAME:
+  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
+  #   PROJECT_TOKEN_PASSWORD:
+  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
@@ -242,11 +242,11 @@ deploy_latest:
     # kubernetes:
       # namespace: $CI_PROJECT_NAME
   # no stop job for staging environment (latest gets continuously overwritten)
-  secrets:
-    PROJECT_TOKEN_USERNAME:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
-    PROJECT_TOKEN_PASSWORD:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+  # secrets:
+  #   PROJECT_TOKEN_USERNAME:
+  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_USERNAME@tokens
+  #   PROJECT_TOKEN_PASSWORD:
+  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - echo "deploy to staging for review"
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
@@ -299,9 +299,9 @@ semver_release:
     - export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
     - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
     - npm install -g semantic-release @semantic-release/gitlab
-  secrets:
-    GITLAB_TOKEN:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+  # secrets:
+  #   GITLAB_TOKEN:
+  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
   script:
     - semantic-release
       --branches release
