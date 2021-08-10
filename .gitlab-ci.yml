@@ -90,8 +90,10 @@ build_for_review:
   stage: build
   script:
     - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
+    - "echo -e \"{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}\" > \
+      /kaniko/.docker/config.json"
+    - "/kaniko/executor \
+      --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA"
   tags:
