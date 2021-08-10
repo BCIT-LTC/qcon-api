@@ -137,12 +137,12 @@ get-latest-git-version:
 # #### Jobs ####
 #
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
-security_scan:
-  stage: test
-  tags:
-    - staging
-  script:
-    - echo "running scan"
+# security_scan:
+#   stage: test
+#   tags:
+#     - staging
+#   script:
+#     - echo "running scan"
   # rules:
   #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
