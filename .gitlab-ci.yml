@@ -104,7 +104,7 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: review/$CI_COMMIT_REF_SLUG
+    name: $TEAM_TAG
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
