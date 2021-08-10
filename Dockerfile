@@ -62,4 +62,4 @@ COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8000
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["supervisord", "-c", "supervisord.conf", "-n"]
