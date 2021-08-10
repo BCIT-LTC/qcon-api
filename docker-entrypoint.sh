@@ -36,9 +36,8 @@ echo "from api_v2.models import CustomToken; \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
 
-#Start gunicorn server
->&2 echo "Starting Gunicorn"
-gunicorn --bind 0.0.0.0:8001 --timeout 240 qcon.wsgi --daemon
+>&2 echo "Starting Nginx"
+nginx
 
-# python manage.py runserver 0.0.0.0:8002
+>&2 echo "Starting Supervisor"
 exec "$@"
