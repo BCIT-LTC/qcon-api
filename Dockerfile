@@ -52,6 +52,7 @@ COPY --from=docs-base public docs/public
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY manage.py .
+COPY supervisord.conf .
 COPY qcon qcon
 COPY api_v2 api_v2
 COPY .env .env
