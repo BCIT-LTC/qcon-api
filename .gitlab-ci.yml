@@ -44,8 +44,9 @@ variables:
   KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
   KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
-  DOCKER_REG_EMAIL: "courseproduction@bcit.ca"
-  TEAM_TAG: "dev-cp"
+  # KUBERNETES_SERVICE_ACCOUNT_OVERWRITE_ALLOWED: "true"
+  # KUBERNETES_SERVICE_ACCOUNT_OVERWRITE: gitlab-runner-gitlab-runner
+  # CI_DEBUG_TRACE: "true"
 
 
 # #### Re-usable configurations ####
@@ -91,13 +92,12 @@ build_for_review:
   stage: build
   script:
     - mkdir -p /kaniko/.docker
-    - "echo -e \"{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}\" > \
-      /kaniko/.docker/config.json"
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - "/kaniko/executor --context $CI_PROJECT_DIR $KANIKO_CACHE_ARGS
       --dockerfile $CI_PROJECT_DIR/Dockerfile
-      --destination $CI_REGISTRY_IMAGE:dev-$CI_COMMIT_SHORT_SHA"
+      --destination $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA"
   tags:
-    - $TEAM_TAG
+    - dev
 
 
 # This job deploys the image tagged with `latest` to the k8s staging cluster
@@ -105,7 +105,7 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: $TEAM_TAG
+    name: dev
     # url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
@@ -122,19 +122,20 @@ deploy_review:
       --docker-server=$PROJECT_REGISTRY \
       --docker-username=$(cat $PROJECT_TOKEN_USERNAME) \
       --docker-password=$(cat $PROJECT_TOKEN_PASSWORD) \
-      --docker-email=$DOCKER_REG_EMAIL -o yaml --dry-run=client | kubectl apply -f -"
+      --docker-email=courseproduction@bcit.ca -o yaml --dry-run=client | kubectl apply -f -"
     - "echo -e \" \
       \nimages: \
-      \n  - name: $CI_PROJECT_NAME \
-      \n    newName: $CI_REGISTRY_IMAGE \
+      \n  - name: qcon-api \
+      \n    newName: $CI_REGISTRY_IMAGE/$CI_PROJECT_NAME \
       \n    newTag: dev-$CI_COMMIT_SHORT_SHA\" >> \
       deploy/overlays/dev/kustomization.yaml"
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
+    # - kustomize edit set image $CI_PROJECT_NAME:dev-$CI_COMMIT_SHORT_SHA && \
   rules:
     - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
     - if: $CI_COMMIT_BRANCH
   tags:
-    - $TEAM_TAG
+    - dev
 
 # Stop review environment
 stop_review:
@@ -144,13 +145,13 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
   environment:
-    name: $TEAM_TAG
+    name: dev
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
   when: manual
   tags:
-    - $TEAM_TAG
+    - dev
 
 # This job is for building the image with Kaniko (latest)
 build_latest:
