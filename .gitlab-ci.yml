@@ -46,7 +46,7 @@ variables:
   # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
   # KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
   # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
-  KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
+  # KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
   DEV_URL: "https://reviews.dev.ltc.bcit.ca"
   STAGING_URL: "https://staging.dev.ltc.bcit.ca"
@@ -78,14 +78,14 @@ get-latest-git-version:
   tags:
     - $TEAM_TAG
 
-prepare_ns:
-  stage: .pre
-  image:
-    name: bitnami/kubectl
-  script:
-      - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-  tags:
-    - $TEAM_TAG
+# prepare_ns:
+#   stage: .pre
+#   image:
+#     name: bitnami/kubectl
+#   script:
+#       - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+#   tags:
+#     - $TEAM_TAG
 
 # #### Re-usable configurations ####
 #
@@ -160,7 +160,7 @@ prepare_ns:
 build_for_review:
   extends: .build_with_kaniko
   environment:
-    name: development/$CI_COMMIT_REF_NAME
+    name: development
   tags:
     - $TEAM_TAG
 
@@ -170,7 +170,7 @@ deploy_review:
   image: bitnami/kubectl:latest
   stage: deploy
   environment:
-    name: development/$CI_COMMIT_REF_NAME
+    name: development
     url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
@@ -204,7 +204,7 @@ stop_review:
     - echo "Remove review app"
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
   environment:
-    name: development/$CI_COMMIT_REF_NAME
+    name: development
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
