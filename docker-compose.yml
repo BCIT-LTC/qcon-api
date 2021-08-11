@@ -7,7 +7,7 @@ services:
     image: qcon-api
     env_file: .env
     environment:
-      - DEBUG="True"
+      - DEBUG=True
     restart: always
     tty: true
     volumes:
@@ -15,9 +15,14 @@ services:
     ports:
       - "8000:8000"
       - "8002:8002"
+    hostname: api.local
     networks:
-      - app-network
+      qcon-network:
+        aliases:
+          - api.local
 
 networks:
-  app-network:
+  qcon-network:
+    # external: true
     driver: bridge
+    name: qcon-network
