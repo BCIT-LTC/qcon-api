@@ -4,7 +4,7 @@ metadata:
   name: qcon-api-ingress
 spec:
   rules:
-  - host: "qcon-api.ltc.bcit.ca"
+  - host: qcon-api.ltc.bcit.ca
     http:
       paths:
       - path: /

@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: qcon-ingress
+  name: qcon-api
 spec:
   rules:
   - host: staging.dev.ltc.bcit.ca
     http:
       paths:
-      - path: /qcon-api
+      - path: /web-apps/qcon/qcon-api
         pathType: Prefix
         backend:
           service:
-            name: qcon-service
+            name: qcon-api
             port:
               number: 8000

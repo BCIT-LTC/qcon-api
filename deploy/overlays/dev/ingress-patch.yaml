@@ -5,6 +5,7 @@ metadata:
   name: qcon-api-ingress
 spec:
   rules:
+# should be: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
   - host: reviews.dev.ltc.bcit.ca
     http:
       paths:
