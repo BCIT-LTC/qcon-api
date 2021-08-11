@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dependabot-qcon-api
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJyZWdpc3RyeS5kZXYubHRjLmJjaXQuY2EiOnsidXNlcm5hbWUiOiJkZXBlbmRhYm90LXFjb24tYXBpIiwicGFzc3dvcmQiOiJOOFF1THB3WmF4b0R2czdXczhQYiIsImVtYWlsIjoiY291cnNlcHJvZHVjdGlvbkBiY2l0LmNhIiwiYXV0aCI6IlpHVndaVzVrWVdKdmRDMXhZMjl1TFdGd2FUcE9PRkYxVEhCM1dtRjRiMFIyY3pkWGN6aFFZZz09In19fQ==
+type: kubernetes.io/dockerconfigjson

@@ -8,7 +8,7 @@ spec:
       - qcon-api.dev.ltc.bcit.ca
     secretName: star-dev-ltc-bcit-ca
   rules:
-  - host: qcon-api.dev.ltc.bcit.ca
+  - host: qcon-api.ltc.bcit.ca
     http:
       paths:
       - path: /

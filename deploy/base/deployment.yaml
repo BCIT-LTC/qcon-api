@@ -2,17 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
+  labels:
+    app: qcon-api
 spec:
   selector:
     matchLabels:
       app: qcon-api
-      tier: backend
   replicas: 1
   template:
     metadata:
       labels:
         app: qcon-api
-        tier: backend
     spec:
       containers:
       - name: qcon-api
@@ -34,4 +34,4 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
       imagePullSecrets:
-      - name: dependabot-web-apps
+      - name: dependabot-qcon-api

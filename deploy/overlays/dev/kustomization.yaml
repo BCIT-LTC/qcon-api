@@ -3,6 +3,7 @@ kind: Kustomization
 
 bases:
   - ../../base
+  # - ingress-patch.yaml
 
 patchesStrategicMerge:
   - deployment.yaml

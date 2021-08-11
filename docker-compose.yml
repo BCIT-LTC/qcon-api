@@ -7,7 +7,7 @@ services:
     image: qcon-api
     env_file: .env
     environment:
-      - DEBUG="True"
+      - DEBUG=True
     restart: always
     tty: true
     volumes:

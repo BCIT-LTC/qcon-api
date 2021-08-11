@@ -5,7 +5,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
-from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer
+from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer, QuestionLibraryErrorSummarySerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,7 +18,7 @@ from rest_framework.parsers import FileUploadParser
 from django.core.files.base import ContentFile
 # from os import makedirs, path, walk
 
-from .models import QuestionLibrary
+from .models import QuestionError, QuestionLibrary
 from .models import Question
 from .models import Transaction
 
@@ -30,10 +30,14 @@ WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
 
 WordToZip_Logger = logging.getLogger('api_v2.views.WordToZip')
 
+
 class TokenAuthenticationWithBearer(TokenAuthentication):
     keyword = 'Bearer'
+
     def __init__(self):
         super(TokenAuthenticationWithBearer, self).__init__()
+
+
 class WordToZip(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
@@ -68,26 +72,31 @@ class WordToZip(APIView):
         if serializer.is_valid():
             instance = serializer.save()
 
-            WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
-                                  ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
-
             filename = instance.zip_file.name.split("/")[1]
-            file_response = FileResponse(instance.zip_file)
-            file_response[
-                'Content-Disposition'] = 'attachment; filename="' + filename + '"'
-            return file_response
-            # return JsonResponse(response, status=201)
 
-        # # TODO return jsonresponse with error details
-        # instance = serializer.save()
-        # question_library = QuestionLibrary.objects.get(
-        #     transaction=instance.transaction.id)
-        # question_library_serializer = QuestionLibrarySerializer(
-        #     question_library)
+            if (instance.total_question_errors +
+                    instance.total_document_errors == 0):
+                theresponse = FileResponse(instance.zip_file)
+                theresponse['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                instance.cleanup()
+                return theresponse
+            else:
+                #Serializer to query only the records that contain errors
 
-        #     return JsonResponse(question_library_serializer.data, status=500)
+                serialized_data = QuestionLibraryErrorSummarySerializer(instance)
+
+                WordToJsonZip_Logger.info(
+                    "[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
+
+                theresponse = JsonResponse(serialized_data.data, status=201)
+                instance.cleanup()
+                return theresponse
 
         return JsonResponse(serializer.errors, status=400)
+
 
 class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
@@ -136,18 +145,28 @@ class WordToJsonZip(APIView):
                                    name="output.json")
             instance.json_file = jsonfile
             instance.save()
+            if instance.total_document_errors == 0:
+                instance.create_zip_file_package()
 
-            instance.create_zip_file_package()
+                filename = instance.output_zip_file.name.split("/")[1]
+                file_response = FileResponse(instance.output_zip_file)
+                file_response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                
+                WordToJsonZip_Logger.info(
+                    "[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                instance.cleanup()
+                return file_response
+            else:
+                #Query only the records that contain errors   
+                serialized_data = QuestionLibraryErrorSummarySerializer(instance)
+                theresponse = JsonResponse(serialized_data.data, status=400)
 
-            WordToJsonZip_Logger.info(
-                "[" + str(instance.transaction) + "] " +
-                ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
-
-            filename = instance.output_zip_file.name.split("/")[1]
-            file_response = FileResponse(instance.output_zip_file)
-            file_response[
-                'Content-Disposition'] = 'attachment; filename="' + filename + '"'
-            return file_response
+                WordToJsonZip_Logger.info(
+                    "[" + str(instance.transaction) + "] " +
+                    ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>")
+                instance.cleanup()
+                return theresponse
 
             # return Response("None")
         return JsonResponse(convertserializer.errors, status=400)
@@ -182,19 +201,9 @@ class WordToJson(APIView):
                 transaction=instance.transaction.id)
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
-
+            
+            instance.cleanup()
             return JsonResponse(question_library_serializer.data, status=200)
 
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
-
-
-# Temporary endpoint for the admin view
-# class Download(APIView):
-#     # parser_classes = [MultiPartParser]
-#     # permission_classes = [IsAuthenticated]
-#     # serializer_class = UploadSerializer
-#     def get(self, request , id, filename):
-#         FILE = './temp/' + str(id) + '/' + filename
-#         file_response = FileResponse(open(FILE, 'rb'))
-#         return file_response
