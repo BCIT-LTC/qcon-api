@@ -52,6 +52,7 @@ COPY --from=docs-base public docs/public
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY manage.py .
+COPY supervisord.conf .
 COPY qcon qcon
 COPY api_v2 api_v2
 COPY .env .env
@@ -62,4 +63,4 @@ COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8000
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["supervisord", "-c", "supervisord.conf", "-n"]
