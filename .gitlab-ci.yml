@@ -172,6 +172,9 @@ deploy_review:
       deploy/overlays/dev/kustomization.yaml"
     # - kubectl kustomize patch deploy/overlays/dev/ingress-patch.yml
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
+    # add namespace to default Rancher project
+    - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
+      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-p6z2c:p-tfh6k"}}}'
   tags:
     - $TEAM_TAG
 
