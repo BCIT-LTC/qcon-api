@@ -151,7 +151,7 @@ build_for_review:
   environment:
     name: development
   rules:
-    - if: ($CI_COMMIT_REF_SLUG =! "main" || $CI_COMMIT_REF_SLUG =! "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - $TEAM_TAG
 
@@ -183,7 +183,7 @@ deploy_review:
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
       '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-p6z2c:p-tfh6k"}}}'
   rules:
-    - if: ($CI_COMMIT_REF_SLUG =! "main" || $CI_COMMIT_REF_SLUG =! "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - $TEAM_TAG
 
