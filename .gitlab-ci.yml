@@ -131,11 +131,6 @@ get-latest-git-version:
 .deploy:
   image: bitnami/kubectl
   stage: deploy
-  environment:
-    auto_stop_in: 1 week
-  rules:
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-    - if: $CI_COMMIT_BRANCH
   # needs: ["security_scan"]
 
 
@@ -155,6 +150,8 @@ build_for_review:
   extends: .build_with_kaniko
   environment:
     name: development
+  rules:
+    - if: ($CI_COMMIT_REF_SLUG =! "main" || $CI_COMMIT_REF_SLUG =! "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached")
   tags:
     - $TEAM_TAG
 
@@ -165,6 +162,7 @@ deploy_review:
   environment:
     name: development
     url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+    auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     on_stop: stop_review
@@ -184,6 +182,8 @@ deploy_review:
     # add namespace to default Rancher project
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
       '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-p6z2c:p-tfh6k"}}}'
+  rules:
+    - if: ($CI_COMMIT_REF_SLUG =! "main" || $CI_COMMIT_REF_SLUG =! "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached")
   tags:
     - $TEAM_TAG
 
@@ -194,12 +194,12 @@ stop_review:
   stage: deploy 
   script:
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+  when: manual
   environment:
     name: development
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
-  when: manual
   tags:
     - $TEAM_TAG
 
@@ -210,7 +210,7 @@ build_latest:
   environment:
     name: staging
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: ($CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached")
   tags:
     - staging
 
@@ -227,7 +227,7 @@ deploy_latest:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -  
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: ($CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached")
   tags:
     - staging
 
@@ -236,7 +236,7 @@ deploy_latest:
 build_stable:
   extends: .build_with_kaniko
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: ($CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached")
   tags:
     - production
 
@@ -259,7 +259,7 @@ semver_release:
       --repository-url $CI_PROJECT_URL
       --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: ($CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached")
   tags:
     - production
 
