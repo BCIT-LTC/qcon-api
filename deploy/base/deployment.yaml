@@ -1,7 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: qcon-api
+  name: qcon-api-deployment
+  labels:
+    app: qcon-api
 spec:
   selector:
     matchLabels:
