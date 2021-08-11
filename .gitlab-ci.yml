@@ -56,6 +56,11 @@ variables:
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
+  SEMVER_EXPORTS: >
+    export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN && \
+    export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL && \
+    export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN && \
+    export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
 
 
 get-latest-git-version:
@@ -239,10 +244,7 @@ semver_release:
   stage: semver-tag
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
-    - export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
-    - export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
-    - export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
-    - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
+    - "$SEMVER_EXPORTS"
     - npm install -g semantic-release @semantic-release/gitlab
   # secrets:
   #   GITLAB_TOKEN:
