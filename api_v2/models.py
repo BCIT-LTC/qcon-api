@@ -34,9 +34,7 @@ from django.dispatch import receiver
 # Create your models here.
 
 import logging
-logger = logging.getLogger(__name__)
-RunConversion_Logger = logging.getLogger('api_v2.models.create_pandocstring')
-
+logger = logging.getLogger(__name__)\
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -151,13 +149,13 @@ class QuestionLibrary(models.Model):
 
             self.pandoc_string = "\n" + pandocstring
             # raise Exception('')
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "Markdown String Created")
             self.transaction.progress = 1
             self.transaction.save()
             self.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "Markdown String Failed")
             self.error = "Markdown String Failed"
             self.save()
@@ -168,10 +166,10 @@ class QuestionLibrary(models.Model):
             L1_result = "\n" + L1_result
             self.splitter_string = L1_result
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "Splitter Finished")
         except:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "Splitter Failed")
             self.error = "Splitter Failed"
             self.save()
@@ -182,7 +180,7 @@ class QuestionLibrary(models.Model):
             self.save()
             self.transaction.progress = 2
             self.transaction.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "Parser Finished")
             # # COUNT NUMBER OF DOCUMENT ERRORS
 
@@ -200,7 +198,7 @@ class QuestionLibrary(models.Model):
             #     # print(q_errorlist.count())
 
         except:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "Parser Failed")
             self.error = "Parser Failed"
             self.save()
@@ -230,14 +228,14 @@ class QuestionLibrary(models.Model):
             self.imsmanifest_string = parsed_imsmanifest
             self.save()
 
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "imsmanifest String Created")
 
             self.transaction.progress = 3
             self.transaction.save()
 
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "imsmanifest String Failed")
 
             self.error = "imsmanifest String Failed"
@@ -263,13 +261,13 @@ class QuestionLibrary(models.Model):
                                            name="imsmanifest.xml")
             self.imsmanifest_file = imsmanifest_file
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "QuestionDB String Created")
 
             self.transaction.progress = 4
             self.transaction.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "QuestionDB String Failed")
 
             self.error = "QuestionDB String Failed"
@@ -281,13 +279,13 @@ class QuestionLibrary(models.Model):
             self.questiondb_file = questiondb_file
             # question_library.checkpoint = 5;
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "XML files Created")
             # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
             self.transaction.progress = 5
             self.transaction.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "XML files Failed")
             self.error = "XML files Failed"
             self.save()
@@ -309,13 +307,13 @@ class QuestionLibrary(models.Model):
             self.zip_file.name = str(
                 self.transaction) + "/" + self.filtered_section_name + '.zip'
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "ZIP file Created")
 
             self.transaction.progress = 6
             self.transaction.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "ZIP file Failed")
 
             self.error = "ZIP file Failed"
@@ -331,10 +329,10 @@ class QuestionLibrary(models.Model):
             self.output_zip_file.name = str(
                 self.transaction) + "/" + 'package.zip'
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "ZIP file with JSON package Created")
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "ZIP file with JSON package Failed")
             self.error = "ZIP file Failed"
             self.save()

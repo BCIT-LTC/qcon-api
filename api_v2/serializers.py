@@ -57,10 +57,9 @@ class WordToZipSerializer(serializers.Serializer):
         newconversion.save()
 
         import logging
-        WordToZipSerializer_Logger = logging.getLogger(
-            'api_v2.serializers.WordToZipSerializer')
+        logger = logging.getLogger(__name__)
 
-        WordToZipSerializer_Logger.info(
+        logger.info(
             "[" + str(newtransaction) + "] " +
             "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         # ===========  1  ==================
@@ -115,10 +114,9 @@ class WordToJsonZipSerializer(serializers.Serializer):
         newconversion.save()
 
         import logging
-        WordToJsonZipSerializer_Logger = logging.getLogger(
-            'api_v2.serializers.WordToJsonZipSerializer')
+        logger = logging.getLogger(__name__)
 
-        WordToJsonZipSerializer_Logger.info(
+        logger.info(
             "[" + str(newtransaction) + "] " +
             "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         # ===========  1  ==================

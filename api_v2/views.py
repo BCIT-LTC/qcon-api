@@ -26,9 +26,9 @@ from .models import Transaction
 
 import logging
 logger = logging.getLogger(__name__)
-WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
+# WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
 
-WordToZip_Logger = logging.getLogger('api_v2.views.WordToZip')
+# WordToZip_Logger = logging.getLogger('api_v2.views.WordToZip')
 
 
 class TokenAuthenticationWithBearer(TokenAuthentication):
@@ -78,7 +78,7 @@ class WordToZip(APIView):
                     instance.total_document_errors == 0):
                 theresponse = FileResponse(instance.zip_file)
                 theresponse['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-                WordToZip_Logger.info("[" + str(instance.transaction) + "] " +
+                logger.info("[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
                 instance.cleanup()
                 return theresponse
@@ -87,7 +87,7 @@ class WordToZip(APIView):
 
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
 
-                WordToJsonZip_Logger.info(
+                logger.info(
                     "[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
 
@@ -152,7 +152,7 @@ class WordToJsonZip(APIView):
                 file_response = FileResponse(instance.output_zip_file)
                 file_response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
                 
-                WordToJsonZip_Logger.info(
+                logger.info(
                     "[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
                 instance.cleanup()
@@ -162,7 +162,7 @@ class WordToJsonZip(APIView):
                 serialized_data = QuestionLibraryErrorSummarySerializer(instance)
                 theresponse = JsonResponse(serialized_data.data, status=400)
 
-                WordToJsonZip_Logger.info(
+                logger.info(
                     "[" + str(instance.transaction) + "] " +
                     ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>")
                 instance.cleanup()
