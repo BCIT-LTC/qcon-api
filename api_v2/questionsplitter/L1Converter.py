@@ -14,7 +14,7 @@ from antlr4.error.ErrorListener import ErrorListener
 import pypandoc
 import re
 import logging
-L1Converter_Logger = logging.getLogger('api_v2.questionsplitter.L1Converter')
+logger = logging.getLogger(__name__)
 from api_v2.ErrorHandler import HandleDocumentError
 
 
@@ -34,7 +34,7 @@ def L1Converter(question_library):
         walker.walk(printer, tree)
         parsed_questions = printer.get_results()
     except:
-        L1Converter_Logger.error("[" + str(question_library.transaction.id) +
+        logger.error("[" + str(question_library.transaction.id) +
                                  "]" +
                                  "ANTLR LEXER failed and cannot continue")
 
@@ -88,7 +88,7 @@ def L1Converter(question_library):
                 highest_numbered_index = element.prefix
     # print("questions detected: " + str(number_of_questions) + " expected: " + str(highest_numbered_index))
     if int(number_of_questions) != int(highest_numbered_index):
-        L1Converter_Logger.error("Detected: " + str(number_of_questions) +
+        logger.error("Detected: " + str(number_of_questions) +
                                  " Expected: " + str(highest_numbered_index))
         
         error_message = "Detected: " + str(

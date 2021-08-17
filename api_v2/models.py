@@ -34,7 +34,7 @@ from django.dispatch import receiver
 # Create your models here.
 
 import logging
-logger = logging.getLogger(__name__)\
+logger = logging.getLogger(__name__)
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
