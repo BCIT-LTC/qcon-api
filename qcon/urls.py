@@ -28,6 +28,8 @@ urlpatterns = [
     path('', include('api_v2.urls'))
 ]
 
+handler404 = 'api_v2.views.view_404'
+
 if settings.ADMIN_ENABLED:
     urlpatterns += [path('admin/', admin.site.urls)]
 

@@ -207,3 +207,8 @@ class WordToJson(APIView):
 
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+from django.shortcuts import redirect
+
+def view_404(request, exception=None):
+    return redirect('/')

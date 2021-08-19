@@ -34,4 +34,5 @@ urlpatterns = [
          SpectacularSwaggerView.as_view(url_name='schema'),
          name='swagger-ui'),
     # path('api/doc2/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # path('<str:namespace>/<str:name>/review/<slug:slug>/', views.redirect_view)
 ]
