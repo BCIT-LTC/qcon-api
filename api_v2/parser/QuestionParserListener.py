@@ -366,7 +366,7 @@ class QuestionParserListener(ParseTreeListener):
                 self.question.points = points
             else:
                 self.question.points = 1.0
-                logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+                logger = logging.getLogger(__name__)
                 error_message = f"\n310, Points must be greater than 0 and less than or equal to 9,999. \
                               \n\t Points is now set to default 1.0 instead of {points}."
                 HandleQuestionError(self.question, QuestionErrorType.HEADER1, error_message, "FIX HEADER1")
@@ -374,7 +374,7 @@ class QuestionParserListener(ParseTreeListener):
             
         except ValueError:
             self.question.points = 1.0
-            logger = logging.getLogger('api_v2.QuestionParserListener.exitPoints')
+            logger = logging.getLogger(__name__)
             error_message = f"\n310, Points must be in a decimal format. \
                               \n\t Points is now set to default 1.0 instead of {points}."
             HandleQuestionError(self.question, QuestionErrorType.HEADER2, error_message, "FIX HEADER2")
@@ -689,7 +689,7 @@ class QuestionParserListener(ParseTreeListener):
 
                 self.end_answers.append(answer)
         else:
-            logger = logging.getLogger('api_v2.QuestionParserListener.exitEnd_answers')
+            logger = logging.getLogger(__name__)
             error_message = f"\n301, Total number of questions doesn't match total answer key. \
                               \n\t Total Questions  : {len(self.questions)} \
                               \n\t Total Answer Key : {len(ctx.end_answers_item())}"
@@ -756,7 +756,7 @@ class QuestionParserListener(ParseTreeListener):
 
     def process_question(self, question):
         from api_v2.models import QuestionErrorType        
-        logger = logging.getLogger('api_v2.QuestionParserListener.process_question')
+        logger = logging.getLogger(__name__)
         if question.question_type != None:
             if question.question_type == 'MC':
                 if self.is_multiple_choice(question) == True:

@@ -14,7 +14,7 @@ from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
 
 import logging
-QuestionParser_Logger = logging.getLogger('api_v2.parser.QuestionParserMain')
+logger = logging.getLogger(__name__)
 
 def question_parser(question_library, text_string):
     try:
@@ -30,4 +30,4 @@ def question_parser(question_library, text_string):
         parsed_questions = listener.get_results()
         return parsed_questions
     except:
-        QuestionParser_Logger.error("["+str(question_library.transaction) +"]" + "ANTLR LEXER failed and cannot continue")
+        logger.error("["+str(question_library.transaction) +"]" + "ANTLR LEXER failed and cannot continue")
