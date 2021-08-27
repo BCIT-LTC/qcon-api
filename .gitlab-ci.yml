@@ -37,7 +37,7 @@ stages:
 #   - template: Security/License-Scanning.gitlab-ci.yml
 
 variables:
-  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
+  # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   # VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
   # VAULT_AUTH_ROLE: "read-tokens"
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
