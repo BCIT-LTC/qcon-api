@@ -182,7 +182,8 @@ deploy_review:
     # add namespace to default Rancher project
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
       '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}}}'
-
+    # - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
+    #   '{"spec":{"rules":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}}}'
 # metadata:
 #   name: qcon-api-ingress
 # spec:
