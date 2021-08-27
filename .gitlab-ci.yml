@@ -183,6 +183,17 @@ deploy_review:
     # add namespace to default Rancher project
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
       '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}}}'
+
+# metadata:
+#   name: qcon-api-ingress
+# spec:
+#   rules:
+#   - host: reviews-dev-cp.dev.ltc.bcit.ca
+#     http:
+#       paths:
+# # should be: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+#       - path: /
+
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
