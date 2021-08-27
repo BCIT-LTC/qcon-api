@@ -23,7 +23,6 @@
 # - semantic versioning is automated by analyzing commit messages for keywords
 #   - refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
 # - Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
-# blah
 
 stages:
   - test
