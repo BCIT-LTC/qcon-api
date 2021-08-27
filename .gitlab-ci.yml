@@ -50,8 +50,8 @@ variables:
   # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
   # KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
-  DEV_URL: "https://reviews.dev.ltc.bcit.ca"
-  STAGING_URL: "https://staging.dev.ltc.bcit.ca"
+  DEV_URL: "https://reviews-dev-cp.dev.ltc.bcit.ca"
+  STAGING_URL: "https://latest.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
   IMAGE_LABELS: >
@@ -182,12 +182,11 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
     # add namespace to default Rancher project
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-p6z2c:p-tfh6k"}}}'
+      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}}}'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - $TEAM_TAG
-
 
 # Stop review environment
 stop_review:
@@ -203,6 +202,10 @@ stop_review:
     action: stop
   tags:
     - $TEAM_TAG
+
+
+##### Good to here #####
+
 
 # Build image with Kaniko (latest)
 build_latest:
