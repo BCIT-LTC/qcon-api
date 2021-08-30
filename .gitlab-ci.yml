@@ -170,7 +170,7 @@ deploy_review:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
       \nimages: \
-      \n  - name: qcon-api \
+      \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
@@ -179,21 +179,9 @@ deploy_review:
       deploy/overlays/dev/kustomization.yaml"
     # - kubectl kustomize patch deploy/overlays/dev/ingress-patch.yml
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-    # add namespace to default Rancher project
+    # add namespace to default Rancher project and update ingress to branch path
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}}}'
-    # - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-    #   '{"spec":{"rules":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}}}'
-# metadata:
-#   name: qcon-api-ingress
-# spec:
-#   rules:
-#   - host: reviews-dev-cp.dev.ltc.bcit.ca
-#     http:
-#       paths:
-# # should be: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
-#       - path: /
-
+      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-k7tjr:p-nqcxq"}},"spec":{"rules":[{"http":{"paths":[{"path":"/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG"}]}}]}'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
