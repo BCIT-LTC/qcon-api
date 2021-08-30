@@ -179,9 +179,8 @@ deploy_review:
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
-    # - kubectl kustomize patch deploy/overlays/dev/ingress-patch.yml
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-    # add namespace to default Rancher project and update ingress to branch path
+# add namespace to default Rancher project and update ingress to branch path
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
       '{"metadata":{"annotations":{"field.cattle.io/projectId":$RANCHER_PROJECT_ID}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":$APP_SERVICE_PORT}}},"path":"/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG","pathType":"Prefix"}]}}]}}'
   rules:
@@ -203,9 +202,6 @@ stop_review:
     action: stop
   tags:
     - $TEAM_TAG
-
-
-##### Good to here #####
 
 
 # Build image with Kaniko (latest)
@@ -241,7 +237,6 @@ deploy_latest:
     - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - staging
-# TODO: on merge, stop review environment
 
 
 # Build image with Kaniko (stable)
