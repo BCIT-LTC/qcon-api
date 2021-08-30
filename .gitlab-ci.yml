@@ -37,9 +37,9 @@ stages:
 #   - template: Security/License-Scanning.gitlab-ci.yml
 
 variables:
-  # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
-  # VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  # VAULT_AUTH_ROLE: "read-tokens"
+  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
+  VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
+  VAULT_AUTH_ROLE: "read-tokens-qcon-api" 
   PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
   # new comment
   # KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
@@ -63,7 +63,7 @@ variables:
     export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN && \
     export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
   APP_SERVICE_PORT: 8000
-  RANCHER_PROJECT_ID: "c-k7tjr:p-nqcxq"
+  RANCHER_PROJECT: "c-k7tjr:p-nqcxq"
 
 
 get-latest-git-version:
@@ -182,7 +182,7 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
 # add namespace to default Rancher project and update ingress to branch path
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":$RANCHER_PROJECT_ID}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":$APP_SERVICE_PORT}}},"path":"/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG","pathType":"Prefix"}]}}]}}'
+      '{"metadata":{"annotations":{"field.cattle.io/projectId":"$RANCHER_PROJECT"}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":"$APP_SERVICE_PORT"}}},"path":"/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG","pathType":"Prefix"}]}}]}}'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -253,8 +253,6 @@ build_stable:
 semver_release:
   image: node:12-buster-slim
   stage: semver-tag
-  variables:
-    VAULT_AUTH_ROLE: "read-tokens-haproxy"  
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
