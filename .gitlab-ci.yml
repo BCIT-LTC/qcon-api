@@ -182,7 +182,7 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
 # add namespace to default Rancher project and update ingress to branch path
     - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":"$RANCHER_PROJECT"}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":"$APP_SERVICE_PORT"}}},"path":"/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG","pathType":"Prefix"}]}}]}}'
+      '{"metadata":{"annotations":{"field.cattle.io/projectId":"$RANCHER_PROJECT","nginx.ingress.kubernetes.io/rewrite-target":"/","nginx.ingress.kubernetes.io/use-regex":"true"}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":"$APP_SERVICE_PORT"}}},"path":"/(.*)","pathType":"Prefix"}]}}]}}'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
