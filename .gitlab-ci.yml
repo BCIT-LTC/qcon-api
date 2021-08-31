@@ -37,31 +37,21 @@ stages:
 #   - template: Security/License-Scanning.gitlab-ci.yml
 
 variables:
-  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
-  # VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  # VAULT_AUTH_ROLE: "read-tokens"
-  PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
-  # new comment
-  # KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
-  # KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
-  # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
-  # KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
-  # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
-  # KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
-  VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
-  DEV_URL: "https://reviews.dev.ltc.bcit.ca"
-  STAGING_URL: "https://staging.dev.ltc.bcit.ca"
+  DEV_URL: "reviews-dev-cp.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
+  VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
+  APP_SERVICE_PORT: 8000
+  # PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
+# Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
+  KUBERNETES_POD_ANNOTATIONS_1: "field.cattle.io/projectId=p-tfh6k"
+  KUBERNETES_POD_ANNOTATIONS_2: "projectId=c-p6z2c:p-tfh6k"
+  VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
+  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   IMAGE_LABELS: >
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-  SEMVER_EXPORTS: >
-    export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN && \
-    export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL && \
-    export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN && \
-    export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
 
 
 get-latest-git-version:
@@ -131,11 +121,6 @@ get-latest-git-version:
 .deploy:
   image: bitnami/kubectl
   stage: deploy
-  environment:
-    auto_stop_in: 1 week
-  rules:
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-    - if: $CI_COMMIT_BRANCH
   # needs: ["security_scan"]
 
 
@@ -154,7 +139,9 @@ get-latest-git-version:
 build_for_review:
   extends: .build_with_kaniko
   environment:
-    name: development
+    name: dev-cp
+  rules:
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - $TEAM_TAG
 
@@ -163,27 +150,45 @@ build_for_review:
 deploy_review:
   extends: .deploy
   environment:
-    name: development
-    url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+    name: dev-cp
+    url: https://$DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+    auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     on_stop: stop_review
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+# add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
-      \n  - name: qcon-api \
+      \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
-    # - kubectl kustomize patch deploy/overlays/dev/ingress-patch.yml
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-    # add namespace to default Rancher project
-    - kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-p6z2c:p-tfh6k"}}}'
+# update ingress to branch path
+    - "echo -e \" \
+      \nspec: \
+      \n  rules: \
+      \n  - host: $DEV_URL \
+      \n    http: \
+      \n      paths: \
+      \n      - path: /(.*) \
+      \n        pathType: Prefix \
+      \n        backend: \
+      \n          service: \
+      \n            name: $CI_PROJECT_NAME-service \
+      \n            port: \
+      \n              number: $APP_SERVICE_PORT\" > \
+      deploy/overlays/dev/ing-patch.yaml"
+    - "kubectl patch ing $CI_PROJECT_NAME-ingress \
+      -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG \
+      --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
+  rules:
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - $TEAM_TAG
 
@@ -194,12 +199,12 @@ stop_review:
   stage: deploy 
   script:
     - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+  when: manual
   environment:
-    name: development
+    name: dev-cp
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     action: stop
-  when: manual
   tags:
     - $TEAM_TAG
 
@@ -210,7 +215,7 @@ build_latest:
   environment:
     name: staging
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - staging
 
@@ -220,14 +225,20 @@ deploy_latest:
   extends: .deploy
   environment:
     name: staging
-    url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+    url: https://$STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
     kubernetes:
       namespace: $CI_PROJECT_NAME
   script:
-    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -  
+    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+    - "echo -e \" \
+      \ncommonAnnotations: \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
+      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
+      deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - staging
 
@@ -236,7 +247,7 @@ deploy_latest:
 build_stable:
   extends: .build_with_kaniko
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - production
 
@@ -246,20 +257,25 @@ build_stable:
 semver_release:
   image: node:12-buster-slim
   stage: semver-tag
+  secrets:
+    GITLAB_TOKEN:
+      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+      file: false
   before_script:
-    - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
-    - "$SEMVER_EXPORTS"
-    - npm install -g semantic-release @semantic-release/gitlab
-  # secrets:
-  #   GITLAB_TOKEN:
-  #     vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+    - |
+      apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
+      export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
+      export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
+      export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
+      export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
+      npm install -g semantic-release @semantic-release/gitlab
   script:
     - semantic-release
       --branches release
       --repository-url $CI_PROJECT_URL
       --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
   rules:
-    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
+    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
     - production
 
