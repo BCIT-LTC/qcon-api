@@ -186,7 +186,7 @@ deploy_review:
     # - touch deploy/overlays/dev/ing-patch.yaml
     - "echo -e \" \
     \nspec: \
-    \n  rules: [ \
+    \n  rules: \
     \n  - host: $DEV_URL\" >> deploy/overlays/dev/ing-patch.yaml"
     - kubectl patch ing $CI_PROJECT_NAME-ingress -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p deploy/overlays/dev/ing-patch.yaml
   rules:
