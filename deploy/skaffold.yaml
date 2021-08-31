@@ -7,7 +7,7 @@
 #     `docker login registry.dev.ltc.bcit.ca`
 #
 # 3. Set Kubernetes cluster context:
-#     `kubectl config set context --namespace=default-{profile.name} k8s-dev-cp`
+#     `kubectl config set context --namespace=default-{profile.name} dev-cp`
 #
 # 2. Run skaffold:
 #    `skaffold dev -p {profile.name} --port-forward -f deploy/skaffold.yaml`

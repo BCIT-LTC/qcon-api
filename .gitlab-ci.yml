@@ -37,33 +37,21 @@ stages:
 #   - template: Security/License-Scanning.gitlab-ci.yml
 
 variables:
-  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
-  VAULT_SERVER_URL: "https://vault.ltc.bcit.ca:8200"
-  VAULT_AUTH_ROLE: "read-tokens-qcon-api" 
-  PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
-  # new comment
-  # KUBERNETES_POD_ANNOTATIONS_1: "app.gitlab.com/env=$CI_ENVIRONMENT_SLUG"
-  # KUBERNETES_POD_ANNOTATIONS_2: "app.gitlab.com/app=$CI_PROJECT_PATH_SLUG"
-  # Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
-  # KUBERNETES_POD_ANNOTATIONS_3: "field.cattle.io/projectId=p-tfh6k"
-  # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
-  # KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
-  VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
   DEV_URL: "reviews-dev-cp.dev.ltc.bcit.ca"
-  STAGING_URL: "latest.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
+  VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
+  APP_SERVICE_PORT: 8000
+  # PROJECT_REGISTRY: "registry.dev.ltc.bcit.ca"
+# Add namespace to default Rancher project (c-p6z2c:p-tfh6k)
+  KUBERNETES_POD_ANNOTATIONS_1: "field.cattle.io/projectId=p-tfh6k"
+  KUBERNETES_POD_ANNOTATIONS_2: "projectId=c-p6z2c:p-tfh6k"
+  VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
+  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   IMAGE_LABELS: >
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-  SEMVER_EXPORTS: >
-    export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN && \
-    export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL && \
-    export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN && \
-    export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
-  APP_SERVICE_PORT: 8000
-  RANCHER_PROJECT: "c-k7tjr:p-nqcxq"
 
 
 get-latest-git-version:
@@ -177,7 +165,6 @@ deploy_review:
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
-      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
