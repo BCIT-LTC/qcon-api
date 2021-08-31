@@ -5,14 +5,12 @@ metadata:
   name: qcon-api-ingress
 spec:
   rules:
-  - host: reviews-dev-cp.dev.ltc.bcit.ca
-    http:
+  - http:
       paths:
-# should be: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: qcon-api-service
+            name: qcon-api
             port:
               number: 8000
