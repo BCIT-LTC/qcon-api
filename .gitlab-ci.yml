@@ -49,8 +49,8 @@ variables:
   # KUBERNETES_POD_ANNOTATIONS_4: "projectId=c-p6z2c:p-tfh6k"
   # KUBERNETES_NAMESPACE_OVERWRITE: ${CI_COMMIT_REF_SLUG}  
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
-  DEV_URL: "https://reviews-dev-cp.dev.ltc.bcit.ca"
-  STAGING_URL: "https://latest.dev.ltc.bcit.ca"
+  DEV_URL: "reviews-dev-cp.dev.ltc.bcit.ca"
+  STAGING_URL: "latest.dev.ltc.bcit.ca"
   TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
   IMAGE_LABELS: >
@@ -163,7 +163,7 @@ deploy_review:
   extends: .deploy
   environment:
     name: dev-cp
-    url: $DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+    url: https://$DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
@@ -237,7 +237,7 @@ deploy_latest:
   extends: .deploy
   environment:
     name: staging
-    url: $STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+    url: https://$STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
     kubernetes:
       namespace: $CI_PROJECT_NAME
   script:
@@ -274,12 +274,13 @@ semver_release:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
       file: false
   before_script:
-    - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
-    - export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
-    - export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
-    - export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
-    - export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
-    - npm install -g semantic-release @semantic-release/gitlab
+    - |
+      apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
+      export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
+      export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
+      export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
+      export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
+      npm install -g semantic-release @semantic-release/gitlab
   script:
     - semantic-release
       --branches release
