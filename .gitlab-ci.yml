@@ -185,7 +185,7 @@ deploy_review:
       '{"metadata":{"annotations":{"field.cattle.io/projectId":"$RANCHER_PROJECT"}}}'
 # patch ingress to rewrite project url to pod root (https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rewrite)
     - kubectl patch ing $CI_PROJECT_NAME-ingress -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":"$RANCHER_PROJECT","nginx.ingress.kubernetes.io/rewrite-target":"/","nginx.ingress.kubernetes.io/use-regex":"true"}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":"$APP_SERVICE_PORT"}}},"path":"/(.*)","pathType":"Prefix"}]}}]}}'
+      '{"metadata":{"annotations":{"nginx.ingress.kubernetes.io/rewrite-target":"/","nginx.ingress.kubernetes.io/use-regex":"true"}},"spec":{"rules":[{"host":"$DEV_URL","http":{"paths":[{"backend":{"service":{"name":"$CI_PROJECT_NAME-service","port":{"number":$APP_SERVICE_PORT}}},"path":/(.*),"pathType":"Prefix"}]}}]}}'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
