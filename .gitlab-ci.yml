@@ -170,7 +170,7 @@ deploy_review:
     on_stop: stop_review
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-# add annotations to link to GitLab Environment/Operations dashboards
+# add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
       \n  - name: $CI_PROJECT_NAME \
@@ -184,19 +184,19 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
 # update ingress to branch path
     - "echo -e \" \
-    \nspec: \
-    \n  rules: \
-    \n  - host: $DEV_URL \
-    \n    http: \
-    \n      paths: \
-    \n      - path: /(.*) \
-    \n        pathType: Prefix \
-    \n        backend: \
-    \n          service: \
-    \n            name: $CI_PROJECT_NAME-service \
-    \n            port: \
-    \n              number: $APP_SERVICE_PORT\" >> \
-    deploy/overlays/dev/ing-patch.yaml"
+      \nspec: \
+      \n  rules: \
+      \n  - host: $DEV_URL \
+      \n    http: \
+      \n      paths: \
+      \n      - path: / \
+      \n        pathType: Prefix \
+      \n        backend: \
+      \n          service: \
+      \n            name: $CI_PROJECT_NAME-service \
+      \n            port: \
+      \n              number: $APP_SERVICE_PORT\" > \
+      deploy/overlays/dev/ing-patch.yaml"
     - kubectl patch ing $CI_PROJECT_NAME-ingress -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p deploy/overlays/dev/ing-patch.yaml
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
