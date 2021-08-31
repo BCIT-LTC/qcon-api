@@ -205,6 +205,7 @@ deploy_review:
   tags:
     - $TEAM_TAG
 
+
 # Stop review environment
 stop_review:
   image: bitnami/kubectl
