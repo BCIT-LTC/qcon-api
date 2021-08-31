@@ -177,7 +177,7 @@ deploy_review:
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
-      \n  field.cattle.io/projectId: $RANCHER_PROJECT\" \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
@@ -226,13 +226,11 @@ deploy_latest:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
       \ncommonAnnotations: \
-      \n  field.cattle.io/projectId: $RANCHER_PROJECT\" \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-      deploy/overlays/staging/kustomization.yaml"    
+      deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
-    - kubectl patch ns $CI_PROJECT_NAME -p \
-      '{"metadata":{"annotations":{"field.cattle.io/projectId":"c-p6z2c:p-tfh6k"}}}'    
   rules:
     - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
