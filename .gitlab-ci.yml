@@ -181,14 +181,14 @@ deploy_review:
       \nmetadata: \
       \n  annotations: \
       \n    kubernetes.io/ingress.class: nginx \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: /$2$3 \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
       \n    nginx.ingress.kubernetes.io/use-regex: true \
       \nspec: \
       \n  rules: \
       \n  - host: $DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: /(web-apps)(.*) \
+      \n      - path: / \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
