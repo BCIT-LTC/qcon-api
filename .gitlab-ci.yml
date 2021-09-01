@@ -47,7 +47,7 @@ variables:
   KUBERNETES_POD_ANNOTATIONS_1: "field.cattle.io/projectId=p-tfh6k"
   KUBERNETES_POD_ANNOTATIONS_2: "projectId=c-p6z2c:p-tfh6k"
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
-  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
+  # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   IMAGE_LABELS: >
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
@@ -176,7 +176,7 @@ deploy_review:
       \n  - host: $DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: /(.*) \
+      \n      - path: / \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \

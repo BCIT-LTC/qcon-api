@@ -3,16 +3,11 @@ kind: Ingress
 
 metadata:
   name: qcon-api-ingress
-# ingress to rewrite project url to pod root
-# (https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rewrite)  
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/use-regex: true
 spec:
   rules:
   - http:
       paths:
-      - path: /(.*)
+      - path: /
         pathType: Prefix
         backend:
           service:
