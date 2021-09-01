@@ -196,6 +196,7 @@ deploy_review:
       \n            port: \
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
+    - cat deploy/overlays/dev/ing-patch.yaml
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
       -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
