@@ -37,11 +37,11 @@ stages:
 #   - template: Security/License-Scanning.gitlab-ci.yml
 
 variables:
-  DEV_URL: "reviews-dev-cp.dev.ltc.bcit.ca"
-  TEAM_EMAIL: "courseproduction@bcit.ca"
   TEAM_TAG: "dev-cp"
-  VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
+  TEAM_EMAIL: "courseproduction@bcit.ca"
   APP_SERVICE_PORT: 8000
+  DEV_URL: "reviews-$TEAM_TAG.dev.ltc.bcit.ca"
+  VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
   # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   IMAGE_LABELS: >
@@ -147,20 +147,24 @@ deploy_review:
   extends: .deploy
   environment:
     name: dev-cp
-    url: https://$DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
+# target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
+# eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
+    url: https://$CI_PROJECT_PATH_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
-      namespace: $CI_PROJECT_NAME
+      namespace: $CI_PROJECT_PATH_SLUG
     on_stop: stop_review
   script:
-    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
+# attempt to create namespace; fail gracefully if already present
+    - kubectl create ns $CI_PROJECT_PATH_SLUG -o yaml --dry-run=client | kubectl apply -f -
+# patch namespace to add it to the default Rancher project
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
       \n    field.cattle.io/projectId: p-nqcxq\" > \
       deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $CI_PROJECT_NAME -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
-# add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
+    - "kubectl patch ns $CI_PROJECT_PATH_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+# add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
       \n  - name: $CI_PROJECT_NAME \
@@ -170,15 +174,19 @@ deploy_review:
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
+# apply kustomized deployment (dev)
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-# update ingress to branch path
+# patch ingress to branch path
     - "echo -e \" \
+      \nmetadata: \
+      \n  annotations: \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
       \nspec: \
       \n  rules: \
-      \n  - host: $DEV_URL \
+      \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: / \
+      \n      - path: /$CI_COMMIT_REF_SLUG \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
@@ -187,7 +195,7 @@ deploy_review:
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
-      -n $CI_PROJECT_NAME \
+      -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
     # - kubectl annotate 
   rules:
@@ -201,15 +209,18 @@ stop_review:
   image: bitnami/kubectl
   stage: deploy 
   script:
-    - kubectl delete ns $CI_PROJECT_NAME
+    - kubectl delete ns $CI_PROJECT_PATH_SLUG
   when: manual
   environment:
     name: dev-cp
     kubernetes:
-      namespace: $CI_PROJECT_NAME
+      namespace: $CI_PROJECT_PATH_SLUG
     action: stop
   tags:
     - $TEAM_TAG
+
+
+##### Good to Hear! #####
 
 
 # Build image with Kaniko (latest)
