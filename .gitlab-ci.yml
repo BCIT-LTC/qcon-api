@@ -161,7 +161,7 @@ deploy_review:
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
-      \n    field.cattle.io/projectId: p-tfh6k\" > \
+      \n    field.cattle.io/projectId: p-nqcxq\" > \
       deploy/overlays/dev/ns-patch.yaml"
     - "kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
@@ -193,7 +193,7 @@ deploy_review:
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
       -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
-    - kubectl annotate 
+    # - kubectl annotate 
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
