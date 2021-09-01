@@ -178,11 +178,6 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
 # update ingress to branch path
     - "echo -e \" \
-      metadata: \
-      \n  annotations: \
-      \n    kubernetes.io/ingress.class: nginx \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
-      \n    nginx.ingress.kubernetes.io/use-regex: true \
       \nspec: \
       \n  rules: \
       \n  - host: $DEV_URL \
