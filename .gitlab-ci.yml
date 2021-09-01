@@ -149,7 +149,7 @@ deploy_review:
     name: dev-cp
 # target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
 # eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
-    url: https://$CI_PROJECT_PATH_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_PATH_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_PROJECT_PATH_SLUG
