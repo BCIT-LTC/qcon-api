@@ -158,6 +158,13 @@ deploy_review:
     on_stop: stop_review
   script:
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+    - "echo -e \" \
+      \nmetadata: \
+      \n  annotations: \
+      \n    field.cattle.io/projectId: p-tfh6k \
+      \n    projectId=c-p6z2c:p-tfh6k\" > \
+      deploy/overlays/dev/ns-patch.yaml"
+    - "kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
@@ -171,12 +178,16 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
 # update ingress to branch path
     - "echo -e \" \
+      \nmetadata: \
+      \n  annotations: \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
+      \n    nginx.ingress.kubernetes.io/use-regex: \"true\" \
       \nspec: \
       \n  rules: \
       \n  - host: $DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: / \
+      \n      - path: /?(.*) \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
