@@ -162,7 +162,7 @@ deploy_review:
       \nmetadata: \
       \n  annotations: \
       \n    field.cattle.io/projectId: p-tfh6k \
-      \n    projectId=c-p6z2c:p-tfh6k\" > \
+      \n    projectId: c-p6z2c:p-tfh6k\" > \
       deploy/overlays/dev/ns-patch.yaml"
     - "kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
@@ -180,14 +180,15 @@ deploy_review:
     - "echo -e \" \
       \nmetadata: \
       \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
+      \n    kubernetes.io/ingress.class: nginx \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: /$2$3 \
       \n    nginx.ingress.kubernetes.io/use-regex: \"true\" \
       \nspec: \
       \n  rules: \
       \n  - host: $DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: /?(.*) \
+      \n      - path: /(web-apps)(.*) \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
