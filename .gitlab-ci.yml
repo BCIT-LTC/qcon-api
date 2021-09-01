@@ -38,9 +38,9 @@ stages:
 
 variables:
   TEAM_TAG: "dev-cp"
+  DEV_URL: reviews-dev-cp.dev.ltc.bcit.ca
   TEAM_EMAIL: "courseproduction@bcit.ca"
   APP_SERVICE_PORT: 8000
-  DEV_URL: "reviews-$TEAM_TAG.dev.ltc.bcit.ca"
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
   VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
   # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
