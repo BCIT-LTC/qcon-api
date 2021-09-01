@@ -150,16 +150,16 @@ deploy_review:
     url: https://$DEV_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/review/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
-      namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+      namespace: $CI_PROJECT_NAME
     on_stop: stop_review
   script:
-    - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
       \n    field.cattle.io/projectId: p-nqcxq\" > \
       deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+    - "kubectl patch ns $CI_PROJECT_NAME -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
@@ -187,7 +187,7 @@ deploy_review:
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
-      -n $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG \
+      -n $CI_PROJECT_NAME \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
     # - kubectl annotate 
   rules:
@@ -201,12 +201,12 @@ stop_review:
   image: bitnami/kubectl
   stage: deploy 
   script:
-    - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+    - kubectl delete ns $CI_PROJECT_NAME
   when: manual
   environment:
     name: dev-cp
     kubernetes:
-      namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+      namespace: $CI_PROJECT_NAME
     action: stop
   tags:
     - $TEAM_TAG
