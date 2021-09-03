@@ -6,16 +6,19 @@ metadata:
 # ingress to rewrite project url to pod root
 # (https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rewrite)  
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/use-regex: true
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    # nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.ingress.kubernetes.io/x-forwarded-prefix: "/app1/"
+    # nginx.ingress.kubernetes.io/app-root: /app1/
 spec:
   rules:
-  - http:
-      paths:
-      - path: /(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: qcon-api
-            port:
-              number: 8000
+    - host: qcon-api-ingress.default-v.142.232.76.249.sslip.io
+      http:
+        paths:
+        - path: /(.*)(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: qcon-api-service
+              port:
+                number: 8000
