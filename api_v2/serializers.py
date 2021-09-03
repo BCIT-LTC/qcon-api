@@ -28,47 +28,6 @@ def count_errors(questionlibrary):
     questionlibrary.total_question_errors = num_question_errors
     questionlibrary.save()
 
-
-class UploadSerializer(serializers.Serializer):
-
-    temp_file = serializers.FileField(validators=[validate_file],
-                                      max_length=100,
-                                      allow_empty_file=False,
-                                      use_url=True)
-
-    # section_name = serializers.CharField( max_length=100, allow_null=True, allow_blank=True, required=False)
-
-    def create(self, validated_data):
-        # newconversion = QuestionLibrary.objects.create(**validated_data)
-        newtransaction = Transaction(client='qconweb')
-        newtransaction.save()
-
-        newconversion = QuestionLibrary.objects.create()
-        newconversion.transaction = newtransaction
-        # print("transaction " + str(newconversion.transaction))
-        # print("qlibratry " + str(newtransaction.questionlibrary))
-        newconversion.temp_file = validated_data.get('temp_file',
-                                                     validated_data)
-        newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.filter_section_name()
-        # print(newconversion.section_name)
-
-        newconversion.folder_path = settings.MEDIA_ROOT + \
-            str(newconversion.transaction)
-        newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
-        newconversion.create_directory()
-        newconversion.save()
-        # async_task('api_v2.tasks.runconversion', newconversion)
-
-        return newconversion.transaction
-
-    def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get('temp_file',
-                                                instance.temp_file)
-        instance.save()
-        return instance
-
-
 class WordToZipSerializer(serializers.Serializer):
 
     temp_file = serializers.FileField(validators=[validate_file],
@@ -98,10 +57,9 @@ class WordToZipSerializer(serializers.Serializer):
         newconversion.save()
 
         import logging
-        WordToZipSerializer_Logger = logging.getLogger(
-            'api_v2.serializers.WordToZipSerializer')
+        logger = logging.getLogger(__name__)
 
-        WordToZipSerializer_Logger.info(
+        logger.info(
             "[" + str(newtransaction) + "] " +
             "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         # ===========  1  ==================
@@ -156,10 +114,9 @@ class WordToJsonZipSerializer(serializers.Serializer):
         newconversion.save()
 
         import logging
-        WordToJsonZipSerializer_Logger = logging.getLogger(
-            'api_v2.serializers.WordToJsonZipSerializer')
+        logger = logging.getLogger(__name__)
 
-        WordToJsonZipSerializer_Logger.info(
+        logger.info(
             "[" + str(newtransaction) + "] " +
             "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         # ===========  1  ==================
@@ -278,5 +235,39 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
         model = QuestionLibrary
         fields = [
             'section_name', 'randomize_answer', 'total_question_errors',
+            'total_document_errors', 'documenterrors', 'questions'
+        ]
+
+
+# ===================================== for /WORDZIP(CURL commands)
+
+
+class QuestionErrorSummarySerializer(serializers.ModelSerializer):
+    questionerrors = QuestionErrorSerializer(many=True, read_only=True)
+   
+    class Meta:
+        model = Question
+        fields = [
+            'prefix', 'questionerrors'
+        ]
+
+class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
+    documenterrors = DocumentErrorSerializer(many=True, read_only=True)
+    questions = serializers.SerializerMethodField('get_questions')
+
+    def get_questions(self, questionlibrary):        
+        questionlist = Question.objects.filter(question_library=questionlibrary)
+        filtered_questionlist_ids = []
+        for q in questionlist:
+            q_errorlist = QuestionError.objects.filter(question=q)
+            if q_errorlist.count() > 0:
+                filtered_questionlist_ids.append(q.id)
+        filtered_questionlist_queryset = questionlist.filter(id__in=filtered_questionlist_ids)
+        serializer = QuestionErrorSummarySerializer(instance=filtered_questionlist_queryset, many=True, read_only=True)
+        return serializer.data
+    class Meta:
+        model = QuestionLibrary
+        fields = [
+            'section_name', 'total_question_errors',
             'total_document_errors', 'documenterrors', 'questions'
         ]

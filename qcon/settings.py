@@ -176,7 +176,7 @@ LOGGING = {
             'style': '{',
         },
         'custom': {
-            'format': '{levelname} {asctime} {module} {name} {message}',
+            'format': '{levelname} {asctime} {module} {name} {funcName} {message}',
             'style': '{',
         },
     },

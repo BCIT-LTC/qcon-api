@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: qcon-api-ingress
+# annotations to rewrite nginx ingress for dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+  - host: reviews-dev-cp.dev.ltc.bcit.ca
+    http:
+      paths:
+      - path: /?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: qcon-api-service
+            port:
+              number: 8000
+        tls:
+        - hosts:
+            - reviews-dev-cp.dev.ltc.bcit.ca
+          secretName: star-dev-ltc-bcit-ca

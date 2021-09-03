@@ -16,7 +16,7 @@ from api_v2.scorm.manifest import ManifestEntity, ManifestResourceEntity
 from xml.dom.minidom import parseString
 import xml.etree.cElementTree as ET
 from zipfile import *
-from os import makedirs, path, walk
+from os import makedirs, path, walk, rmdir, remove
 
 import re
 from os.path import basename
@@ -26,15 +26,15 @@ from django.core.files.base import ContentFile
 from rest_framework.authtoken.models import Token
 
 from enum import Enum
-# from django.conf import settings
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 # Create your models here.
 
 import logging
 logger = logging.getLogger(__name__)
-RunConversion_Logger = logging.getLogger('api_v2.models.create_pandocstring')
-
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -95,13 +95,13 @@ class QuestionLibrary(models.Model):
                                        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     total_question_errors = models.DecimalField(max_digits=2,
-                                       decimal_places=0,
-                                       blank=True,
-                                       null=True)
+                                                decimal_places=0,
+                                                blank=True,
+                                                null=True)
     total_document_errors = models.DecimalField(max_digits=2,
-                                       decimal_places=0,
-                                       blank=True,
-                                       null=True)
+                                                decimal_places=0,
+                                                blank=True,
+                                                null=True)
 
     class Meta:
         verbose_name_plural = "question libraries"
@@ -112,12 +112,18 @@ class QuestionLibrary(models.Model):
     def filter_section_name(self):
         section_name = self.section_name.strip()
         section_name = section_name.lower()
-        filtered_section_name = re.sub(
-            r"\s+|<|>|\/|:|\"|\\|\||\?|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]", "-", section_name)
+        filtered_section_name = re.sub('[\W_]+', ' ', section_name).strip()
+        filtered_section_name = filtered_section_name.replace(' ', '-')
+
+        # If the file name is illegal Windows string, replace with "Converted-Exam"
+        filtered_section_name = filtered_section_name.replace(
+            '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam',
+            re.IGNORECASE)
 
         # Limit the filename to 30 characters
         filtered_section_name = (
-            filtered_section_name[:50]) if len(filtered_section_name) > 50 else filtered_section_name
+            filtered_section_name[:50]
+        ) if len(filtered_section_name) > 50 else filtered_section_name
 
         self.filtered_section_name = filtered_section_name
 
@@ -128,6 +134,7 @@ class QuestionLibrary(models.Model):
 
     def create_pandocstring(self):
         try:
+            mdblockquotePath = "./api_v2/pandoc-filters/mdblockquote.lua"
 
             pandocstring = pypandoc.convert_file(
                 self.temp_file.path,
@@ -137,18 +144,18 @@ class QuestionLibrary(models.Model):
                 extra_args=[
                     '--extract-media=' + self.folder_path, '--no-highlight',
                     '--self-contained', '--atx-headers', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false'
+                    '--wrap=preserve', '--indent=false', '--lua-filter=' + mdblockquotePath
                 ])
 
             self.pandoc_string = "\n" + pandocstring
             # raise Exception('')
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "Markdown String Created")
             self.transaction.progress = 1
             self.transaction.save()
             self.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "Markdown String Failed")
             self.error = "Markdown String Failed"
             self.save()
@@ -159,10 +166,10 @@ class QuestionLibrary(models.Model):
             L1_result = "\n" + L1_result
             self.splitter_string = L1_result
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "Splitter Finished")
         except:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "Splitter Failed")
             self.error = "Splitter Failed"
             self.save()
@@ -173,7 +180,7 @@ class QuestionLibrary(models.Model):
             self.save()
             self.transaction.progress = 2
             self.transaction.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "Parser Finished")
             # # COUNT NUMBER OF DOCUMENT ERRORS
 
@@ -190,10 +197,8 @@ class QuestionLibrary(models.Model):
             #     # print("QUESTION ERORORO")
             #     # print(q_errorlist.count())
 
-
-
         except:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "Parser Failed")
             self.error = "Parser Failed"
             self.save()
@@ -223,14 +228,14 @@ class QuestionLibrary(models.Model):
             self.imsmanifest_string = parsed_imsmanifest
             self.save()
 
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "imsmanifest String Created")
 
             self.transaction.progress = 3
             self.transaction.save()
 
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "imsmanifest String Failed")
 
             self.error = "imsmanifest String Failed"
@@ -244,7 +249,8 @@ class QuestionLibrary(models.Model):
             for idx, img in enumerate(img_elements):
                 element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
                 new_img = '<img src="{0}" alt="{1}" />'.format(
-                    'assessment-assets/' + self.filtered_section_name + '/' + basename(element[0]), basename(element[0]))
+                    'assessment-assets/' + self.filtered_section_name + '/' +
+                    basename(element[0]), basename(element[0]))
                 questiondb_string = questiondb_string.replace(
                     img_elements[idx], new_img)
 
@@ -255,13 +261,13 @@ class QuestionLibrary(models.Model):
                                            name="imsmanifest.xml")
             self.imsmanifest_file = imsmanifest_file
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "QuestionDB String Created")
 
             self.transaction.progress = 4
             self.transaction.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "QuestionDB String Failed")
 
             self.error = "QuestionDB String Failed"
@@ -273,13 +279,13 @@ class QuestionLibrary(models.Model):
             self.questiondb_file = questiondb_file
             # question_library.checkpoint = 5;
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "XML files Created")
             # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
             self.transaction.progress = 5
             self.transaction.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "XML files Failed")
             self.error = "XML files Failed"
             self.save()
@@ -294,19 +300,20 @@ class QuestionLibrary(models.Model):
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
                 for root, dirs, files in walk(self.image_path):
                     for filename in files:
-                        myzip.write(path.join(root, filename),
-                                    '/assessment-assets/' + self.filtered_section_name + '/' + filename)
+                        myzip.write(
+                            path.join(root, filename), '/assessment-assets/' +
+                            self.filtered_section_name + '/' + filename)
 
             self.zip_file.name = str(
                 self.transaction) + "/" + self.filtered_section_name + '.zip'
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "ZIP file Created")
 
             self.transaction.progress = 6
             self.transaction.save()
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "ZIP file Failed")
 
             self.error = "ZIP file Failed"
@@ -322,13 +329,18 @@ class QuestionLibrary(models.Model):
             self.output_zip_file.name = str(
                 self.transaction) + "/" + 'package.zip'
             self.save()
-            RunConversion_Logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.transaction) + "] " +
                                       "ZIP file with JSON package Created")
         except Exception as e:
-            RunConversion_Logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.transaction) + "] " +
                                        "ZIP file with JSON package Failed")
             self.error = "ZIP file Failed"
             self.save()
+
+    def cleanup(self):
+        if not settings.DEBUG:
+            self.delete()
+
 
     def __str__(self):
         return str(self.transaction)
@@ -465,6 +477,28 @@ class DocumentError(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+@receiver(post_delete,
+          sender=QuestionLibrary,
+          dispatch_uid="delete_files")
+def delete_files(sender, instance, **kwargs):
+    if path.exists(settings.MEDIA_ROOT + str(instance)):
+        try:
+            for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance), topdown=False):
+                for name in files:
+                    remove(path.join(root, name))
+                for name in dirs:
+                    rmdir(path.join(root, name))
+        except OSError as e:
+            logger.error("[" + str(instance) + "] " + "Error deleting files")
+
+        try:
+            rmdir(settings.MEDIA_ROOT + str(instance))
+        except OSError as e:
+            print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
+
+    logger.info("[" + str(instance) + "] " + "Questionlibrary and Files Deleted")
 
 
 class CustomToken(Token):

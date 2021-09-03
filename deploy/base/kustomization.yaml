@@ -2,9 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - gitlab-reg-creds.yaml
-  - deployment.yaml
-  - service.yaml
-
-# TODO: add ingress automatically when DNS delegation complete
-# - ingress.yaml
+- dependabot-qcon-api.yaml
+- deployment.yaml
+- service.yaml

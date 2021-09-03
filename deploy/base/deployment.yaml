@@ -2,21 +2,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
+  labels:
+    app: qcon-api
 spec:
   selector:
     matchLabels:
       app: qcon-api
-      tier: backend
   replicas: 1
   template:
     metadata:
       labels:
         app: qcon-api
-        tier: backend
     spec:
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api/qcon-api:stable
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
         resources:
           requests:
             cpu: 100m
@@ -34,4 +34,4 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
       imagePullSecrets:
-      - name: gitlab-reg-creds
+      - name: dependabot-qcon-api
