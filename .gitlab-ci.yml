@@ -48,7 +48,7 @@ variables:
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-
+  RANCHER_PROJECT: "p-nqcxq"
 
 get-latest-git-version:
   stage: .pre
@@ -239,7 +239,7 @@ deploy_latest:
   extends: .deploy
   environment:
     name: staging
-    url: https://$STAGING_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+    url: https://$CI_PROJECT_NAME.$STAGING_URL
     kubernetes:
       namespace: $CI_PROJECT_NAME
   script:
