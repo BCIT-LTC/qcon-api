@@ -157,7 +157,7 @@ deploy_review:
       namespace: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     on_stop: stop_review
   script:
-    - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create ns "length($CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG)" -o yaml --dry-run=client | kubectl apply -f -
 # add annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
