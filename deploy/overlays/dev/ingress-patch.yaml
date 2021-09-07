@@ -3,25 +3,24 @@ kind: Ingress
 
 metadata:
   name: qcon-api-ingress
-# ingress to rewrite project url to pod root
-# (https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rewrite)  
+# annotations to rewrite nginx ingress for dev
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    # nginx.ingress.kubernetes.io/add-base-url: "true"
-    # nginx.ingress.kubernetes.io/configuration-snippet: |
-    #   rewrite ^(/app1)/(.*)$ $1/$2 redirect;
-    # nginx.ingress.kubernetes.io/use-regex: "true"
-    # nginx.ingress.kubernetes.io/x-forwarded-prefix: "/app1/"
-    # nginx.ingress.kubernetes.io/app-root: /app1/
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    # - host: qcon-api-ingress.default-v.142.232.76.249.sslip.io
-    - http:
-        paths:
-        - path: /app1(/|$)(.*)/
-          pathType: Prefix
-          backend:
-            service:
-              name: qcon-api-service
-              port:
-                number: 8000
+  - host: reviews-dev-cp.dev.ltc.bcit.ca
+    http:
+      paths:
+      - path: /?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: qcon-api-service
+            port:
+              number: 8000
+        tls:
+        - hosts:
+            - reviews-dev-cp.dev.ltc.bcit.ca
+          secretName: star-dev-ltc-bcit-ca
