@@ -179,14 +179,16 @@ deploy_review:
 # patch ingress to branch path
     - "echo -e \" \
       \nmetadata: \
+
       \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: /$2 \
+      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect;
       \nspec: \
       \n  rules: \
       \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: /$CI_COMMIT_REF_SLUG \
+      \n      - path: /$CI_COMMIT_REF_SLUG(/|$)(.*) \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
