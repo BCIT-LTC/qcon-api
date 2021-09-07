@@ -179,10 +179,8 @@ deploy_review:
 # patch ingress to branch path
     - "echo -e \" \
       \nmetadata: \
-
       \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: /$2 \
-      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect;
+      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
       \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
@@ -199,7 +197,7 @@ deploy_review:
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
       -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
-    # - kubectl annotate 
+    - "kubectl annotate \"metadata\": {\"annotations\": {\"nginx.ingress.kubernetes.io/rewrite-target\": \"/$2\"}}"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
