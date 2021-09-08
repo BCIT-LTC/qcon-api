@@ -167,7 +167,7 @@ deploy_review:
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
-      \n  - name: $CI_PROJECT_NAME \
+      \n  - name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
@@ -176,12 +176,33 @@ deploy_review:
       deploy/overlays/dev/kustomization.yaml"
 # apply kustomized deployment (dev)
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
+# patch service to branch path
+    - "echo -e \" \
+      \nmetadata: \
+      \n  name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-service \
+      \nspec: \
+      \n  selector: \
+      \n    app: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA\" > \
+      deploy/overlays/dev/service-patch.yaml"
+    - "kubectl patch deploy $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+      -n $CI_PROJECT_PATH_SLUG \
+      --patch \"$(cat deploy/overlays/dev/service-patch.yaml)\""
+# patch deployment to branch path
+    - "echo -e \" \
+      \nmetadata: \
+      \n  name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+      \n  annotations: \
+      \n    \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/$2\" > \
+      deploy/overlays/dev/deploy-patch.yaml"
+    - "kubectl patch deploy $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+      -n $CI_PROJECT_PATH_SLUG \
+      --patch \"$(cat deploy/overlays/dev/deploy-patch.yaml)\""
 # patch ingress to branch path
     - "echo -e \" \
       \nmetadata: \
-      \n  name: $CI_PROJECT_NAME-ingress \
+      \n  name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-ingress \
       \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect;
+      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
       \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
@@ -191,16 +212,13 @@ deploy_review:
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
-      \n            name: $CI_PROJECT_NAME-service \
+      \n            name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-service \
       \n            port: \
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
-    - "kubectl patch ing $CI_PROJECT_NAME-ingress \
+    - "kubectl patch ing $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-ingress \
       -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
-# add annotation for rewrite target 
-    - "kubectl annotate deploy $CI_PROJECT_NAME nginx.ingress.kubernetes.io/rewrite-target=/$2 \
-      -n $CI_PROJECT_PATH_SLUG"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
