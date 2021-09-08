@@ -147,8 +147,6 @@ deploy_review:
   extends: .deploy
   environment:
     name: $TEAM_TAG
-# target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
-# eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
     url: http://$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
@@ -156,8 +154,6 @@ deploy_review:
     on_stop: stop_review
   script:
 # attempt to create namespace; fail gracefully if already present
-# eg. qcon-api-147-fix-deployment-pipeline-for-staging-for-staging-for-staging-for-staging
-# trucated to: qcon-api-147-fix-deployment-pipeline-for-staging-for-staging (60 characters)
     - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA -o yaml --dry-run=client | kubectl apply -f -
 # patch namespace to add it to the default Rancher project
     - "echo -e \" \
@@ -202,7 +198,7 @@ deploy_review:
       -n $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
 # add annotation for rewrite target 
-    - "kubectl annotate ingress $CI_PROJECT_NAME-ingress nginx.ingress.kubernetes.io/rewrite-target=/$2 \
+    - "kubectl annotate ingress $CI_PROJECT_NAME-ingress \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/$2\" \
       -n $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
