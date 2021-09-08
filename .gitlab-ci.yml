@@ -119,7 +119,7 @@ get-latest-git-version:
   stage: deploy
   before_script:
 # truncate namespace (eg. "qcon-api-147-fix-deployment-pi")
-    - export TRUNCATED_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-30)
+    - export TRUNCATED_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-30)-$CI_COMMIT_SHORT_SHA
   # needs: ["security_scan"]
 
 
