@@ -117,6 +117,9 @@ get-latest-git-version:
 .deploy:
   image: bitnami/kubectl
   stage: deploy
+  before_script:
+# truncate namespace (eg. "qcon-api-147-fix-deployment-pi")
+    - export TRUNCATED_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-30)
   # needs: ["security_scan"]
 
 
@@ -149,25 +152,27 @@ deploy_review:
     name: dev-cp
 # target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
 # eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
-    url: http://$CI_PROJECT_PATH_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
+    url: http://$TRUNCATED_NAMESPACE.$DEV_URL
     auto_stop_in: 1 week
     kubernetes:
-      namespace: $CI_PROJECT_PATH_SLUG
+      namespace: $TRUNCATED_NAMESPACE
     on_stop: stop_review
   script:
 # attempt to create namespace; fail gracefully if already present
-    - kubectl create ns $CI_PROJECT_PATH_SLUG -o yaml --dry-run=client | kubectl apply -f -
+# eg. qcon-api-147-fix-deployment-pipeline-for-staging-for-staging-for-staging-for-staging
+# trucated to: qcon-api-147-fix-deployment-pipeline-for-staging-for-staging (60 characters)
+    - kubectl create ns $TRUNCATED_NAMESPACE -o yaml --dry-run=client | kubectl apply -f -
 # patch namespace to add it to the default Rancher project
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
       \n    field.cattle.io/projectId: p-nqcxq\" > \
       deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $CI_PROJECT_PATH_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+    - "kubectl patch ns $TRUNCATED_NAMESPACE -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nimages: \
-      \n  - name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+      \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
@@ -176,49 +181,6 @@ deploy_review:
       deploy/overlays/dev/kustomization.yaml"
 # apply kustomized deployment (dev)
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
-# patch service to branch path
-    - "echo -e \" \
-      \nmetadata: \
-      \n  name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-service \
-      \nspec: \
-      \n  selector: \
-      \n    app: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA\" > \
-      deploy/overlays/dev/service-patch.yaml"
-    - "kubectl patch service $CI_PROJECT_NAME-service \
-      -n $CI_PROJECT_PATH_SLUG \
-      --patch \"$(cat deploy/overlays/dev/service-patch.yaml)\""
-# patch deployment to branch path
-    - "echo -e \" \
-      \nmetadata: \
-      \n  name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
-      \n  annotations: \
-      \n    \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/$2\" > \
-      deploy/overlays/dev/deploy-patch.yaml"
-    - "kubectl patch deploy $CI_PROJECT_NAME \
-      -n $CI_PROJECT_PATH_SLUG \
-      --patch \"$(cat deploy/overlays/dev/deploy-patch.yaml)\""
-# patch ingress to branch path
-    - "echo -e \" \
-      \nmetadata: \
-      \n  name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-ingress \
-      \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-      \nspec: \
-      \n  rules: \
-      \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
-      \n    http: \
-      \n      paths: \
-      \n      - path: /$CI_COMMIT_REF_SLUG(/|$)(.*) \
-      \n        pathType: Prefix \
-      \n        backend: \
-      \n          service: \
-      \n            name: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-service \
-      \n            port: \
-      \n              number: $APP_SERVICE_PORT\" > \
-      deploy/overlays/dev/ing-patch.yaml"
-    - "kubectl patch ing $CI_PROJECT_NAME-ingress \
-      -n $CI_PROJECT_PATH_SLUG \
-      --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
