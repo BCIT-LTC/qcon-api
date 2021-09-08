@@ -117,6 +117,9 @@ get-latest-git-version:
 .deploy:
   image: bitnami/kubectl
   stage: deploy
+  # before_script:
+  #   - export DEV_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-15)-$CI_COMMIT_SHORT_SHA
+
   # needs: ["security_scan"]
 
 
@@ -147,24 +150,24 @@ deploy_review:
   extends: .deploy
   environment:
     name: $TEAM_TAG
-    url: http://$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA.$DEV_URL/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
-      namespace: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA
+      namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
   script:
 # attempt to create namespace; fail gracefully if already present
-    - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
 # patch namespace to add it to the default Rancher project
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
       \n    field.cattle.io/projectId: $RANCHER_PROJECT\" > \
       deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+    - "kubectl patch ns $CI_COMMIT_REF_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
-      \nnamespace: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+      \nnamespace: $CI_COMMIT_REF_SLUG \
       \nimages: \
       \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
@@ -183,7 +186,7 @@ deploy_review:
       \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
-      \n  - host: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA.$DEV_URL \
+      \n  - host: $CI_PROJECT_NAME.$DEV_URL \
       \n    http: \
       \n      paths: \
       \n      - path: /$CI_COMMIT_REF_SLUG \
@@ -195,11 +198,11 @@ deploy_review:
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
-      -n $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+      -n $CI_COMMIT_REF_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
 # add annotation for rewrite target 
     - "kubectl annotate ingress $CI_PROJECT_NAME-ingress \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/$2\" \
-      -n $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
+      -n $CI_COMMIT_REF_SLUG"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -211,12 +214,12 @@ stop_review:
   image: bitnami/kubectl
   stage: deploy 
   script:
-    - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA
+    - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
   environment:
     name: $TEAM_TAG
     kubernetes:
-      namespace: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA
+      namespace: $CI_COMMIT_REF_SLUG
     action: stop
   tags:
     - $TEAM_TAG
