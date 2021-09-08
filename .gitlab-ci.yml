@@ -184,7 +184,7 @@ deploy_review:
       \n  selector: \
       \n    app: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA\" > \
       deploy/overlays/dev/service-patch.yaml"
-    - "kubectl patch deploy $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+    - "kubectl patch service $CI_PROJECT_NAME-service \
       -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/service-patch.yaml)\""
 # patch deployment to branch path
@@ -194,7 +194,7 @@ deploy_review:
       \n  annotations: \
       \n    \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/$2\" > \
       deploy/overlays/dev/deploy-patch.yaml"
-    - "kubectl patch deploy $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
+    - "kubectl patch deploy $CI_PROJECT_NAME \
       -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/deploy-patch.yaml)\""
 # patch ingress to branch path
@@ -216,7 +216,7 @@ deploy_review:
       \n            port: \
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
-    - "kubectl patch ing $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-ingress \
+    - "kubectl patch ing $CI_PROJECT_NAME-ingress \
       -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
   rules:
