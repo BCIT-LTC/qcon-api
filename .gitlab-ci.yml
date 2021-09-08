@@ -198,7 +198,9 @@ deploy_review:
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
       -n $CI_PROJECT_PATH_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
-    - "kubectl annotate \"metadata\": {\"annotations\": {\"nginx.ingress.kubernetes.io/rewrite-target\": \"/$2\"}}"
+# add annotation for rewrite target 
+    - "kubectl annotate deploy $CI_PROJECT_NAME nginx.ingress.kubernetes.io/rewrite-target=/$2 \
+      -n $CI_PROJECT_PATH_SLUG"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
