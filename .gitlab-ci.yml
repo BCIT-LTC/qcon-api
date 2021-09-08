@@ -117,9 +117,6 @@ get-latest-git-version:
 .deploy:
   image: bitnami/kubectl
   stage: deploy
-  before_script:
-# truncate namespace (eg. "qcon-api-147-fix-deployment-pi")
-    - export TRUNCATED_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-15)-$CI_COMMIT_SHORT_SHA
   # needs: ["security_scan"]
 
 
@@ -152,26 +149,26 @@ deploy_review:
     name: $TEAM_TAG
 # target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
 # eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
-    url: http://$TRUNCATED_NAMESPACE.$DEV_URL/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
-      namespace: $TRUNCATED_NAMESPACE
+      namespace: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA
     on_stop: stop_review
   script:
 # attempt to create namespace; fail gracefully if already present
 # eg. qcon-api-147-fix-deployment-pipeline-for-staging-for-staging-for-staging-for-staging
 # trucated to: qcon-api-147-fix-deployment-pipeline-for-staging-for-staging (60 characters)
-    - kubectl create ns $TRUNCATED_NAMESPACE -o yaml --dry-run=client | kubectl apply -f -
+    - kubectl create ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA -o yaml --dry-run=client | kubectl apply -f -
 # patch namespace to add it to the default Rancher project
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
       \n    field.cattle.io/projectId: $RANCHER_PROJECT\" > \
       deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $TRUNCATED_NAMESPACE -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+    - "kubectl patch ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
-      \nnamespace: $TRUNCATED_NAMESPACE \
+      \nnamespace: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
       \nimages: \
       \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
@@ -190,10 +187,10 @@ deploy_review:
       \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
-      \n  - host: $TRUNCATED_NAMESPACE.$DEV_URL \
+      \n  - host: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA.$DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: /$CI_COMMIT_REF_SLUG(/|$)(.*) \
+      \n      - path: /$CI_COMMIT_REF_SLUG \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
@@ -202,8 +199,11 @@ deploy_review:
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
-      -n $TRUNCATED_NAMESPACE \
+      -n $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
+# add annotation for rewrite target 
+    - "kubectl annotate deploy $CI_PROJECT_NAME-ingress nginx.ingress.kubernetes.io/rewrite-target=/$2 \
+      -n $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -215,12 +215,12 @@ stop_review:
   image: bitnami/kubectl
   stage: deploy 
   script:
-    - kubectl delete ns $TRUNCATED_NAMESPACE
+    - kubectl delete ns $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA
   when: manual
   environment:
     name: $TEAM_TAG
     kubernetes:
-      namespace: $TRUNCATED_NAMESPACE
+      namespace: $CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA
     action: stop
   tags:
     - $TEAM_TAG
