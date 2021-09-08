@@ -152,7 +152,7 @@ deploy_review:
     name: $TEAM_TAG
 # target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
 # eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
-    url: http://$TRUNCATED_NAMESPACE.$DEV_URL
+    url: http://$TRUNCATED_NAMESPACE.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
       namespace: $TRUNCATED_NAMESPACE
@@ -186,12 +186,14 @@ deploy_review:
     - "echo -e \" \
       \nmetadata: \
       \n  name: $CI_PROJECT_NAME-ingress \
+      \n  annotations: \
+      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
       \n  - host: $TRUNCATED_NAMESPACE.$DEV_URL \
       \n    http: \
       \n      paths: \
-      \n      - path: /$CI_COMMIT_REF_SLUG \
+      \n      - path: /$CI_COMMIT_REF_SLUG(/|$)(.*) \
       \n        pathType: Prefix \
       \n        backend: \
       \n          service: \
