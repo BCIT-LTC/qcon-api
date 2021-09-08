@@ -178,9 +178,6 @@ deploy_review:
     - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
 # patch ingress to branch path
     - "echo -e \" \
-      \nmetadata: \
-      \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
       \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
