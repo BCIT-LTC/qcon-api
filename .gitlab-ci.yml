@@ -138,7 +138,7 @@ get-latest-git-version:
 build_for_review:
   extends: .build_with_kaniko
   environment:
-    name: $TEAM_TAG
+    name: $TEAM_TAG-$CI_COMMIT_REF_SLUG
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -149,7 +149,7 @@ build_for_review:
 deploy_review:
   extends: .deploy
   environment:
-    name: $TEAM_TAG
+    name: $TEAM_TAG-$CI_COMMIT_REF_SLUG
     url: http://$CI_PROJECT_NAME.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
@@ -201,7 +201,7 @@ deploy_review:
       -n $CI_COMMIT_REF_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
 # add annotation for rewrite target 
-    - "kubectl annotate ingress $CI_PROJECT_NAME-ingress \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/$2\" \
+    - "kubectl annotate ingress $CI_PROJECT_NAME-ingress \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/\$2\" \
       -n $CI_COMMIT_REF_SLUG"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
@@ -217,7 +217,7 @@ stop_review:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
   environment:
-    name: $TEAM_TAG
+    name: $TEAM_TAG-$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
