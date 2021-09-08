@@ -166,11 +166,12 @@ deploy_review:
     - "echo -e \" \
       \nmetadata: \
       \n  label: \
-      \n    field.cattle.io/projectId: p-nqcxq\" > \
+      \n    field.cattle.io/projectId: c-k7tjr:p-nqcxq\" > \
       deploy/overlays/dev/ns-patch.yaml"
     - "kubectl patch ns $TRUNCATED_NAMESPACE -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
+      \nnamespace: $TRUNCATED_NAMESPACE \
       \nimages: \
       \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
@@ -199,7 +200,7 @@ deploy_review:
       \n              number: $APP_SERVICE_PORT\" > \
       deploy/overlays/dev/ing-patch.yaml"
     - "kubectl patch ing $CI_PROJECT_NAME-ingress \
-      -n $CI_PROJECT_PATH_SLUG \
+      -n $TRUNCATED_NAMESPACE \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
