@@ -48,7 +48,7 @@ variables:
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-  RANCHER_PROJECT: "c-k7tjr:p-nqcxq" # default project
+  RANCHER_PROJECT: "p-nqcxq" # default project
 
 get-latest-git-version:
   stage: .pre
@@ -165,6 +165,7 @@ deploy_review:
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
