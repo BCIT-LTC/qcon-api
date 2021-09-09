@@ -149,7 +149,7 @@ build_for_review:
 deploy_review:
   extends: .deploy
   environment:
-    name: review/$CI_COMMIT_REF_NAME
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     url: http://$CI_ENVIRONMENT_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
@@ -217,7 +217,7 @@ stop_review:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
   environment:
-    name: review/$CI_COMMIT_REF_NAME
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
