@@ -201,7 +201,7 @@ deploy_review:
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
         -n $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
-    - kubectl describe ing $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG -o yaml
+    - kubectl get ing $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG -o yaml
     - kubectl patch ingress $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG \
       --type "json" -p '[{"op":"remove","path":"/spec/rules/0"}]'
 # {"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--default-issuer-kind=ClusterIssuer"},
