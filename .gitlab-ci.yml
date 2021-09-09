@@ -38,7 +38,6 @@ stages:
 
 variables:
   TEAM_TAG: "dev-cp"
-  DEV_URL: reviews.dev.ltc.bcit.ca
   TEAM_EMAIL: "courseproduction@bcit.ca"
   APP_SERVICE_PORT: 8000
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
@@ -82,10 +81,14 @@ get-latest-git-version:
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
       # Build date for opencontainers
       BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
-      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.created=$BUILDDATE --label build-date=$BUILDDATE"
+      IMAGE_LABELS="$IMAGE_LABELS \
+        --label org.opencontainers.image.created=$BUILDDATE \
+        --label build-date=$BUILDDATE"
       # Description for opencontainers
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
-      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.title=$BUILDTITLE --label org.opencontainers.image.description=$BUILDTITLE"
+      IMAGE_LABELS="$IMAGE_LABELS \
+        --label org.opencontainers.image.title=$BUILDTITLE \
+        --label org.opencontainers.image.description=$BUILDTITLE"
 
       # Build Version Label and Tag from git tag, LastVersionTagInGit was placed by a previous job artifact
       if [[ "$VERSIONLABELMETHOD" == "LastVersionTagInGit" ]]; then VERSIONLABEL=$(cat VERSIONTAG.txt); fi
@@ -107,10 +110,15 @@ get-latest-git-version:
       # Reformat Docker tags to kaniko's --destination argument:
       FORMATTEDTAGLIST=$(echo "${FORMATTEDTAGLIST}" | sed s/\-\-tag/\-\-destination/g) 
 
-      echo "Kaniko arguments to run: --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS"
+      echo "Kaniko arguments to run: \
+        --context $CI_PROJECT_DIR \
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS"
       mkdir -p /kaniko/.docker
-      echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
+      echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" \
+        > /kaniko/.docker/config.json
+      /kaniko/executor \
+        --context $CI_PROJECT_DIR \
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
 
 
 # Deploy template
