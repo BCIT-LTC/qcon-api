@@ -38,7 +38,7 @@ stages:
 
 variables:
   TEAM_TAG: "dev-cp"
-  DEV_URL: reviews-dev-cp.dev.ltc.bcit.ca
+  DEV_URL: reviews.dev.ltc.bcit.ca
   TEAM_EMAIL: "courseproduction@bcit.ca"
   APP_SERVICE_PORT: 8000
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
@@ -137,8 +137,6 @@ get-latest-git-version:
 # Build image with Kaniko (dev)
 build_for_review:
   extends: .build_with_kaniko
-  environment:
-    name: $TEAM_TAG-$CI_COMMIT_REF_SLUG
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -150,7 +148,7 @@ deploy_review:
   extends: .deploy
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
-    url: http://$CI_ENVIRONMENT_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
@@ -181,7 +179,7 @@ deploy_review:
       \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
-      \n  - host: $CI_PROJECT_NAME.$DEV_URL \
+      \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
       \n    http: \
       \n      paths: \
       \n      - path: /$CI_COMMIT_REF_SLUG \
