@@ -38,7 +38,6 @@ stages:
 
 variables:
   TEAM_TAG: "dev-cp"
-  DEV_URL: reviews-dev-cp.dev.ltc.bcit.ca
   TEAM_EMAIL: "courseproduction@bcit.ca"
   APP_SERVICE_PORT: 8000
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
@@ -48,7 +47,7 @@ variables:
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-  RANCHER_PROJECT: "p-nqcxq"
+  RANCHER_PROJECT: "p-nqcxq" # default project
 
 get-latest-git-version:
   stage: .pre
@@ -82,10 +81,14 @@ get-latest-git-version:
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
       # Build date for opencontainers
       BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
-      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.created=$BUILDDATE --label build-date=$BUILDDATE"
+      IMAGE_LABELS="$IMAGE_LABELS \
+        --label org.opencontainers.image.created=$BUILDDATE \
+        --label build-date=$BUILDDATE"
       # Description for opencontainers
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
-      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.title=$BUILDTITLE --label org.opencontainers.image.description=$BUILDTITLE"
+      IMAGE_LABELS="$IMAGE_LABELS \
+        --label org.opencontainers.image.title=$BUILDTITLE \
+        --label org.opencontainers.image.description=$BUILDTITLE"
 
       # Build Version Label and Tag from git tag, LastVersionTagInGit was placed by a previous job artifact
       if [[ "$VERSIONLABELMETHOD" == "LastVersionTagInGit" ]]; then VERSIONLABEL=$(cat VERSIONTAG.txt); fi
@@ -107,16 +110,24 @@ get-latest-git-version:
       # Reformat Docker tags to kaniko's --destination argument:
       FORMATTEDTAGLIST=$(echo "${FORMATTEDTAGLIST}" | sed s/\-\-tag/\-\-destination/g) 
 
-      echo "Kaniko arguments to run: --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS"
+      echo "Kaniko arguments to run: \
+        --context $CI_PROJECT_DIR \
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS"
       mkdir -p /kaniko/.docker
-      echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
+      echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" \
+        > /kaniko/.docker/config.json
+      /kaniko/executor \
+        --context $CI_PROJECT_DIR \
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
 
 
 # Deploy template
 .deploy:
   image: bitnami/kubectl
   stage: deploy
+  # before_script:
+  #   - export DEV_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-15)-$CI_COMMIT_SHORT_SHA
+
   # needs: ["security_scan"]
 
 
@@ -134,8 +145,6 @@ get-latest-git-version:
 # Build image with Kaniko (dev)
 build_for_review:
   extends: .build_with_kaniko
-  environment:
-    name: dev-cp
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -146,26 +155,19 @@ build_for_review:
 deploy_review:
   extends: .deploy
   environment:
-    name: dev-cp
-# target URL: $CI_PROJECT_PATH_SLUG.reviews-TEAM.dev.ltc.bcit.ca/$CI_COMMIT_REF_SLUG
-# eg. web-apps-qcon-qcon-api.reviews-dev-cp.dev.ltc.bcit.ca/147-fix-deployment-pipeline-for-staging
-    url: http://$CI_PROJECT_PATH_SLUG.$DEV_URL/$CI_COMMIT_REF_SLUG
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
+    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
-      namespace: $CI_PROJECT_PATH_SLUG
+      namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
   script:
 # attempt to create namespace; fail gracefully if already present
-    - kubectl create ns $CI_PROJECT_PATH_SLUG -o yaml --dry-run=client | kubectl apply -f -
-# patch namespace to add it to the default Rancher project
-    - "echo -e \" \
-      \nmetadata: \
-      \n  label: \
-      \n    field.cattle.io/projectId: p-nqcxq\" > \
-      deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $CI_PROJECT_PATH_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+    - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+    # - "kubectl annotate ns $CI_COMMIT_REF_SLUG \"field.cattle.io/projectId\"=\"$RANCHER_PROJECT\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
+      \nnamespace: $CI_COMMIT_REF_SLUG \
       \nimages: \
       \n  - name: $CI_PROJECT_NAME \
       \n    newName: $CI_REGISTRY_IMAGE \
@@ -179,11 +181,13 @@ deploy_review:
 # patch ingress to branch path
     - "echo -e \" \
       \nmetadata: \
+      \n  name: $CI_PROJECT_NAME-ingress \
       \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: / \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
-      \n  - host: $CI_PROJECT_PATH_SLUG.$DEV_URL \
+      \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
       \n    http: \
       \n      paths: \
       \n      - path: /$CI_COMMIT_REF_SLUG \
@@ -193,11 +197,13 @@ deploy_review:
       \n            name: $CI_PROJECT_NAME-service \
       \n            port: \
       \n              number: $APP_SERVICE_PORT\" > \
-      deploy/overlays/dev/ing-patch.yaml"
-    - "kubectl patch ing $CI_PROJECT_NAME-ingress \
-      -n $CI_PROJECT_PATH_SLUG \
-      --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
-    # - kubectl annotate 
+      deploy/overlays/dev/ingress-patch.yaml"
+    - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        -n $CI_COMMIT_REF_SLUG \
+        --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
+    # - kubectl get ing $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG -o yaml
+    # - kubectl patch ingress $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG \
+    #   --type "json" -p '[{"op":"remove","path":"/spec/rules/0"}]'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
@@ -209,12 +215,12 @@ stop_review:
   image: bitnami/kubectl
   stage: deploy 
   script:
-    - kubectl delete ns $CI_PROJECT_PATH_SLUG
+    - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
   environment:
-    name: dev-cp
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     kubernetes:
-      namespace: $CI_PROJECT_PATH_SLUG
+      namespace: $CI_COMMIT_REF_SLUG
     action: stop
   tags:
     - $TEAM_TAG
