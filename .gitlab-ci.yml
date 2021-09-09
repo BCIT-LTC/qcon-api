@@ -158,13 +158,7 @@ deploy_review:
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-# patch namespace to add it to the default Rancher project
-    - "echo -e \" \
-      \nmetadata: \
-      \n  label: \
-      \n    field.cattle.io/projectId: $RANCHER_PROJECT\" > \
-      deploy/overlays/dev/ns-patch.yaml"
-    - "kubectl patch ns $CI_COMMIT_REF_SLUG -p \"$(cat deploy/overlays/dev/ns-patch.yaml)\""
+    - "kubectl label ns $CI_COMMIT_REF_SLUG \"field.cattle.io/projectId=\"\\$RANCHER_PROJECT\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nnamespace: $CI_COMMIT_REF_SLUG \
@@ -183,6 +177,7 @@ deploy_review:
       \nmetadata: \
       \n  name: $CI_PROJECT_NAME-ingress \
       \n  annotations: \
+      \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
       \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \nspec: \
       \n  rules: \
@@ -200,9 +195,6 @@ deploy_review:
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
       -n $CI_COMMIT_REF_SLUG \
       --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
-# add annotation for rewrite target 
-    - "kubectl annotate ingress $CI_PROJECT_NAME-ingress \"nginx.ingress.kubernetes.io/rewrite-target\"=\"/\\$2\" \
-      -n $CI_COMMIT_REF_SLUG"
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
