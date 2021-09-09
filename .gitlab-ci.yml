@@ -164,7 +164,7 @@ deploy_review:
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-    # - "kubectl label ns $CI_COMMIT_REF_SLUG \"field.cattle.io/projectId\"=\"$RANCHER_PROJECT\""
+    # - "kubectl annotate ns $CI_COMMIT_REF_SLUG \"field.cattle.io/projectId\"=\"$RANCHER_PROJECT\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nnamespace: $CI_COMMIT_REF_SLUG \
@@ -173,7 +173,6 @@ deploy_review:
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
-      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
@@ -198,10 +197,15 @@ deploy_review:
       \n            name: $CI_PROJECT_NAME-service \
       \n            port: \
       \n              number: $APP_SERVICE_PORT\" > \
-      deploy/overlays/dev/ing-patch.yaml"
+      deploy/overlays/dev/ingress-patch.yaml"
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
-      -n $CI_COMMIT_REF_SLUG \
-      --patch \"$(cat deploy/overlays/dev/ing-patch.yaml)\""
+        -n $CI_COMMIT_REF_SLUG \
+        --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
+    - kubectl describe ing $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG -o yaml
+    - kubectl patch ingress $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG \
+      --type "json" -p '[{"op":"remove","path":"/spec/rules/0"}]'
+# {"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--default-issuer-kind=ClusterIssuer"},
+# {"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--default-issuer-group=cert-manager.io"}]'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
