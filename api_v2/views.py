@@ -212,3 +212,13 @@ from django.shortcuts import redirect
 
 def view_404(request, exception=None):
     return redirect('/')
+
+def redirect_view(request, namespace, name, slug, actualurl):
+    print(slug)
+    print(actualurl)
+    return redirect('/' + actualurl)
+    # return None
+
+def redirect_root(request, namespace, name, slug):
+    print(slug)
+    return redirect('/')
