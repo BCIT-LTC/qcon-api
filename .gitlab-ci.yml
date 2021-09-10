@@ -192,7 +192,6 @@ stop_review:
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
-  <<: *default_rules
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     kubernetes:
