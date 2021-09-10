@@ -31,6 +31,15 @@ stages:
   - semver-tag
   - deploy
 
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
 # include:
 #   - template: Security/SAST.gitlab-ci.yml
 #   - template: Security/Secret-Detection.gitlab-ci.yml
@@ -164,7 +173,6 @@ deploy_review:
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-    # - "kubectl annotate ns $CI_COMMIT_REF_SLUG \"field.cattle.io/projectId\"=\"$RANCHER_PROJECT\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nnamespace: $CI_COMMIT_REF_SLUG \
@@ -173,6 +181,7 @@ deploy_review:
       \n    newName: $CI_REGISTRY_IMAGE \
       \n    newTag: $CI_COMMIT_SHORT_SHA \
       \ncommonAnnotations: \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/dev/kustomization.yaml"
@@ -201,9 +210,6 @@ deploy_review:
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
         -n $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
-    # - kubectl get ing $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG -o yaml
-    # - kubectl patch ingress $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG \
-    #   --type "json" -p '[{"op":"remove","path":"/spec/rules/0"}]'
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
   tags:
