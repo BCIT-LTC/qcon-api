@@ -31,14 +31,16 @@ stages:
   - semver-tag
   - deploy
 
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
-      when: never
-    - if: '$CI_COMMIT_BRANCH'
+# workflow:
+#   rules:
+#     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
+#       when: never
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#     - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+#       when: never
+#     - if: '$CI_COMMIT_BRANCH'
+#     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+
 
 # include:
 #   - template: Security/SAST.gitlab-ci.yml
@@ -211,7 +213,7 @@ deploy_review:
         -n $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
   rules:
-    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
   tags:
     - $TEAM_TAG
 
@@ -241,7 +243,7 @@ build_latest:
   environment:
     name: staging
   rules:
-    - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   tags:
     - staging
 
@@ -264,7 +266,7 @@ deploy_latest:
       deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   rules:
-    - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   tags:
     - staging
 
@@ -273,7 +275,7 @@ deploy_latest:
 build_stable:
   extends: .build_with_kaniko
   rules:
-    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
   tags:
     - production
 
@@ -301,7 +303,7 @@ semver_release:
       --repository-url $CI_PROJECT_URL
       --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
   rules:
-    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
   tags:
     - production
 
