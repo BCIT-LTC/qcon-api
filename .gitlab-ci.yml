@@ -24,24 +24,14 @@
 #   - refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
 # - Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
 
-stages:
-  - test
-  - build
-  - review
-  - semver-tag
-  - deploy
 
-# include:
-#   - template: Security/SAST.gitlab-ci.yml
-#   - template: Security/Secret-Detection.gitlab-ci.yml
-#   - template: Security/License-Scanning.gitlab-ci.yml
+image: bitnami/kubectl
+
 
 variables:
   TEAM_TAG: "dev-cp"
-  TEAM_EMAIL: "courseproduction@bcit.ca"
   APP_SERVICE_PORT: 8000
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
-  VERSIONLABELMETHOD: "OnlyIfThisCommitHasVersion" # options: "OnlyIfThisCommitHasVersion","LastVersionTagInGit"
   # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   IMAGE_LABELS: >
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
@@ -49,87 +39,44 @@ variables:
     --label org.opencontainers.image.source=$CI_PROJECT_URL
   RANCHER_PROJECT: "p-nqcxq" # default project
 
-get-latest-git-version:
-  stage: .pre
-  image: 
-    name: alpine/git
-    entrypoint: [""]
+
+# include:
+#   - template: Security/SAST.gitlab-ci.yml
+#   - template: Security/Secret-Detection.gitlab-ci.yml
+#   - template: Security/License-Scanning.gitlab-ci.yml
+include:
+  - local: '/deploy/.build-with-kaniko.yml'
+
+
+stages:
+  - test
+  - build
+  - review
+  - semver-tag
+  - deploy
+  - cleanup
+
+
+.feature-branch: &feature-branch
   rules:
-    - if: '$VERSIONLABELMETHOD == "LastVersionTagInGit"'    
-  script:
-    - |
-      echo "the google kaniko container does not have git and does not have a packge manager to install it"
-      git clone https://github.com/GoogleContainerTools/kaniko.git
-      cd kaniko
-      echo "$(git describe --abbrev=0 --tags)" > ../VERSIONTAG.txt
-      echo "VERSIONTAG.txt contains $(cat ../VERSIONTAG.txt)"
-  artifacts:
-    paths:
-      - VERSIONTAG.txt
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
   tags:
     - $TEAM_TAG
 
+.main-branch: &main-branch
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  tags:
+    - staging
 
-# Kaniko template
-.build_with_kaniko:
-  image: 
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: build
-  script:
-    - | 
-      echo "Building and shipping image to $CI_REGISTRY_IMAGE"
-      # Build date for opencontainers
-      BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
-      IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.created=$BUILDDATE \
-        --label build-date=$BUILDDATE"
-      # Description for opencontainers
-      BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
-      IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.title=$BUILDTITLE \
-        --label org.opencontainers.image.description=$BUILDTITLE"
-
-      # Build Version Label and Tag from git tag, LastVersionTagInGit was placed by a previous job artifact
-      if [[ "$VERSIONLABELMETHOD" == "LastVersionTagInGit" ]]; then VERSIONLABEL=$(cat VERSIONTAG.txt); fi
-      if [[ "$VERSIONLABELMETHOD" == "OnlyIfThisCommitHasVersion" ]]; then VERSIONLABEL=$CI_COMMIT_TAG; fi
-      if [[ ! -z "$VERSIONLABEL" ]]; then 
-        IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.version=$VERSIONLABEL"
-        ADDITIONALTAGLIST="$ADDITIONALTAGLIST $VERSIONLABEL"
-      fi
-      
-      ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
-      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
-      if [[ "$CI_COMMIT_BRANCH" == "release" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST stable"; fi
-      if [[ -n "$ADDITIONALTAGLIST" ]]; then 
-        for TAG in $ADDITIONALTAGLIST; do 
-          FORMATTEDTAGLIST="${FORMATTEDTAGLIST} --tag $CI_REGISTRY_IMAGE:$TAG "; 
-        done; 
-      fi
-      
-      # Reformat Docker tags to kaniko's --destination argument:
-      FORMATTEDTAGLIST=$(echo "${FORMATTEDTAGLIST}" | sed s/\-\-tag/\-\-destination/g) 
-
-      echo "Kaniko arguments to run: \
-        --context $CI_PROJECT_DIR \
-        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS"
-      mkdir -p /kaniko/.docker
-      echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" \
-        > /kaniko/.docker/config.json
-      /kaniko/executor \
-        --context $CI_PROJECT_DIR \
-        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
+.release-branch: &release-branch
+  rules:
+    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
+  tags:
+    - production
 
 
-# Deploy template
-.deploy:
-  image: bitnami/kubectl
-  stage: deploy
-  # before_script:
-  #   - export DEV_NAMESPACE=$(echo "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG" | cut -c 1-15)-$CI_COMMIT_SHORT_SHA
-
-  # needs: ["security_scan"]
-
+# needs: ["security_scan"]
 
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 # security_scan:
@@ -144,27 +91,17 @@ get-latest-git-version:
 
 # Build image with Kaniko (dev)
 build_for_review:
-  extends: .build_with_kaniko
-  rules:
-    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-  tags:
-    - $TEAM_TAG
+  <<: *feature-branch
+  extends: .build-with-kaniko
 
 
 # Deploy image on feature branch to a k8s dev cluster
 deploy_review:
-  extends: .deploy
-  environment:
-    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
-    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL/$CI_COMMIT_REF_SLUG
-    auto_stop_in: 1 week
-    kubernetes:
-      namespace: $CI_COMMIT_REF_SLUG
-    on_stop: stop_review
+  <<: *feature-branch
+  stage: deploy
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
-    # - "kubectl annotate ns $CI_COMMIT_REF_SLUG \"field.cattle.io/projectId\"=\"$RANCHER_PROJECT\""
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
       \nnamespace: $CI_COMMIT_REF_SLUG \
@@ -201,19 +138,18 @@ deploy_review:
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
         -n $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
-    # - kubectl get ing $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG -o yaml
-    # - kubectl patch ingress $CI_PROJECT_NAME-ingress -n $CI_COMMIT_REF_SLUG \
-    #   --type "json" -p '[{"op":"remove","path":"/spec/rules/0"}]'
-  rules:
-    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-  tags:
-    - $TEAM_TAG
+  environment:
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
+    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL/$CI_COMMIT_REF_SLUG
+    auto_stop_in: 1 week
+    kubernetes:
+      namespace: $CI_COMMIT_REF_SLUG
+    on_stop: stop_review
 
 
 # Stop review environment
 stop_review:
-  image: bitnami/kubectl
-  stage: deploy 
+  stage: cleanup
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
@@ -226,28 +162,15 @@ stop_review:
     - $TEAM_TAG
 
 
-##### Good to Hear! #####
-
-
 # Build image with Kaniko (latest)
 build_latest:
-  extends: .build_with_kaniko
-  environment:
-    name: staging
-  rules:
-    - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-  tags:
-    - staging
+  <<: *main-branch
+  extends: .build-with-kaniko
 
 
 # Deploy `latest` image to k8s staging cluster
 deploy_latest:
-  extends: .deploy
-  environment:
-    name: staging
-    url: https://$CI_PROJECT_NAME.$STAGING_URL
-    kubernetes:
-      namespace: $CI_PROJECT_NAME
+  <<: *main-branch
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
@@ -257,24 +180,23 @@ deploy_latest:
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
-  rules:
-    - if: $CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-  tags:
-    - staging
+  environment:
+    name: staging
+    url: https://$CI_PROJECT_NAME.$STAGING_URL
+    kubernetes:
+      namespace: $CI_PROJECT_NAME
 
 
 # Build image with Kaniko (stable)
 build_stable:
-  extends: .build_with_kaniko
-  rules:
-    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-  tags:
-    - production
+  <<: *release-branch
+  extends: .build-with-kaniko
 
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
 semver_release:
+  <<: *release-branch
   image: node:12-buster-slim
   stage: semver-tag
   secrets:
@@ -284,31 +206,26 @@ semver_release:
   before_script:
     - |
       apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
-      export GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
-      export GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
-      export GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
-      export GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
+      GIT_AUTHOR_NAME=$GITLAB_USER_LOGIN
+      GIT_AUTHOR_EMAIL=$GITLAB_USER_EMAIL
+      GIT_COMMITTER_NAME=$GITLAB_USER_LOGIN
+      GIT_COMMITTER_EMAIL=$GITLAB_USER_EMAIL
       npm install -g semantic-release @semantic-release/gitlab
   script:
     - semantic-release
       --branches release
       --repository-url $CI_PROJECT_URL
       --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
-  rules:
-    - if: $CI_COMMIT_REF_SLUG == "release" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
-  tags:
-    - production
 
 
 # This placeholder job reports back to the UI that the most recent `stable` image was deployed to production
 deploy_production:
-  image: bitnami/kubectl
   stage: deploy
-  environment: production
-  rules:
-    - if: $CI_COMMIT_TAG
   script:
       - echo "deployed to prod"
       # Fleet automatically picks up changes on release branch and deploys kustomized `overlays/prod`
+  environment: production
+  rules:
+    - if: $CI_COMMIT_TAG
   tags:
     - production
