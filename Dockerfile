@@ -28,8 +28,12 @@ RUN set -ex \
     --arg version "$GIT_VERSION" \
     --arg hash "$GIT_HASH" \
     --arg short_sha "$GIT_SHORT_SHA" \
-    --arg build_time "$GIT_BUILD_TIME" '.version.number |= $version | .version.build_hash |= $hash | .version.build_short_sha |= $short_sha | .version.build_timestamp |= $build_time' .build_status) \
-    && echo $BUILD_STATUS > .build_status
+    --arg build_time "$GIT_BUILD_TIME" ' \
+    .version.number |= $version | \
+    .version.build_hash |= $hash | \
+    .version.build_short_sha |= $short_sha | \
+    .version.build_timestamp |= $build_time' .build_status.json) \
+    && echo $BUILD_STATUS > .build_status.json
 
 
 #######################################################
@@ -61,7 +65,7 @@ COPY --from=qcon-base /usr/bin/pandoc /usr/local/bin/pandoc
 COPY --from=qcon-base /root/.cache /root/.cache
 COPY --from=qcon-base /opt/venv /opt/venv
 COPY --from=docs-base public docs/public
-COPY --from=qcon-base .build_status .build_status
+COPY --from=qcon-base .build_status.json .build_status.json
 
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY manage.py .
