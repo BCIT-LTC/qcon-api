@@ -112,7 +112,7 @@ deploy_review:
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - *gitlab-annotations
-    - echo $(cat kustomization.yaml) >> \
+    - echo `cat kustomization.yaml` >> \
       deploy/overlays/dev/kustomization.yaml"
     - "echo -e \" \
       \nnamespace: $CI_COMMIT_REF_SLUG \
@@ -182,7 +182,7 @@ deploy_latest:
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - *gitlab-annotations
-    - echo $(cat kustomization.yaml) >> \
+    - echo `cat kustomization.yaml` >> \
       deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   environment:
