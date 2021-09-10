@@ -106,7 +106,7 @@ deploy_review:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
-    - "echo -e \" \
+    - "touch deploy/overlays/kustomization-patch.yaml && echo -e \" \
       \ncommonAnnotations: \
       \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
@@ -181,7 +181,7 @@ deploy_latest:
   <<: *main-branch
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    - "echo -e \" \
+    - "touch deploy/overlays/kustomization-patch.yaml && echo -e \" \
       \ncommonAnnotations: \
       \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
