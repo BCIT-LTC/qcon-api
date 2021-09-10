@@ -50,7 +50,7 @@ variables:
   RANCHER_PROJECT: "p-nqcxq" # default project
 
 
-.default_rules:
+.default_rules: &default_rules
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
 
@@ -126,8 +126,7 @@ variables:
 # Build image with Kaniko (dev)
 build_for_review:
   extends: .build_with_kaniko
-  rules:
-    - !reference [.default_rules, rules]
+  <<: *default_rules
   tags:
     - $TEAM_TAG
 
@@ -182,21 +181,18 @@ deploy_review:
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
         -n $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
-  rules:
-    - !reference [.default_rules, rules]
+  <<: *default_rules
   tags:
     - $TEAM_TAG
 
 
 # Stop review environment
 stop_review:
-  image: bitnami/kubectl
-  stage: deploy 
+  extends: .deploy
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
   when: manual
-  rules:
-    - !reference [.default_rules, rules]
+  <<: *default_rules
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     kubernetes:
