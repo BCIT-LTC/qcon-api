@@ -157,7 +157,7 @@ get-latest-git-version:
 build_for_review:
   extends: .build_with_kaniko
   rules:
-    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
   tags:
     - $TEAM_TAG
 
@@ -232,9 +232,6 @@ stop_review:
     action: stop
   tags:
     - $TEAM_TAG
-
-
-##### Good to Hear! #####
 
 
 # Build image with Kaniko (latest)
