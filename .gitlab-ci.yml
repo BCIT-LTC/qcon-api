@@ -76,12 +76,7 @@ stages:
     - production
 
 .gitlab-annotations: &gitlab-annotations
-  - "echo -e \" \
-    \ncommonAnnotations: \
-    \n  field.cattle.io/projectId: $RANCHER_PROJECT \
-    \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-    \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" > \
-    deploy/overlays/kustomization-patch.yaml"
+
 
 
 # needs: ["security_scan"]
@@ -111,7 +106,12 @@ deploy_review:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
-    - *gitlab-annotations
+    - "echo -e \" \
+      \ncommonAnnotations: \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
+      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" > \
+      deploy/overlays/kustomization-patch.yaml"
     - echo `cat deploy/overlays/kustomization-patch.yaml` >> \
       deploy/overlays/dev/kustomization.yaml"
     - "echo -e \" \
@@ -181,8 +181,13 @@ deploy_latest:
   <<: *main-branch
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    - *gitlab-annotations
-    - echo `cat deploy/overlays/kustomization.yaml` >> \
+    - "echo -e \" \
+      \ncommonAnnotations: \
+      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
+      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" > \
+      deploy/overlays/kustomization-patch.yaml"
+    - echo `cat deploy/overlays/kustomization-patch.yaml` >> \
       deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   environment:
