@@ -224,8 +224,10 @@ deploy_production:
 # Stop review environment
 stop-review:
   stage: cleanup-review
-  script:
+  before_script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
+  script:
+    - echo "$CI_COMMIT_REF_SLUG environment stopped"
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     kubernetes:
