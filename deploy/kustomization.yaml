@@ -1,5 +1,4 @@
-# kustomization.yaml contents
-
+#is this needed?
 resources:
 - overlays/dev
 - overlays/staging
