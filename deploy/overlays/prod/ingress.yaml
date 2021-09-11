@@ -5,8 +5,8 @@ metadata:
 spec:
   tls:
   - hosts:
-      - qcon-api.dev.ltc.bcit.ca
-    secretName: star-dev-ltc-bcit-ca
+      - qcon-api.ltc.bcit.ca
+    secretName: star-ltc-bcit-ca
   rules:
   - host: qcon-api.ltc.bcit.ca
     http:
@@ -15,6 +15,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: qcon-api
+            name: qcon-api-service
             port:
               number: 8000
