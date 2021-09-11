@@ -44,8 +44,8 @@ include:
   - local: '/deploy/.semantic-release.yml'
 
 stages:
-  - test
   - build-review
+  - test
   - deploy-review
   - cleanup-review
   - build-latest
@@ -78,7 +78,12 @@ stages:
     - production
 
 
-# needs: ["security_scan"]
+# Build image with Kaniko (dev)
+build_for_review:
+  <<: *feature-branch
+  extends: .build-with-kaniko
+  stage: build-review
+
 
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 # security_scan:
@@ -88,20 +93,14 @@ stages:
 #   script:
 #     - echo "running scan"
     # rules:
-    #   - if: '$CI_MERGE_REQUEST_EVENT_TYPE != "detached" && $CI_OPEN_MERGE_REQUESTS'
-
-
-# Build image with Kaniko (dev)
-build_for_review:
-  <<: *feature-branch
-  extends: .build-with-kaniko
-  stage: build-review
+    #   - if: '$CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 
 # Deploy image on feature branch to a k8s dev cluster
 deploy_review:
   <<: *feature-branch
   stage: deploy-review
+# needs: ["security_scan"]
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
