@@ -86,7 +86,7 @@ stages:
 
 .release-branch: &release-branch
   rules:
-    - if: '$CI_COMMIT_BRANCH == "release" && && $CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_BRANCH == "release" && $CI_PIPELINE_SOURCE == "push"'
   tags:
     - production
 
