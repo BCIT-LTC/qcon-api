@@ -2,17 +2,14 @@
 #
 # #### `main` branch ####
 #
-# - continuously deployed to k8s staging cluster
 # - on all MR, build new image tagged "latest"
 # - deploy image tagged `latest` to k8s staging cluster
 #
 # #### `release` branch ####
 #
-# - continuously deployed to k8s prod cluster
 # - on all MR, build new GitLab release
 # - git tag commit with semantic-release version
-# - build new image tagged with semver version
-# - build new image tagged with `stable`
+# - build new image tagged with [semver version, `stable`]
 # - deploy image tagged `stable` to k8s prod cluster (Fleet)
 #
 # #### Notes ####
@@ -22,7 +19,7 @@
 #   - GitLab CI/CD pipeline docs for Kaniko builds are here: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
 # - semantic versioning is automated by analyzing commit messages for keywords
 #   - refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
-# - Using external secrets: https://docs.gitlab.com/ee/ci/secrets/index.html
+# - Uses external secret retrieval via Vault: https://docs.gitlab.com/ee/ci/secrets/index.html
 
 
 image: bitnami/kubectl
@@ -30,14 +27,12 @@ image: bitnami/kubectl
 
 variables:
   TEAM_TAG: "dev-cp"
-  APP_SERVICE_PORT: 8000
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
-  # KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   IMAGE_LABELS: >
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
-  RANCHER_PROJECT: "p-nqcxq" # default project
+  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
 
 
 # include:
@@ -57,10 +52,6 @@ stages:
   - cleanup
 
 
-# workflow:
-#   rules:
-
-
 .feature-branch: &feature-branch
   rules:
     - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"
@@ -68,8 +59,6 @@ stages:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
       when: never
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
-    # - if: (($CI_COMMIT_BRANCH != "main" || $CI_COMMIT_BRANCH != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached") ||
-    #  $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_PIPELINE_SOURCE != "push"
   tags:
     - $TEAM_TAG
 
@@ -143,10 +132,10 @@ deploy_review:
       \n          service: \
       \n            name: $CI_PROJECT_NAME-service \
       \n            port: \
-      \n              number: $APP_SERVICE_PORT\" > \
+      \n              number: 8000\" > \
       deploy/overlays/dev/ingress-patch.yaml"
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        -n $CI_COMMIT_REF_SLUG \
+        --namespace $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
@@ -171,7 +160,6 @@ deploy_latest:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
       \ncommonAnnotations: \
-      \n  field.cattle.io/projectId: $RANCHER_PROJECT \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/staging/kustomization.yaml"
@@ -209,9 +197,16 @@ semver_release:
 deploy_production:
   stage: deploy
   script:
-      - echo "deployed to prod"
-      # Fleet automatically picks up changes on release branch and deploys kustomized `overlays/prod`
-  environment: production
+    - "echo -e \" \
+      \ncommonAnnotations: \
+      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
+      deploy/overlays/prod/kustomization.yaml"
+    - echo "deployed to prod"
+# Fleet automatically picks up changes on release branch and deploys kustomized `overlays/prod`
+  environment:
+    name: production
+    url: https://$CI_PROJECT_NAME.ltc.bcit.ca
   rules:
     - if: $CI_COMMIT_TAG
   tags:
