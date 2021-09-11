@@ -45,11 +45,11 @@ include:
 
 stages:
   - test
+  - cleanup
   - build
   - review
   - semver-tag
   - deploy
-  - cleanup
 
 
 .feature-branch: &feature-branch
