@@ -45,11 +45,14 @@ include:
 
 stages:
   - test
-  - cleanup
-  - build
-  - review
+  - build-review
+  - deploy-review
+  - cleanup-review
+  - build-latest
+  - deploy-latest
   - semver-tag
-  - deploy
+  - build-stable
+  - deploy-stable
 
 
 .feature-branch: &feature-branch
@@ -92,12 +95,14 @@ stages:
 build_for_review:
   <<: *feature-branch
   extends: .build-with-kaniko
+  stage: build-review
+
 
 
 # Deploy image on feature branch to a k8s dev cluster
 deploy_review:
   <<: *feature-branch
-  stage: deploy
+  stage: deploy-review
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
@@ -150,12 +155,13 @@ deploy_review:
 build_latest:
   <<: *main-branch
   extends: .build-with-kaniko
+  stage: build-latest
 
 
 # Deploy `latest` image to k8s staging cluster
 deploy_latest:
   <<: *main-branch
-  stage: deploy
+  stage: deploy-latest
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
@@ -175,6 +181,7 @@ deploy_latest:
 build_stable:
   <<: *release-branch
   extends: .build-with-kaniko
+  stage: build-stable
 
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
@@ -182,6 +189,7 @@ build_stable:
 semver_release:
   <<: *release-branch
   extends: .semantic-release
+  stage: semver-tag
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
@@ -195,7 +203,7 @@ semver_release:
 
 # This placeholder job reports back to the UI that the most recent `stable` image was deployed to production
 deploy_production:
-  stage: deploy
+  stage: deploy-stable
   script:
     - "echo -e \" \
       \ncommonAnnotations: \
@@ -215,7 +223,7 @@ deploy_production:
 
 # Stop review environment
 stop-review:
-  stage: cleanup
+  stage: cleanup-review
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
   environment:
