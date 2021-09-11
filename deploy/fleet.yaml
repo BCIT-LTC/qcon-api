@@ -1,4 +1,4 @@
-namespace: fleet-default
+namespace: qcon
 
 targetCustomizations:
 - name: prod
@@ -6,4 +6,4 @@ targetCustomizations:
     matchLabels:
       env: prod
   kustomize:
-    dir: deploy/overlays/prod
+    dir: overlays/prod
