@@ -1,0 +1,9 @@
+namespace: fleet-default
+
+targetCustomizations:
+- name: prod
+  clusterSelector:
+    matchLabels:
+      env: prod
+  kustomize:
+    dir: deploy/overlays/prod
