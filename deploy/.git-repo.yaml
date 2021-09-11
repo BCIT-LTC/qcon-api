@@ -4,16 +4,16 @@ metadata:
   name: qcon-api
   namespace: fleet-default
 spec:
-  repo: https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api
+  repo: https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api.git
   branch: release
-  defaultNamespace: qcon
   # For a private registry you must supply a clientSecretName. A default
   # secret can be set at the namespace level using the BundleRestriction
   # type. Secrets must be of the type "kubernetes.io/ssh-auth" or
   # "kubernetes.io/basic-auth". The secret is assumed to be in the
   # same namespace as the GitRepo
   #
-  clientSecretName: dependabot-qcon-api
+  #clientSecretName: dependabot-qcon-api
+  clientSecretName: gitrepo-auth-tvl7m
   #
   # Disable SSL verification for git repo
   #
@@ -31,11 +31,8 @@ spec:
   #
   # serviceAccount: moreSecureAccountThanClusterAdmin
 
-  # targets:
-  # - name: prod
-  #   clusterSelector:
-  #     matchLabels:
-  #       env: prod
-
-  # kustomize:
-  #   dir: ""
+  targets:
+  - name: prod
+    clusterSelector:
+      matchLabels:
+        env: prod
