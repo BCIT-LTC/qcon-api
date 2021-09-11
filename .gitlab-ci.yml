@@ -43,9 +43,10 @@ include:
   - local: '/deploy/.build-with-kaniko.yml'
   - local: '/deploy/.semantic-release.yml'
 
+
 stages:
-  - test
   - build-review
+  - test
   - deploy-review
   - cleanup-review
   - build-latest
@@ -78,7 +79,12 @@ stages:
     - production
 
 
-# needs: ["security_scan"]
+# Build image with Kaniko (dev)
+build_for_review:
+  <<: *feature-branch
+  extends: .build-with-kaniko
+  stage: build-review
+
 
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 # security_scan:
@@ -87,22 +93,15 @@ stages:
 #     - staging
 #   script:
 #     - echo "running scan"
-  # rules:
-  #   - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
-
-
-# Build image with Kaniko (dev)
-build_for_review:
-  <<: *feature-branch
-  extends: .build-with-kaniko
-  stage: build-review
-
+    # rules:
+    #   - if: '$CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
 
 
 # Deploy image on feature branch to a k8s dev cluster
 deploy_review:
   <<: *feature-branch
   stage: deploy-review
+# needs: ["security_scan"]
   script:
 # attempt to create namespace; fail gracefully if already present
     - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
@@ -151,6 +150,29 @@ deploy_review:
     on_stop: stop-review
 
 
+# Stop review environment
+stop-review:
+  stage: cleanup-review
+  before_script:
+    - kubectl delete ns $CI_COMMIT_REF_SLUG
+  script:
+    - echo "$CI_COMMIT_REF_SLUG environment stopped"
+  environment:
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
+    kubernetes:
+      namespace: $CI_COMMIT_REF_SLUG
+    action: stop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+      when: manual
+  tags:
+    - $TEAM_TAG
+
+
 # Build image with Kaniko (latest)
 build_latest:
   <<: *main-branch
@@ -186,7 +208,7 @@ build_stable:
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
-semver_release:
+semver-release:
   <<: *release-branch
   extends: .semantic-release
   stage: semver-tag
@@ -219,26 +241,3 @@ deploy_production:
     - if: $CI_COMMIT_TAG
   tags:
     - production
-
-
-# Stop review environment
-stop-review:
-  stage: cleanup-review
-  before_script:
-    - kubectl delete ns $CI_COMMIT_REF_SLUG
-  script:
-    - echo "$CI_COMMIT_REF_SLUG environment stopped"
-  environment:
-    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
-    kubernetes:
-      namespace: $CI_COMMIT_REF_SLUG
-    action: stop
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
-      when: manual
-  tags:
-    - $TEAM_TAG
