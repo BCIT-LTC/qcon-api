@@ -2,7 +2,7 @@ kind: GitRepo
 apiVersion: fleet.cattle.io/v1alpha1
 metadata:
   name: qcon-api
-  namespace: fleet-local
+  namespace: fleet-default
 spec:
   repo: https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api
   branch: release
@@ -13,11 +13,11 @@ spec:
   # "kubernetes.io/basic-auth". The secret is assumed to be in the
   # same namespace as the GitRepo
   #
-  # clientSecretName: my-ssh-key
+  clientSecretName: dependabot-qcon-api
   #
   # Disable SSL verification for git repo
   #
-  # insecureSkipTLSVerify: true
+  insecureSkipTLSVerify: false
   #
   paths:
   - deploy/overlays/prod
@@ -30,3 +30,8 @@ spec:
   # the Fleet manager.
   #
   # serviceAccount: moreSecureAccountThanClusterAdmin
+  targets:
+  - name: prod
+    clusterSelector:
+      matchLabels:
+        env: prod
