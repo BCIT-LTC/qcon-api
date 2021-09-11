@@ -43,6 +43,7 @@ include:
   - local: '/deploy/.build-with-kaniko.yml'
   - local: '/deploy/.semantic-release.yml'
 
+
 stages:
   - build-review
   - test
@@ -207,7 +208,7 @@ build_stable:
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
 # on the release branch
-semver_release:
+semver-release:
   <<: *release-branch
   extends: .semantic-release
   stage: semver-tag
