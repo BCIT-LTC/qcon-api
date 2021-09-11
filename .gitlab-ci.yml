@@ -65,7 +65,7 @@ stages:
 
 .feature-branch: &feature-branch
   rules:
-    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_OPEN_MERGE_REQUESTS
     # - if: (($CI_COMMIT_BRANCH != "main" || $CI_COMMIT_BRANCH != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached") || $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_PIPELINE_SOURCE != "push"
   tags:
     - $TEAM_TAG
