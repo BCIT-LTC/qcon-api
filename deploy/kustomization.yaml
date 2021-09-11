@@ -1,5 +1,0 @@
-#is this needed?
-resources:
-- overlays/dev
-- overlays/staging
-- overlays/prod
