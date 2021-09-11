@@ -3,12 +3,9 @@ kind: Kustomization
 
 # namespace: qcon
 
-bases:
-  - ../../base
-
 resources:
-- ingress.yaml
+  - ../../base
+  - ingress.yaml
 
 patchesStrategicMerge:
   - deployment.yaml
-
