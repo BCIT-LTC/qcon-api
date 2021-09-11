@@ -20,7 +20,7 @@ spec:
   insecureSkipTLSVerify: false
   #
   paths:
-  - deploy/overlays/prod
+  - deploy
 
   # The service account that will be used to perform this deployment.
   # This is the name of the service account that exists in the
@@ -36,14 +36,6 @@ spec:
   #   clusterSelector:
   #     matchLabels:
   #       env: prod
-
-  # targetCustomizations:
-  # - name: dev
-  #   clusterSelector:
-  #     matchLabels:
-  #       env: dev
-  #   kustomize:
-  #     dir: deploy/overlays/dev
 
   # kustomize:
   #   dir: ""
