@@ -56,29 +56,29 @@ stages:
   - deploy
   - cleanup
 
-workflow:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
-      when: never
-    - if: '$CI_COMMIT_BRANCH'
+
+# workflow:
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#       when: never
 
 
 .feature-branch: &feature-branch
   rules:
-    - if: (($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached") || $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_PIPELINE_SOURCE != "push"
+    - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+    # - if: (($CI_COMMIT_BRANCH != "main" || $CI_COMMIT_BRANCH != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached") || $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_PIPELINE_SOURCE != "push"
   tags:
     - $TEAM_TAG
 
 .main-branch: &main-branch
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_PIPELINE_SOURCE == "push"'
   tags:
     - staging
 
 .release-branch: &release-branch
   rules:
-    - if: '$CI_COMMIT_BRANCH == "release" && $CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_PIPELINE_SOURCE == "push"'
   tags:
     - production
 
