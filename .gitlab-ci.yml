@@ -60,7 +60,7 @@ stages:
 .feature-branch: &feature-branch
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
-    - if: 'CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
       when: never
   tags:
     - $TEAM_TAG
