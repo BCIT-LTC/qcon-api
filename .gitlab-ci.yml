@@ -221,9 +221,9 @@ stop-review:
   stage: cleanup
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
-    - echo "######################################"
+    - echo "###########################################"
     - echo "$CI_COMMIT_REF_SLUG environment stopped"
-    - echo "######################################"
+    - echo "###########################################"
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     kubernetes:
