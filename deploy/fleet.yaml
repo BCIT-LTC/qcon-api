@@ -20,7 +20,7 @@ spec:
   # insecureSkipTLSVerify: true
   #
   paths:
-  - deploy
+  - deploy/overlays/prod
 
   # The service account that will be used to perform this deployment.
   # This is the name of the service account that exists in the

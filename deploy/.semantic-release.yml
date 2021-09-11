@@ -1,7 +1,6 @@
 # Semantic Release template
 .semantic-release:
   image: node:12-buster-slim
-  stage: semver-tag
   before_script:
     - |
       apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
