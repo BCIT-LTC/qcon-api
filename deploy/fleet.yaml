@@ -30,8 +30,20 @@ spec:
   # the Fleet manager.
   #
   # serviceAccount: moreSecureAccountThanClusterAdmin
-  targets:
-  - name: prod
-    clusterSelector:
-      matchLabels:
-        env: prod
+
+  # targets:
+  # - name: prod
+  #   clusterSelector:
+  #     matchLabels:
+  #       env: prod
+
+  # targetCustomizations:
+  # - name: dev
+  #   clusterSelector:
+  #     matchLabels:
+  #       env: dev
+  #   kustomize:
+  #     dir: deploy/overlays/dev
+
+  # kustomize:
+  #   dir: ""
