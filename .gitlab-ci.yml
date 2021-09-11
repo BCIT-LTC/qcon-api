@@ -218,8 +218,8 @@ stop-review:
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
-  when: manual
   rules:
     - if: ($CI_COMMIT_REF_SLUG != "main" || $CI_COMMIT_REF_SLUG != "release") && $CI_MERGE_REQUEST_EVENT_TYPE == "detached"
+      when: manual
   tags:
     - $TEAM_TAG
