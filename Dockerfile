@@ -19,6 +19,9 @@ RUN set -ex \
     && pip install --upgrade pip \
     && pip install -r requirements.txt
 
+COPY .git .git
+COPY .build_status.json .build_status.json
+
 RUN set -ex \
     PROJECT_NAME=$(basename $(pwd)) \
     GIT_VERSION=$(git tag --sort=committerdate | tail -1) \
