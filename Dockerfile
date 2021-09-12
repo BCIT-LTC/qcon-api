@@ -7,7 +7,7 @@ ENV PATH="/opt/venv/bin:/base:$PATH"
 
 COPY requirements.txt .
 COPY .git/ ./.git/
-COPY .build_status.json .
+COPY .build_status.json .build_status.json
 
 RUN set -ex \
     && apt-get update \
