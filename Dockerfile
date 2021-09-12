@@ -22,6 +22,8 @@ RUN set -ex \
 COPY .git .git
 COPY .build_status.json .build_status.json
 
+RUN echo `pwd`
+RUN echo `ls -lah`
 RUN set -ex \
     PROJECT_NAME=$(basename $(pwd)) \
     GIT_VERSION=$(git tag --sort=committerdate | tail -1) \
