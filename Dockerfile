@@ -17,8 +17,10 @@ RUN set -ex \
     && apt-get -y clean \
     && python -m venv /opt/venv \
     && pip install --upgrade pip \
-    && pip install -r requirements.txt \
-    && PROJECT_NAME=$(basename $(pwd)) \
+    && pip install -r requirements.txt
+
+RUN set -ex \
+    PROJECT_NAME=$(basename $(pwd)) \
     GIT_VERSION=$(git tag --sort=committerdate | tail -1) \
     GIT_HASH=$(git rev-parse HEAD) \
     GIT_SHORT_SHA=$(git rev-parse --short HEAD) \
