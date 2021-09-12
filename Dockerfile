@@ -21,8 +21,8 @@ RUN set -ex \
     && pip install --upgrade pip \
     && pip install -r requirements.txt
 
-COPY .git .git
-COPY .build_status.json .build_status.json
+COPY .git/ ./.git/
+COPY .build_status.json .
 
 RUN echo `pwd`
 RUN echo `ls -lah`
