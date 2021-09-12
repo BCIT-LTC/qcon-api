@@ -7,7 +7,7 @@ ENV PATH="/opt/venv/bin:/base:$PATH"
 
 COPY requirements.txt .
 COPY .git/ ./.git/
-COPY .build_status.json .build_status.json
+COPY .build_status.json .
 
 RUN set -ex \
     && apt-get update \
@@ -19,12 +19,8 @@ RUN set -ex \
     && apt-get -y clean \
     && python -m venv /opt/venv \
     && pip install --upgrade pip \
-    && pip install -r requirements.txt
-
-RUN echo `pwd`
-RUN echo `ls -lah`
-RUN set -ex \
-    PROJECT_NAME=$(basename $(pwd)) \
+    && pip install -r requirements.txt \
+    && PROJECT_NAME=$(basename $(pwd)) \
     GIT_VERSION=$(git tag --sort=committerdate | tail -1) \
     GIT_HASH=$(git rev-parse HEAD) \
     GIT_SHORT_SHA=$(git rev-parse --short HEAD) \
@@ -64,18 +60,18 @@ WORKDIR /code
 RUN apk --update add nginx bash \
     && chmod -R 755 /var/lib/nginx
 
-COPY /nginx/nginx.conf /etc/nginx/nginx.conf
-COPY manage.py .
-COPY supervisord.conf .
-COPY .env .env
-COPY docker-entrypoint.sh /usr/local/bin
 COPY --from=qcon-base /usr/bin/pandoc /usr/local/bin/pandoc
 COPY --from=qcon-base /root/.cache /root/.cache
 COPY --from=qcon-base /opt/venv /opt/venv
 COPY --from=docs-base public docs/public
-COPY --from=qcon-base .build_status.json .build_status.json
+COPY /nginx/nginx.conf /etc/nginx/nginx.conf
+COPY manage.py .
+COPY supervisord.conf .
+COPY .env .
+COPY docker-entrypoint.sh /usr/local/bin
 COPY qcon qcon
 COPY api_v2 api_v2
+COPY --from=qcon-base .build_status.json .
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
