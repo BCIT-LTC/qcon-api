@@ -10,7 +10,7 @@ WORKDIR /qcon-api
 
 COPY requirements.txt .
 COPY .git/ ./.git/
-COPY .build_status.json .
+COPY .build_status.json .build_status.json
 
 RUN set -ex \
     && apt-get update \
@@ -70,11 +70,11 @@ COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
 COPY manage.py .
 COPY supervisord.conf .
-COPY .env .
+COPY .env .env
 COPY docker-entrypoint.sh /usr/local/bin
 COPY qcon qcon
 COPY api_v2 api_v2
-COPY --from=qcon-api-base .build_status.json .
+COPY --from=qcon-api-base .build_status.json .build_status.json
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
