@@ -29,11 +29,7 @@ RUN set -ex \
     --arg hash "$GIT_HASH" \
     --arg short_sha "$GIT_SHORT_SHA" \
     --arg build_time "$GIT_BUILD_TIME" \
-    '.name |= $name |
-    .version.number |= $version |
-    .version.build_hash |= $hash |
-    .version.build_short_sha |= $short_sha |
-    .version.build_timestamp |= $build_time' .build_status.json) \
+    '.name |= $name | .version.number |= $version | .version.build_hash |= $hash | .version.build_short_sha |= $short_sha | .version.build_timestamp |= $build_time' .build_status.json) \
     && echo $BUILD_STATUS > .build_status.json
 
 
