@@ -3,7 +3,9 @@ FROM python:3.9 AS qcon-base
 ENV ARCH amd64
 ENV PANDOC_VERSION 2.11.3.2
 ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:/base:$PATH"
+
+WORKDIR /base
 
 COPY requirements.txt .
 
@@ -60,7 +62,7 @@ ENV PYTHONUNBUFFERED 1
 ENV PATH /code:/opt/venv/bin:$PATH
 
 WORKDIR /code
-VOLUME /code
+# VOLUME /code
 
 RUN apk --update add nginx bash \
     && chmod -R 755 /var/lib/nginx
