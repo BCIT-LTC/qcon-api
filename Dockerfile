@@ -5,9 +5,9 @@ ENV PANDOC_VERSION 2.11.3.2
 ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
 ENV PATH="/opt/venv/bin:/base:$PATH"
 
-WORKDIR /base
-
 COPY requirements.txt .
+COPY .git/ ./.git/
+COPY .build_status.json .
 
 RUN set -ex \
     && apt-get update \
@@ -20,9 +20,6 @@ RUN set -ex \
     && python -m venv /opt/venv \
     && pip install --upgrade pip \
     && pip install -r requirements.txt
-
-COPY .git/ ./.git/
-COPY .build_status.json .
 
 RUN echo `pwd`
 RUN echo `ls -lah`
