@@ -32,7 +32,7 @@ RUN set -ex; \
         pip install --upgrade pip; \
         pip install -r requirements.txt; \
         \
-        git fetch --tags; \
+        git fetch origin main --tags; \
         \
         PROJECT_NAME="$(basename $(pwd))"; \
         echo $(git describe --tags $(git rev-list --tags --max-count=1)) > newtags.txt; \
