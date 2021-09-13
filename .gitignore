@@ -7,9 +7,7 @@ package-lock.json
 log
 .DS_Store
 .vscode
-temp
 tests
-test
 database
 
 migrations
