@@ -14,27 +14,23 @@ urlpatterns = [
     path('wordjson', views.WordToJson.as_view(), name='WordToJson'),
     path('wordjsonzip', views.WordToJsonZip.as_view(), name='WordToJsonZip'),
 
-    # OPENAPI
-    # PATTERNS
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    # UI:
-    path('',
-         SpectacularSwaggerView.as_view(url_name='schema'),
-         name='swagger-ui'),
     # path('api/doc2/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # path('<str:namespace>/<str:name>/review/<slug:slug>', views.redirect_root),
     # path('<str:namespace>/<str:name>/review/<slug:slug>/<str:actualurl>', views.redirect_view)
     # path('<str:namespace>/<str:name>/review/<slug:slug>/', include([
     #     path('<str:actualurl>', views.redirect_view)
-    # ]))    
+    # ]))
 ]
 
-# if settings.DEBUG:
-#     urlpatterns += [
-#         path('',
-#              SpectacularSwaggerView.as_view(url_name='schema'),
-#              name='swagger-ui'),
-#         path('schema/', SpectacularAPIView.as_view(), name='schema'),
-#     ]
-# else:
-#     urlpatterns += [path('', views.RootPath.as_view(), name='root')]
+if settings.DEBUG:
+    # OPENAPI
+    # PATTERNS
+    # UI:
+    urlpatterns += [
+        path('',
+             SpectacularSwaggerView.as_view(url_name='schema'),
+             name='swagger-ui'),
+        path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    ]
+else:
+    urlpatterns += [path('', views.RootPath.as_view(), name='root')]
