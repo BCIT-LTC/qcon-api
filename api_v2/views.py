@@ -10,7 +10,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import FileResponse, JsonResponse
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,  AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.parsers import FileUploadParser
@@ -211,15 +211,22 @@ class WordToJson(APIView):
 class RootPath(APIView):
     permission_classes = [AllowAny]
     def get(self, request, format=None):
-        jsondata = {}
+
+        envconfig = ""
         try:
-            import json
             from dotenv import load_dotenv, dotenv_values
-            config = dotenv_values(".env")
+            envconfig = dotenv_values(".env")
+        except:
+            logger.error("Failed to load env file")           
+
+
+        jsondata = {"Build information not found"}
+        try:
+            import json            
             filename = "/code/.build_status.json"
             with open(filename) as f:
                 jsondata = json.load(f)
-            jsondata['default_credentials'] = config    
+            jsondata['default_credentials'] = envconfig    
         except:
             logger.error("Error creating json response")           
 

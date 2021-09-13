@@ -5,6 +5,7 @@
 from django.urls import include, path, re_path
 from django.conf.urls import url
 from . import views
+from django.conf import settings
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -27,3 +28,13 @@ urlpatterns = [
     #     path('<str:actualurl>', views.redirect_view)
     # ]))    
 ]
+
+if settings.DEBUG:
+    urlpatterns += [
+        path('',
+             SpectacularSwaggerView.as_view(url_name='schema'),
+             name='swagger-ui'),
+        path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    ]
+else:
+    urlpatterns += [path('', views.RootPath.as_view(), name='root')]
