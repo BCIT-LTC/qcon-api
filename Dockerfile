@@ -8,7 +8,8 @@ ENV PATH="/opt/venv/bin:/base:$PATH"
 # Set to project name
 WORKDIR /qcon-api
 
-COPY requirements.txt .build_status.json .git .
+COPY requirements.txt .build_status.json .
+COPY .git/ ./.git/
 
 RUN set -ex; \
         apt-get update; \
