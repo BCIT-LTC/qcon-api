@@ -212,23 +212,19 @@ class RootPath(APIView):
     permission_classes = [AllowAny]
     def get(self, request, format=None):
 
-        envconfig = ""
+        from dotenv import load_dotenv, dotenv_values
+        import json            
+
+        jsondata = None
         try:
-            from dotenv import load_dotenv, dotenv_values
             envconfig = dotenv_values(".env")
-        except:
-            logger.error("Failed to load env file")           
-
-
-        jsondata = {"Build information not found"}
-        try:
-            import json            
             filename = "/code/.build_status.json"
             with open(filename) as f:
                 jsondata = json.load(f)
-            jsondata['default_credentials'] = envconfig    
+            jsondata['default_credentials'] = envconfig
         except:
             logger.error("Error creating json response")           
+         
 
         return JsonResponse(jsondata, safe=True, json_dumps_params={'indent': 2}, status=200)
 
