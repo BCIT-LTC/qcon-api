@@ -23,11 +23,11 @@ RUN set -ex \
     && pip install --upgrade pip \
     && pip install -r requirements.txt \
     && PROJECT_NAME=$(basename $(pwd)) \
-    GIT_VERSION=$(git tag --sort=committerdate | tail -1) \
-    GIT_HASH=$(git rev-parse HEAD) \
-    GIT_SHORT_SHA=$(git rev-parse --short HEAD) \
-    GIT_BUILD_TIME=$(git show -s --format=%cs $GIT_HASH) \
-    BUILD_STATUS=$(jq \
+    && GIT_VERSION=$(git tag --sort=committerdate | tail -1) \
+    && GIT_HASH=$(git rev-parse HEAD) \
+    && GIT_SHORT_SHA=$(git rev-parse --short HEAD) \
+    && GIT_BUILD_TIME=$(git show -s --format=%cs $GIT_HASH) \
+    && BUILD_STATUS=$(jq \
     --arg name "$PROJECT_NAME" \
     --arg version "$GIT_VERSION" \
     --arg hash "$GIT_HASH" \
@@ -64,14 +64,12 @@ RUN apk --update add nginx bash \
 
 COPY --from=docs-base public docs/public
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
-COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin/pandoc
+COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
-COPY manage.py supervisord.conf .env .
 COPY docker-entrypoint.sh /usr/local/bin
-COPY qcon qcon
-COPY api_v2 api_v2
-COPY --from=qcon-api-base /qcon-api/.build_status.json .build_status.json
+COPY manage.py supervisord.conf .env qcon api_v2 .
+COPY --from=qcon-api-base /qcon-api/.build_status.json .
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

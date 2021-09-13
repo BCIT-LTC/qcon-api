@@ -1,9 +1,9 @@
 __pycache__
 *.py?
 .Python
-env
 .DS_Store
 .dockerignore
+Dockerfile
 .gitignore
 temp
 **/migrations
