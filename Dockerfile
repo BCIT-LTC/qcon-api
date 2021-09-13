@@ -8,33 +8,51 @@ ENV PATH="/opt/venv/bin:/base:$PATH"
 # Set to project name
 WORKDIR /qcon-api
 
-COPY requirements.txt .build_status.json .
-COPY .git/ ./.git/
+COPY requirements.txt .build_status.json .git .
 
-RUN set -ex \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends build-essential gcc wget jq git \
-    && wget -O pandoc.deb "$GET_PANDOC_URL/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$ARCH.deb" \
-    && dpkg -i pandoc.deb \
-    && rm -Rf pandoc.deb \
-    && apt-get autoremove --purge \
-    && apt-get -y clean \
-    && python -m venv /opt/venv \
-    && pip install --upgrade pip \
-    && pip install -r requirements.txt \
-    && PROJECT_NAME=$(pwd) \
-    && GIT_VERSION=`git tag -l --sort=-creatordate | head -n 1` \
-    && GIT_HASH="$(git rev-parse HEAD)" \
-    && GIT_SHORT_SHA="$(git rev-parse --short HEAD)" \
-    && GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)" \
-    && BUILD_STATUS="$(jq \
-    --arg name "$PROJECT_NAME" \
-    --arg version "$GIT_VERSION" \
-    --arg hash "$GIT_HASH" \
-    --arg short_sha "$GIT_SHORT_SHA" \
-    --arg build_time "$GIT_BUILD_TIME" \
-    '.name |= $name | .version.number |= $version | .version.build_hash |= $hash | .version.build_short_sha |= $short_sha | .version.build_timestamp |= $build_time' .build_status.json)" \
-    && echo $BUILD_STATUS > .build_status.json
+RUN set -ex; \
+        apt-get update; \
+        apt-get install -y --no-install-recommends \
+            build-essential \
+            gcc \
+            wget \
+            jq \
+            git \
+        ; \
+        wget -O pandoc.deb \
+            "$GET_PANDOC_URL/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$ARCH.deb"; \
+        dpkg -i pandoc.deb; \
+        rm -Rf pandoc.deb; \
+        \
+        apt-get autoremove --purge; \
+        apt-get -y clean; \
+        \
+        python -m venv /opt/venv; \
+        \
+        pip install --upgrade pip; \
+        pip install -r requirements.txt; \
+        \
+        export PROJECT_NAME="$(basename $(pwd))"; \
+        export GIT_VERSION="$(git tag -l --sort=-creatordate \
+            | head -n 1)"; \
+        export GIT_HASH="$(git rev-parse HEAD)"; \
+        export GIT_SHORT_SHA="$(git rev-parse --short HEAD)"; \
+        export GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)"; \
+        export BUILD_STATUS="$(jq \
+            --arg name "$PROJECT_NAME" \
+            --arg version "$GIT_VERSION" \
+            --arg hash "$GIT_HASH" \
+            --arg short_sha "$GIT_SHORT_SHA" \
+            --arg build_time "$GIT_BUILD_TIME" \
+            '.name |= $name \
+            | .version.number |= $version \
+            | .version.build_hash |= $hash \
+            | .version.build_short_sha |= $short_sha \
+            | .version.build_timestamp |= $build_time' .build_status.json)"; \
+        echo $BUILD_STATUS > .build_status.json; \
+        \
+        echo $(git tag -l --sort=-creatordate) > tags.txt; \
+        cat tags.txt;
 
 
 #######################################################
