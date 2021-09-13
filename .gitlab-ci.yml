@@ -27,6 +27,7 @@ image: bitnami/kubectl
 
 variables:
   TEAM_TAG: "dev-cp"
+  PROD_NAMESPACE: "qcon"
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
   IMAGE_LABELS: >
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
@@ -200,12 +201,13 @@ semver-release:
 deploy_production:
   stage: deploy
   script:
+    - kubectl create ns $PROD_NAMESPACE -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
       \ncommonAnnotations: \
       \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
       \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
       deploy/overlays/prod/kustomization.yaml"
-    - echo "deployed to prod"
+    - kubectl kustomize deploy/overlays/prod | kubectl apply -f -
 # Fleet automatically picks up changes on release branch and deploys kustomized `overlays/prod`
   environment:
     name: production
