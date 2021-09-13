@@ -4,6 +4,8 @@ services:
   app:
     build: .
     # command: python manage.py runserver 0.0.0.0:8002
+    command:
+      - ssh-keyscan -t rsa issues.ltc.bcit.ca > ~/.ssh/known_hosts;
     image: qcon-api
     environment:
       - DEBUG=True
