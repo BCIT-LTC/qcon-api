@@ -29,12 +29,12 @@ urlpatterns = [
     # ]))    
 ]
 
-if settings.DEBUG:
-    urlpatterns += [
-        path('',
-             SpectacularSwaggerView.as_view(url_name='schema'),
-             name='swagger-ui'),
-        path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    ]
-else:
-    urlpatterns += [path('', views.RootPath.as_view(), name='root')]
+# if settings.DEBUG:
+#     urlpatterns += [
+#         path('',
+#              SpectacularSwaggerView.as_view(url_name='schema'),
+#              name='swagger-ui'),
+#         path('schema/', SpectacularAPIView.as_view(), name='schema'),
+#     ]
+# else:
+#     urlpatterns += [path('', views.RootPath.as_view(), name='root')]
