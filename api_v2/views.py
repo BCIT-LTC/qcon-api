@@ -208,6 +208,23 @@ class WordToJson(APIView):
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
 
+class RootPath(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, format=None):
+        jsondata = {}
+        try:
+            import json
+            from dotenv import load_dotenv, dotenv_values
+            config = dotenv_values(".env")
+            filename = "/code/.build_status.json"
+            with open(filename) as f:
+                jsondata = json.load(f)
+            jsondata['default_credentials'] = config    
+        except:
+            logger.error("Error creating json response")           
+
+        return JsonResponse(jsondata, safe=True, json_dumps_params={'indent': 2}, status=200)
+
 from django.shortcuts import redirect
 
 def view_404(request, exception=None):
