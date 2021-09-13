@@ -22,8 +22,8 @@ RUN set -ex \
     && python -m venv /opt/venv \
     && pip install --upgrade pip \
     && pip install -r requirements.txt \
-    && PROJECT_NAME=$(basename $(pwd)) \
-    && GIT_VERSION="$(git tag -l --sort=-creatordate | head -n 1)" \
+    && PROJECT_NAME=$(pwd) \
+    && GIT_VERSION=`git tag -l --sort=-creatordate | head -n 1` \
     && GIT_HASH="$(git rev-parse HEAD)" \
     && GIT_SHORT_SHA="$(git rev-parse --short HEAD)" \
     && GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)" \
