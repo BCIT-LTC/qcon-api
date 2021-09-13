@@ -23,17 +23,17 @@ RUN set -ex \
     && pip install --upgrade pip \
     && pip install -r requirements.txt \
     && PROJECT_NAME=$(basename $(pwd)) \
-    && GIT_VERSION=$(git tag -l --sort=-creatordate | head -n 1) \
-    && GIT_HASH=$(git rev-parse HEAD) \
-    && GIT_SHORT_SHA=$(git rev-parse --short HEAD) \
-    && GIT_BUILD_TIME=$(git show -s --format=%cs $GIT_HASH) \
-    && BUILD_STATUS=$(jq \
+    && GIT_VERSION="$(git tag -l --sort=-creatordate | head -n 1)" \
+    && GIT_HASH="$(git rev-parse HEAD)" \
+    && GIT_SHORT_SHA="$(git rev-parse --short HEAD)" \
+    && GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)" \
+    && BUILD_STATUS="$(jq \
     --arg name "$PROJECT_NAME" \
     --arg version "$GIT_VERSION" \
     --arg hash "$GIT_HASH" \
     --arg short_sha "$GIT_SHORT_SHA" \
     --arg build_time "$GIT_BUILD_TIME" \
-    '.name |= $name | .version.number |= $version | .version.build_hash |= $hash | .version.build_short_sha |= $short_sha | .version.build_timestamp |= $build_time' .build_status.json) \
+    '.name |= $name | .version.number |= $version | .version.build_hash |= $hash | .version.build_short_sha |= $short_sha | .version.build_timestamp |= $build_time' .build_status.json)" \
     && echo $BUILD_STATUS > .build_status.json
 
 
