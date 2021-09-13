@@ -89,8 +89,9 @@ COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
 COPY docker-entrypoint.sh /usr/local/bin
-COPY manage.py supervisord.conf qcon api_v2 ./
-COPY .env .env
+COPY manage.py supervisord.conf .env ./
+COPY qcon qcon
+COPY api_v2 api_v2
 COPY --from=qcon-api-base /qcon-api/.build_status.json ./
 
 ENTRYPOINT ["docker-entrypoint.sh"]
