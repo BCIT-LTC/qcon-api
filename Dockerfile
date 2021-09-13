@@ -32,13 +32,12 @@ RUN set -ex; \
         pip install --upgrade pip; \
         pip install -r requirements.txt; \
         \
-        export PROJECT_NAME="$(basename $(pwd))"; \
-        export GIT_VERSION="$(git tag -l --sort=-creatordate \
-            | head -n 1)"; \
-        export GIT_HASH="$(git rev-parse HEAD)"; \
-        export GIT_SHORT_SHA="$(git rev-parse --short HEAD)"; \
-        export GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)"; \
-        export BUILD_STATUS="$(jq \
+        PROJECT_NAME="$(basename $(pwd))"; \
+        GIT_VERSION="$(git describe --tags $(git rev-list --tags --max-count=1))"; \
+        GIT_HASH="$(git rev-parse HEAD)"; \
+        GIT_SHORT_SHA="$(git rev-parse --short HEAD)"; \
+        GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)"; \
+        BUILD_STATUS="$(jq \
             --arg name "$PROJECT_NAME" \
             --arg version "$GIT_VERSION" \
             --arg hash "$GIT_HASH" \
@@ -49,22 +48,22 @@ RUN set -ex; \
             | .version.build_hash |= $hash \
             | .version.build_short_sha |= $short_sha \
             | .version.build_timestamp |= $build_time' .build_status.json)"; \
-        echo $BUILD_STATUS > .build_status.json; \
-        \
-        echo $(git tag -l --sort=-creatordate) > tags.txt; \
-        cat tags.txt;
+        echo $BUILD_STATUS > .build_status.json;
 
 
 #######################################################
 FROM squidfunk/mkdocs-material as docs-base
 
-RUN pip install Pygments pymdown-extensions
+RUN pip install \
+        Pygments \
+        pymdown-extensions;
 
 WORKDIR /docs
 
 COPY . .
 
-RUN mkdocs build --site-dir /public
+RUN mkdocs build \
+        --site-dir /public;
 
 
 #######################################################
@@ -77,8 +76,10 @@ ENV PATH /code:/opt/venv/bin:$PATH
 WORKDIR /code
 # VOLUME /code
 
-RUN apk --update add nginx bash \
-    && chmod -R 755 /var/lib/nginx
+RUN apk --update add \
+        nginx \
+        bash; \
+    chmod -R 755 /var/lib/nginx;
 
 COPY --from=docs-base public docs/public
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
