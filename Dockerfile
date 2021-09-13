@@ -34,7 +34,8 @@ RUN set -ex; \
         pip install -r requirements.txt; \
         \
         PROJECT_NAME="$(basename $(pwd))"; \
-        GIT_VERSION="$(git describe --tags $(git rev-list --tags --max-count=1))"; \
+        echo $(git describe --tags $(git rev-list --tags --max-count=1)) > newtags.txt; \
+        GIT_VERSION="$(echo $(cat newtags.txt))"; \
         GIT_HASH="$(git rev-parse HEAD)"; \
         GIT_SHORT_SHA="$(git rev-parse --short HEAD)"; \
         GIT_BUILD_TIME="$(git show -s --format=%cs $GIT_HASH)"; \
