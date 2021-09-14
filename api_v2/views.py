@@ -210,22 +210,15 @@ class WordToJson(APIView):
 
 class RootPath(APIView):
     permission_classes = [AllowAny]
-    def get(self, request, format=None):
-
-        from dotenv import load_dotenv, dotenv_values
-        import json            
-
+    def get(self, request, format=None):  
+        import json   
         jsondata = None
         try:
-            envconfig = dotenv_values(".env")
             filename = "/code/.build_status.json"
             with open(filename) as f:
                 jsondata = json.load(f)
-            jsondata['default_credentials'] = envconfig
         except:
-            logger.error("Error creating json response")           
-         
-
+            logger.error("Error creating json response")         
         return JsonResponse(jsondata, safe=True, json_dumps_params={'indent': 2}, status=200)
 
 from django.shortcuts import redirect
