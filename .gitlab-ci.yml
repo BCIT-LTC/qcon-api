@@ -203,7 +203,8 @@ build_stable:
   tags:
     - production
 
-# This placeholder job reports back to the UI that the most recent `stable` image was deployed to production
+# Placeholder job: reports back to the UI that the most 
+# recent `stable` image was deployed to production
 deploy_production:
   stage: deploy
   script:
@@ -216,7 +217,6 @@ deploy_production:
         deploy/overlays/prod/kustomization.yaml"
     - "kubectl kustomize deploy/overlays/prod \
         | kubectl apply -f -"
-# Fleet automatically picks up changes on release branch and deploys kustomized `overlays/prod`
   environment:
     name: production
     url: https://$CI_PROJECT_NAME.ltc.bcit.ca
