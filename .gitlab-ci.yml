@@ -187,11 +187,11 @@ semver-release:
       file: false
   script:
     - "semantic-release \
-      --branches release \
-      --repository-url $CI_PROJECT_URL \
-      --plugins '@semantic-release/commit-analyzer, \
-        @semantic-release/release-notes-generator, \
-        @semantic-release/gitlab'"
+        --branches release \
+        --repository-url $CI_PROJECT_URL \
+        --plugins '@semantic-release/commit-analyzer, \
+          @semantic-release/release-notes-generator, \
+          @semantic-release/gitlab'"
 
 
 # Build image with Kaniko (stable)
