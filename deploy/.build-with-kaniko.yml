@@ -18,12 +18,8 @@
         --label org.opencontainers.image.description=$BUILDTITLE"
       
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
-      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then 
-        ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest";
-      fi
-      if [[ "$CI_COMMIT_REF_SLUG == "release" ]]; then
-        ADDITIONALTAGLIST="$ADDITIONALTAGLIST stable";
-      fi
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
+      if [[ "$CI_COMMIT_SLUG" == "release" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST stable"; fi
       if [[ -n "$ADDITIONALTAGLIST" ]]; then 
         for TAG in $ADDITIONALTAGLIST; do 
           FORMATTEDTAGLIST="${FORMATTEDTAGLIST} --tag $CI_REGISTRY_IMAGE:$TAG "; 
@@ -34,9 +30,8 @@
       FORMATTEDTAGLIST=$(echo "${FORMATTEDTAGLIST}" | sed s/\-\-tag/\-\-destination/g) 
 
       mkdir -p /kaniko/.docker
-      echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" \
-        > /kaniko/.docker/config.json 
+      echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" \
+        > /kaniko/.docker/config.json
       /kaniko/executor \
-        --context $CI_PROJECT_DIR
-        --dockerfile $CI_PROJECT_DIR/Dockerfile \
-        $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
+        --context $CI_PROJECT_DIR \
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
