@@ -24,7 +24,7 @@
         ADDITIONALTAGLIST="$ADDITIONALTAGLIST $VERSIONLABEL"
       fi
 
-      echo "$CI_COMMIT_TAG" > testfile.txt 
+      echo "this is a test string" > testfile.txt 
 
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
