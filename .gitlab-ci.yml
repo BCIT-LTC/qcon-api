@@ -55,11 +55,11 @@ stages:
 
 .feature-branch: &feature-branch
   rules:
-    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
       when: never
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
   tags:
     - $TEAM_TAG
 
