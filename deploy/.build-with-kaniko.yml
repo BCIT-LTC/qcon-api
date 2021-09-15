@@ -44,9 +44,10 @@
         > /kaniko/.docker/config.json
       /kaniko/executor \
         --context $CI_PROJECT_DIR \
-        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS \
+        --image-name-tag-with-digest-file testfile.txt
 
-      echo "this is a test string $CI_PROJECT_DIR --- $KANIKO_CACHE_ARGS  -- $FORMATTEDTAGLIST -- $IMAGE_LABELS" > testfile.txt 
+# echo "this is a test string $FORMATTEDTAGLIST - \n - $IMAGE_LABELS" > testfile.txt 
   artifacts:
     paths:
       - testfile.txt
