@@ -58,6 +58,12 @@
           }, \  
         }" >> testfile.txt
       
+      echo "commit branch : $CI_COMMIT_BRANCH  project dir: $CI_PROJECT_DIR"
+
+
+# echo "git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3"
+
+
 # echo "SHORT_SHA = $CI_COMMIT_SHORT_SHA" >> testfile.txt
 # echo "this is a test string $FORMATTEDTAGLIST - \n - $IMAGE_LABELS" > testfile.txt 
   artifacts:
