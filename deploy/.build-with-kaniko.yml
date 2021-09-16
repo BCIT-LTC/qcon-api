@@ -81,4 +81,4 @@
 # echo "this is a test string $FORMATTEDTAGLIST - \n - $IMAGE_LABELS" > testfile.txt 
   artifacts:
     paths:
-      - testfile.txt
+      - version.txt
