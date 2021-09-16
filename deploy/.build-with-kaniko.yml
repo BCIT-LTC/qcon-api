@@ -45,9 +45,20 @@
       /kaniko/executor \
         --context $CI_PROJECT_DIR \
         --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS \
-        --image-name-tag-with-digest-file testfile.txt
+        --label short_sha=$CI_COMMIT_SHORT_SHA
 
-      echo $CI_COMMIT_SHORT_SHA >> testfile.txt
+
+      echo "    { \
+          "name": "qcon-api", \
+          "cluster_name": "dev-cp", \
+          "version": { \
+              "number": "1.1.0", \
+              "build_hash": "5529939d0f2...", \
+              "build_timestamp": "2021-09-04T03..." \
+          }, \  
+        }" >> testfile.txt
+      
+# echo "SHORT_SHA = $CI_COMMIT_SHORT_SHA" >> testfile.txt
 # echo "this is a test string $FORMATTEDTAGLIST - \n - $IMAGE_LABELS" > testfile.txt 
   artifacts:
     paths:
