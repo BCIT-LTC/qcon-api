@@ -59,7 +59,7 @@
         }" >> testfile.txt
       
       echo "commit branch : $CI_COMMIT_BRANCH  project dir: $CI_PROJECT_DIR " >> testfile.txt
-      echo git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' >> testfile.txt
+      echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*') >> testfile.txt
 
 # echo "git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3"
 
