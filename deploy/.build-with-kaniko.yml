@@ -1,8 +1,21 @@
 # Kaniko template
+
+.latest_version_tag:
+  image: alpine/git
+  stage: deploy
+  script:
+    - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
+    - echo $CI_PROJECT_URL >> version.txt
+  artifacts:
+    paths:
+      - version.txt
+
+
 .build-with-kaniko:
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
+  extends: .latest_version_tag
   script:
     - | 
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
