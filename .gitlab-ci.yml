@@ -82,7 +82,7 @@ latest_version_tag:
   stage: tag
   script:
     # - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
-    - echo $(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-) >> build.env
+    - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" >> build.env
   artifacts:
     reports:
       dotenv: build.env
