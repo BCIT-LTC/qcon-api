@@ -19,15 +19,14 @@
         --label org.opencontainers.image.description=$BUILDTITLE"
       
       # Add extra metadata json format for label
-      JSON_METADATA=echo "{ \
+      JSON_METADATA=$(echo "{ \
         "name": $CI_PROJECT_NAME, \
         "cluster_name": $TEAM_TAG \
         "version": { \
             "number": $VERSION, \
             "build_hash": $CI_BUILD_REF, \
             "build_timestamp": $CI_COMMIT_TIMESTAMP \
-        }, \  
-      }"
+        }}")
 
       # Build Version Label and Tag from git tag, LastVersionTagInGit was placed by a previous job artifact
       VERSIONLABEL=$CI_COMMIT_TAG
