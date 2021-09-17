@@ -7,13 +7,13 @@
   script:
     - | 
       # Add extra metadata json format for label
-      JSON_METADATA="{ \
-        "name": $CI_PROJECT_NAME, \
-        "cluster_name": $TEAM_TAG \
-        "version": { \
-            "number": $VERSION, \
-            "build_hash": $CI_BUILD_REF, \
-            "build_timestamp": $CI_COMMIT_TIMESTAMP},}"
+      # JSON_METADATA="{ \
+      #   "name": $CI_PROJECT_NAME, \
+      #   "cluster_name": $TEAM_TAG \
+      #   "version": { \
+      #       "number": $VERSION, \
+      #       "build_hash": $CI_BUILD_REF, \
+      #       "build_timestamp": $CI_COMMIT_TIMESTAMP}}"
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
       # Build date for opencontainers
       BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
