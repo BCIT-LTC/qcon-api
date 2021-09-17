@@ -34,6 +34,7 @@ variables:
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
+  GIT_FETCH_EXTRA_FLAGS: --tags
   CI_DEBUG_TRACE: "true"
 
 # include:
@@ -80,7 +81,8 @@ latest_version_tag:
   image: alpine/git:latest
   stage: build
   script:
-    - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
+    # - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
+    - echo $(git describe --tags $(git rev-list --tags --max-count=1)) >> version.txt
     - echo $CI_PROJECT_URL >> version.txt
   artifacts:
     paths:
