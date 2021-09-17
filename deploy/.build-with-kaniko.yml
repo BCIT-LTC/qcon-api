@@ -28,6 +28,7 @@
             "build_timestamp": "2021-09-04T03..." \
         }, \  
       }" >> testfile.txt 
+      
 
       # Build Version Label and Tag from git tag, LastVersionTagInGit was placed by a previous job artifact
       VERSIONLABEL=$CI_COMMIT_TAG
