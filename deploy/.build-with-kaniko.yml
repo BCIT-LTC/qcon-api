@@ -50,7 +50,7 @@
 
 
       
-      echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*') >> version.txt
+# echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*') >> version.txt
 # echo "    { \
 #     "name": "qcon-api", \
 #     "cluster_name": "dev-cp", \
