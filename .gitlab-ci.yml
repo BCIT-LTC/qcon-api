@@ -82,18 +82,18 @@ latest_version_tag:
   stage: build
   script:
     # - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
-    - echo $(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-) >> version.txt
-    - echo $CI_PROJECT_URL >> version.txt
+    - echo $(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-) >> build.env
   artifacts:
-    paths:
-      - version.txt
+    reports:
+      dotenv: build.env
 
 # Build image with Kaniko (dev)
 build_for_review:
   <<: *feature-branch
   extends: .build-with-kaniko
   stage: build
-
+  dependencies:
+    - latest_version_tag
 
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 # security_scan:
