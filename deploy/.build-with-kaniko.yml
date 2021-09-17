@@ -49,19 +49,19 @@
         --label short_sha=$CI_COMMIT_SHORT_SHA
 
 
-      echo "    { \
-          "name": "qcon-api", \
-          "cluster_name": "dev-cp", \
-          "version": { \
-              "number": "1.1.0", \
-              "build_hash": "5529939d0f2...", \
-              "build_timestamp": "2021-09-04T03..." \
-          }, \  
-        }" >> testfile.txt
       
-      echo "commit branch : $CI_COMMIT_BRANCH  project dir: $CI_PROJECT_DIR " >> testfile.txt
-      echo $(docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*') >> testfile.txt
+      echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*') >> testfile.txt
+# echo "    { \
+#     "name": "qcon-api", \
+#     "cluster_name": "dev-cp", \
+#     "version": { \
+#         "number": "1.1.0", \
+#         "build_hash": "5529939d0f2...", \
+#         "build_timestamp": "2021-09-04T03..." \
+#     }, \  
+#   }" >> testfile.txt 
 
+# echo "commit branch : $CI_COMMIT_BRANCH  project dir: $CI_PROJECT_DIR " >> testfile.txt
 # echo "git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3"
 
 
