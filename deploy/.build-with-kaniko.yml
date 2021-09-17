@@ -48,7 +48,7 @@
         --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS \
         --label short_sha=$CI_COMMIT_SHORT_SHA
 
-
+      echo "$VERSION" >> version.txt
       
 # echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*') >> version.txt
 # echo "    { \
@@ -67,6 +67,6 @@
 
 # echo "SHORT_SHA = $CI_COMMIT_SHORT_SHA" >> testfile.txt
 # echo "this is a test string $FORMATTEDTAGLIST - \n - $IMAGE_LABELS" > testfile.txt 
-  # artifacts:
-  #   paths:
-  #     - version.txt
+  artifacts:
+    paths:
+      - version.txt
