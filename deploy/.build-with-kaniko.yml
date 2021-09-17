@@ -7,7 +7,7 @@
   script:
     - | 
       # Add extra metadata json format for label
-      echo "{ \
+      JSON_METADATA="{ \
         "name": $CI_PROJECT_NAME, \
         "cluster_name": $TEAM_TAG \
         "version": { \
@@ -21,7 +21,8 @@
       BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.created=$BUILDDATE \
-        --label build-date=$BUILDDATE"
+        --label build-date=$BUILDDATE" \
+        --label json-metadata=$JSON_METADATA
       # Description for opencontainers
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
       IMAGE_LABELS="$IMAGE_LABELS \
@@ -57,8 +58,6 @@
       /kaniko/executor \
         --context $CI_PROJECT_DIR \
         --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS \
-# --label short_sha=$CI_COMMIT_SHORT_SHA
-# --label version=$VERSION
 
   artifacts:
     paths:
