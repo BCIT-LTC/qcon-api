@@ -47,10 +47,10 @@ include:
 
 
 stages:
+  - tag
   - build
   - test
   - deploy
-  - semver-tag
   - cleanup
 
 
@@ -79,7 +79,7 @@ stages:
 latest_version_tag:
   <<: *feature-branch
   image: alpine/git:latest
-  stage: build
+  stage: tag
   script:
     # - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
     - echo $(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-) >> build.env
@@ -197,7 +197,7 @@ build_stable:
 semver-release:
   <<: *release-branch
   extends: .semantic-release
-  stage: semver-tag
+  stage: tag
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
