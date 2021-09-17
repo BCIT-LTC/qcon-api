@@ -75,15 +75,15 @@ stages:
   tags:
     - production
 
-# .latest_version_tag:
-#   image: alpine/git
-#   stage: deploy
-#   script:
-#     - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
-#     - echo $CI_PROJECT_URL >> version.txt
-#   artifacts:
-#     paths:
-#       - version.txt
+latest_version_tag:
+  image: alpine/git:latest
+  stage: build
+  script:
+    - echo $(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' git@issues.ltc.bcit.ca:web-apps/qcon/qcon-api.git '*.*.*' | tail -1 | cut -d "/" -f 3) >> version.txt
+    - echo $CI_PROJECT_URL >> version.txt
+  artifacts:
+    paths:
+      - version.txt
 
 # Build image with Kaniko (dev)
 build_for_review:
