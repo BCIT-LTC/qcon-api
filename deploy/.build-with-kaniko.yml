@@ -19,7 +19,7 @@
         --label org.opencontainers.image.description=$BUILDTITLE"
       
       # Add extra metadata json format for label
-      JSON_METADATA=$(echo "{ \
+      JSON_METADATA=$("{ \
         "name": $CI_PROJECT_NAME, \
         "cluster_name": $TEAM_TAG \
         "version": { \
