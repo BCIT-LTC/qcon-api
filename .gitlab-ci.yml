@@ -56,11 +56,11 @@ stages:
 
 .feature-branch: &feature-branch
   rules:
-    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
       when: never
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
   tags:
     - $TEAM_TAG
 
@@ -112,40 +112,42 @@ deploy_review:
 # needs: ["security_scan"]
   script:
 # attempt to create namespace; fail gracefully if already present
-    - kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client | kubectl apply -f -
+    - "kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client \
+        | kubectl apply -f -"
 # add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
     - "echo -e \" \
-      \nnamespace: $CI_COMMIT_REF_SLUG \
-      \nimages: \
-      \n  - name: $CI_PROJECT_NAME \
-      \n    newName: $CI_REGISTRY_IMAGE \
-      \n    newTag: $CI_COMMIT_SHORT_SHA \
-      \ncommonAnnotations: \
-      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-      deploy/overlays/dev/kustomization.yaml"
+        \nnamespace: $CI_COMMIT_REF_SLUG \
+        \nimages: \
+        \n  - name: $CI_PROJECT_NAME \
+        \n    newName: $CI_REGISTRY_IMAGE \
+        \n    newTag: $CI_COMMIT_SHORT_SHA \
+        \ncommonAnnotations: \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
+        deploy/overlays/dev/kustomization.yaml"
 # apply kustomized deployment (dev)
-    - kubectl kustomize deploy/overlays/dev | kubectl apply -f -
+    - "kubectl kustomize deploy/overlays/dev \
+        | kubectl apply -f -"
 # patch ingress to branch path
     - "echo -e \" \
-      \nmetadata: \
-      \n  name: $CI_PROJECT_NAME-ingress \
-      \n  annotations: \
-      \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-      \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-      \nspec: \
-      \n  rules: \
-      \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
-      \n    http: \
-      \n      paths: \
-      \n      - path: /$CI_COMMIT_REF_SLUG \
-      \n        pathType: Prefix \
-      \n        backend: \
-      \n          service: \
-      \n            name: $CI_PROJECT_NAME-service \
-      \n            port: \
-      \n              number: 8000\" > \
-      deploy/overlays/dev/ingress-patch.yaml"
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: 8000\" > \
+        deploy/overlays/dev/ingress-patch.yaml"
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
         --namespace $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
@@ -172,23 +174,16 @@ deploy_latest:
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
-      \ncommonAnnotations: \
-      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-      deploy/overlays/staging/kustomization.yaml"
+        \ncommonAnnotations: \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
+        deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/staging | kubectl apply -f -
   environment:
     name: staging
     url: https://$CI_PROJECT_NAME.$STAGING_URL
     kubernetes:
       namespace: $CI_PROJECT_NAME
-
-
-# Build image with Kaniko (stable)
-build_stable:
-  <<: *release-branch
-  extends: .build-with-kaniko
-  stage: build
 
 
 # This job is for running semantic-versioning for releasing whenever there is a merge request
@@ -202,24 +197,37 @@ semver-release:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
       file: false
   script:
-    - semantic-release
-      --branches release
-      --repository-url $CI_PROJECT_URL
-      --plugins '@semantic-release/commit-analyzer, @semantic-release/release-notes-generator, @semantic-release/gitlab'
+    - "semantic-release \
+        --branches release \
+        --repository-url $CI_PROJECT_URL \
+        --plugins '@semantic-release/commit-analyzer, \
+          @semantic-release/release-notes-generator, \
+          @semantic-release/gitlab'"
 
 
-# This placeholder job reports back to the UI that the most recent `stable` image was deployed to production
+# Build image with Kaniko (stable)
+build_stable:
+  extends: .build-with-kaniko
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+  tags:
+    - production
+
+# Placeholder job: reports back to the UI that the most 
+# recent `stable` image was deployed to production
 deploy_production:
   stage: deploy
   script:
-    - kubectl create ns $PROD_NAMESPACE -o yaml --dry-run=client | kubectl apply -f -
+    - "kubectl create ns $PROD_NAMESPACE -o yaml --dry-run=client \
+        | kubectl apply -f -"
     - "echo -e \" \
-      \ncommonAnnotations: \
-      \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-      \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-      deploy/overlays/prod/kustomization.yaml"
-    - kubectl kustomize deploy/overlays/prod | kubectl apply -f -
-# Fleet automatically picks up changes on release branch and deploys kustomized `overlays/prod`
+        \ncommonAnnotations: \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
+        deploy/overlays/prod/kustomization.yaml"
+    - "kubectl kustomize deploy/overlays/prod \
+        | kubectl apply -f -"
   environment:
     name: production
     url: https://$CI_PROJECT_NAME.ltc.bcit.ca
