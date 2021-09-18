@@ -48,8 +48,6 @@
       /kaniko/executor \
         --context $CI_PROJECT_DIR \
         --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS \
-# --label short_sha=$CI_COMMIT_SHORT_SHA
-# --label version=$VERSION
 
   artifacts:
     paths:
