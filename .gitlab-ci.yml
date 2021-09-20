@@ -35,8 +35,7 @@ variables:
     --label org.opencontainers.image.source=$CI_PROJECT_URL
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
   GIT_FETCH_EXTRA_FLAGS: --tags
-  CI_DEBUG_TRACE: "true"
-
+  
 # include:
 #   - template: Security/SAST.gitlab-ci.yml
 #   - template: Security/Secret-Detection.gitlab-ci.yml
