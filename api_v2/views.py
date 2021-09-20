@@ -10,7 +10,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import FileResponse, JsonResponse
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,  AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.parsers import FileUploadParser
@@ -207,6 +207,19 @@ class WordToJson(APIView):
 
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+class RootPath(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, format=None):  
+        import json   
+        jsondata = None
+        try:
+            filename = "/code/.build_status.json"
+            with open(filename) as f:
+                jsondata = json.load(f)
+        except:
+            logger.error("Error creating json response")         
+        return JsonResponse(jsondata, safe=True, json_dumps_params={'indent': 2}, status=200)
 
 from django.shortcuts import redirect
 

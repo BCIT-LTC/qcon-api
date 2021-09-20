@@ -4,8 +4,6 @@ services:
   app:
     build: .
     # command: python manage.py runserver 0.0.0.0:8002
-    command:
-      - ssh-keyscan -t rsa issues.ltc.bcit.ca > ~/.ssh/known_hosts;
     image: qcon-api
     environment:
       - DEBUG=True
@@ -13,7 +11,6 @@ services:
     tty: true
     volumes:
       - .:/code
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
     ports:
       - "8000:8000"
       - "8002:8002"
