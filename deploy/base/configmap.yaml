@@ -36,4 +36,4 @@ data:
 kind: ConfigMap
 metadata:
   name: qcon-api-vault-agent-config
-  namespace: default
+  namespace: 162-add-secrets-via-pipeline
