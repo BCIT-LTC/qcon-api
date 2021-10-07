@@ -1,4 +1,5 @@
 # Kaniko template
+
 .build-with-kaniko:
   image: 
     name: gcr.io/kaniko-project/executor:debug
@@ -15,7 +16,8 @@
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$BUILDTITLE \
-        --label org.opencontainers.image.description=$BUILDTITLE"
+        --label org.opencontainers.image.description=$BUILDTITLE \
+        --label org.opencontainers.image.version=$VERSION"
       
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
@@ -32,6 +34,7 @@
       FORMATTEDTAGLIST=$(echo "${FORMATTEDTAGLIST}" | sed s/\-\-tag/\-\-destination/g) 
 
       mkdir -p /kaniko/.docker
+ 
       echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" \
         > /kaniko/.docker/config.json
       /kaniko/executor \

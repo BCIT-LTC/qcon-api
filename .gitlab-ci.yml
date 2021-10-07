@@ -34,8 +34,8 @@ variables:
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
     --label org.opencontainers.image.source=$CI_PROJECT_URL
   KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
-
-
+  GIT_FETCH_EXTRA_FLAGS: --tags
+  
 # include:
 #   - template: Security/SAST.gitlab-ci.yml
 #   - template: Security/Secret-Detection.gitlab-ci.yml
@@ -46,7 +46,7 @@ include:
 
 
 stages:
-  - semver-tag
+  - tag
   - build
   - test
   - deploy
@@ -75,13 +75,23 @@ stages:
   tags:
     - production
 
+latest_version_tag:
+  <<: *feature-branch
+  image: alpine/git:latest
+  stage: tag
+  script:    
+    - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
 
 # Build image with Kaniko (dev)
 build_for_review:
   <<: *feature-branch
   extends: .build-with-kaniko
   stage: build
-
+  dependencies:
+    - latest_version_tag
 
 # Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
 # security_scan:
@@ -180,7 +190,7 @@ deploy_latest:
 semver-release:
   <<: *release-branch
   extends: .semantic-release
-  stage: semver-tag
+  stage: tag
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
