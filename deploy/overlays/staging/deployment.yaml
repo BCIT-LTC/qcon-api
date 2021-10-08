@@ -10,8 +10,7 @@ spec:
     spec:
       containers:
       - name: qcon-api
-        # image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest
-        image: nginx
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest
         volumeMounts:
           - mountPath: /code
             name: shared-data
