@@ -22,12 +22,12 @@ data:
     }
 
     template {
-    destination = "/etc/secrets/test"
+    destination = "/etc/secrets/.env"
     contents = <<EOT
     {{- with secret "apps/data/web-apps/qcon-api" }}
     ADMIN_USERNAME={{ .Data.data.ADMIN_USERNAME }}
     ADMIN_PASSWORD={{ .Data.data.ADMIN_PASSWORD }}
-    API_HTTP_ADDR="https://qcon-api.dev.ltc.bcit.ca"
+    API_HTTP_ADDR={{ .Data.data.API_HTTP_ADDR }}
     API_KEY={{ .Data.data.API_KEY }}
     DJANGO_SECRET_KEY={{ .Data.data.DJANGO_SECRET_KEY }}
     {{ end }}
@@ -36,4 +36,4 @@ data:
 kind: ConfigMap
 metadata:
   name: qcon-api-vault-agent-config
-  namespace: 162-add-secrets-via-pipeline
+  namespace: default

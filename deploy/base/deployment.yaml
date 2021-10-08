@@ -24,9 +24,6 @@ spec:
             memory: 100Mi
         ports:
           - containerPort: 8000
-        volumeMounts:
-          - mountPath: /code
-            name: shared-data
         readinessProbe:
           tcpSocket:
             port: 8000
@@ -40,28 +37,3 @@ spec:
       imagePullSecrets:
         - name: dependabot-qcon-api
       
-      serviceAccountName: vault-auth
-      volumes:
-        - configMap:
-            items:
-              - key: vault-agent-config.hcl
-                path: vault-agent-config.hcl
-            name: qcon-api-vault-agent-config
-          name: config
-        - emptyDir: {}
-          name: shared-data
-      initContainers:
-        - args:
-            - agent
-            - -config=/etc/vault/vault-agent-config.hcl
-            - -log-level=debug
-          env:
-            - name: VAULT_ADDR
-              value: https://vault.ltc.bcit.ca:8200
-          image: vault
-          name: vault-agent
-          volumeMounts:
-            - mountPath: /etc/vault
-              name: config
-            - mountPath: /etc/secrets
-              name: shared-data

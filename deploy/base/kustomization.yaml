@@ -2,3 +2,4 @@ resources:
 - dependabot-qcon-api.yaml
 - deployment.yaml
 - service.yaml
+- configmap.yaml
