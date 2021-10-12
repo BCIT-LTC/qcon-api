@@ -8,9 +8,9 @@ data:
 
     auto_auth {
         method "kubernetes" {
-            mount_path = "auth/kubernetes-staging"
+            mount_path = "auth/kubernetes"
             config = {
-                role = "dependabot-qcon-api-staging"
+                role = "dependabot-qcon-api-prod"
             }
         }
 
