@@ -25,11 +25,11 @@ data:
     destination = "/etc/secrets/.env"
     contents = <<EOT
     {{- with secret "apps/data/web-apps/qcon-api" }}
-    ADMIN_USERNAME={{ .Data.data.ADMIN_USERNAME }}
-    ADMIN_PASSWORD={{ .Data.data.ADMIN_PASSWORD }}
-    API_HTTP_ADDR={{ .Data.data.API_HTTP_ADDR }}
-    API_KEY={{ .Data.data.API_KEY }}
-    DJANGO_SECRET_KEY={{ .Data.data.DJANGO_SECRET_KEY }}
+    ADMIN_USERNAME="{{ .Data.data.ADMIN_USERNAME }}"
+    ADMIN_PASSWORD="{{ .Data.data.ADMIN_PASSWORD }}"
+    API_HTTP_ADDR="{{ .Data.data.API_HTTP_ADDR }}"
+    API_KEY="{{ .Data.data.API_KEY }}"
+    DJANGO_SECRET_KEY="{{ .Data.data.DJANGO_SECRET_KEY }}"
     {{ end }}
     EOT
     }
