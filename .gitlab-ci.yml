@@ -157,7 +157,10 @@ deploy_review:
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop-review
-
+  after_script:
+    - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
+#Remove the environment variable ENV from container 'c1' in all deployment configs
+# kubectl set env deployments --all --containers="c1" ENV-
 
 # Build image with Kaniko (latest)
 build_latest:
