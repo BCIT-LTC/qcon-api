@@ -175,6 +175,8 @@ deploy_latest:
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
         deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/$CI_ENV | kubectl apply -f -
+# create tls secret for ingress
+# kubectl create secret tls --dry-run | kubectl apply -...
 # patch ingress to branch path
     - "echo -e \" \
         \nmetadata: \
@@ -183,6 +185,10 @@ deploy_latest:
         \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
         \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
         \nspec: \
+        \n  tls: \
+        \n  - hosts: \
+        \n      - $STAGING_URL \
+        \n    secretName: star-dev-ltc-bcit-ca \
         \n  rules: \
         \n  - host: $STAGING_URL \
         \n    http: \
