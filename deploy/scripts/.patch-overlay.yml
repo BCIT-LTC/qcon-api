@@ -44,7 +44,7 @@
       \n  - patch: |- \
       \n      - op: add \
       \n        path: /spec/rules/0/host \
-      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
+      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST \
       \n    target: \
       \n      kind: Ingress \
       \n  - patch: |- \
