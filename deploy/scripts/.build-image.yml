@@ -1,8 +1,14 @@
-# Kaniko template
-.build-with-kaniko:
+# Build image with Kaniko
+
+.build-image:
   image: 
-    name: gcr.io/kaniko-project/executor:debug
+    name: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/kaniko-project/executor:debug
     entrypoint: [""]
+  variables:
+    IMAGE_LABELS: >
+      --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
+      --label org.opencontainers.image.revision=$CI_COMMIT_SHA
+      --label org.opencontainers.image.source=$CI_PROJECT_URL
   script:
     - | 
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"

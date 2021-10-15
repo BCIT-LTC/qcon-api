@@ -34,5 +34,3 @@ spec:
             port: 8000
           initialDelaySeconds: 30
           periodSeconds: 30
-      imagePullSecrets:
-      - name: dependabot-qcon-api

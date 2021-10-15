@@ -1,49 +1,18 @@
-##### Pipeline Overview #####
-#
-# #### `main` branch ####
-#
-# - on all MR, build new image tagged "latest"
-# - deploy image tagged `latest` to k8s staging cluster
-#
-# #### `release` branch ####
-#
-# - on all MR, build new GitLab release
-# - git tag commit with semantic-release version
-# - build new image tagged with [semver version, `stable`]
-# - deploy image tagged `stable` to k8s prod cluster (Fleet)
-#
-# #### Notes ####
-#
-# - builds performed by Kaniko (k8s prod cluster)
-#   - Kaniko docs are here: https://github.com/GoogleContainerTools/kaniko
-#   - GitLab CI/CD pipeline docs for Kaniko builds are here: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
-# - semantic versioning is automated by analyzing commit messages for keywords
-#   - refer to : https://semantic-release.gitbook.io/semantic-release/usage/configuration for CLI configuration
-# - Uses external secret retrieval via Vault: https://docs.gitlab.com/ee/ci/secrets/index.html
+
+image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/bitnami/kubectl
 
 
-image: bitnami/kubectl
-
-
-variables:
-# other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
+variables:            # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
   TEAM_TAG: "dev-cp"
   PROD_NAMESPACE: "qcon"
+  SERVICE_PORT_NUMBER: "8000"
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
-  IMAGE_LABELS: >
-    --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
-    --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-    --label org.opencontainers.image.source=$CI_PROJECT_URL
-  KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
 
 
-# include:
-#   - template: Security/SAST.gitlab-ci.yml
-#   - template: Security/Secret-Detection.gitlab-ci.yml
-#   - template: Security/License-Scanning.gitlab-ci.yml
 include:
-  - local: '/deploy/.build-with-kaniko.yml'
-  - local: '/deploy/.semantic-release.yml'
+  - local: '/deploy/scripts/.build-image.yml'
+  - local: '/deploy/scripts/.patch-overlay.yml'
+  - local: '/deploy/scripts/.semantic-release.yml'
 
 
 stages:
@@ -77,96 +46,54 @@ stages:
     - production
 
 
-# Build image with Kaniko (dev)
-build_for_review:
+build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
-  extends: .build-with-kaniko
+  extends: .build-image
   stage: build
 
 
-# Run static application security test (https://issues.ltc.bcit.ca/help/user/application_security/sast/index)
-# security_scan:
-#   stage: test
-#   tags:
-#     - staging
-#   script:
-#     - echo "running scan"
-    # rules:
-    #   - if: '$CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_EVENT_TYPE != "detached"'
-
-
-# Deploy image on feature branch to a k8s dev cluster
-# eg. "{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_BRANCH_NAME}"
-deploy_review:
+deploy_review:          # Deploy image on feature branch to a k8s dev cluster
   <<: *feature-branch
   variables:
     CI_ENV: dev
+    CI_HOST: $DEV_HOST
   stage: deploy
-# needs: ["security_scan"]
   script:
-# attempt to create namespace; fail gracefully if already present
     - "kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client \
-        | kubectl apply -f -"
-# add kustomization annotations to pull latest commit image and link to GitLab Environment/Operations dashboards
-    - "echo -e \" \
-        \nnamespace: $CI_COMMIT_REF_SLUG \
-        \nimages: \
-        \n  - name: $CI_PROJECT_NAME \
-        \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $CI_COMMIT_SHORT_SHA \
-        \ncommonAnnotations: \
-        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-        deploy/overlays/dev/kustomization.yaml"
-# apply kustomized deployment (dev)
+        | kubectl apply -f -"                       # attempt to create namespace; fail gracefully if already present
+    - !reference [.kustomize-image, script]         # add kustomization annotations to pull latest commit image
+    - !reference [.annotate-kustomization, script]  # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.patch-ingress-dev, script]       # patch ingress to branch path
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"
-# patch ingress to branch path
-    - "echo -e \" \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-        \nspec: \
-        \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_COMMIT_REF_SLUG \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/dev/ingress-patch.yaml"
-    - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        --namespace $CI_COMMIT_REF_SLUG \
-        --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
+        | kubectl apply -f -"                       # apply kustomized deployment (dev)
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
-    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST/$CI_COMMIT_REF_SLUG
     auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop-review
 
 
-# Build image with Kaniko (latest)
-build_latest:
+build_latest:     # Build image with Kaniko (latest)
   <<: *main-branch
-  extends: .build-with-kaniko
+  extends: .build-image
   stage: build
 
 
-# Deploy `latest` image to k8s staging cluster
-# eg. "latest.dev.ltc.bcit.ca/qcon-api"
-deploy_latest:
+deploy_latest:    # Deploy `latest` image to staging k8s cluster
   <<: *main-branch
   variables:
     CI_ENV: staging
+    CI_HOST: $STAGING_HOST
   stage: deploy
+  secrets:
+    STAGING_TLS_CRT:
+      vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
+      file: false
+    STAGING_TLS_KEY:
+      vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
+      file: false
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
     - "echo -e \" \
@@ -175,45 +102,19 @@ deploy_latest:
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
         deploy/overlays/staging/kustomization.yaml"
     - kubectl kustomize deploy/overlays/$CI_ENV | kubectl apply -f -
-# create tls secret for ingress
-# kubectl create secret tls --dry-run | kubectl apply -...
-# patch ingress to branch path
-    - "echo -e \" \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-        \nspec: \
-        \n  tls: \
-        \n  - hosts: \
-        \n      - $STAGING_URL \
-        \n    secretName: star-dev-ltc-bcit-ca \
-        \n  rules: \
-        \n  - host: $STAGING_URL \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_PROJECT_NAME \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/dev/ingress-patch.yaml"
+    # - kubectl create secret tls -o yaml --dry-run=client | kubectl apply -...   # create tls secret for ingress
+    - build-ingress.yml         # patch ingress to branch path
     - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
         --namespace $CI_COMMIT_REF_SLUG \
         --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
   environment:
     name: staging
-    url: https://$CI_PROJECT_NAME.$STAGING_URL
+    url: https://$CI_PROJECT_NAME.$STAGING_HOST
     kubernetes:
       namespace: $CI_PROJECT_NAME
 
 
-# This job is for running semantic-versioning for releasing whenever there is a merge request
-# on the release branch
-semver-release:
+semver-release:       # Creates a semantic-version tag that is applied to the release branch
   <<: *release-branch
   extends: .semantic-release
   stage: semver-tag
@@ -230,46 +131,46 @@ semver-release:
           @semantic-release/gitlab'"
 
 
-# Build image with Kaniko (stable)
-build_stable:
-  extends: .build-with-kaniko
+build_stable:       # Build image with Kaniko (stable)
+  extends: .build-image
   stage: build
   rules:
     - if: $CI_COMMIT_TAG
   tags:
     - production
 
-# Placeholder job: reports back to the UI that the most 
-# recent `stable` image was deployed to production
-# eg. "stable.dev.ltc.bcit.ca/qcon-api"
-deploy_production:
+
+deploy_production:    # Deploy `stable` image to production k8s cluster
   stage: deploy
+  secrets:
+    DEV_TLS_CRT:
+      vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
+      file: false
+    DEV_TLS_KEY:
+      vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
+      file: false
   script:
     - "kubectl create ns $PROD_NAMESPACE -o yaml --dry-run=client \
         | kubectl apply -f -"
-    - "echo -e \" \
-        \ncommonAnnotations: \
-        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-        deploy/overlays/prod/kustomization.yaml"
+    - annotate-overlay.yml
     - "kubectl kustomize deploy/overlays/prod \
         | kubectl apply -f -"
   environment:
     name: production
-    url: https://$CI_PROJECT_NAME.ltc.bcit.ca
+    url: https://$CI_PROJECT_NAME.$PROD_HOST
   rules:
     - if: $CI_COMMIT_TAG
   tags:
     - production
 
 
-# Stop review environment
-stop-review:
+stop-review:              # Stop review environment
   stage: cleanup
+  <<: *feature-branch
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
     - echo "###########################################"
-    - echo "$CI_COMMIT_REF_SLUG environment stopped"
+    - echo "  $CI_COMMIT_REF_SLUG environment stopped  "
     - echo "###########################################"
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
@@ -277,10 +178,6 @@ stop-review:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
   rules:
-    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
-      when: never
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
       when: manual
   tags:

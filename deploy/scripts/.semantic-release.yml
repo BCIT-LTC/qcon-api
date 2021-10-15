@@ -1,6 +1,6 @@
 # Semantic Release template
 .semantic-release:
-  image: node:12-buster-slim
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/node:12-buster-slim
   before_script:
     - |
       apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates

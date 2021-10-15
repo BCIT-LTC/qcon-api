@@ -1,0 +1,128 @@
+# Subroutines to patch Kustomization overlays for deployment
+
+# add kustomization annotations to pull latest commit image
+.kustomize-image:
+  script:
+    - |
+      "echo -e \" \
+        \n \
+        \nnamespace: $CI_COMMIT_REF_SLUG \
+        \nimages: \
+        \n  - name: $CI_PROJECT_NAME \
+        \n    newName: $CI_REGISTRY_IMAGE \
+        \n    newTag: $CI_COMMIT_SHORT_SHA\" >> \
+        deploy/overlays/$CI_ENV/kustomization.yaml"
+
+
+# link deployment to GitLab Environment/Operations dashboards
+.annotate-kustomization:
+  script:
+    - |
+      "echo -e \" \
+        \n \
+        \ncommonAnnotations: \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
+        deploy/overlays/$CI_ENV/kustomization.yaml"
+
+
+# Replaces existing `ingress.yaml` to be applied to kustomization
+.patch-ingress-dev:
+  script:
+    - |
+      "echo -e \" \
+        \napiVersion: networking.k8s.io/v1 \
+        \nkind: Ingress \
+        \n
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: 8000\" > \
+        deploy/overlays/$CI_ENV/ingress.yaml"
+
+
+.patch-ingress-staging:
+  script:
+    - |
+      "echo -e \" \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: 8000\" > \
+        deploy/overlays/$CI_ENV/ingress-patch.yaml"
+
+
+.patch-ingress-prod:
+  script:
+    - |
+      "echo -e \" \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: 8000\" > \
+        deploy/overlays/$CI_ENV/ingress-patch.yaml"
+
+
+# staging
+"echo -e \" \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  tls: \
+        \n  - hosts: \
+        \n      - $STAGING_HOST \
+        \n    secretName: star-dev-ltc-bcit-ca \
+        \n  rules: \
+        \n  - host: $STAGING_HOST \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_PROJECT_NAME \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: 8000\" > \
+        deploy/overlays/dev/ingress-patch.yaml"
