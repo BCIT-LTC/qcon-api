@@ -64,6 +64,8 @@ deploy_review:          # Deploy image on feature branch to a k8s dev cluster
     - !reference [.kustomize-image, script]         # add kustomization annotations to pull latest commit image
     - !reference [.annotate-kustomization, script]  # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch-ingress-dev, script]       # patch ingress to branch path
+    - cat deploy/overlays/dev/kustomization.yaml
+    - kubectl kustomize deploy/overlays/dev
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                       # apply kustomized deployment (dev)
   environment:
