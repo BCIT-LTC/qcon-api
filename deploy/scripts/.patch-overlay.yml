@@ -27,6 +27,8 @@
 
 
 # Replaces existing `ingress.yaml` to be applied to kustomization
+# target URL:
+  # - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_BRANCH_NAME}
 .patch-ingress-dev:
   script:
     - |
@@ -54,56 +56,12 @@
         deploy/overlays/$CI_ENV/ingress.yaml"
 
 
+# target URL: 
+  # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
 .patch-ingress-staging:
   script:
     - |
       "echo -e \" \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-        \nspec: \
-        \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_COMMIT_REF_SLUG \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/$CI_ENV/ingress-patch.yaml"
-
-
-.patch-ingress-prod:
-  script:
-    - |
-      "echo -e \" \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-        \nspec: \
-        \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_COMMIT_REF_SLUG \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/$CI_ENV/ingress-patch.yaml"
-
-
-# staging
-"echo -e \" \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  annotations: \
@@ -125,4 +83,35 @@
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
         \n              number: 8000\" > \
-        deploy/overlays/dev/ingress-patch.yaml"
+        deploy/overlays/$CI_ENV/ingress-patch.yaml"
+
+
+# target URLs:
+  # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  # - https://{CI_PROJECT_NAME}.ltc.bcit.ca/
+.patch-ingress-prod:
+  script:
+    - |
+      "echo -e \" \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  tls: \
+        \n  - hosts: \
+        \n      - $PROD_HOST \
+        \n    secretName: star-dev-ltc-bcit-ca \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$PROD_URL \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: 8000\" > \
+        deploy/overlays/$CI_ENV/ingress-patch.yaml"
