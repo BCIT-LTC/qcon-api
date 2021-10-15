@@ -56,7 +56,7 @@
       \n    target: \
       \n      group: apps \
       \n      version: v1 \
-      \n      kind: Ingress" > deploy/overlays/$CI_ENV/ingress.yaml
+      \n      kind: Ingress" > deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # target URL: 
