@@ -2,7 +2,7 @@
 
 .build-image:
   image: 
-    name: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/kaniko-project/executor:debug
+    name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   variables:
     IMAGE_LABELS: >
