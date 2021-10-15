@@ -39,24 +39,20 @@
       \n      metadata: \
       \n        name: $CI_PROJECT_NAME-ingress \
       \n        annotations: \
-      \n          nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+      \n          nginx.ingress.kubernetes.io/rewrite-target: /$2 \
       \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
       \n  - patch: |- \
-      \n      - op: replace \
-      \n        path: /spec/rules/http/0/host \
+      \n      - op: add \
+      \n        path: /spec/rules/0/host \
       \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
       \n    target: \
-      \n      group: apps \
-      \n      version: v1 \
       \n      kind: Ingress \
       \n  - patch: |- \
       \n      - op: replace \
-      \n        path: /spec/rules/http/0/paths/0/path \
+      \n        path: /spec/rules/0/http/paths/0/path \
       \n        value: /$CI_COMMIT_REF_SLUG \
       \n    target: \
-      \n      group: apps \
-      \n      version: v1 \
-      \n      kind: Ingress" > deploy/overlays/$CI_ENV/kustomization.yaml
+      \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # target URL: 
