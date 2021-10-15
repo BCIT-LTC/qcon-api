@@ -11,6 +11,7 @@
       cat hello.txt
       echo "new-hello" >> deploy/overlays/$CI_ENV/kustomization.yaml
       cat hello.txt
+      cat deploy/overlays/$CI_ENV/kustomization.yaml
       echo -e " \
         \n \
         \nnamespace: $CI_COMMIT_REF_SLUG \
