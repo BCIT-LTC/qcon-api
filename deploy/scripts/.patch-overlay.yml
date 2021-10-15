@@ -44,7 +44,7 @@
       \n  - patch: |- \
       \n      - op: add \
       \n        path: /spec/rules/0/host \
-      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
       \n    target: \
       \n      kind: Ingress \
       \n  - patch: |- \
@@ -102,7 +102,7 @@
         \n      - $PROD_HOST \
         \n    secretName: star-dev-ltc-bcit-ca \
         \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$PROD_URL \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$PROD_HOST \
         \n    http: \
         \n      paths: \
         \n      - path: /$CI_COMMIT_REF_SLUG \
