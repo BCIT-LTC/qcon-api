@@ -4,7 +4,7 @@
 .kustomize-image:
   script:
     - |
-      "echo -e \" \
+      "ls -lah && echo -e \" \
         \n \
         \nnamespace: $CI_COMMIT_REF_SLUG \
         \nimages: \
