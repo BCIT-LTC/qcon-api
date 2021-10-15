@@ -18,12 +18,13 @@
 .annotate-kustomization:
   script:
     - |
-      "echo -e \" \
+      echo -e " \
         \n \
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-        deploy/overlays/$CI_ENV/kustomization.yaml"
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      cat deploy/overlays/$CI_ENV/kustomization.yaml
+
 
 
 # Replaces existing `ingress.yaml` to be applied to kustomization
@@ -32,7 +33,7 @@
 .patch-ingress-dev:
   script:
     - |
-      "echo -e \" \
+      echo -e " \
         \napiVersion: networking.k8s.io/v1 \
         \nkind: Ingress \
         \n
@@ -52,8 +53,7 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/$CI_ENV/ingress.yaml"
+        \n              number: 8000" > deploy/overlays/$CI_ENV/ingress.yaml
 
 
 # target URL: 
@@ -61,7 +61,7 @@
 .patch-ingress-staging:
   script:
     - |
-      "echo -e \" \
+      echo -e " \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  annotations: \
@@ -82,8 +82,7 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/$CI_ENV/ingress-patch.yaml"
+        \n              number: 8000" > deploy/overlays/$CI_ENV/ingress-patch.yaml
 
 
 # target URLs:
@@ -92,7 +91,7 @@
 .patch-ingress-prod:
   script:
     - |
-      "echo -e \" \
+      echo -e " \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  annotations: \
@@ -113,5 +112,4 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: 8000\" > \
-        deploy/overlays/$CI_ENV/ingress-patch.yaml"
+        \n              number: 8000" > deploy/overlays/$CI_ENV/ingress-patch.yaml
