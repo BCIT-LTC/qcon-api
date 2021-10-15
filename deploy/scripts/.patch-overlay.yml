@@ -6,7 +6,6 @@
   script:
     - |
       echo -e " \
-        \n \
         \nnamespace: $CI_COMMIT_REF_SLUG \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
@@ -19,7 +18,6 @@
   script:
     - |
       echo -e " \
-        \n \
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
@@ -34,26 +32,31 @@
   script:
     - |
       echo -e " \
-        \napiVersion: networking.k8s.io/v1 \
-        \nkind: Ingress \
-        \n
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-        \nspec: \
-        \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_COMMIT_REF_SLUG \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: 8000" > deploy/overlays/$CI_ENV/ingress.yaml
+      \npatches: \
+      \n  - patch: |- \
+      \n      apiVersion: networking.k8s.io/v1 \
+      \n      kind: Ingress \
+      \n      metadata: \
+      \n        name: $CI_PROJECT_NAME-ingress \
+      \n        annotations: \
+      \n          nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+      \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+      \n  - patch: |- \
+      \n      - op: replace \
+      \n        path: /spec/rules/http/0/host \
+      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+      \n    target: \
+      \n      group: apps \
+      \n      version: v1 \
+      \n      kind: Ingress \
+      \n  - patch: |- \
+      \n      - op: replace \
+      \n        path: /spec/rules/http/0/paths/0/path \
+      \n        value: /$CI_COMMIT_REF_SLUG \
+      \n    target: \
+      \n      group: apps \
+      \n      version: v1 \
+      \n      kind: Ingress" > deploy/overlays/$CI_ENV/ingress.yaml
 
 
 # target URL: 

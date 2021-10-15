@@ -59,8 +59,6 @@ deploy_review:          # Deploy image on feature branch to a k8s dev cluster
     CI_HOST: $DEV_HOST
   stage: deploy
   script:
-    - ls -lah deploy/overlays/dev
-    - cat deploy/overlays/dev/kustomization.yaml
     - "kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client \
         | kubectl apply -f -"                       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize-image, script]         # add kustomization annotations to pull latest commit image
