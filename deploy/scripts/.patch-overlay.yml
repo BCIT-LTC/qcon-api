@@ -4,15 +4,16 @@
 .kustomize-image:
   script:
     - |
-      "ls -lah
-      echo -e \" \
+      pwd
+      ls -lah
+      echo -e " \
         \n \
         \nnamespace: $CI_COMMIT_REF_SLUG \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $CI_COMMIT_SHORT_SHA\" >> \
-        deploy/overlays/$CI_ENV/kustomization.yaml"
+        \n    newTag: $CI_COMMIT_SHORT_SHA" >> \
+        deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # link deployment to GitLab Environment/Operations dashboards
