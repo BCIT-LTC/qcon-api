@@ -9,7 +9,7 @@
       ls -lah
       echo "hello" > hello.txt
       cat hello.txt
-      echo "new-hello" >> hello.txt
+      echo "new-hello" >> deploy/overlays/$CI_ENV/kustomization.yaml
       cat hello.txt
       echo -e " \
         \n \
@@ -18,7 +18,7 @@
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
         \n    newTag: $CI_COMMIT_SHORT_SHA" >> \
-        /deploy/overlays/$CI_ENV/kustomization.yaml
+        deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # link deployment to GitLab Environment/Operations dashboards
