@@ -46,13 +46,13 @@ stages:
     - production
 
 
-.build_for_review:       # Build image with Kaniko (dev)
+build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
   extends: .build-image
   stage: build
 
 
-.deploy_review:          # Deploy image on feature branch to a k8s dev cluster
+deploy_review:          # Deploy image on feature branch to a k8s dev cluster
   <<: *feature-branch
   variables:
     CI_ENV: dev
@@ -75,15 +75,14 @@ stages:
     on_stop: stop-review
 
 
-.build_latest:     # Build image with Kaniko (latest)
+build_latest:     # Build image with Kaniko (latest)
   <<: *main-branch
   extends: .build-image
   stage: build
 
 
 deploy_latest:    # Deploy `latest` image to staging k8s cluster
-  # <<: *main-branch
-  <<: *feature-branch
+  <<: *main-branch
   variables:
     CI_ENV: staging
     CI_HOST: $STAGING_HOST
@@ -103,7 +102,7 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
         --cert=tls.crt --key=tls.key \
         -o yaml --dry-run=client | kubectl apply -f -"    # create tls secret for ingress
     - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch-ingress, script]         # patch ingress to branch path
+    - !reference [.patch-ingress, script]                 # patch ingress to branch path
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                             # apply kustomized deployment (staging)
   environment:
@@ -113,7 +112,24 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       namespace: $CI_PROJECT_NAME
 
 
-build_stable:       # Build image with Kaniko (stable)
+semver-tag:       # Creates a semantic-version tag that is applied to the release branch
+  <<: *release-branch
+  extends: .semantic-release
+  stage: semver-tag
+  secrets:
+    GITLAB_TOKEN:
+      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+      file: false
+  script:
+    - "semantic-release \
+        --branches release \
+        --repository-url $CI_PROJECT_URL \
+        --plugins '@semantic-release/commit-analyzer, \
+          @semantic-release/release-notes-generator, \
+          @semantic-release/gitlab'"
+          
+
+build_stable:         # Build image with Kaniko (stable)
   extends: .build-image
   stage: build
   rules:
@@ -145,7 +161,7 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
         --cert=tls.crt --key=tls.key \
         -o yaml --dry-run=client | kubectl apply -f -"    # create tls secret for ingress
     - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch-ingress, script]         # patch ingress to branch path
+    - !reference [.patch-ingress, script]                 # patch ingress to branch path
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                             # apply kustomized deployment (prod)
   environment:
@@ -155,23 +171,6 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
     - if: $CI_COMMIT_TAG
   tags:
     - production
-
-
-semver-release:       # Creates a semantic-version tag that is applied to the release branch
-  <<: *release-branch
-  extends: .semantic-release
-  stage: semver-tag
-  secrets:
-    GITLAB_TOKEN:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
-      file: false
-  script:
-    - "semantic-release \
-        --branches release \
-        --repository-url $CI_PROJECT_URL \
-        --plugins '@semantic-release/commit-analyzer, \
-          @semantic-release/release-notes-generator, \
-          @semantic-release/gitlab'"
 
 
 # Stop review environment
