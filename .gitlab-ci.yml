@@ -5,7 +5,7 @@ image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/bitnami/kubectl
 variables:            # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
   TEAM_TAG: "dev-cp"
   PROD_NAMESPACE: "qcon"
-  VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
+  VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME" 
 
 
 include:
@@ -44,7 +44,7 @@ stages:
     - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_PIPELINE_SOURCE == "push"'
   tags:
     - production
-    
+
 
 .build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
