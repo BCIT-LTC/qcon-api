@@ -5,7 +5,6 @@ image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/bitnami/kubectl
 variables:            # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
   TEAM_TAG: "dev-cp"
   PROD_NAMESPACE: "qcon"
-  SERVICE_PORT_NUMBER: "8000"
   VAULT_AUTH_ROLE: "read-tokens-$CI_PROJECT_NAME" 
 
 

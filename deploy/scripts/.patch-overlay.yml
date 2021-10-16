@@ -21,8 +21,6 @@
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
-      cat deploy/overlays/$CI_ENV/kustomization.yaml
-
 
 
 # Replaces existing `ingress.yaml` to be applied to kustomization
