@@ -53,9 +53,13 @@
       \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
-# target URL: 
+# STAGING target URL: 
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-.patch-ingress-staging:
+
+# PROD target URLs:
+  # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  # - https://{CI_PROJECT_NAME}.ltc.bcit.ca/
+.patch-ingress:
   script:
     - |
       echo -e " \
@@ -71,12 +75,12 @@
       \n      spec: \
       \n        tls: \
       \n        - hosts: \
-      \n            - $STAGING_HOST \
-      \n          secretName: star-dev-ltc-bcit-ca \
+      \n            - $CI_HOST \
+      \n          secretName: $TLS_SECRET_NAME \
       \n  - patch: |- \
       \n      - op: add \
       \n        path: /spec/rules/0/host \
-      \n        value: $STAGING_HOST \
+      \n        value: $CI_HOST \
       \n    target: \
       \n      kind: Ingress \
       \n  - patch: |- \
@@ -85,33 +89,3 @@
       \n        value: /$CI_PROJECT_NAME \
       \n    target: \
       \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
-
-
-# target URLs:
-  # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-  # - https://{CI_PROJECT_NAME}.ltc.bcit.ca/
-.patch-ingress-prod:
-  script:
-    - |
-      echo -e " \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-        \nspec: \
-        \n  tls: \
-        \n  - hosts: \
-        \n      - $PROD_HOST \
-        \n    secretName: star-dev-ltc-bcit-ca \
-        \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$PROD_HOST \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_COMMIT_REF_SLUG \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: 8000" > deploy/overlays/$CI_ENV/ingress-patch.yaml
