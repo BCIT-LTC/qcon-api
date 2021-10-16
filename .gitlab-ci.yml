@@ -22,6 +22,30 @@ stages:
   - cleanup
 
 
+# Common Tags and Rules for jobs
+.feature-branch: &feature-branch
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
+  tags:
+    - $TEAM_TAG
+
+.main-branch: &main-branch
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_PIPELINE_SOURCE == "push"'
+  tags:
+    - staging
+
+.release-branch: &release-branch
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_PIPELINE_SOURCE == "push"'
+  tags:
+    - production
+    
+
 .build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
   extends: .build-image
@@ -60,7 +84,6 @@ stages:
 deploy_latest:    # Deploy `latest` image to staging k8s cluster
   # <<: *main-branch
   <<: *feature-branch
-
   variables:
     CI_ENV: staging
     CI_HOST: $STAGING_HOST
@@ -158,26 +181,3 @@ stop-review:
   tags:
     - $TEAM_TAG
 
-
-# Common Tags and Rules for jobs
-.feature-branch: &feature-branch
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
-  tags:
-    - $TEAM_TAG
-
-.main-branch: &main-branch
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_PIPELINE_SOURCE == "push"'
-  tags:
-    - staging
-
-.release-branch: &release-branch
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_PIPELINE_SOURCE == "push"'
-  tags:
-    - production
