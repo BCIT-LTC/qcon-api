@@ -97,8 +97,8 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       file: false
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    - echo $($STAGING_TLS_CRT | base64 --decode) > tls.crt
-    - echo $($STAGING_TLS_KEY | base64 --decode) > tls.key
+    - cat $(echo $STAGING_TLS_CRT | base64 --decode) > tls.crt
+    - cat $(echo $STAGING_TLS_KEY | base64 --decode) > tls.key
     - cat tls.crt
     - "kubectl create secret tls star-dev-ltc-bcit-ca \
         --cert=tls.crt --key=tls.key \
