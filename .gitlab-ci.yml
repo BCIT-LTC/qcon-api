@@ -6,7 +6,7 @@ variables:            # other global variables are set in GitLab Admin: https://
   TEAM_TAG: "dev-cp"
   PROD_NAMESPACE: "qcon"
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME" 
-
+  GIT_FETCH_EXTRA_FLAGS: --tags
 
 include:
   - local: '/deploy/scripts/.build-image.yml'
@@ -15,7 +15,7 @@ include:
 
 
 stages:
-  - semver-tag
+  - tag
   - build
   - test
   - deploy
@@ -45,12 +45,22 @@ stages:
   tags:
     - production
 
+latest_version_tag:
+  <<: *feature-branch
+  image: alpine/git:latest
+  stage: tag
+  script:    
+    - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
 
 build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
   extends: .build-image
   stage: build
-
+  dependencies:
+    - latest_version_tag
 
 deploy_review:          # Deploy image on feature branch to a k8s dev cluster
   <<: *feature-branch
@@ -73,7 +83,10 @@ deploy_review:          # Deploy image on feature branch to a k8s dev cluster
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop-review
-
+  after_script:
+    - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
+#Remove the environment variable ENV from container 'c1' in all deployment configs
+# kubectl set env deployments --all --containers="c1" ENV-
 
 build_latest:     # Build image with Kaniko (latest)
   <<: *main-branch
@@ -115,7 +128,7 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
 semver-tag:       # Creates a semantic-version tag that is applied to the release branch
   <<: *release-branch
   extends: .semantic-release
-  stage: semver-tag
+  stage: tag
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens

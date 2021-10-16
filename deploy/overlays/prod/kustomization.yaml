@@ -3,6 +3,7 @@ namespace: qcon
 resources:
   - ../../base
   - ingress.yaml
-
+  - configmap.yaml
+  
 patchesStrategicMerge:
   - deployment.yaml
