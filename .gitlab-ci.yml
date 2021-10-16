@@ -97,12 +97,12 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       file: false
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    - echo $STAGING_TLS_CRT > tls.crt
+    - cat "$STAGING_TLS_CRT" > "$(pwd)/tls.crt
     - echo $STAGING_TLS_KEY > tls.key
+    - cat tls.crt
     - "kubectl create secret tls star-dev-ltc-bcit-ca \
         --cert=tls.crt --key=tls.key \
         -o yaml --dry-run=client | kubectl apply -f -"    # create tls secret for ingress
-    - cat tls.crt
     - rm tls.crt
     - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch-ingress-staging, script]         # patch ingress to branch path
