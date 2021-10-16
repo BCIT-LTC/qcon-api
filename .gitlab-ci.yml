@@ -64,8 +64,6 @@ deploy_review:          # Deploy image on feature branch to a k8s dev cluster
     - !reference [.kustomize-image, script]         # add kustomization annotations to pull latest commit image
     - !reference [.annotate-kustomization, script]  # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch-ingress-dev, script]       # patch ingress to branch path
-    - cat deploy/overlays/dev/kustomization.yaml
-    - kubectl kustomize deploy/overlays/dev
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                       # apply kustomized deployment (dev)
   environment:
@@ -98,17 +96,11 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       file: false
   script:
     - kubectl create ns $CI_PROJECT_NAME -o yaml --dry-run=client | kubectl apply -f -
-    - "echo -e \" \
-        \ncommonAnnotations: \
-        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG\" >> \
-        deploy/overlays/staging/kustomization.yaml"
-    - kubectl kustomize deploy/overlays/$CI_ENV | kubectl apply -f -
     # - kubectl create secret tls -o yaml --dry-run=client | kubectl apply -...   # create tls secret for ingress
-    - build-ingress.yml         # patch ingress to branch path
-    - "kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        --namespace $CI_COMMIT_REF_SLUG \
-        --patch \"$(cat deploy/overlays/dev/ingress-patch.yaml)\""
+    - !reference [.annotate-kustomization, script]  # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.patch-ingress-staging, script]       # patch ingress to branch path
+    - "kubectl kustomize deploy/overlays/$CI_ENV \
+        | kubectl apply -f -"                       # apply kustomized deployment (dev)
   environment:
     name: staging
     url: https://$CI_PROJECT_NAME.$STAGING_HOST
