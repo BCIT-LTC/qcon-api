@@ -4,8 +4,12 @@ kind: Ingress
 metadata:
   name: qcon-api-ingress
 spec:
+  tls:
+  - hosts:
+      - latest.dev.ltc.bcit.ca
+    secretName: star-dev-ltc-bcit-ca
   rules:
-  - host: staging.dev.ltc.bcit.ca
+  - host: latest.dev.ltc.bcit.ca
     http:
       paths:
       - path: /qcon-api

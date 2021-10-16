@@ -6,10 +6,10 @@ metadata:
 spec:
   tls:
   - hosts:
-      - qcon-api.ltc.bcit.ca
+      - qcon-api.dev.ltc.bcit.ca
     secretName: star-ltc-bcit-ca
   rules:
-  - host: qcon-api.ltc.bcit.ca
+  - host: qcon-api.dev.ltc.bcit.ca
     http:
       paths:
       - path: /
