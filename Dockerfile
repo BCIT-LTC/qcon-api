@@ -32,20 +32,6 @@ RUN set -ex; \
         pip install --upgrade pip; \
         pip install -r requirements.txt; 
 
-#######################################################
-FROM squidfunk/mkdocs-material as docs-base
-
-RUN pip install \
-        Pygments \
-        pymdown-extensions;
-
-WORKDIR /docs
-
-COPY . .
-
-RUN mkdocs build \
-        --site-dir /public;
-
 
 #######################################################
 FROM python:3.9-alpine AS release  
