@@ -13,6 +13,37 @@
         \n    newTag: $CI_COMMIT_SHORT_SHA" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
+.create-annotated-namespace:
+  script:
+    - |
+      case "$CI_ENV" in
+        dev-cp)
+          CLUSTER_ID=$RANCHER_DEV_CP_CLUSTER_ID
+          PROJECT_ID=$RANCHER_DEV_CP_DEFAULT_PROJECT_ID
+          ;;
+        dev-vsm)
+          CLUSTER_ID=$RANCHER_DEV_VSM_CLUSTER_ID
+          PROJECT_ID=$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID
+          ;;
+        staging)
+          CLUSTER_ID=$RANCHER_STAGING_CLUSTER_ID
+          PROJECT_ID=$RANCHER_STAGING_DEFAULT_PROJECT_ID
+          ;;
+        prod)
+          CLUSTER_ID=$RANCHER_PROD_CLUSTER_ID
+          PROJECT_ID=$RANCHER_PROD_DEFAULT_PROJECT_ID
+          ;;
+      esac
+      echo -e " \
+      apiVersion: v1 \
+      kind: Namespace \
+      metadata: \
+        name: $CI_COMMIT_REF_SLUG \
+        annotations: \
+          field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID \
+      " > deploy/overlays/$CI_ENV/namespace.yaml
+
+
 # link deployment to GitLab Environment/Operations dashboards
 .annotate-kustomization:
   script:

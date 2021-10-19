@@ -47,13 +47,17 @@ RUN apk --update add \
         bash; \
     chmod -R 755 /var/lib/nginx;
 
+COPY --from=docs-base public docs/public
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker-entrypoint.sh /usr/local/bin
 COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
-COPY manage.py supervisord.conf qcon api_v2 ./
-COPY .build_status.json .env ./
+COPY docker-entrypoint.sh /usr/local/bin
+COPY manage.py supervisord.conf ./
+COPY qcon qcon
+COPY api_v2 api_v2
+COPY .build_status.json ./
+COPY .env ./
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

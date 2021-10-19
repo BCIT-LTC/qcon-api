@@ -69,13 +69,12 @@ deploy_review:          # Deploy image on feature branch to a k8s dev cluster
     CI_HOST: $DEV_HOST
   stage: deploy
   script:
-    - "kubectl create ns $CI_COMMIT_REF_SLUG -o yaml --dry-run=client \
-        | kubectl apply -f -"                       # attempt to create namespace; fail gracefully if already present
-    - !reference [.kustomize-image, script]         # add kustomization annotations to pull latest commit image
-    - !reference [.annotate-kustomization, script]  # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch-ingress-dev, script]       # patch ingress to branch path
+    - !reference [.create-annotated-namespace, script]  # attempt to create namespace; fail gracefully if already present
+    - !reference [.kustomize-image, script]             # add kustomization annotations to pull latest commit image
+    - !reference [.annotate-kustomization, script]      # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.patch-ingress-dev, script]           # patch ingress to branch path
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                       # apply kustomized deployment (dev)
+        | kubectl apply -f -"                           # apply kustomized deployment (dev)
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
     url: http://$CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST/$CI_COMMIT_REF_SLUG
