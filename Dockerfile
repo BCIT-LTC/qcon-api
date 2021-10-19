@@ -47,7 +47,6 @@ RUN apk --update add \
         bash; \
     chmod -R 755 /var/lib/nginx;
 
-COPY --from=docs-base public docs/public
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
