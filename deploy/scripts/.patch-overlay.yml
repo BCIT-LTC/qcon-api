@@ -93,7 +93,11 @@
 .patch-ingress:
   script:
     - |
-      if [[ "$CI_ENV" == "staging"]]; then CI_HOST="$STAGING_HOST" else CI_HOST="$PROD_HOST"; fi
+      if [[ "$CI_ENV == "staging" ]]; then
+        CI_HOST="$STAGING_HOST"
+      else
+        CI_HOST="$PROD_HOST"
+      fi
       echo -e " \
       \npatches: \
       \n  - patch: |- \
