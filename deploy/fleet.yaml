@@ -1,9 +1,0 @@
-namespace: qcon
-
-targetCustomizations:
-- name: prod
-  clusterSelector:
-    matchLabels:
-      env: prod
-  kustomize:
-    dir: overlays/prod
