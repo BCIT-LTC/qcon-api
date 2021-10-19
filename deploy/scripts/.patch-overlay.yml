@@ -73,7 +73,7 @@
       \n  - patch: |- \
       \n      - op: add \
       \n        path: /spec/rules/0/host \
-      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST \
+      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
       \n    target: \
       \n      kind: Ingress \
       \n  - patch: |- \
@@ -93,6 +93,7 @@
 .patch-ingress:
   script:
     - |
+      if [[ "$CI_ENV" == "staging"]]; then CI_HOST="$STAGING_HOST" else CI_HOST="$PROD_HOST"; fi
       echo -e " \
       \npatches: \
       \n  - patch: |- \
