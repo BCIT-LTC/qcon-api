@@ -7,7 +7,8 @@ variables:            # other global variables are set in GitLab Admin: https://
   PROD_NAMESPACE: "qcon"
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME" 
   GIT_FETCH_EXTRA_FLAGS: --tags
-
+    CI_DEBUG_TRACE: "true"
+    
 include:
   - local: '/deploy/scripts/.build-image.yml'
   - local: '/deploy/scripts/.patch-overlay.yml'
@@ -45,7 +46,7 @@ stages:
   tags:
     - production
 
-latest_version_tag:
+.latest_version_tag:
   <<: *feature-branch
   image: alpine/git:latest
   stage: tag
@@ -55,7 +56,7 @@ latest_version_tag:
     reports:
       dotenv: build.env
 
-build_for_review:       # Build image with Kaniko (dev)
+.build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
   extends: .build-image
   stage: build
