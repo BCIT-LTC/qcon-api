@@ -16,7 +16,7 @@
 .create-annotated-namespace:
   script:
     - |
-      case $CI_ENV in
+      case "$CI_ENV" in
         dev-cp)
           export CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           export PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
