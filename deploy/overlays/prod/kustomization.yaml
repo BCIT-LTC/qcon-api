@@ -4,6 +4,7 @@ resources:
   - ../../base
   - ingress.yaml
   - configmap.yaml
+  - service-account.yaml
   
 patchesStrategicMerge:
   - deployment.yaml
