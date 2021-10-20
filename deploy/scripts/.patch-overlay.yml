@@ -37,13 +37,14 @@
           echo "\$CI_ENV is not set correctly"
           break
       fi
-      echo -e " \
-      \napiVersion: v1 \
-      \nkind: Namespace \
-      \nmetadata: \
-      \n  name: $CI_COMMIT_REF_SLUG \
-      \n  annotations: \
-      \n    field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID" | kubectl apply -f \-"
+      "kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: $CI_COMMIT_REF_SLUG
+  annotations:
+    field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID
+EOF"
 
 
 
