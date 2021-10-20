@@ -47,12 +47,12 @@
       if [ "$CI_ENV" == "staging" ]
       then
         TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
-        echo "TLS_CRT" | base64 -d > tls.crt
-        echo "TLS_KEY" | base64 -d > tls.key
+        echo "$TLS_CRT" | base64 -d > tls.crt
+        echo "$TLS_KEY" | base64 -d > tls.key
       elif [ "$CI_ENV" == "prod" ]
         TLS_SECRET_NAME="star-ltc-bcit-ca"
-        echo "TLS_CRT" | base64 -d > tls.crt
-        echo "TLS_KEY" | base64 -d > tls.key
+        echo "$TLS_CRT" | base64 -d > tls.crt
+        echo "$TLS_KEY" | base64 -d > tls.key
       else
         echo "\"$CI_ENV\" is not set correctly"
       fi
