@@ -42,6 +42,8 @@
         annotations:
           field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID
       EOF
+      echo -e " \
+        \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # create tls secret for ingress
