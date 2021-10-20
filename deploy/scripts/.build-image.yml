@@ -32,7 +32,7 @@
       if [[ -n "$ADDITIONALTAGLIST" ]]; then 
         for TAG in $ADDITIONALTAGLIST; do 
           FORMATTEDTAGLIST="${FORMATTEDTAGLIST} --tag $CI_REGISTRY_IMAGE:$TAG "; 
-        done; 
+        done;
       fi
       
       # Reformat Docker tags to kaniko's --destination argument:
