@@ -25,24 +25,24 @@
 # Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
 #   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_BRANCH_NAME}
-# This is the YAML used (then converted to json for the command below)
-# metadata: 
-#   name: $CI_PROJECT_NAME-ingress 
-#   annotations: 
-#     nginx.ingress.kubernetes.io/rewrite-target: /$2 
-#     nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; 
-# spec: 
-#   rules: 
-#   - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST 
-#     http: 
-#       paths: 
-#       - path: /$CI_COMMIT_REF_SLUG
 .patch-ingress-dev:
   script:
     - |
+      echo -e \" \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_URL \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG\" > deploy/overlays/$CI_ENV/ingress-patch.yaml
       kubectl patch ingress $CI_PROJECT_NAME-ingress \
         --namespace $CI_COMMIT_REF_SLUG \
-        --patch '{\"metadata\":{\"name\":\"$CI_PROJECT_NAME-ingress\",\"annotations\":{\"nginx.ingress.kubernetes.io/rewrite-target\":\"/$2\",\"nginx.ingress.kubernetes.io/configuration-snippet\":\"rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect;\"}},\"spec\":{\"rules\":[{\"host\":\"$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST\",\"http\":{\"paths\":[{\"path\":\"/$CI_COMMIT_REF_SLUG\"}]}}]}}'
+        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
 
 
 # STAGING target URL: 
