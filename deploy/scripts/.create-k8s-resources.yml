@@ -26,7 +26,7 @@
           echo "\"$CI_ENV\" is not set correctly"
           exit 1
       fi
-      if [ -n "PROD_NAMESPACE" ] && [ "$CI_ENV" == "staging || "$CI_ENV" == "prod" ]
+      if [ -n "$PROD_NAMESPACE" ] && [ "$CI_ENV" == "staging" || "$CI_ENV" == "prod" ]
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
       fi
