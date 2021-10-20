@@ -41,6 +41,7 @@
   script:
     - |
       kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        --namespace $CI_COMMIT_REF_SLUG \
         --patch '{\"metadata\":{\"name\":\"$CI_PROJECT_NAME-ingress\",\"annotations\":{\"nginx.ingress.kubernetes.io/rewrite-target\":\"/$2\",\"nginx.ingress.kubernetes.io/configuration-snippet\":\"rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect;\"}},\"spec\":{\"rules\":[{\"host\":\"$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST\",\"http\":{\"paths\":[{\"path\":\"/$CI_COMMIT_REF_SLUG\"}]}}]}}'
 
 
