@@ -5,8 +5,14 @@
 .kustomize-image:
   script:
     - |
+      if [ -n "PROD_NAMESPACE" ]
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+      else
+          NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
+      fi
       echo -e " \
-        \nnamespace: $CI_COMMIT_REF_SLUG \
+        \nnamespace: $NAMESPACE_NAME \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
