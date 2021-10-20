@@ -2,6 +2,7 @@
 .create-annotated-namespace:
   script:
     - |
+      # Determine environment
       if [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
       then
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
@@ -26,10 +27,12 @@
           echo "\"$CI_ENV\" is not set correctly"
           exit 1
       fi
-      if [ -n "PROD_NAMESPACE" ]
+      # Reset namespace if "PROD_NAMESPACE" is set
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$CI_ENV" == "staging" ] || [ "$CI_ENV" == "prod" ] )
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
       fi
+      # Create the namespace
       kubectl apply -f - <<EOF
       apiVersion: v1
       kind: Namespace
@@ -38,24 +41,31 @@
         annotations:
           field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID
       EOF
+      # Add the namespace to kustomization so all other resources are created there
+      echo -e " \
+        \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # create tls secret for ingress
 .create-tls-secret:
   script:
     - |
+      # Determine secret name
       if [ "$CI_ENV" == "staging" ]
       then
         TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
-        echo "TLS_CRT" | base64 -d > tls.crt
-        echo "TLS_KEY" | base64 -d > tls.key
       elif [ "$CI_ENV" == "prod" ]
         TLS_SECRET_NAME="star-ltc-bcit-ca"
-        echo "TLS_CRT" | base64 -d > tls.crt
-        echo "TLS_KEY" | base64 -d > tls.key
       else
         echo "\"$CI_ENV\" is not set correctly"
       fi
-      kubectl create secret tls $TLS_SECRET_NAME \
-        --cert=tls.crt --key=tls.key \
-        -o yaml --dry-run=client | kubectl apply -f -
+      echo "$TLS_CRT" > tls.crt
+      echo "$TLS_KEY" > tls.key
+      # Create secret via Kustomize secretGenerator spec
+      echo -e " \
+        \nsecretGenerator: \
+        \n- name: $TLS_SECRET_NAME \
+        \n  files: \
+        \n    - "tls.cert" \
+        \n    - "tls.key" \
+        \n  type: "kubernetes.io/tls" >> deploy/overlays/$CI_ENV/kustomization.yaml

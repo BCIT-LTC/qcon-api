@@ -6,7 +6,6 @@
   script:
     - |
       echo -e " \
-        \nnamespace: $CI_COMMIT_REF_SLUG \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
@@ -23,34 +22,33 @@
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
-# Replaces existing `ingress.yaml` to be applied to kustomization
+# Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
-  # - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_BRANCH_NAME}
+#   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_BRANCH_NAME}
 .patch-ingress-dev:
   script:
     - |
       echo -e " \
-      \npatches: \
-      \n  - patch: |- \
-      \n      apiVersion: networking.k8s.io/v1 \
-      \n      kind: Ingress \
-      \n      metadata: \
-      \n        name: $CI_PROJECT_NAME-ingress \
-      \n        annotations: \
-      \n          nginx.ingress.kubernetes.io/rewrite-target: /$2 \
-      \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-      \n  - patch: |- \
-      \n      - op: add \
-      \n        path: /spec/rules/0/host \
-      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
-      \n    target: \
-      \n      kind: Ingress \
-      \n  - patch: |- \
-      \n      - op: replace \
-      \n        path: /spec/rules/0/http/paths/0/path \
-      \n        value: /$CI_COMMIT_REF_SLUG \
-      \n    target: \
-      \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
+      kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        --namespace $CI_COMMIT_REF_SLUG \
+        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
 
 
 # STAGING target URL: 
@@ -58,43 +56,49 @@
 
 # PROD target URLs:
   # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-  # - https://{CI_PROJECT_NAME}.ltc.bcit.ca/
+  # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
 .patch-ingress:
   script:
     - |
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$CI_ENV" == "staging" ] || [ "$CI_ENV" == "prod" ] )
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+      else
+        NAMESPACE_NAME="$CI_PROJECT_NAME"
+      fi
       if [ "$CI_ENV" == "staging" ]
       then
         CI_HOST="$STAGING_HOST"
+        TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
       elif [ "$CI_ENV" == "prod" ]
       then
         CI_HOST="$PROD_HOST"
+        TLS_SECRET_NAME="star-ltc-bcit-ca"
       else
         echo "\"$CI_HOST\" not set correctly"
       fi
       echo -e " \
-      \npatches: \
-      \n  - patch: |- \
-      \n      apiVersion: networking.k8s.io/v1 \
-      \n      kind: Ingress \
-      \n      metadata: \
-      \n        name: $CI_PROJECT_NAME-ingress \
-      \n        annotations: \
-      \n          nginx.ingress.kubernetes.io/rewrite-target: /$2 \
-      \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
-      \n      spec: \
-      \n        tls: \
-      \n        - hosts: \
-      \n            - $CI_HOST \
-      \n          secretName: $TLS_SECRET_NAME \
-      \n  - patch: |- \
-      \n      - op: add \
-      \n        path: /spec/rules/0/host \
-      \n        value: $CI_HOST \
-      \n    target: \
-      \n      kind: Ingress \
-      \n  - patch: |- \
-      \n      - op: replace \
-      \n        path: /spec/rules/0/http/paths/0/path \
-      \n        value: /$CI_PROJECT_NAME \
-      \n    target: \
-      \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
+        \nspec: \
+        \n  tls: \
+        \n  - hosts: \
+        \n    - $CI_HOST \
+        \n    secretName: $TLS_SECRET_NAME \
+        \n  rules: \
+        \n  - host: $CI_HOST \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_PROJECT_NAME \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
+      kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        --namespace $NAMESPACE_NAME \
+        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
