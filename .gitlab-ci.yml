@@ -45,9 +45,10 @@ stages:
   tags:
     - production
 
-.latest_version_tag:
+
+latest_version_tag:
   <<: *feature-branch
-  image: alpine/git:latest
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
   stage: tag
   script:    
     - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" >> build.env
@@ -55,12 +56,14 @@ stages:
     reports:
       dotenv: build.env
 
-.build_for_review:       # Build image with Kaniko (dev)
+
+build_for_review:       # Build image with Kaniko (dev)
   <<: *feature-branch
   extends: .build-image
   stage: build
   dependencies:
     - latest_version_tag
+
 
 deploy_review:          # Deploy image on feature branch to a k8s dev cluster
   <<: *feature-branch
@@ -85,6 +88,7 @@ deploy_review:          # Deploy image on feature branch to a k8s dev cluster
     - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
 #Remove the environment variable ENV from container 'c1' in all deployment configs
 # kubectl set env deployments --all --containers="c1" ENV-
+
 
 build_latest:     # Build image with Kaniko (latest)
   <<: *main-branch

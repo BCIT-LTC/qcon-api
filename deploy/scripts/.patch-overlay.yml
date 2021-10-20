@@ -18,27 +18,24 @@
     - |
       if [ $CI_ENV == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
       then
-          echo "clusterID set to \"dev-cp\""
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
+      elseif [ $CI_ENV == "dev" ] && [ $TEAM_TAG == "dev-vsm" ]
+      then
+          CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID"
+      elseif [ $CI_ENV == "staging" ]
+      then
+          CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID"
+      elseif [ $CI_ENV == "prod" ]
+      then
+          CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
+      else
+          echo "\$CI_ENV is not set correctly"
+          exit 1
       fi
-      #   elseif [[ $TEAM_TAG == "dev-vsm" ]]; then
-      #     CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
-      #     PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID";
-      #   else
-      #     echo "\$CI_ENV is not set correctly"
-      #     exit 1;
-      #   fi;
-      # elseif [[ $CI_ENV == "staging" ]]; then
-      #     CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
-      #     PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID";
-      # elseif [[ $CI_ENV == "prod" ]]; then
-      #     CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
-      #     PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID";
-      # else
-      #     echo "\$CI_ENV is not set correctly"
-      #     exit 1;
-      # fi;
       kubectl apply -f - <<EOF
       apiVersion: v1
       kind: Namespace
