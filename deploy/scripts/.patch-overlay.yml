@@ -16,7 +16,7 @@
 .create-annotated-namespace:
   script:
     - |
-      if [[ "$CI_ENV" =="dev" ]]; then
+      if [[ "$CI_ENV" == "dev" ]]; then
         if [[ "$TEAM_TAG" == "dev-cp" ]]; then
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
