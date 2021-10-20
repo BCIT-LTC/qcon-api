@@ -16,12 +16,9 @@
 .create-annotated-namespace:
   script:
     - |
-      echo $CI_ENV
-      echo "$CI_ENV"
-      echo "$TEAM_TAG"
-      echo $RANCHER_DEV_CP_CLUSTER_ID
       if [[ $CI_ENV == "dev" ]]; then
         if [[ $TEAM_TAG == "dev-cp" ]]; then
+          echo "clusterID set to "dev-cp"
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID";
         elseif [[ $TEAM_TAG == "dev-vsm" ]]; then
@@ -30,7 +27,7 @@
         else
           echo "\$CI_ENV is not set correctly"
           exit 1;
-        fi
+        fi;
       elseif [[ $CI_ENV == "staging" ]]; then
           CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
           PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID";
@@ -40,7 +37,7 @@
       else
           echo "\$CI_ENV is not set correctly"
           exit 1;
-      fi
+      fi;
       kubectl apply -f - <<EOF
       apiVersion: v1
       kind: Namespace
