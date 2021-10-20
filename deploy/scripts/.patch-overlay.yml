@@ -16,21 +16,21 @@
 .create-annotated-namespace:
   script:
     - |
-      if [[ "$CI_ENV" == "dev" ]]; then
-        if [[ "$TEAM_TAG" == "dev-cp" ]]; then
+      if [[ $CI_ENV == "dev" ]]; then
+        if [[ $TEAM_TAG == "dev-cp" ]]; then
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID";
-        elseif [[ "$TEAM_TAG" == "dev-vsm" ]]; then
+        elseif [[ $TEAM_TAG == "dev-vsm" ]]; then
           CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID";
         else
           echo "\$CI_ENV is not set correctly"
           exit 1;
         fi
-      elseif [[ "$CI_ENV" == "staging" ]]; then
+      elseif [[ $CI_ENV == "staging" ]]; then
           CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
           PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID";
-      elseif [[ "$CI_ENV" == "prod" ]]; then
+      elseif [[ $CI_ENV == "prod" ]]; then
           CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
           PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID";
       else
