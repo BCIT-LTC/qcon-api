@@ -39,8 +39,13 @@
         \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
         \n    http: \
         \n      paths: \
-        \n      - pathType: Prefix \
-        \n        path: /$CI_COMMIT_REF_SLUG" > deploy/overlays/$CI_ENV/ingress-patch.yaml
+        \n      - path: /$CI_COMMIT_REF_SLUG \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
       kubectl patch ingress $CI_PROJECT_NAME-ingress \
         --namespace $CI_COMMIT_REF_SLUG \
         --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
