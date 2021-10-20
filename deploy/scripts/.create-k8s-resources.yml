@@ -30,10 +30,6 @@
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
       fi
-      echo "$NAMESPACE_NAME"
-      echo "$CLUSTER_ID"
-      echo "$PROJECT_ID"
-      echo -e "\n"
       kubectl apply -f - <<EOF
       apiVersion: v1
       kind: Namespace

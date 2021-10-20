@@ -22,34 +22,26 @@
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
-# Replaces existing `ingress.yaml` to be applied to kustomization
+# Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
   # - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_BRANCH_NAME}
 .patch-ingress-dev:
   script:
     - |
-      echo -e " \
-      \npatches: \
-      \n  - patch: |- \
-      \n      apiVersion: networking.k8s.io/v1 \
-      \n      kind: Ingress \
-      \n      metadata: \
-      \n        name: $CI_PROJECT_NAME-ingress \
-      \n        annotations: \
-      \n          nginx.ingress.kubernetes.io/rewrite-target: /$2 \
-      \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; \
-      \n  - patch: |- \
-      \n      - op: add \
-      \n        path: /spec/rules/0/host \
-      \n        value: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST \
-      \n    target: \
-      \n      kind: Ingress \
-      \n  - patch: |- \
-      \n      - op: replace \
-      \n        path: /spec/rules/0/http/paths/0/path \
-      \n        value: /$CI_COMMIT_REF_SLUG \
-      \n    target: \
-      \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      # This is the YAML used (then converted to json for the command below)
+      # metadata: 
+      #   name: $CI_PROJECT_NAME-ingress 
+      #   annotations: 
+      #     nginx.ingress.kubernetes.io/rewrite-target: /$2 
+      #     nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect; 
+      # spec: 
+      #   rules: 
+      #   - host: $CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST 
+      #     http: 
+      #       paths: 
+      #       - path: /$CI_COMMIT_REF_SLUG
+      "kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        --patch '{\"metadata\":{\"name\":\"$CI_PROJECT_NAME-ingress\",\"annotations\":{\"nginx.ingress.kubernetes.io/rewrite-target\":\"/$2\",\"nginx.ingress.kubernetes.io/configuration-snippet\":\"rewrite ($CI_COMMIT_REF_SLUG)$ $CI_COMMIT_REF_SLUG/ redirect;\"}},\"spec\":{\"rules\":[{\"host\":\"$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST\",\"http\":{\"paths\":[{\"path\":\"/$CI_COMMIT_REF_SLUG\"}]}}]}}'"
 
 
 # STAGING target URL: 
