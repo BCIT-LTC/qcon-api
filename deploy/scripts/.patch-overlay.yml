@@ -5,7 +5,7 @@
 .kustomize-image:
   script:
     - |
-      if [ -n "PROD_NAMESPACE" ]
+      if [ -n "$PROD_NAMESPACE" ]
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
       else
