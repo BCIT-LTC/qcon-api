@@ -34,6 +34,8 @@
           PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
           ;;
       esac
+      echo $CLUSTER_ID
+      echo $PROJECT_ID
       echo -e " \
       apiVersion: v1 \
       kind: Namespace \
@@ -42,6 +44,10 @@
         annotations: \
           field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID \
       " > deploy/overlays/$CI_ENV/namespace.yaml
+      cat deploy/overlays/$CI_ENV/namespace.yaml
+      "kubectl create ns deploy/overlays/$CI_ENV/namespace.yaml -o yaml --dry-run=client \
+        | kubectl apply -f -"
+
 
 
 # link deployment to GitLab Environment/Operations dashboards
