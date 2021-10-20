@@ -1,0 +1,61 @@
+# Creates namespace annotated to ensure it's visible in the Rancher Default project
+.create-annotated-namespace:
+  script:
+    - |
+      if [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
+      then
+          CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
+          NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
+      elif [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-vsm" ]
+      then
+          CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID"
+          NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
+      elif [ "$CI_ENV" == "staging" ]
+      then
+          CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID"
+          NAMESPACE_NAME="$CI_PROJECT_NAME"
+      elif [ "$CI_ENV" == "prod" ]
+      then
+          CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
+          NAMESPACE_NAME="$CI_PROJECT_NAME"
+      else
+          echo "\"$CI_ENV\" is not set correctly"
+          exit 1
+      fi
+      if [ -n "PROD_NAMESPACE" ]
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+      fi
+      kubectl apply -f - <<EOF
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: $NAMESPACE_NAME
+        annotations:
+          field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID
+      EOF
+
+
+# create tls secret for ingress
+.create-tls-secret:
+  script:
+    - |
+      if [ "$CI_ENV" == "staging" ]
+      then
+        TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
+        echo "TLS_CRT" | base64 -d > tls.crt
+        echo "TLS_KEY" | base64 -d > tls.key
+      elif [ "$CI_ENV" == "prod" ]
+        TLS_SECRET_NAME="star-ltc-bcit-ca"
+        echo "TLS_CRT" | base64 -d > tls.crt
+        echo "TLS_KEY" | base64 -d > tls.key
+      else
+        echo "\"$CI_ENV\" is not set correctly"
+      fi
+      kubectl create secret tls $TLS_SECRET_NAME \
+        --cert=tls.crt --key=tls.key \
+        -o yaml --dry-run=client | kubectl apply -f -
