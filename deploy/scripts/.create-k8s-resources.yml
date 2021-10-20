@@ -55,6 +55,7 @@
       then
         TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
       elif [ "$CI_ENV" == "prod" ]
+      then
         TLS_SECRET_NAME="star-ltc-bcit-ca"
       else
         echo "\"$CI_ENV\" is not set correctly"
