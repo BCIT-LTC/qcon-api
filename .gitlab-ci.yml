@@ -24,7 +24,7 @@ stages:
   - cleanup
 
 
-.configure_env:                         # Configure environment
+configure_env:                         # Configure environment
   stage: .pre
   script:
     - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
@@ -45,8 +45,8 @@ deploy_review:                          # Deploy image on feature branch to a k8
   extends: .feature_branch_rules
   variables:
     CI_ENV: dev
-    CI_HOST: "$DEV_HOST"
-    NAMESPACE_NAME: "$CI_COMMIT_REF_SLUG"
+    CI_HOST: $DEV_HOST
+    NAMESPACE_NAME: $CI_COMMIT_REF_SLUG
   script:
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
@@ -56,7 +56,7 @@ deploy_review:                          # Deploy image on feature branch to a k8
     - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress-dev, script]         # patch ingress to branch path
   environment:
-    name: $TEAM_TAG/review/$NAMESPACE_NAME
+    name: "$TEAM_TAG/review/$NAMESPACE_NAME"
     url: http://$CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST/$NAMESPACE_NAME
     kubernetes:
       namespace: $NAMESPACE_NAME
