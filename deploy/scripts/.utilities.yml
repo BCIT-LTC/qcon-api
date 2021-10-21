@@ -1,11 +1,15 @@
 # Subroutines for deployment
 
 
-# Configure ENV; vars defined here are not available for GitLab `environment` definitions
+# Configure cluster ENV; vars defined here are not available for GitLab `environment` definitions
+#   Currently limited to:
+#     - "dev-cp"
+#     - "dev-vsm"
+#     - "staging"
+#     - "prod"
 .get_env:
   script:
     - |
-      # Determine cluster environment; currently limited to "dev-cp", "dev-vsm", "staging", and "prod"
       if [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
       then
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
@@ -34,7 +38,6 @@
 .annotate_namespace:
   script:
     - |
-      # Add annotations to namespace
       echo -e " \
       \npatchesStrategicMerge:
       \n- |-
