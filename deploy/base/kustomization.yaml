@@ -1,4 +1,5 @@
 resources:
-- dependabot-qcon-api.yaml
-- deployment.yaml
+- namespace.yaml
+- service-account.yaml
 - service.yaml
+- deployment.yaml
