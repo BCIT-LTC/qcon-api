@@ -171,3 +171,8 @@ stop_review:              # Stop review environment
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
+      when: manual
+  tags:
+    - $TEAM_TAG
