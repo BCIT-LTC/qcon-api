@@ -1,4 +1,9 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qcon-api-vault-agent-config
+#   namespace: default
+  namespace: qcon-api
 data:
   vault-agent-config.hcl: |
     # Comment this out if running as sidecar instead of initContainer
@@ -33,7 +38,3 @@ data:
     {{ end }}
     EOT
     }
-kind: ConfigMap
-metadata:
-  name: qcon-api-vault-agent-config
-  namespace: default

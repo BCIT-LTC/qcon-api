@@ -1,13 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: qcon-api
   labels:
     app: qcon-api
 spec:
   replicas: 3
-  
   template:
     spec:
       containers:
@@ -16,7 +14,7 @@ spec:
         volumeMounts:
           - mountPath: /code
             name: shared-data
-      serviceAccountName: dependabot-qcon-api
+
       volumes:
         - configMap:
             items:

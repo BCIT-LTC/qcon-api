@@ -4,3 +4,11 @@ resources:
 
 patchesStrategicMerge:
   - deployment.yaml
+  - ingress.yaml
+
+secretGenerator:
+- name: star-dev-ltc-bcit-ca
+  files:
+    - "tls.cert"
+    - "tls.key"
+  type: "kubernetes.io/tls"

@@ -1,5 +1,4 @@
-# Build image with Kaniko
-
+# Build image with Kaniko and push to project registry
 .build-image:
   image: 
     name: gcr.io/kaniko-project/executor:debug
@@ -12,11 +11,13 @@
   script:
     - | 
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
+      
       # Build date for opencontainers
       BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.created=$BUILDDATE \
         --label build-date=$BUILDDATE"
+
       # Description for opencontainers
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
       IMAGE_LABELS="$IMAGE_LABELS \

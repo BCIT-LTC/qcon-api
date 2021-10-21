@@ -1,0 +1,223 @@
+# Subroutines for deployment
+
+
+# Configure ENV; vars defined here are not available for GitLab `environment` definitions
+.get_env:
+  script:
+    - |
+      # Determine cluster environment; currently limited to "dev-cp", "dev-vsm", "staging", and "prod"
+      if [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
+      then
+          CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
+      elif [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-vsm" ]
+      then
+          CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID"
+      elif [ "$CI_ENV" == "staging" ]
+      then
+          CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID"
+          TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
+      elif [ "$CI_ENV" == "prod" ]
+      then
+          CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
+          PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
+          TLS_SECRET_NAME="star-ltc-bcit-ca"
+      else
+          echo "\"$CI_ENV\" is not set correctly"
+          exit 1
+      fi
+
+
+# Creates namespace annotation to ensure it's visible in the Rancher Default project
+.annotate_namespace:
+  script:
+    - |
+      # Add annotations to namespace
+      echo -e " \
+      \npatchesStrategicMerge:
+      \n- |-
+      \napiVersion: v1
+      \nkind: Namespace
+      \nmetadata:
+      \n  name: $NAMESPACE_NAME
+      \n  annotations:
+      \n    field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# Reset namespace if "PROD_NAMESPACE" is set
+.prod_namespace:
+  script:
+    - |
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$CI_ENV" == "staging" ] || [ "$CI_ENV" == "prod" ] )
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+      fi
+
+      echo -e " \
+      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# add kustomization annotations to pull latest commit image
+.kustomize_image:
+  script:
+    - |
+      echo -e " \
+        \nimages: \
+        \n  - name: $CI_PROJECT_NAME \
+        \n    newName: $CI_REGISTRY_IMAGE \
+        \n    newTag: $CI_COMMIT_SHORT_SHA" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# link deployment to GitLab Environment/Operations dashboards
+.annotate_kustomizations:
+  script:
+    - |
+      echo -e " \
+        \ncommonAnnotations: \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# patch service
+.patch_service:
+  script:
+    - |
+      echo -e " \
+      \napiVersion: v1 \
+      \nkind: Service \
+      \nmetadata: \
+      \n  name: $CI_PROJECT_NAME-service \
+      \nspec: \
+      \n  type: NodePort \
+      \n  selector: \
+      \n    app: $CI_PROJECT_NAME \
+      \n  ports: \
+      \n  - port: $APP_PORT" >> deploy/overlays/$CI_ENV/service-patch.yaml
+
+      kubectl patch service $CI_PROJECT_NAME-service \
+        --namespace $NAMESPACE_NAME \
+        --patch "$(cat deploy/overlays/$CI_ENV/service-patch.yaml)"
+
+
+# Patches existing `ingress.yaml` to be applied to kustomization
+# target URL:
+#   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
+.patch_ingress-dev:
+  script:
+    - |
+      echo -e " \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
+        \nspec: \
+        \n  rules: \
+        \n  - host: $CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$NAMESPACE_NAME \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
+
+      kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        --namespace $NAMESPACE_NAME \
+        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+
+
+# STAGING target URL: 
+  # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+
+# PROD target URLs:
+  # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
+.patch_ingress:
+  script:
+    - |
+      echo -e " \
+        \nmetadata: \
+        \n  name: $CI_PROJECT_NAME-ingress \
+        \n  annotations: \
+        \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
+        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
+        \nspec: \
+        \n  tls: \
+        \n  - hosts: \
+        \n    - $CI_HOST \
+        \n    secretName: $TLS_SECRET_NAME \
+        \n  rules: \
+        \n  - host: $CI_HOST \
+        \n    http: \
+        \n      paths: \
+        \n      - path: /$CI_PROJECT_NAME \
+        \n        pathType: Prefix \
+        \n        backend: \
+        \n          service: \
+        \n            name: $CI_PROJECT_NAME-service \
+        \n            port: \
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
+      kubectl patch ingress $CI_PROJECT_NAME-ingress \
+        --namespace $NAMESPACE_NAME \
+        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+
+
+# create tls secret for ingress
+.create_tls_secret:
+  script:
+    - |
+      # Determine secret name
+      if [ "$CI_ENV" == "staging" ]
+      then
+        TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
+      elif [ "$CI_ENV" == "prod" ]
+      then
+        TLS_SECRET_NAME="star-ltc-bcit-ca"
+      else
+        echo "\"$CI_ENV\" is not set correctly"
+      fi
+      echo "$TLS_CRT" > tls.crt
+      echo "$TLS_KEY" > tls.key
+      # Create secret via Kustomize secretGenerator spec
+      echo -e " \
+        \nsecretGenerator: \
+        \n- name: $TLS_SECRET_NAME \
+        \n  files: \
+        \n    - "tls.cert" \
+        \n    - "tls.key" \
+        \n  type: "kubernetes.io/tls" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# Common Tags and Rules for jobs
+.feature_branch_rules:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
+  tags:
+    - $TEAM_TAG
+
+.main_branch_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_PIPELINE_SOURCE == "push"'
+  tags:
+    - staging
+
+.semver_tag_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_PIPELINE_SOURCE == "push"'
+  tags:
+    - production
+
+.release_branch_rules:
+  rules:
+    - if: $CI_COMMIT_TAG
+  tags:
+    - production
