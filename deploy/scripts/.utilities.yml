@@ -104,6 +104,8 @@
   script:
     - |
       echo -e " \
+        \napiVersion: networking.k8s.io/v1 \
+        \nkind: Ingress \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  namespace: $NAMESPACE_NAME \
@@ -121,23 +123,61 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
-      kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        --namespace $NAMESPACE_NAME \
-        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+        cat deploy/overlays/$CI_ENV/ingress.yaml
+
+      # kubectl patch ingress $CI_PROJECT_NAME-ingress \
+      #   --namespace $NAMESPACE_NAME \
+      #   --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+
+
+
+# echo -e " \
+# \npatches: \
+# \n  - patch: |- \
+# \n      apiVersion: networking.k8s.io/v1 \
+# \n      kind: Ingress \
+# \n      metadata: \
+# \n        name: $CI_PROJECT_NAME-ingress \
+# \n        annotations: \
+# \n          nginx.ingress.kubernetes.io/rewrite-target: /$2 \
+# \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
+# \n      spec: \
+# \n        tls: \
+# \n        - hosts: \
+# \n            - $CI_HOST \
+# \n          secretName: $TLS_SECRET_NAME \
+# \n  - patch: |- \
+# \n      - op: add \
+# \n        path: /spec/rules/0/host \
+# \n        value: $CI_HOST \
+# \n    target: \
+# \n      kind: Ingress \
+# \n  - patch: |- \
+# \n      - op: replace \
+# \n        path: /spec/rules/0/http/paths/0/path \
+# \n        value: /$CI_PROJECT_NAME \
+# \n    target: \
+# \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
 
 
 # STAGING target URL: 
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
 
 # PROD target URLs:
+# Default
   # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+# Extra
   # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
 .patch_ingress:
   script:
     - |
       echo -e " \
+        \napiVersion: networking.k8s.io/v1 \
+        \nkind: Ingress \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  namespace: $NAMESPACE_NAME \
@@ -172,10 +212,6 @@
     - |
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
-
-      cat deploy/overlays/$CI_ENV/tls.crt
-
-      cat deploy/overlays/$CI_ENV/tls.key
 
 
 # Common Tags and Rules for jobs
