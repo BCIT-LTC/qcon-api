@@ -38,7 +38,7 @@ deploy_review:                          # Deploy image on feature branch to a k8
     CI_ENV: dev
   script:
     - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    # - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
