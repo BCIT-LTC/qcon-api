@@ -2,7 +2,7 @@
 .create-annotated-namespace:
   script:
     - |
-      # Determine environment
+      # Determine cluster environment
       if [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
       then
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
@@ -70,3 +70,24 @@
         \n    - "tls.cert" \
         \n    - "tls.key" \
         \n  type: "kubernetes.io/tls" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# create service
+.create-service:
+  script:
+    - |
+      # test var from another session
+      echo "$NAMESPACE_NAME"
+      # Create service (sample at deploy/base/.service)
+      kubectl apply -f - <<EOF
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: $CI_PROJECT_NAME-service
+      spec:
+        type: NodePort
+        selector:
+          app: $CI_PROJECT_NAME
+        ports:
+        - port: $APP_PORT
+      EOF
