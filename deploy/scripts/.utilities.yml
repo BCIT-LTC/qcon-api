@@ -173,10 +173,6 @@
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
 
-      cat deploy/overlays/$CI_ENV/tls.crt
-
-      cat deploy/overlays/$CI_ENV/tls.key
-
 
 # Common Tags and Rules for jobs
 .feature_branch_rules:
