@@ -1,5 +1,5 @@
 # Build image with Kaniko and push to project registry
-.build-image:
+.build_image:
   image: 
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]

@@ -119,7 +119,7 @@ semver_tag:       # Creates a semantic-version tag that is applied to the releas
   stage: tag
   extends: 
     - .semver_tag_rules
-    - .semantic-release
+    - .semantic_release
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
