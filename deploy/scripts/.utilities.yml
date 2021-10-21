@@ -50,7 +50,7 @@
       \npatches: \
       \n  - patch: |- \
       \n      - op: add \
-      \n        path: /metadata/annotations/field.cattle.io\/projectId \
+      \n        path: /metadata/annotations/field.cattle.io~1projectId \
       \n        value: $CLUSTER_ID:$PROJECT_ID \
       \n    target: \
       \n      kind: Namespace" >> deploy/overlays/$CI_ENV/kustomization.yaml
