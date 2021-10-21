@@ -74,11 +74,18 @@
 .kustomize_image:
   script:
     - |
+      if [ "$CI_ENV" == "prod" ] )
+      then
+          DEPLOY_TAG="$CI_COMMIT_TAG"
+      else
+          DEPLOY_TAG="$CI_COMMIT_SHORT_SHA"
+      fi
+
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $CI_COMMIT_SHORT_SHA" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # link deployment to GitLab Environment/Operations dashboards
@@ -125,44 +132,6 @@
         \n            port: \
         \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
-        cat deploy/overlays/$CI_ENV/ingress.yaml
-
-      # kubectl patch ingress $CI_PROJECT_NAME-ingress \
-      #   --namespace $NAMESPACE_NAME \
-      #   --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
-
-
-
-# echo -e " \
-# \npatches: \
-# \n  - patch: |- \
-# \n      apiVersion: networking.k8s.io/v1 \
-# \n      kind: Ingress \
-# \n      metadata: \
-# \n        name: $CI_PROJECT_NAME-ingress \
-# \n        annotations: \
-# \n          nginx.ingress.kubernetes.io/rewrite-target: /$2 \
-# \n          nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
-# \n      spec: \
-# \n        tls: \
-# \n        - hosts: \
-# \n            - $CI_HOST \
-# \n          secretName: $TLS_SECRET_NAME \
-# \n  - patch: |- \
-# \n      - op: add \
-# \n        path: /spec/rules/0/host \
-# \n        value: $CI_HOST \
-# \n    target: \
-# \n      kind: Ingress \
-# \n  - patch: |- \
-# \n      - op: replace \
-# \n        path: /spec/rules/0/http/paths/0/path \
-# \n        value: /$CI_PROJECT_NAME \
-# \n    target: \
-# \n      kind: Ingress" >> deploy/overlays/$CI_ENV/kustomization.yaml
-
-
-
 
 # STAGING target URL: 
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
@@ -199,11 +168,7 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
-
-      kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        --namespace $NAMESPACE_NAME \
-        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
 
 # create tls secret for ingress via Kustomize secretGenerator spec
