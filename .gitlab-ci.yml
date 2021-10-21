@@ -44,7 +44,7 @@ stages:
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
     # - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
-    - !reference [.patch_ingress-dev, script]         # patch ingress to branch path
+    - !reference [.patch_ingress_dev, script]         # patch ingress to branch path
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
     url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST/$CI_COMMIT_REF_SLUG
@@ -58,9 +58,9 @@ stages:
 # kubectl set env deployments --all --containers="c1" ENV-
 
 
-latest_version_tag:
+.latest_version_tag:
   stage: tag
-  # extends: .main_branch_rules
+  extends: .main_branch_rules
   image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
   script:
     - pwd
@@ -70,6 +70,7 @@ latest_version_tag:
       dotenv: build.env
   tags:
     - $TEAM_TAG
+
 
 .build_latest:                 # Build image with Kaniko (latest)
   stage: build

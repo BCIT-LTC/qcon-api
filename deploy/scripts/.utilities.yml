@@ -89,9 +89,11 @@
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
       echo -e " \
         \nKustomization applied: \
         \n\n"
+
       cat deploy/overlays/$CI_ENV/kustomization.yaml
 
 
@@ -119,12 +121,13 @@
 # Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
 #   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
-.patch_ingress-dev:
+.patch_ingress_dev:
   script:
     - |
       echo -e " \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
+        \n  namespace: $NAMESPACE_NAME \
         \n  annotations: \
         \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
         \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
@@ -158,7 +161,7 @@
       echo -e " \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
-        \n  namespace $NAMESPACE_NAME \
+        \n  namespace: $NAMESPACE_NAME \
         \n  annotations: \
         \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
         \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
@@ -178,7 +181,7 @@
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
         \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
-        
+
       kubectl patch ingress $CI_PROJECT_NAME-ingress \
         --namespace $NAMESPACE_NAME \
         --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
