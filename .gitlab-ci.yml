@@ -138,10 +138,10 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     CI_ENV: prod
   secrets:
     TLS_CRT:
-      vault: ssl-certificates/star-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
+      vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
       file: false
     TLS_KEY:
-      vault: ssl-certificates/star-ltc-bcit-ca.key.base64@ltc-infrastructure
+      vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present

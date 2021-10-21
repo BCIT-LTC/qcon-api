@@ -35,7 +35,7 @@
           NAMESPACE_NAME="$CI_PROJECT_NAME"
           CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
           PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
-          TLS_SECRET_NAME="star-ltc-bcit-ca"
+          TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
       else
           echo "\"$CI_ENV\" is not set correctly"
           exit 1
@@ -97,30 +97,9 @@
       cat deploy/overlays/$CI_ENV/kustomization.yaml
 
 
-# patch service
-.patch_service:
-  script:
-    - |
-      echo -e " \
-      \napiVersion: v1 \
-      \nkind: Service \
-      \nmetadata: \
-      \n  name: $CI_PROJECT_NAME-service \
-      \nspec: \
-      \n  type: NodePort \
-      \n  selector: \
-      \n    app: $CI_PROJECT_NAME \
-      \n  ports: \
-      \n  - port: $APP_PORT" >> deploy/overlays/$CI_ENV/service-patch.yaml
-
-      kubectl patch service $CI_PROJECT_NAME-service \
-        --namespace $NAMESPACE_NAME \
-        --patch "$(cat deploy/overlays/$CI_ENV/service-patch.yaml)"
-
-
 # Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
-#   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
+#   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
 .patch_ingress_dev:
   script:
     - |
@@ -193,6 +172,10 @@
     - |
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
+
+      cat deploy/overlays/$CI_ENV/tls.crt
+
+      cat deploy/overlays/$CI_ENV/tls.key
 
 
 # Common Tags and Rules for jobs
