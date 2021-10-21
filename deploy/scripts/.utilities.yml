@@ -74,11 +74,18 @@
 .kustomize_image:
   script:
     - |
+      if [ "$CI_ENV" == "prod" ]
+      then
+          DEPLOY_TAG="$CI_COMMIT_TAG"
+      else
+          DEPLOY_TAG="$CI_COMMIT_SHORT_SHA"
+      fi
+
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $CI_COMMIT_SHORT_SHA" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # link deployment to GitLab Environment/Operations dashboards
@@ -104,6 +111,8 @@
   script:
     - |
       echo -e " \
+        \napiVersion: networking.k8s.io/v1 \
+        \nkind: Ingress \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  namespace: $NAMESPACE_NAME \
@@ -121,23 +130,23 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
-
-      kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        --namespace $NAMESPACE_NAME \
-        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
 
 # STAGING target URL: 
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
 
 # PROD target URLs:
+# Default
   # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+# Extra
   # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
 .patch_ingress:
   script:
     - |
       echo -e " \
+        \napiVersion: networking.k8s.io/v1 \
+        \nkind: Ingress \
         \nmetadata: \
         \n  name: $CI_PROJECT_NAME-ingress \
         \n  namespace: $NAMESPACE_NAME \
@@ -159,11 +168,7 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress-patch.yaml
-
-      kubectl patch ingress $CI_PROJECT_NAME-ingress \
-        --namespace $NAMESPACE_NAME \
-        --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
+        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
 
 # create tls secret for ingress via Kustomize secretGenerator spec
@@ -172,10 +177,6 @@
     - |
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
-
-      cat deploy/overlays/$CI_ENV/tls.crt
-
-      cat deploy/overlays/$CI_ENV/tls.key
 
 
 # Common Tags and Rules for jobs
