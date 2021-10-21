@@ -24,15 +24,6 @@ stages:
   - cleanup
 
 
-configure_env:                         # Configure environment
-  stage: .pre
-  script:
-    - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
-    - echo "$CLUSTER_ID, $PROJECT_ID"
-  tags:
-    - production
-
-
 .build_for_review:                       # Build image with Kaniko (dev)
   stage: build
   extends:
@@ -48,6 +39,7 @@ deploy_review:                          # Deploy image on feature branch to a k8
     CI_HOST: $DEV_HOST
     NAMESPACE_NAME: $CI_COMMIT_REF_SLUG
   script:
+    - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
@@ -102,6 +94,7 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
+    - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
@@ -156,6 +149,7 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
       vault: ssl-certificates/star-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
+    - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
