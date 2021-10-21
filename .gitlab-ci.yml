@@ -60,7 +60,7 @@ stages:
 
 latest_version_tag:
   stage: tag
-  extends: .main_branch_rules
+  # extends: .main_branch_rules
   image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
   script:
     - pwd
@@ -68,7 +68,8 @@ latest_version_tag:
   artifacts:
     reports:
       dotenv: build.env
-
+  tags:
+    - $TEAM_TAG
 
 .build_latest:                 # Build image with Kaniko (latest)
   stage: build
@@ -96,7 +97,6 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (staging)
-    # - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: staging
@@ -149,7 +149,6 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (prod)
-    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: production
