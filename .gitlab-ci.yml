@@ -9,6 +9,7 @@ variables:            # other global variables are set in GitLab Admin: https://
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"  # vault policies: [read-tokens, read-apps, read-ssl-certificates]
   GIT_FETCH_EXTRA_FLAGS: --tags
 
+
 include:
   - local: 'deploy/scripts/.build-image.yml'
   - local: 'deploy/scripts/.semantic-release.yml'
@@ -23,8 +24,7 @@ stages:
   - cleanup
 
 
-# Configure environment
-.configure_env:
+.configure_env:                         # Configure environment
   stage: .pre
   script:
     - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
@@ -32,14 +32,14 @@ stages:
     - production
 
 
-build_for_review:       # Build image with Kaniko (dev)
+build_for_review:                       # Build image with Kaniko (dev)
   stage: build
   extends:
     - .build_image
     - .feature_branch_rules
 
 
-deploy_review:          # Deploy image on feature branch to a k8s dev cluster
+deploy_review:                          # Deploy image on feature branch to a k8s dev cluster
   stage: deploy
   extends: .feature_branch_rules
   variables:
@@ -101,13 +101,13 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.annotate_namespace, script]    # attempt to create namespace; fail gracefully if already present
-    - !reference [.create_tls_secret, script]             # create "dev" TLS secret
-    - !reference [.annotate_kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.create_tls_secret, script]         # create "dev" TLS secret
+    - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                             # apply kustomized deployment (staging)
-    - !reference [.patch_service, script]              # attempt to create service; fail gracefully if already present
-    - !reference [.patch_ingress, script]                 # patch ingress to branch path
+        | kubectl apply -f -"                         # apply kustomized deployment (staging)
+    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: staging
     url: https://$CI_HOST/$NAMESPACE_NAME
@@ -155,13 +155,13 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
       vault: ssl-certificates/star-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.annotate_namespace, script]    # attempt to create namespace; fail gracefully if already present
-    - !reference [.create_tls_secret, script]             # create "dev" TLS secret
-    - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.create_tls_secret, script]         # create "dev" TLS secret
+    - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                             # apply kustomized deployment (prod)
-    - !reference [.patch_service, script]              # attempt to create service; fail gracefully if already present
-    - !reference [.patch_ingress, script]                 # patch ingress to branch path
+        | kubectl apply -f -"                         # apply kustomized deployment (prod)
+    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: production
     url: https://$CI_HOST/$NAMESPACE_NAME
@@ -169,8 +169,7 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
       namespace: $NAMESPACE_NAME
 
 
-# Stop review environment
-stop_review:              
+stop_review:              # Stop review environment
   stage: cleanup
   extends: .feature_branch_rules
   script:
