@@ -43,9 +43,9 @@ deploy_review:                          # Deploy image on feature branch to a k8
   stage: deploy
   extends: .feature_branch_rules
   variables:
-    CI_ENV: dev
-    CI_HOST: "$DEV_HOST"
-    NAMESPACE_NAME: "$CI_COMMIT_REF_SLUG"
+    CI_ENV: "dev"
+    CI_HOST: $DEV_HOST
+    NAMESPACE_NAME: $CI_COMMIT_REF_SLUG
   script:
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
@@ -90,9 +90,9 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
   stage: deploy
   extends: .main_branch_rules
   variables:
-    CI_ENV: staging
-    CI_HOST: "$STAGING_HOST"
-    NAMESPACE_NAME: "$CI_PROJECT_NAME"
+    CI_ENV: "staging"
+    CI_HOST: $STAGING_HOST
+    NAMESPACE_NAME: $CI_PROJECT_NAME
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -144,9 +144,9 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
   stage: deploy
   extends: .release_branch_rules
   variables:
-    CI_ENV: prod
-    CI_HOST: "$PROD_HOST"
-    NAMESPACE_NAME: "$CI_PROJECT_NAME"
+    CI_ENV: "prod"
+    CI_HOST: $PROD_HOST
+    NAMESPACE_NAME: $CI_PROJECT_NAME
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
