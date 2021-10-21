@@ -191,8 +191,8 @@
 .create_tls_secret:
   script:
     - |
-      echo "$TLS_CRT" > deploy/overlays/$CI_ENV/tls.crt
-      echo "$TLS_KEY" > deploy/overlays/$CI_ENV/tls.key
+      echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
+      echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
 
 
 # Common Tags and Rules for jobs
