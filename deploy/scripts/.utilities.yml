@@ -123,6 +123,8 @@
         \n            port: \
         \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
+        cat deploy/overlays/$CI_ENV/ingress.yaml
+        
       # kubectl patch ingress $CI_PROJECT_NAME-ingress \
       #   --namespace $NAMESPACE_NAME \
       #   --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
