@@ -47,14 +47,13 @@
   script:
     - |
       echo -e " \
-      \npatchesStrategicMerge:
-      \n- |-
-      \napiVersion: v1
-      \nkind: Namespace
-      \nmetadata:
-      \n  name: $NAMESPACE_NAME
-      \n  annotations:
-      \n    field.cattle.io/projectId: $CLUSTER_ID:$PROJECT_ID" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \npatches: \
+      \n  - patch: |- \
+      \n      - op: add \
+      \n        path: /metadata/annotations/field.cattle.io/projectId \
+      \n        value: $CLUSTER_ID:$PROJECT_ID \
+      \n    target: \
+      \n      kind: Namespace" >> deploy/overlays/$CI_ENV/kustomization.yaml
       cat deploy/overlays/$CI_ENV/kustomization.yaml
 
 
