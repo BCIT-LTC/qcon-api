@@ -132,7 +132,9 @@
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
 
 # PROD target URLs:
+# Default
   # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+# Extra
   # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
 .patch_ingress:
   script:
