@@ -24,7 +24,7 @@ stages:
   - cleanup
 
 
-.build_for_review:                       # Build image with Kaniko (dev)
+build_for_review:                       # Build image with Kaniko (dev)
   stage: build
   extends:
     - .build_image
