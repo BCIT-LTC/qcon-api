@@ -70,7 +70,7 @@ latest_version_tag:
       dotenv: build.env
 
 
-build_latest:                 # Build image with Kaniko (latest)
+.build_latest:                 # Build image with Kaniko (latest)
   stage: build
   extends:
     - .main_branch_rules
