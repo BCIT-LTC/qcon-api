@@ -11,6 +11,6 @@ patchesStrategicMerge:
 secretGenerator:
 - name: star-ltc-bcit-ca
   files:
-    - "tls.cert"
+    - "tls.crt"
     - "tls.key"
   type: "kubernetes.io/tls"

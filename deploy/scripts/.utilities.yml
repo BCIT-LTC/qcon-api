@@ -167,30 +167,12 @@
         --patch "$(cat deploy/overlays/$CI_ENV/ingress-patch.yaml)"
 
 
-# create tls secret for ingress
+# create tls secret for ingress via Kustomize secretGenerator spec
 .create_tls_secret:
   script:
     - |
-      # Determine secret name
-      if [ "$CI_ENV" == "staging" ]
-      then
-        TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
-      elif [ "$CI_ENV" == "prod" ]
-      then
-        TLS_SECRET_NAME="star-ltc-bcit-ca"
-      else
-        echo "\"$CI_ENV\" is not set correctly"
-      fi
       echo "$TLS_CRT" > tls.crt
       echo "$TLS_KEY" > tls.key
-      # Create secret via Kustomize secretGenerator spec
-      echo -e " \
-        \nsecretGenerator: \
-        \n- name: $TLS_SECRET_NAME \
-        \n  files: \
-        \n    - "tls.cert" \
-        \n    - "tls.key" \
-        \n  type: "kubernetes.io/tls" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # Common Tags and Rules for jobs

@@ -102,11 +102,11 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       file: false
   script:
     - !reference [.annotate_namespace, script]    # attempt to create namespace; fail gracefully if already present
-    - !reference [.create-service, script]              # attempt to create service; fail gracefully if already present
-    - !reference [.create-tls-secret, script]             # create "dev" TLS secret
-    - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.create_tls_secret, script]             # create "dev" TLS secret
+    - !reference [.annotate_kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                             # apply kustomized deployment (staging)
+    - !reference [.patch_service, script]              # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress, script]                 # patch ingress to branch path
   environment:
     name: staging
@@ -155,12 +155,12 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
       vault: ssl-certificates/star-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.prod-namespace, script]    # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]    # attempt to create namespace; fail gracefully if already present
-    - !reference [.create-tls-secret, script]             # create "dev" TLS secret
+    - !reference [.create_tls_secret, script]             # create "dev" TLS secret
     - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                             # apply kustomized deployment (prod)
+    - !reference [.patch_service, script]              # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress, script]                 # patch ingress to branch path
   environment:
     name: production
