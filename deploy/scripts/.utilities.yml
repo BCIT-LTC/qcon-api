@@ -74,7 +74,7 @@
 .kustomize_image:
   script:
     - |
-      if [ "$CI_ENV" == "prod" ] )
+      if [ "$CI_ENV" == "prod" ]
       then
           DEPLOY_TAG="$CI_COMMIT_TAG"
       else
