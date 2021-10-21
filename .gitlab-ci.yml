@@ -115,7 +115,7 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
     - !reference [.create-tls-secret, script]             # create "dev" TLS secret
     - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                             # apply kustomized deployment (staging)
+        | kubectl replace -f -"                           # replace kustomized deployment (staging)
     - !reference [.patch-ingress, script]                 # patch ingress to branch path
   environment:
     name: staging
@@ -167,7 +167,7 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
     - !reference [.create-tls-secret, script]             # create "dev" TLS secret
     - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                             # apply kustomized deployment (prod)
+        | kubectl replace -f -"                           # replace kustomized deployment (prod)
     - !reference [.patch-ingress, script]                 # patch ingress to branch path
   environment:
     name: production
