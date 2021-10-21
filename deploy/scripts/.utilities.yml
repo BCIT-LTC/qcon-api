@@ -47,6 +47,7 @@
   script:
     - |
       echo -e " \
+      \nnamespace: $NAMESPACE_NAME \
       \npatches: \
       \n  - patch: |- \
       \n      - op: add \
@@ -89,8 +90,8 @@
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
       echo -e " \
-        \nkustomization applied: \
-        \n"
+        \nKustomization applied: \
+        \n\n"
       cat deploy/overlays/$CI_ENV/kustomization.yaml
 
 
