@@ -9,11 +9,11 @@ variables:            # other global variables are set in GitLab Admin: https://
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"  # vault policies: [read-tokens, read-apps, read-ssl-certificates]
   GIT_FETCH_EXTRA_FLAGS: --tags
 
+
 include:
-  - local: '/deploy/scripts/.build-image.yml'
-  - local: '/deploy/scripts/.create-k8s-resources.yml'
-  - local: '/deploy/scripts/.patch-overlay.yml'
-  - local: '/deploy/scripts/.semantic-release.yml'
+  - local: 'deploy/scripts/.build-image.yml'
+  - local: 'deploy/scripts/.semantic-release.yml'
+  - local: 'deploy/scripts/.utilities.yml'
 
 
 stages:
@@ -24,85 +24,64 @@ stages:
   - cleanup
 
 
-# Common Tags and Rules for jobs
-.feature-branch: &feature-branch
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "release"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
-  tags:
-    - $TEAM_TAG
-
-.main-branch: &main-branch
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "main" && $CI_PIPELINE_SOURCE == "push"'
-  tags:
-    - staging
-
-.release-branch: &release-branch
-  rules:
-    - if: '$CI_COMMIT_REF_SLUG == "release" && $CI_PIPELINE_SOURCE == "push"'
-  tags:
-    - production
-
-
-latest_version_tag:
-  <<: *feature-branch
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
-  stage: tag
-  script:    
-    - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" >> build.env
-  artifacts:
-    reports:
-      dotenv: build.env
-
-
-build_for_review:       # Build image with Kaniko (dev)
-  <<: *feature-branch
-  extends: .build-image
+build_for_review:                 # Build image with Kaniko (dev)
   stage: build
-  dependencies:
-    - latest_version_tag
+  extends:
+    - .build_image
+    - .feature_branch_rules
 
 
-deploy_review:          # Deploy image on feature branch to a k8s dev cluster
-  <<: *feature-branch
+deploy_review:                    # Deploy image on feature branch to a k8s dev cluster
+  stage: deploy
+  extends: .feature_branch_rules
   variables:
     CI_ENV: dev
-  stage: deploy
   script:
-    - !reference [.create-annotated-namespace, script]  # attempt to create namespace; fail gracefully if already present
-    - !reference [.kustomize-image, script]             # add kustomization annotations to pull latest commit image
-    - !reference [.annotate-kustomization, script]      # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
+    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
+    - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                           # apply kustomized deployment (dev)
-    - !reference [.patch-ingress-dev, script]           # patch ingress to branch path
+        | kubectl apply -f -"                         # apply kustomized deployment (dev)
+    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    - !reference [.patch_ingress-dev, script]         # patch ingress to branch path
   environment:
-    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
     url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST/$CI_COMMIT_REF_SLUG
-    auto_stop_in: 1 week
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
-    on_stop: stop-review
+    on_stop: stop_review
+    auto_stop_in: 1 week
   after_script:
     - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
 #Remove the environment variable ENV from container 'c1' in all deployment configs
 # kubectl set env deployments --all --containers="c1" ENV-
 
 
-build_latest:     # Build image with Kaniko (latest)
-  <<: *main-branch
-  extends: .build-image
+latest_version_tag:
+  stage: tag
+  extends: .main_branch_rules
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
+  script:
+    - pwd
+    - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+
+build_latest:                 # Build image with Kaniko (latest)
   stage: build
+  extends:
+    - .main_branch_rules
+    - .build_image
 
 
-deploy_latest:    # Deploy `latest` image to staging k8s cluster
-  <<: *main-branch
+deploy_latest:                # Deploy `latest` image to staging k8s cluster
+  stage: deploy
+  extends: .main_branch_rules
   variables:
     CI_ENV: staging
-  stage: deploy
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -111,12 +90,14 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.create-annotated-namespace, script]    # attempt to create namespace; fail gracefully if already present
-    - !reference [.create-tls-secret, script]             # create "dev" TLS secret
-    - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
+    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.create_tls_secret, script]         # create "dev" TLS secret
+    - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                             # apply kustomized deployment (staging)
-    - !reference [.patch-ingress, script]                 # patch ingress to branch path
+        | kubectl apply -f -"                         # apply kustomized deployment (staging)
+    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
@@ -124,10 +105,11 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
       namespace: $CI_PROJECT_NAME
 
 
-semver-tag:       # Creates a semantic-version tag that is applied to the release branch
-  <<: *release-branch
-  extends: .semantic-release
+semver_tag:                   # Creates a semantic-version tag that is applied to the release branch
   stage: tag
+  extends: 
+    - .semver_tag_rules
+    - .semantic_release
   secrets:
     GITLAB_TOKEN:
       vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
@@ -139,22 +121,20 @@ semver-tag:       # Creates a semantic-version tag that is applied to the releas
         --plugins '@semantic-release/commit-analyzer, \
           @semantic-release/release-notes-generator, \
           @semantic-release/gitlab'"
-          
 
-build_stable:         # Build image with Kaniko (stable)
-  extends: .build-image
+
+build_stable:                 # Build image with Kaniko (stable)
   stage: build
-  rules:
-    - if: $CI_COMMIT_TAG
-  tags:
-    - production
+  extends:
+    - .release_branch_rules
+    - .build_image
 
 
-deploy_production:    # Deploy `stable` image to production k8s cluster
-  <<: *release-branch
+deploy_production:            # Deploy `stable` image to production k8s cluster
+  stage: deploy
+  extends: .release_branch_rules
   variables:
     CI_ENV: prod
-  stage: deploy
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -163,38 +143,36 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
       vault: ssl-certificates/star-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.create-annotated-namespace, script]    # attempt to create namespace; fail gracefully if already present
-    - !reference [.create-tls-secret, script]             # create "dev" TLS secret
-    - !reference [.annotate-kustomization, script]        # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
+    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.create_tls_secret, script]         # create "dev" TLS secret
+    - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                             # apply kustomized deployment (prod)
-    - !reference [.patch-ingress, script]                 # patch ingress to branch path
+        | kubectl apply -f -"                         # apply kustomized deployment (prod)
+    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: production
-    url: https://$PROD_HOST/$CI_PROJECT_NAME
-  rules:
-    - if: $CI_COMMIT_TAG
-  tags:
-    - production
+    url: https://$CI_HOST/$CI_PROJECT_NAME
+    kubernetes:
+      namespace: $CI_PROJECT_NAME
 
 
-# Stop review environment
-stop-review:              
+stop_review:                # Stop review environment
   stage: cleanup
-  <<: *feature-branch
+  extends: .feature_branch_rules
   script:
     - kubectl delete ns $CI_COMMIT_REF_SLUG
     - echo "###########################################"
     - echo "  $CI_COMMIT_REF_SLUG environment stopped  "
     - echo "###########################################"
   environment:
-    name: $TEAM_TAG/review/$CI_COMMIT_REF_NAME
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
       when: manual
   tags:
     - $TEAM_TAG
-

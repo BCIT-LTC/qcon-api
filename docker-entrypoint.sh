@@ -3,7 +3,8 @@ set -e
 
 # set env vars
 export $(grep -v '^#' .env | xargs)
-rm .env
+# disables remove command because this is problematic when running docker compose
+# rm .env
 # TODO: unset vars for running container
 # eg. `unset $(grep -v '^#' .env | sed -E 's/(.*)=.*/\1/' | xargs)`
 

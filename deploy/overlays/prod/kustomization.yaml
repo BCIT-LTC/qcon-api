@@ -2,9 +2,15 @@ namespace: qcon
 
 resources:
   - ../../base
-  - ingress.yaml
   - configmap.yaml
-  - service-account.yaml
-  
+
 patchesStrategicMerge:
   - deployment.yaml
+  - ingress.yaml
+
+secretGenerator:
+- name: star-ltc-bcit-ca
+  files:
+    - "tls.crt"
+    - "tls.key"
+  type: "kubernetes.io/tls"
