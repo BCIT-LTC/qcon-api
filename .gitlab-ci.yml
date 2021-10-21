@@ -36,8 +36,6 @@ deploy_review:                          # Deploy image on feature branch to a k8
   extends: .feature_branch_rules
   variables:
     CI_ENV: dev
-    CI_HOST: $DEV_HOST
-    NAMESPACE_NAME: $CI_COMMIT_REF_SLUG
   script:
     - !reference [.get_env, script]     # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
@@ -48,10 +46,10 @@ deploy_review:                          # Deploy image on feature branch to a k8
     - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress-dev, script]         # patch ingress to branch path
   environment:
-    name: "$TEAM_TAG/review/$NAMESPACE_NAME"
-    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$CI_HOST/$NAMESPACE_NAME
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: $NAMESPACE_NAME
+      namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
     auto_stop_in: 1 week
   after_script:
@@ -83,9 +81,7 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
   stage: deploy
   extends: .main_branch_rules
   variables:
-    CI_ENV: "staging"
-    CI_HOST: $STAGING_HOST
-    NAMESPACE_NAME: $CI_PROJECT_NAME
+    CI_ENV: staging
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -104,9 +100,9 @@ deploy_latest:    # Deploy `latest` image to staging k8s cluster
     - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: staging
-    url: https://$CI_HOST/$NAMESPACE_NAME
+    url: https://$STAGING_HOST/$CI_PROJECT_NAME
     kubernetes:
-      namespace: $NAMESPACE_NAME
+      namespace: $CI_PROJECT_NAME
 
 
 semver_tag:       # Creates a semantic-version tag that is applied to the release branch
@@ -138,9 +134,7 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
   stage: deploy
   extends: .release_branch_rules
   variables:
-    CI_ENV: "prod"
-    CI_HOST: $PROD_HOST
-    NAMESPACE_NAME: $CI_PROJECT_NAME
+    CI_ENV: prod
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -159,21 +153,21 @@ deploy_production:    # Deploy `stable` image to production k8s cluster
     - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: production
-    url: https://$CI_HOST/$NAMESPACE_NAME
+    url: https://$CI_HOST/$CI_PROJECT_NAME
     kubernetes:
-      namespace: $NAMESPACE_NAME
+      namespace: $CI_PROJECT_NAME
 
 
 stop_review:              # Stop review environment
   stage: cleanup
   extends: .feature_branch_rules
   script:
-    - kubectl delete ns $NAMESPACE_NAME
+    - kubectl delete ns $CI_COMMIT_REF_SLUG
     - echo "###########################################"
-    - echo "  $NAMESPACE_NAME environment stopped  "
+    - echo "  $CI_COMMIT_REF_SLUG environment stopped  "
     - echo "###########################################"
   environment:
-    name: $TEAM_TAG/review/$NAMESPACE_NAME
+    name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
     kubernetes:
-      namespace: $NAMESPACE_NAME
+      namespace: $CI_COMMIT_REF_SLUG
     action: stop
