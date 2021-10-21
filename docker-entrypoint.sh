@@ -2,10 +2,10 @@
 set -e
 
 # set env vars
-source .env
-export $(cut -d = -f 1 .env)
+export $(grep -v '^#' .env | xargs)
 rm .env
 # TODO: unset vars for running container
+# eg. `unset $(grep -v '^#' .env | sed -E 's/(.*)=.*/\1/' | xargs)`
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2
