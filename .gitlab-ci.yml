@@ -24,14 +24,14 @@ stages:
   - cleanup
 
 
-build_for_review:                 # Build image with Kaniko (dev)
+.build_for_review:                 # Build image with Kaniko (dev)
   stage: build
   extends:
     - .build_image
     - .feature_branch_rules
 
 
-deploy_review:                    # Deploy image on feature branch to a k8s dev cluster
+.deploy_review:                    # Deploy image on feature branch to a k8s dev cluster
   stage: deploy
   extends: .feature_branch_rules
   variables:
@@ -43,7 +43,7 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
-    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    # - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress-dev, script]         # patch ingress to branch path
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
@@ -70,7 +70,7 @@ latest_version_tag:
       dotenv: build.env
 
 
-build_latest:                 # Build image with Kaniko (latest)
+.build_latest:                 # Build image with Kaniko (latest)
   stage: build
   extends:
     - .main_branch_rules
@@ -96,7 +96,7 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (staging)
-    - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
+    # - !reference [.patch_service, script]             # attempt to create service; fail gracefully if already present
     - !reference [.patch_ingress, script]             # patch ingress to branch path
   environment:
     name: staging
