@@ -18,9 +18,9 @@ spec:
         - name: podinfo
           downwardAPI:
             items:
-              - path: "labels"
+              - path: "app"
                 fieldRef:
-                  fieldPath: metadata.labels
+                  fieldPath: metadata.labels['app']
               - path: "annotations"
                 fieldRef:
                   fieldPath: metadata.annotations

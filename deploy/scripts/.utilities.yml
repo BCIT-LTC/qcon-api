@@ -273,36 +273,36 @@
 
 # Patches existing `deployment.yaml` to be applied to kustomization
 # to add volume mounts to inject annotations and labels to the deployment
-.patch_deployment_dev:
-  script:
-    - |
-      echo -e " \
-        \napiVersion: apps/v1 \
-        \nkind: Deployment \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME \
-        \n  namespace: $NAMESPACE_NAME \
-        \n  labels: \
-        \n    app: $CI_PROJECT_NAME \
-        \nspec: \
-        \n  template: \
-        \n    spec: \
-        \n      containers: \
-        \n      - name: $CI_PROJECT_NAME \
-        \n        image: $CI_PROJECT_NAME \
-        \n        volumeMounts: \
-        \n          - name: podinfo \
-        \n            mountPath: /etc/podinfo \
-        \n      volumes: \
-        \n        - name: podinfo \
-        \n          downwardAPI: \
-        \n            items: \
-        \n              - path: "labels" \
-        \n                fieldRef: \
-        \n                  fieldPath: metadata.labels \
-        \n              - path: "annotations" \
-        \n                fieldRef: \
-        \n                  fieldPath: metadata.annotations" > deploy/overlays/$CI_ENV/deployment.yaml
+# .patch_deployment_dev:
+#   script:
+#     - |
+#       echo -e " \
+#         \napiVersion: apps/v1 \
+#         \nkind: Deployment \
+#         \nmetadata: \
+#         \n  name: $CI_PROJECT_NAME \
+#         \n  namespace: $NAMESPACE_NAME \
+#         \n  labels: \
+#         \n    app: $CI_PROJECT_NAME \
+#         \nspec: \
+#         \n  template: \
+#         \n    spec: \
+#         \n      containers: \
+#         \n      - name: $CI_PROJECT_NAME \
+#         \n        image: $CI_PROJECT_NAME \
+#         \n        volumeMounts: \
+#         \n          - name: podinfo \
+#         \n            mountPath: /etc/podinfo \
+#         \n      volumes: \
+#         \n        - name: podinfo \
+#         \n          downwardAPI: \
+#         \n            items: \
+#         \n              - path: "labels" \
+#         \n                fieldRef: \
+#         \n                  fieldPath: metadata.labels \
+#         \n              - path: "annotations" \
+#         \n                fieldRef: \
+#         \n                  fieldPath: metadata.annotations" > deploy/overlays/$CI_ENV/deployment.yaml
 
-      echo -e " \
-        \nDev deployment patched"
+#       echo -e " \
+#         \nDev deployment patched"
