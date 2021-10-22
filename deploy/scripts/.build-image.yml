@@ -4,19 +4,19 @@
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   variables:
-    IMAGE_LABELS: >
-      --label org.opencontainers.image.version=$VERSION_TAG
-      --label org.opencontainers.image.title=$BUILD_TITLE
-      --label org.opencontainers.image.description=$APP_DESCRIPTION
-      --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-      --label org.opencontainers.image.source=$CI_PROJECT_URL
-      --label org.opencontainers.image.created=$BUILD_DATE
-      --label version=$VERSION_TAG
-      --label build_hash=$CI_COMMIT_SHA
-      --label build_short_sha=$CI_COMMIT_SHORT_SHA
-      --label build_timestamp=$BUILD_DATE
-      --label build_env=$BUILD_ENV
-      --label tagline=$APP_TAGLINE
+    # IMAGE_LABELS: >
+    #   --label org.opencontainers.image.version=$VERSION_TAG
+    #   --label org.opencontainers.image.title=$BUILD_TITLE
+    #   --label org.opencontainers.image.description=$APP_DESCRIPTION
+    #   --label org.opencontainers.image.revision=$CI_COMMIT_SHA
+    #   --label org.opencontainers.image.source=$CI_PROJECT_URL
+    #   --label org.opencontainers.image.created=$BUILD_DATE
+    #   --label version=$VERSION_TAG
+    #   --label build_hash=$CI_COMMIT_SHA
+    #   --label build_short_sha=$CI_COMMIT_SHORT_SHA
+    #   --label build_timestamp=$BUILD_DATE
+    #   --label build_env=$BUILD_ENV
+    #   --label tagline="$APP_TAGLINE"
   script:
     - | 
       echo -e "\nBuilding and shipping image to $CI_REGISTRY_IMAGE\n"
@@ -53,5 +53,7 @@
         > /kaniko/.docker/config.json
 
       /kaniko/executor \
-        --context $CI_PROJECT_DIR \
-        --dockerfile $CI_PROJECT_DIR/Dockerfile $FORMATTED_TAG_LIST $IMAGE_LABELS
+        --context "$CI_PROJECT_DIR" \
+        --dockerfile "$CI_PROJECT_DIR/Dockerfile" \
+        "$FORMATTED_TAG_LIST" \
+        "$IMAGE_LABELS"
