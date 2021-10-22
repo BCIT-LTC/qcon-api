@@ -57,6 +57,8 @@
       \n    target: \
       \n      kind: Namespace" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
+      echo -e "\nNamespace resource patched"
+
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
 .annotate_deployment:
@@ -70,7 +72,11 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
-        \n]" > deployment-patch.json
+        \n]" > deploy/overlays/$CI_ENV/deployment-patch.json
+
+      echo -e "\nJSON patch:"
+      cat deploy/overlays/$CI_ENV/deployment-patch.json
+
 
       echo -e " \
       \npatches: \
@@ -78,7 +84,9 @@
       \n      kind: Deployment \
       \n      name: $CI_PROJECT_NAME \
       \n      namespace: $NAMESPACE_NAME \
-      \n  path: deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \n  path: deploy/overlays/$CI_ENV/deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+      echo -e "\nDeployment resource patched"
 
 
 # Reset namespace if "PROD_NAMESPACE" is set
@@ -93,6 +101,8 @@
       echo -e " \
       \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
+      echo -e "\nNamespace name reset to $NAMESPACE_NAME"
+
 
 # add kustomizations to pull latest commit image for dev/staging
 .kustomize_image:
@@ -105,11 +115,15 @@
           DEPLOY_TAG="$CI_COMMIT_SHORT_SHA"
       fi
 
+      echo -e "\nDeploy tag set to: $DEPLOY_TAG"
+
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
         \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+      echo -e "\nImage patch applied"
 
 
 # add annotations that link a deployment to GitLab's Environment/Operations dashboards
@@ -122,10 +136,7 @@
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
       echo -e " \
-        \nKustomization applied: \
-        \n\n"
-
-      cat deploy/overlays/$CI_ENV/kustomization.yaml
+        \nCommon annotations applied"
 
 
 # Patches existing `ingress.yaml` to be applied to kustomization
@@ -156,6 +167,9 @@
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
         \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
+
+      echo -e " \
+        \nStaging/Prod ingress patched"
 
 
 # STAGING target URL: 
@@ -198,6 +212,8 @@
         \n            port: \
         \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
 
+      echo -e " \
+        \nStaging/Prod ingress patched"
 
 # create tls secret for ingress via Kustomize secretGenerator spec
 .create_tls_secret:
@@ -205,6 +221,25 @@
     - |
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
+
+      echo -e " \
+        \nTLS cert and key files created"
+
+
+# validate kustomizations that have been patched are syntactictally correct
+.verify_kustomization:
+  script:
+    - |
+      echo -e " \
+        \nKustomization applied:"
+
+      cat deploy/overlays/$CI_ENV/kustomization.yaml
+
+      echo -e " \
+        \nResources applied to cluster:"
+
+      kubectl kustomize deploy/overlays/$CI_ENV
+
 
 
 # Common Tags and Rules for jobs
