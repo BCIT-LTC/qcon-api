@@ -84,7 +84,7 @@
       \n      kind: Deployment \
       \n      name: $CI_PROJECT_NAME \
       \n      namespace: $NAMESPACE_NAME \
-      \n  path: deploy/overlays/$CI_ENV/deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \n    path: deploy/overlays/$CI_ENV/deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
       echo -e "\nDeployment resource patched"
 
@@ -142,7 +142,7 @@
 # Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
 #   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
-#     https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
+#     eg. https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
 .patch_ingress_dev:
   script:
     - |
@@ -174,15 +174,15 @@
 
 # STAGING target URL: 
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-  #   https://latest.dev.ltc.bcit.ca/qcon-api
+  #   eg. https://latest.dev.ltc.bcit.ca/qcon-api
 
 # PROD target URLs:
 # Default
   # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-  #   https://stable.dev.ltc.bcit.ca/qcon-api
+  #   eg. https://stable.dev.ltc.bcit.ca/qcon-api
 # Extra
   # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
-      # https://qcon-api.ltc.bcit.ca
+  #   eg. https://qcon-api.ltc.bcit.ca
 .patch_ingress:
   script:
     - |
@@ -215,6 +215,7 @@
       echo -e " \
         \nStaging/Prod ingress patched"
 
+
 # create tls secret for ingress via Kustomize secretGenerator spec
 .create_tls_secret:
   script:
@@ -239,7 +240,6 @@
         \nResources applied to cluster:"
 
       kubectl kustomize deploy/overlays/$CI_ENV
-
 
 
 # Common Tags and Rules for jobs
