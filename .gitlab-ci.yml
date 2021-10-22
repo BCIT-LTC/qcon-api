@@ -41,7 +41,7 @@ latest_version_tag:
     - production
 
 
-.build_for_review:                 # Build image with Kaniko (dev)
+build_for_review:                 # Build image with Kaniko (dev)
   stage: build
   extends:
     - .build_image
@@ -98,10 +98,12 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
+    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (staging)
   environment:
@@ -151,9 +153,11 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (prod)
     - !reference [.patch_ingress, script]             # patch ingress to branch path
