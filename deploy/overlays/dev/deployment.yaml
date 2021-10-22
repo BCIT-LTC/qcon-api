@@ -11,3 +11,16 @@ spec:
       containers:
       - name: qcon-api
         image: qcon-api
+        volumeMounts:
+          - name: podinfo
+            mountPath: /etc/podinfo
+      volumes:
+        - name: podinfo
+          downwardAPI:
+            items:
+              - path: "labels"
+                fieldRef:
+                  fieldPath: metadata.labels
+              - path: "annotations"
+                fieldRef:
+                  fieldPath: metadata.annotations
