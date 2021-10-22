@@ -32,6 +32,8 @@ initialize_build:             # Set standard variables and generate version tag 
 
 build_for_review:             # Build image with Kaniko (dev)
   stage: build
+  variables:
+    BUILD_ENV: dev
   extends:
     - .build_image
     - .feature_branch_rules
@@ -67,6 +69,8 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
 
 build_latest:                 # Build image with Kaniko (latest)
   stage: build
+  variables:
+    BUILD_ENV: staging
   extends:
     - .main_branch_rules
     - .build_image
@@ -122,6 +126,8 @@ semver_tag:                   # Creates a semantic-version tag that is applied t
 
 build_stable:                 # Build image with Kaniko (stable)
   stage: build
+  variables:
+    BUILD_ENV: prod
   extends:
     - .release_branch_rules
     - .build_image
