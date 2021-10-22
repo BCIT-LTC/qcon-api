@@ -97,7 +97,6 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"} \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/tagline\", \"value\": \"$APP_TAGLINE\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$TEAM_ENV\"}, \
         \n]" > deploy/overlays/$BUILD_ENV/deployment-patch.json
