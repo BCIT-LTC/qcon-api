@@ -66,13 +66,13 @@
     - |
       echo -e " \
         \n[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"} \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"} \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"} \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"} \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"} \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
-        \n]" > deploy/overlays/$CI_ENV/deployment-patch.json
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
+        # \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
+        \n]" > deployment-patch.json
 
       echo -e "\nJSON patch:"
       cat deploy/overlays/$CI_ENV/deployment-patch.json
