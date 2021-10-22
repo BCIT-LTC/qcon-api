@@ -288,8 +288,8 @@
         \n  template: \
         \n    spec: \
         \n      containers: \
-        \n      - name: qcon-api \
-        \n        image: qcon-api \
+        \n      - name: $CI_PROJECT_NAME \
+        \n        image: $CI_PROJECT_NAME \
         \n        volumeMounts: \
         \n          - name: podinfo \
         \n            mountPath: /etc/podinfo \
