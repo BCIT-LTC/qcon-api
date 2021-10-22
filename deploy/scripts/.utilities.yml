@@ -64,8 +64,8 @@
     - |
       echo -e " \
         \n[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$CI_COMMIT_REF_SLUG\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"} \
@@ -113,7 +113,7 @@
 
 
 # add annotations that link a deployment to GitLab's Environment/Operations dashboards
-.annotate_kustomizations:
+.add_common_annotations:
   script:
     - |
       echo -e " \

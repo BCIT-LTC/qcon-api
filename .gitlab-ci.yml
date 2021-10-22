@@ -58,7 +58,7 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
-    - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress_dev, script]         # patch ingress to branch path
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
