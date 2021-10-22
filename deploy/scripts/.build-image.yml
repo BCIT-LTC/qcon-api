@@ -6,6 +6,17 @@
   variables:
     IMAGE_LABELS: >
       --label org.opencontainers.image.version=$VERSION_TAG
+      --label org.opencontainers.image.title=$BUILD_TITLE
+      --label org.opencontainers.image.description=$APP_DESCRIPTION
+      --label org.opencontainers.image.revision=$CI_COMMIT_SHA
+      --label org.opencontainers.image.source=$CI_PROJECT_URL
+      --label org.opencontainers.image.created=$BUILD_DATE
+      --label version=$VERSION_TAG
+      --label build_hash=$CI_COMMIT_SHA
+      --label build_short_sha=$CI_COMMIT_SHORT_SHA
+      --label build_timestamp=$BUILD_DATE
+      --label build_env=$BUILD_ENV
+      --label tagline=$APP_TAGLINE
   script:
     - | 
       echo -e "\nBuilding and shipping image to $CI_REGISTRY_IMAGE\n"
@@ -14,19 +25,6 @@
 
       BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
 
-      IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.title=\"$BUILD_TITLE\" \
-        --label org.opencontainers.image.description=\"$APP_DESCRIPTION\" \
-        --label org.opencontainers.image.revision=\"$CI_COMMIT_SHA\" \
-        --label org.opencontainers.image.source=\"$CI_PROJECT_URL\" \
-        --label org.opencontainers.image.created=\"$BUILD_DATE\" \
-        --label version=\"$VERSION_TAG\" \
-        --label build_hash=\"$CI_COMMIT_SHA\" \
-        --label build_short_sha=\"$CI_COMMIT_SHORT_SHA\" \
-        --label build_timestamp=\"$BUILD_DATE\" \
-        --label build_env=\"$BUILD_ENV\" \
-        --label tagline=\"$APP_TAGLINE\""
- 
       ADDITIONAL_TAG_LIST="$CI_COMMIT_SHORT_SHA"
 
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then 
