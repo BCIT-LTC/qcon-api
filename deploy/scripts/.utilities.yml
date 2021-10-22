@@ -8,9 +8,6 @@
 #   - app format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app format (release branch): "v1.5.3"
 .init:                            
-  variables:
-    VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"
-    GIT_FETCH_EXTRA_FLAGS: --tags
   image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
   script:
     - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" > build.env
@@ -108,7 +105,6 @@
         \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
         \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
         \n  build_env: $BUILD_ENV \
-        \n  tagline: $APP_TAGLINE \
         \n  path_name: $NAMESPACE_NAME \
         \n  cluster_name: $BUILD_ENV"
 
@@ -121,6 +117,43 @@
       \n    path: deployment-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nDeployment patch added to kustomization"
+
+
+# Patches existing `deployment.yaml` to be applied to kustomization
+# to add volume mounts to inject annotations and labels to the deployment
+# .patch_deployment_dev:
+#   script:
+#     - |
+#       echo -e " \
+#         \napiVersion: apps/v1 \
+#         \nkind: Deployment \
+#         \nmetadata: \
+#         \n  name: $CI_PROJECT_NAME \
+#         \n  namespace: $NAMESPACE_NAME \
+#         \n  labels: \
+#         \n    app: $CI_PROJECT_NAME \
+#         \nspec: \
+#         \n  template: \
+#         \n    spec: \
+#         \n      containers: \
+#         \n      - name: $CI_PROJECT_NAME \
+#         \n        image: $CI_PROJECT_NAME \
+#         \n        volumeMounts: \
+#         \n          - name: podinfo \
+#         \n            mountPath: /etc/podinfo \
+#         \n      volumes: \
+#         \n        - name: podinfo \
+#         \n          downwardAPI: \
+#         \n            items: \
+#         \n              - path: "labels" \
+#         \n                fieldRef: \
+#         \n                  fieldPath: metadata.labels \
+#         \n              - path: "annotations" \
+#         \n                fieldRef: \
+#         \n                  fieldPath: metadata.annotations" > deploy/overlays/$CI_ENV/deployment.yaml
+
+#       echo -e " \
+#         \nDev deployment patched"
 
 
 # Reset namespace if "PROD_NAMESPACE" is set
