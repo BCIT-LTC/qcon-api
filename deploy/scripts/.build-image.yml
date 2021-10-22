@@ -17,8 +17,8 @@
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$BUILD_TITLE \
         --label org.opencontainers.image.description=$APP_DESCRIPTION \
-        --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-        --label org.opencontainers.image.source=$CI_PROJECT_URL
+        --label org.opencontainers.image.revision=$CI_COMMIT_SHA \
+        --label org.opencontainers.image.source=$CI_PROJECT_URL \
         --label org.opencontainers.image.created=$BUILD_DATE \
         --label version=$VERSION_TAG \
         --label build_hash=$CI_COMMIT_SHA \
@@ -28,13 +28,11 @@
         --label tagline=$APP_TAGLINE"
  
       ADDITIONAL_TAG_LIST="$ADDITIONAL_TAG_LIST $CI_COMMIT_SHORT_SHA"
-      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        ADDITIONAL_TAG_LIST="$ADDITIONAL_TAG_LIST latest";
-      fi
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then 
+        ADDITIONAL_TAG_LIST="$ADDITIONAL_TAG_LIST latest"; fi
       if [[ "$CI_COMMIT_TAG" ]]; then
         SHORT_TAG=$(echo $CI_COMMIT_TAG | sed 's/v//')
-        ADDITIONAL_TAG_LIST="$ADDITIONAL_TAG_LIST $SHORT_TAG stable";
-      fi
+        ADDITIONAL_TAG_LIST="$ADDITIONAL_TAG_LIST $SHORT_TAG stable"; fi
       if [[ -n "$ADDITIONAL_TAG_LIST" ]]; then 
         for TAG in $ADDITIONAL_TAG_LIST; do 
           FORMATTED_TAG_LIST="${FORMATTED_TAG_LIST} --tag $CI_REGISTRY_IMAGE:$TAG "; 
