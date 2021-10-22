@@ -26,10 +26,10 @@ stages:
 
 # Tag format:
   # - Dockerfile format=1.5.3
-  # - Release format=v1.5.3
-# feature/main branch format: v1.5.3-d105fa
+  # - GitLab Release format=v1.5.3
+# feature/main branch format: v1.5.3-d7105fa
 # release branch format: v1.5.3
-latest_version_tag:
+latest_version_tag:               # Generate version tag for build. $VERSION_TAG is added to the image as well as the deployment
   stage: tag
   image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
   script:
@@ -54,13 +54,13 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
   variables:
     CI_ENV: dev
   script:
-    - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
-    - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
+    - !reference [.get_env, script]                   # set cluster env
+    - !reference [.annotate_namespace, script]        # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.annotate_deployment, script]       # add annotations about build to deployment
+    - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch_ingress_dev, script]         # patch ingress to branch path
-    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
+    - !reference [.patch_ingress_dev, script]         # replace ingress with rewrite-targets, sub-paths
+    - !reference [.verify_kustomization, script]      # validate kustomization
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
   environment:

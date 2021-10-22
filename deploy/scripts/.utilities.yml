@@ -48,14 +48,17 @@
   script:
     - |
       echo -e " \
-      \nnamespace: $NAMESPACE_NAME \
+      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      
+      echo -e " \
       \npatches: \
       \n  - patch: |- \
       \n      - op: add \
       \n        path: /metadata/annotations/field.cattle.io~1projectId \
-      \n        value: $CLUSTER_ID:$PROJECT_ID \
+      \n        value: \"$CLUSTER_ID:$PROJECT_ID\" \
       \n    target: \
-      \n      kind: Namespace" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \n      kind: Namespace \
+      \n      namespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
       echo -e "\nNamespace resource patched"
 
@@ -64,14 +67,13 @@
 .annotate_deployment:
   script:
     - |
-      echo -e " \
-        \n[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"}, \
+      echo -e "[ \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
-        # \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
         \n]" > deploy/overlays/$CI_ENV/deployment-patch.json
 
       echo -e "\nJSON patch:"
@@ -121,7 +123,7 @@
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \n    newTag: \"$DEPLOY_TAG\"" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
       echo -e "\nImage patch applied"
 
