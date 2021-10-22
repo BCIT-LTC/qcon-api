@@ -17,13 +17,14 @@
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.created=$BUILDDATE \
         --label build-date=$BUILDDATE"
+        --label path-name=$NAMESPACE_NAME"
 
       # Description for opencontainers
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$BUILDTITLE \
         --label org.opencontainers.image.description=$BUILDTITLE \
-        --label org.opencontainers.image.version=$VERSION"
+        --label org.opencontainers.image.version=$VERSION_TAG"
       
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi

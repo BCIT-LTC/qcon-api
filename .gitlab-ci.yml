@@ -24,6 +24,23 @@ stages:
   - cleanup
 
 
+# Tag format:
+  # - Dockerfile format=1.5.3
+  # - Release format=v1.5.3
+# feature/main branch format: v1.5.3-d105fa
+# release branch format: v1.5.3
+latest_version_tag:
+  stage: tag
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
+  script:
+    - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+  tags:
+    - production
+
+
 build_for_review:                 # Build image with Kaniko (dev)
   stage: build
   extends:
@@ -39,6 +56,7 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
     - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.annotate_kustomizations, script]   # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress_dev, script]         # patch ingress to branch path
@@ -55,20 +73,6 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
     - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
 #Remove the environment variable ENV from container 'c1' in all deployment configs
 # kubectl set env deployments --all --containers="c1" ENV-
-
-
-latest_version_tag:
-  stage: tag
-  extends: .main_branch_rules
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
-  script:
-    - pwd
-    - echo "VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)" > build.env
-  artifacts:
-    reports:
-      dotenv: build.env
-  tags:
-    - $TEAM_TAG
 
 
 build_latest:                 # Build image with Kaniko (latest)

@@ -36,13 +36,14 @@
           CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
           PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
+          VERSION_TAG="$(echo $CI_COMMIT_TAG | cut -c 2-)"
       else
           echo "\"$CI_ENV\" is not set correctly"
           exit 1
       fi
 
 
-# Creates namespace annotation to ensure it's visible in the Rancher Default project
+# Creates a namespace annotation to ensure it's visible in the Rancher Default project
 .annotate_namespace:
   script:
     - |
@@ -55,6 +56,29 @@
       \n        value: $CLUSTER_ID:$PROJECT_ID \
       \n    target: \
       \n      kind: Namespace" >> deploy/overlays/$CI_ENV/kustomization.yaml
+
+
+# Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
+.annotate_deployment:
+  script:
+    - |
+      echo -e " \
+        \n[ \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$CI_COMMIT_REF_SLUG\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
+        \n]" > deployment-patch.json
+
+      echo -e " \
+      \npatches: \
+      \n  - target: \
+      \n      kind: Deployment \
+      \n      name: $CI_PROJECT_NAME \
+      \n      namespace: $NAMESPACE_NAME \
+      \n  path: deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
 # Reset namespace if "PROD_NAMESPACE" is set
@@ -70,7 +94,7 @@
       \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
-# add kustomization annotations to pull latest commit image
+# add kustomizations to pull latest commit image for dev/staging
 .kustomize_image:
   script:
     - |
@@ -88,7 +112,7 @@
         \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
 
-# link deployment to GitLab Environment/Operations dashboards
+# add annotations that link a deployment to GitLab's Environment/Operations dashboards
 .annotate_kustomizations:
   script:
     - |
@@ -107,6 +131,7 @@
 # Patches existing `ingress.yaml` to be applied to kustomization
 # target URL:
 #   - https://{CI_PROJECT_NAME}.{TEAM_TAG}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
+#     https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
 .patch_ingress_dev:
   script:
     - |
@@ -135,12 +160,15 @@
 
 # STAGING target URL: 
   # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  #   https://latest.dev.ltc.bcit.ca/qcon-api
 
 # PROD target URLs:
 # Default
   # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  #   https://stable.dev.ltc.bcit.ca/qcon-api
 # Extra
   # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
+      # https://qcon-api.ltc.bcit.ca
 .patch_ingress:
   script:
     - |
