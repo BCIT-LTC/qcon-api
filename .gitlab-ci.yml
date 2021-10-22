@@ -60,6 +60,7 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress_dev, script]         # patch ingress to branch path
+    - !reference [.patch_deployment_dev, script]         # patch deployment to add volume mount for annotations
     - !reference [.verify_kustomization, script]      # validate patches have correct syntax
     - "kubectl kustomize deploy/overlays/$CI_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
