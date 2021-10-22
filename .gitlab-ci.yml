@@ -6,8 +6,8 @@ variables:            # other global variables are set in GitLab Admin: https://
   TEAM_TAG: "dev-cp"
   PROD_NAMESPACE: "qcon"
   APP_PORT: "8000"
-  VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"  # vault policies: [read-tokens, read-apps, read-ssl-certificates]
-  GIT_FETCH_EXTRA_FLAGS: --tags
+  APP_DESCRIPTION: "Qcon makes it easy to update and manage quizzes and assessment questions using a familiar MS Word interface."
+  APP_TAGLINE: "Qcon - for question conversion"
 
 
 include:
@@ -17,6 +17,7 @@ include:
 
 
 stages:
+  - init
   - tag
   - build
   - test
@@ -24,44 +25,34 @@ stages:
   - cleanup
 
 
-# Tag format:
-  # - Dockerfile format=1.5.3
-  # - Release format=v1.5.3
-# feature/main branch format: v1.5.3-d105fa
-# release branch format: v1.5.3
-latest_version_tag:
-  stage: tag
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
-  script:
-    - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" > build.env
-  artifacts:
-    reports:
-      dotenv: build.env
-  tags:
-    - production
+initialize_build:             # Set standard variables and generate version tag for build.
+  stage: init                 # $VERSION_TAG is added to the image as well as the deployment
+  extends: .init
 
 
-build_for_review:                 # Build image with Kaniko (dev)
+build_for_review:             # Build image with Kaniko (dev)
   stage: build
+  variables:
+    BUILD_ENV: dev
   extends:
     - .build_image
     - .feature_branch_rules
 
 
-deploy_review:                    # Deploy image on feature branch to a k8s dev cluster
+deploy_review:                # Deploy image on feature branch to a k8s dev cluster
   stage: deploy
   extends: .feature_branch_rules
   variables:
-    CI_ENV: dev
+    BUILD_ENV: dev
   script:
-    - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
-    - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
+    - !reference [.get_env, script]                   # set cluster env
+    - !reference [.annotate_namespace, script]        # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.annotate_deployment, script]       # add annotations about build to deployment
+    - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch_ingress_dev, script]         # patch ingress to branch path
-    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
-    - "kubectl kustomize deploy/overlays/$CI_ENV \
+    - !reference [.patch_ingress_dev, script]         # replace ingress with rewrite-targets, sub-paths
+    - !reference [.verify_kustomization, script]      # validate kustomization
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
   environment:
     name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
@@ -78,6 +69,8 @@ deploy_review:                    # Deploy image on feature branch to a k8s dev 
 
 build_latest:                 # Build image with Kaniko (latest)
   stage: build
+  variables:
+    BUILD_ENV: staging
   extends:
     - .main_branch_rules
     - .build_image
@@ -87,7 +80,7 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
   stage: deploy
   extends: .main_branch_rules
   variables:
-    CI_ENV: staging
+    BUILD_ENV: staging
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -104,7 +97,7 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
     - !reference [.verify_kustomization, script]      # validate patches have correct syntax
-    - "kubectl kustomize deploy/overlays/$CI_ENV \
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (staging)
   environment:
     name: staging
@@ -120,7 +113,7 @@ semver_tag:                   # Creates a semantic-version tag that is applied t
     - .semantic_release
   secrets:
     GITLAB_TOKEN:
-      vault: dependabot-$CI_PROJECT_NAME/PROJECT_TOKEN_PASSWORD@tokens
+      vault: dependabot-$CI_PROJECT_NAME/token@tokens
       file: false
   script:
     - "semantic-release \
@@ -133,6 +126,8 @@ semver_tag:                   # Creates a semantic-version tag that is applied t
 
 build_stable:                 # Build image with Kaniko (stable)
   stage: build
+  variables:
+    BUILD_ENV: prod
   extends:
     - .release_branch_rules
     - .build_image
@@ -142,7 +137,7 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
   stage: deploy
   extends: .release_branch_rules
   variables:
-    CI_ENV: prod
+    BUILD_ENV: prod
   secrets:
     TLS_CRT:
       vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
@@ -157,13 +152,13 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
-    - "kubectl kustomize deploy/overlays/$CI_ENV \
-        | kubectl apply -f -"                         # apply kustomized deployment (prod)
     - !reference [.patch_ingress, script]             # patch ingress to branch path
+    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
+        | kubectl apply -f -"                         # apply kustomized deployment (prod)
   environment:
     name: production
-    url: https://$CI_HOST/$CI_PROJECT_NAME
+    url: https://$PROD_HOST/$CI_PROJECT_NAME
     kubernetes:
       namespace: $CI_PROJECT_NAME
 

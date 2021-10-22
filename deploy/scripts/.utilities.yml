@@ -1,5 +1,25 @@
 # Subroutines for deployment
 
+# Set standard vars and generate version tag for build
+# Standard vault policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
+# Tag format:
+#   - image format: "1.5.3"
+#   - GitLab release format: "v1.5.3"
+#   - app format (feature/main branch): "v1.5.3-c7754fc6"
+#   - app format (release branch): "v1.5.3"
+.init:                            
+  variables:
+    VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"
+    GIT_FETCH_EXTRA_FLAGS: --tags
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
+  script:
+    - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+  tags:
+    - production
+
 
 # Configure cluster ENV; vars defined here are not available for GitLab `environment` definitions
 #   Currently limited to:
@@ -7,29 +27,30 @@
 #     - "dev-vsm"
 #     - "staging"
 #     - "prod"
+# Secret names correspond to certificate SAN's (eg. star-dev-ltc-bcit-ca protects `*.dev.ltc.bcit.ca`)
 .get_env:
   script:
     - |
-      if [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
+      if [ "$BUILD_ENV" == "dev" ] && [ $TEAM_TAG == "dev-cp" ]
       then
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
-      elif [ "$CI_ENV" == "dev" ] && [ $TEAM_TAG == "dev-vsm" ]
+      elif [ "$BUILD_ENV" == "dev" ] && [ $TEAM_TAG == "dev-vsm" ]
       then
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
           CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID"
-      elif [ "$CI_ENV" == "staging" ]
+      elif [ "$BUILD_ENV" == "staging" ]
       then
           CI_HOST="$STAGING_HOST"
           NAMESPACE_NAME="$CI_PROJECT_NAME"
           CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
           PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
-      elif [ "$CI_ENV" == "prod" ]
+      elif [ "$BUILD_ENV" == "prod" ]
       then
           CI_HOST="$PROD_HOST"
           NAMESPACE_NAME="$CI_PROJECT_NAME"
@@ -38,7 +59,7 @@
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
           VERSION_TAG="$(echo $CI_COMMIT_TAG | cut -c 2-)"
       else
-          echo "\"$CI_ENV\" is not set correctly"
+          echo "\"$BUILD_ENV\" is not set correctly"
           exit 1
       fi
 
@@ -48,35 +69,48 @@
   script:
     - |
       echo -e " \
-      \nnamespace: $NAMESPACE_NAME \
+      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+      
+      echo -e " \
       \npatches: \
       \n  - patch: |- \
       \n      - op: add \
       \n        path: /metadata/annotations/field.cattle.io~1projectId \
-      \n        value: $CLUSTER_ID:$PROJECT_ID \
+      \n        value: \"$CLUSTER_ID:$PROJECT_ID\" \
       \n    target: \
-      \n      kind: Namespace" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \n      kind: Namespace \
+      \n      namespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\nNamespace resource patched"
+      echo -e "\nNamespace patch added to kustomization"
 
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
+# Please note:
+#   - `path_name` and `cluster_name` are only added as annotations to the kubernetes resource
+#   - `title` and `description` are only added as labels to the image
 .annotate_deployment:
   script:
     - |
-      echo -e " \
-        \n[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CI_ENV\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+      echo -e "[ \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
-        # \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
-        \n]" > deploy/overlays/$CI_ENV/deployment-patch.json
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$TEAM_ENV\"} \
+        \n]" > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
-      echo -e "\nJSON patch:"
-      cat deploy/overlays/$CI_ENV/deployment-patch.json
-
+      echo -e "\nDeployment json patch info: \
+        \n \
+        \n  version: $VERSION_TAG \
+        \n  build_hash: $CI_COMMIT_SHA \
+        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  build_env: $BUILD_ENV \
+        \n  tagline: $APP_TAGLINE \
+        \n  path_name: $NAMESPACE_NAME \
+        \n  cluster_name: $BUILD_ENV"
 
       echo -e " \
       \npatches: \
@@ -84,31 +118,31 @@
       \n      kind: Deployment \
       \n      name: $CI_PROJECT_NAME \
       \n      namespace: $NAMESPACE_NAME \
-      \n    path: deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \n    path: deployment-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\nDeployment resource patched"
+      echo -e "\nDeployment patch added to kustomization"
 
 
 # Reset namespace if "PROD_NAMESPACE" is set
 .prod_namespace:
   script:
     - |
-      if [ -n "$PROD_NAMESPACE" ] && ( [ "$CI_ENV" == "staging" ] || [ "$CI_ENV" == "prod" ] )
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
       fi
 
       echo -e " \
-      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\nNamespace name reset to $NAMESPACE_NAME"
+      echo -e "\nProd env detected; reset to NAMESPACE_NAME to $NAMESPACE_NAME"
 
 
 # add kustomizations to pull latest commit image for dev/staging
 .kustomize_image:
   script:
     - |
-      if [ "$CI_ENV" == "prod" ]
+      if [ "$BUILD_ENV" == "prod" ]
       then
           DEPLOY_TAG="$CI_COMMIT_TAG"
       else
@@ -121,9 +155,9 @@
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \n    newTag: \"$DEPLOY_TAG\"" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\nImage patch applied"
+      echo -e "\nImage patch added to kustomization"
 
 
 # add annotations that link a deployment to GitLab's Environment/Operations dashboards
@@ -133,10 +167,10 @@
       echo -e " \
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$CI_ENV/kustomization.yaml
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e " \
-        \nCommon annotations applied"
+        \nCommon annotations added to kustomization"
 
 
 # Patches existing `ingress.yaml` to be applied to kustomization
@@ -166,10 +200,10 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
+        \n              number: $APP_PORT" > deploy/overlays/$BUILD_ENV/ingress.yaml
 
       echo -e " \
-        \nStaging/Prod ingress patched"
+        \nIngress-dev resource replaced with kustomization"
 
 
 # STAGING target URL: 
@@ -210,21 +244,21 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$CI_ENV/ingress.yaml
+        \n              number: $APP_PORT" > deploy/overlays/$BUILD_ENV/ingress.yaml
 
       echo -e " \
-        \nStaging/Prod ingress patched"
+        \nIngress resource replaced with kustomization"
 
 
 # create tls secret for ingress via Kustomize secretGenerator spec
 .create_tls_secret:
   script:
     - |
-      echo "$TLS_CRT" | base64 --decode > deploy/overlays/$CI_ENV/tls.crt
-      echo "$TLS_KEY" | base64 --decode > deploy/overlays/$CI_ENV/tls.key
+      echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
+      echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
       echo -e " \
-        \nTLS cert and key files created"
+        \nData files for TLS secret generation created successfully"
 
 
 # validate kustomizations that have been patched are syntactictally correct
@@ -232,14 +266,14 @@
   script:
     - |
       echo -e " \
-        \nKustomization applied:"
+        \n##### Kustomization being applied:\n"
 
-      cat deploy/overlays/$CI_ENV/kustomization.yaml
+      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e " \
-        \nResources applied to cluster:"
+        \n##### Kustomized resources being applied to cluster:\n"
 
-      kubectl kustomize deploy/overlays/$CI_ENV
+      kubectl kustomize deploy/overlays/$BUILD_ENV
 
 
 # Common Tags and Rules for jobs
