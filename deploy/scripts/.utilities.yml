@@ -72,7 +72,7 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
         # \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
-        \n]" > deployment-patch.json
+        \n]" > deploy/overlays/$CI_ENV/deployment-patch.json
 
       echo -e "\nJSON patch:"
       cat deploy/overlays/$CI_ENV/deployment-patch.json
@@ -84,7 +84,7 @@
       \n      kind: Deployment \
       \n      name: $CI_PROJECT_NAME \
       \n      namespace: $NAMESPACE_NAME \
-      \n    path: deploy/overlays/$CI_ENV/deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
+      \n    path: deployment-patch.json" >> deploy/overlays/$CI_ENV/kustomization.yaml
 
       echo -e "\nDeployment resource patched"
 
