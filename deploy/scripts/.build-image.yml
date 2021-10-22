@@ -13,7 +13,7 @@
       --label build_short_sha=$CI_COMMIT_SHORT_SHA
       --label build_timestamp=$BUILD_DATE
       --label build_env=$BUILD_ENV
-      --label tagline=$APP_TAGLINE
+# --label tagline=$APP_TAGLINE
   script:
     - | 
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
@@ -27,7 +27,7 @@
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$BUILDTITLE \
-        --label org.opencontainers.image.description=$APP_DESCRIPTION"
+        --label org.opencontainers.image.description=\"$APP_DESCRIPTION\""
       
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
