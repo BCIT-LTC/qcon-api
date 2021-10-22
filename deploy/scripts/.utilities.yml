@@ -27,6 +27,7 @@
 #     - "dev-vsm"
 #     - "staging"
 #     - "prod"
+# Secret names correspond to certificate SAN's (eg. star-dev-ltc-bcit-ca protects `*.dev.ltc.bcit.ca`)
 .get_env:
   script:
     - |
@@ -84,25 +85,33 @@
 
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
+# Please note:
+#   - `path_name` and `cluster_name` are only added as annotations to the kubernetes resource
+#   - `title` and `description` are only added as labels to the image
 .annotate_deployment:
   script:
     - |
       echo -e "[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$BUILD_ENV\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/tagline\", \"value\": \"$APP_TAGLINE\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$TEAM_ENV\"}, \
         \n]" > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
       echo -e "\nDeployment json patch info: \
-        \n\npath_name: $NAMESPACE_NAME \
-        \ncluster_name: $BUILD_ENV
-        \nversion: $VERSION_TAG
-        \nbuild_hash: $CI_COMMIT_SHA
-        \nbuild_short_sha: $CI_COMMIT_SHORT_SHA
-        \nbuild_timestamp: $CI_PIPELINE_CREATED_AT"
+        \n \
+        \n  version: $VERSION_TAG \
+        \n  build_hash: $CI_COMMIT_SHA \
+        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  build_env: $BUILD_ENV \
+        \n  tagline: $APP_TAGLINE \
+        \n  path_name: $NAMESPACE_NAME \
+        \n  cluster_name: $BUILD_ENV"
 
       echo -e " \
       \npatches: \
