@@ -20,7 +20,7 @@ spec:
             items:
               - path: "app"
                 fieldRef:
-                  fieldPath: metadata.labels['app']
+                  fieldPath: metadata.labels['test123']
               - path: "annotations"
                 fieldRef:
                   fieldPath: metadata.annotations
