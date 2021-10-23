@@ -92,7 +92,7 @@
         \n]" > deploy/overlays/$BUILD_ENV/namespace-patch.json
 
       echo -e " \
-        \npatches: \
+        \npatchesJson6902: \
         \n  - target: \
         \n      kind: Namespace \
         \n      name: $NAMESPACE_NAME \
