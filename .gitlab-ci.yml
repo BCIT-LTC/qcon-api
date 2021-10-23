@@ -92,7 +92,7 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
 # kubectl set env deployments --all --containers="c1" ENV-
 
 
-build_latest:                 # Build image with Kaniko (latest)
+.build_latest:                 # Build image with Kaniko (latest)
   stage: build
   variables:
     BUILD_ENV: staging
@@ -128,7 +128,7 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
     kubernetes:
-      namespace: $CI_PROJECT_NAME
+      namespace: $PROD_NAMESPACE
 
 
 semver_tag:                   # Creates a semantic-version tag that is applied to the release branch
@@ -185,7 +185,7 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     name: production
     url: https://$PROD_HOST/$CI_PROJECT_NAME
     kubernetes:
-      namespace: $CI_PROJECT_NAME
+      namespace: $PROD_NAMESPACE
 
 
 stop_review:                # Stop review environment
