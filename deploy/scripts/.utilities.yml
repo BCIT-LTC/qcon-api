@@ -53,7 +53,6 @@
           CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
           PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
-          VERSION_TAG="$(echo $CI_COMMIT_TAG | cut -c 2-)"
       else
           echo "\"$BUILD_ENV\" is not set correctly"
           exit 1
@@ -65,7 +64,6 @@
         \n  CLUSTER_ID: $CLUSTER_ID \
         \n  PROJECT_ID: $PROJECT_ID \
         \n  TLS_SECRET_NAME: $TLS_SECRET_NAME \
-        \n  VERSION_TAG: $VERSION_TAG \
         \n"
 
 
@@ -310,6 +308,12 @@
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
       echo -e "\nData files for TLS secret generation created successfully"
+
+
+# prod-only: remove commit_short_sha from VERSION_TAG
+.update_version_tag:
+  script:
+    - VERSION_TAG="$(echo $CI_COMMIT_TAG | cut -c 2-)"
 
 
 # validate kustomizations that have been patched are syntactictally correct

@@ -14,12 +14,12 @@
 #       - `deploy` folder: update kubernetes manifiests accordingly
 #       - `docker-compose`: local development
 #       - `.gitlab-ci.yml`: ci/cd pipeline
-#       - update the variables below to match your app
+#       - update the variables below to match your app (if not using PROD_NAMESPACE update staging/prod environment variables)
 
 
 variables:                  # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
   CLUSTER_ENV: "dev-cp"     # options: dev-cp, dev-vsm
-  PROD_NAMESPACE: "qcon"
+  PROD_NAMESPACE: "qcon"    # combine apps into one namespace if following microservice pattern
   APP_PORT: "8000"
   APP_DESCRIPTION: "Qcon makes it easy to update and manage quizzes and assessment questions using a familiar MS Word interface."
   APP_TAGLINE: "Qcon - for question conversion"
@@ -154,6 +154,7 @@ build_stable:                 # Build image with Kaniko (stable)
   variables:
     BUILD_ENV: prod
   extends:
+    - .update_version_tag
     - .release_branch_rules
     - .build_image
 
