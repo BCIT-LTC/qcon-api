@@ -35,7 +35,7 @@ initialize_build:             # Set standard variables and generate version tag 
   extends: .init
 
 
-build_for_review:             # Build image with Kaniko (dev)
+.build_for_review:             # Build image with Kaniko (dev)
   stage: build
   variables:
     BUILD_ENV: dev
@@ -44,7 +44,7 @@ build_for_review:             # Build image with Kaniko (dev)
     - .feature_branch_rules
 
 
-deploy_review:                # Deploy image on feature branch to a k8s dev cluster
+.deploy_review:                # Deploy image on feature branch to a k8s dev cluster
   stage: deploy
   extends: .feature_branch_rules
   variables:
