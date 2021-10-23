@@ -206,7 +206,8 @@
       echo -e " \
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n  field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\"" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e " \
         \nCommon annotations added to kustomization"
