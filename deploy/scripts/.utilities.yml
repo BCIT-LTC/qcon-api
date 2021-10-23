@@ -60,30 +60,45 @@
       fi
 
       echo -e "Environment variables: \
-        \n  $CI_HOST \
-        \n  $NAMESPACE_NAME \
-        \n  $CLUSTER_ID \
-        \n  $PROJECT_ID \
-        \n  $TLS_SECRET_NAME \
-        \n  $VERSION_TAG"
+        \n  CI_HOST: $CI_HOST \
+        \n  NAMESPACE_NAME: $NAMESPACE_NAME \
+        \n  CLUSTER_ID: $CLUSTER_ID \
+        \n  PROJECT_ID: $PROJECT_ID \
+        \n  TLS_SECRET_NAME: $TLS_SECRET_NAME \
+        \n  VERSION_TAG: $VERSION_TAG \
+        \n"
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
+# TODO: find a better way to update namespace (duplicates exist with this code)
 .annotate_namespace:
   script:
     - |
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+
+          echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
+            \
+            > deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+          echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
+      fi
+
+      echo -e "[ \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
+        \n]" \
+        \
+        > deploy/overlays/$BUILD_ENV/namespace-patch.json
+
       echo -e " \
-      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-      
-      echo -e " \
-      \npatches: \
-      \n  - patch: |- \
-      \n      - op: add \
-      \n        path: /metadata/annotations/field.cattle.io~1projectId \
-      \n        value: \"$CLUSTER_ID:$PROJECT_ID\" \
-      \n    target: \
-      \n      kind: Namespace \
-      \n      namespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \npatchesJson6902: \
+        \n  - target: \
+        \n      kind: Namespace \
+        \n      name: $NAMESPACE_NAME \
+        \n    path: namespace-patch.json" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nNamespace patch added to kustomization"
 
@@ -103,7 +118,9 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
-        \n]" > deploy/overlays/$BUILD_ENV/deployment-patch.json
+        \n]" \
+        \
+        > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
       echo -e "\nDeployment json patch info: \
         \n \
@@ -113,15 +130,18 @@
         \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
         \n  build_env: $BUILD_ENV \
         \n  path_name: $NAMESPACE_NAME \
-        \n  cluster_name: $BUILD_ENV"
+        \n  cluster_name: $BUILD_ENV \
+        \n"
 
       echo -e " \
-      \npatches: \
-      \n  - target: \
-      \n      kind: Deployment \
-      \n      name: $CI_PROJECT_NAME \
-      \n      namespace: $NAMESPACE_NAME \
-      \n    path: deployment-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \npatches: \
+        \n  - target: \
+        \n      kind: Deployment \
+        \n      name: $CI_PROJECT_NAME \
+        \n      namespace: $NAMESPACE_NAME \
+        \n    path: deployment-patch.json" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nDeployment patch added to kustomization"
 
@@ -163,21 +183,6 @@
 #         \nDev deployment patched"
 
 
-# Reset namespace if "PROD_NAMESPACE" is set
-.prod_namespace:
-  script:
-    - |
-      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
-      then
-          NAMESPACE_NAME="$PROD_NAMESPACE"
-      fi
-
-      echo -e " \
-      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      echo -e "\nProd env detected; reset to NAMESPACE_NAME to $NAMESPACE_NAME"
-
-
 # add kustomizations to pull latest commit image for dev/staging
 .kustomize_image:
   script:
@@ -195,7 +200,9 @@
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: \"$DEPLOY_TAG\"" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n    newTag: $DEPLOY_TAG" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nImage patch added to kustomization"
 
@@ -206,11 +213,13 @@
     - |
       echo -e " \
         \ncommonAnnotations: \
+        \n  field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\" \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e " \
-        \nCommon annotations added to kustomization"
+      echo -e "\nCommon annotations added to kustomization"
 
 
 # Patches existing `ingress.yaml` to be applied to kustomization
@@ -240,7 +249,9 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$BUILD_ENV/ingress.yaml
+        \n              number: $APP_PORT" \
+        \
+        > deploy/overlays/$BUILD_ENV/ingress.yaml
 
       echo -e " \
         \nIngress-dev resource replaced with kustomization"
@@ -284,10 +295,11 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$BUILD_ENV/ingress.yaml
+        \n              number: $APP_PORT" \
+        \
+        > deploy/overlays/$BUILD_ENV/ingress.yaml
 
-      echo -e " \
-        \nIngress resource replaced with kustomization"
+      echo -e "\nIngress resource replaced with kustomization"
 
 
 # create tls secret for ingress via Kustomize secretGenerator spec
@@ -297,21 +309,18 @@
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
-      echo -e " \
-        \nData files for TLS secret generation created successfully"
+      echo -e "\nData files for TLS secret generation created successfully"
 
 
 # validate kustomizations that have been patched are syntactictally correct
 .verify_kustomization:
   script:
     - |
-      echo -e " \
-        \n##### Kustomization being applied:\n"
+      echo -e "\n##### Kustomization being applied:\n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e " \
-        \n##### Kustomized resources being applied to cluster:\n"
+      echo -e "\n##### Kustomized resources being applied to cluster:\n"
 
       kubectl kustomize deploy/overlays/$BUILD_ENV
 
