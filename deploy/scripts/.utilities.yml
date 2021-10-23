@@ -8,7 +8,7 @@
 #   - app format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app format (release branch): "v1.5.3"
 .init:                            
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/git:latest
+  image: alpine/git:latest
   script:
     - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee build.env
   artifacts:
