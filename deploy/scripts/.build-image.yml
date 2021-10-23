@@ -18,10 +18,10 @@
     - | 
       echo "Building and shipping image to $CI_REGISTRY_IMAGE"
       
-      BUILDDATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
+      BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
 
       IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.created=$BUILDDATE"
+        --label org.opencontainers.image.created=$BUILD_DATE"
 
       BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
 
