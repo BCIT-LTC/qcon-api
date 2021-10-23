@@ -35,7 +35,7 @@ initialize_build:             # Set standard variables and generate version tag 
   extends: .init
 
 
-.build_for_review:             # Build image with Kaniko (dev)
+build_for_review:             # Build image with Kaniko (dev)
   stage: build
   variables:
     BUILD_ENV: dev
@@ -44,7 +44,7 @@ initialize_build:             # Set standard variables and generate version tag 
     - .feature_branch_rules
 
 
-.deploy_review:                # Deploy image on feature branch to a k8s dev cluster
+deploy_review:                # Deploy image on feature branch to a k8s dev cluster
   stage: deploy
   extends: .feature_branch_rules
   variables:
@@ -56,7 +56,7 @@ initialize_build:             # Set standard variables and generate version tag 
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress_dev, script]         # replace ingress with rewrite-targets, sub-paths
-    # - !reference [.verify_kustomization, script]      # validate kustomization
+    # - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
   environment:
@@ -68,7 +68,7 @@ initialize_build:             # Set standard variables and generate version tag 
     auto_stop_in: 1 week
   after_script:
     - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
-#Remove the environment variable ENV from container 'c1' in all deployment configs
+# TODO: Remove the environment variable ENV from container 'c1' in all deployment configs
 # kubectl set env deployments --all --containers="c1" ENV-
 
 
@@ -99,9 +99,9 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
-    - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
-    # - !reference [.verify_kustomization, script]      # validate patches have correct syntax
+    # - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (staging)
   environment:
@@ -158,7 +158,7 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
-    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
+    - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (prod)
   environment:
