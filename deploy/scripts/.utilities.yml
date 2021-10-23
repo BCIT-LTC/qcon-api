@@ -88,7 +88,7 @@
 
       echo -e "[ \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/labels/field.cattle.io~1projectId\", \"value\": \"$PROJECT_ID\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/labels/field.cattle.io~1projectId\", \"value\": \"$PROJECT_ID\"} \
         \n]" > deploy/overlays/$BUILD_ENV/namespace-patch.json
 
       echo -e " \
