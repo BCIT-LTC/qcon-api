@@ -69,6 +69,7 @@
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
+# TODO: find a better way to update namespace (duplicates exist with this code)
 .annotate_namespace:
   script:
     - |
@@ -84,6 +85,15 @@
       \n    target: \
       \n      kind: Namespace \
       \n      namespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+          echo -e " \
+          \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+          echo -e "\nProd env detected. Reset NAMESPACE_NAME to $NAMESPACE_NAME"
+      fi
 
       echo -e "\nNamespace patch added to kustomization"
 
@@ -161,21 +171,6 @@
 
 #       echo -e " \
 #         \nDev deployment patched"
-
-
-# Reset namespace if "PROD_NAMESPACE" is set
-.prod_namespace:
-  script:
-    - |
-      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
-      then
-          NAMESPACE_NAME="$PROD_NAMESPACE"
-      fi
-
-      echo -e " \
-      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      echo -e "\nProd env detected; reset to NAMESPACE_NAME to $NAMESPACE_NAME"
 
 
 # add kustomizations to pull latest commit image for dev/staging

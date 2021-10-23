@@ -1,12 +1,13 @@
 # LTC GitLab CI/CD Pipeline
+#
 # Requirements:
 #   - Dockerfile:
 #       - workflow is based on container pattern
 #   - 3-branch workflow:
 #       - main (default)
 #       - feature branches (based on merge request names)
+#           - semantic-release automatically increments version based on commit message prefix (feat, fix, patch)
 #       - release branch
-#       - Semantic-release automatically increments version based on commit message prefix (feat, fix, patch)
 #   - Project token initialization:
 #       - secure project communication by running the `auth-init.sh` script
 #   - Copy and update the following files/folders:
