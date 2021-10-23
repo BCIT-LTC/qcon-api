@@ -79,6 +79,7 @@
           NAMESPACE_NAME="$PROD_NAMESPACE"
 
           echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
+            \
             > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
@@ -86,14 +87,18 @@
 
       echo -e "[ \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
-        \n]" > deploy/overlays/$BUILD_ENV/namespace-patch.json
+        \n]" \
+        \
+        > deploy/overlays/$BUILD_ENV/namespace-patch.json
 
       echo -e " \
         \npatchesJson6902: \
         \n  - target: \
         \n      kind: Namespace \
         \n      name: $NAMESPACE_NAME \
-        \n    path: namespace-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n    path: namespace-patch.json" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nNamespace patch added to kustomization"
 
@@ -113,7 +118,9 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
-        \n]" > deploy/overlays/$BUILD_ENV/deployment-patch.json
+        \n]" \
+        \
+        > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
       echo -e "\nDeployment json patch info: \
         \n \
@@ -132,7 +139,9 @@
         \n      kind: Deployment \
         \n      name: $CI_PROJECT_NAME \
         \n      namespace: $NAMESPACE_NAME \
-        \n    path: deployment-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n    path: deployment-patch.json" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nDeployment patch added to kustomization"
 
@@ -191,7 +200,9 @@
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n    newTag: $DEPLOY_TAG" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nImage patch added to kustomization"
 
@@ -204,10 +215,11 @@
         \ncommonAnnotations: \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
         \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
-        \n  field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\"" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \n  field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\"" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e " \
-        \nCommon annotations added to kustomization"
+      echo -e "\nCommon annotations added to kustomization"
 
 
 # Patches existing `ingress.yaml` to be applied to kustomization
@@ -237,7 +249,9 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$BUILD_ENV/ingress.yaml
+        \n              number: $APP_PORT" \
+        \
+        > deploy/overlays/$BUILD_ENV/ingress.yaml
 
       echo -e " \
         \nIngress-dev resource replaced with kustomization"
@@ -281,10 +295,11 @@
         \n          service: \
         \n            name: $CI_PROJECT_NAME-service \
         \n            port: \
-        \n              number: $APP_PORT" > deploy/overlays/$BUILD_ENV/ingress.yaml
+        \n              number: $APP_PORT" \
+        \
+        > deploy/overlays/$BUILD_ENV/ingress.yaml
 
-      echo -e " \
-        \nIngress resource replaced with kustomization"
+      echo -e "\nIngress resource replaced with kustomization"
 
 
 # create tls secret for ingress via Kustomize secretGenerator spec
@@ -294,21 +309,18 @@
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
-      echo -e " \
-        \nData files for TLS secret generation created successfully"
+      echo -e "\nData files for TLS secret generation created successfully"
 
 
 # validate kustomizations that have been patched are syntactictally correct
 .verify_kustomization:
   script:
     - |
-      echo -e " \
-        \n##### Kustomization being applied:\n"
+      echo -e "\n##### Kustomization being applied:\n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e " \
-        \n##### Kustomized resources being applied to cluster:\n"
+      echo -e "\n##### Kustomized resources being applied to cluster:\n"
 
       kubectl kustomize deploy/overlays/$BUILD_ENV
 
