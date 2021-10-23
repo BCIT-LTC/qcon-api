@@ -13,10 +13,11 @@
 #       - `deploy` folder: update kubernetes manifiests accordingly
 #       - `docker-compose`: local development
 #       - `.gitlab-ci.yml`: ci/cd pipeline
+#       - update the variables below to match your app
 
 
-variables:            # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
-  TEAM_TAG: "dev-cp"
+variables:                  # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
+  CLUSTER_ENV: "dev-cp"     # options: dev-cp, dev-vsm
   PROD_NAMESPACE: "qcon"
   APP_PORT: "8000"
   APP_DESCRIPTION: "Qcon makes it easy to update and manage quizzes and assessment questions using a familiar MS Word interface."
@@ -78,8 +79,8 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
   environment:
-    name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
-    url: http://$CI_PROJECT_NAME.$TEAM_TAG.$DEV_HOST/$CI_COMMIT_REF_SLUG
+    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG     # options: dev-cp, dev-vsm
+    url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG     # options: dev-cp, dev-vsm
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
@@ -195,7 +196,7 @@ stop_review:                # Stop review environment
     - echo "  $CI_COMMIT_REF_SLUG environment stopped  "
     - echo "###########################################"
   environment:
-    name: $TEAM_TAG/review/$CI_COMMIT_REF_SLUG
+    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG     # options: dev-cp, dev-vsm
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
@@ -203,4 +204,4 @@ stop_review:                # Stop review environment
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
       when: manual
   tags:
-    - $TEAM_TAG
+    - $CLUSTER_ENV      # options: dev-cp, dev-vsm
