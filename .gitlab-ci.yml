@@ -14,20 +14,23 @@
 #       - `deploy` folder: update kubernetes manifiests accordingly
 #       - `docker-compose`: local development
 #       - `.gitlab-ci.yml`: ci/cd pipeline
-#       - update the variables below to match your app
+#       - update the variables below to match your app (if not using PROD_NAMESPACE update staging/prod environment variables)
 
 
 variables:                  # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
   CLUSTER_ENV: "dev-cp"     # options: dev-cp, dev-vsm
-  PROD_NAMESPACE: "qcon"
+  PROD_NAMESPACE: "qcon"    # combine apps into one namespace if following microservice pattern
   APP_PORT: "8000"
   APP_DESCRIPTION: "Qcon makes it easy to update and manage quizzes and assessment questions using a familiar MS Word interface."
   APP_TAGLINE: "Qcon - for question conversion"
 #
 #
-########## Edit below here at your peril! ##########
+#
+############### Edit below here at your peril! ###############
 #
 #
+#
+# Standard Vault policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"
   GIT_FETCH_EXTRA_FLAGS: "--tags"
 
@@ -51,7 +54,7 @@ stages:
 
 
 initialize_build:             # Set standard variables and generate version tag for build.
-  stage: init                 # $VERSION_TAG is added to the image as well as the deployment
+  stage: init                 #   - $VERSION_TAG is added to the image as well as the deployment
   extends: .init
 
 
@@ -80,8 +83,8 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
   environment:
-    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG     # options: dev-cp, dev-vsm
-    url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG     # options: dev-cp, dev-vsm
+    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
@@ -128,7 +131,7 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
     kubernetes:
-      namespace: $PROD_NAMESPACE
+      namespace: $PROD_NAMESPACE                      # update to '$CI_PROJECT_NAME' if projects are independent
 
 
 semver_tag:                   # Creates a semantic-version tag that is applied to the release branch
@@ -154,6 +157,7 @@ build_stable:                 # Build image with Kaniko (stable)
   variables:
     BUILD_ENV: prod
   extends:
+    - .update_version_tag
     - .release_branch_rules
     - .build_image
 
@@ -176,7 +180,7 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
-    - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
+    - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
     # - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
@@ -185,10 +189,10 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     name: production
     url: https://$PROD_HOST/$CI_PROJECT_NAME
     kubernetes:
-      namespace: $PROD_NAMESPACE
+      namespace: $PROD_NAMESPACE      # update to '$CI_PROJECT_NAME' if projects are independent
 
 
-stop_review:                # Stop review environment
+stop_review:                          # Stop review environment
   stage: cleanup
   extends: .feature_branch_rules
   script:
@@ -197,7 +201,7 @@ stop_review:                # Stop review environment
     - echo "  $CI_COMMIT_REF_SLUG environment stopped  "
     - echo "###########################################"
   environment:
-    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG     # options: dev-cp, dev-vsm
+    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
@@ -205,4 +209,4 @@ stop_review:                # Stop review environment
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
       when: manual
   tags:
-    - $CLUSTER_ENV      # options: dev-cp, dev-vsm
+    - $CLUSTER_ENV
