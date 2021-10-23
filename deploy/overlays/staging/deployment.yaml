@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
+        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest
         volumeMounts:
           - mountPath: /code/.env
             name: shared-data
