@@ -11,7 +11,7 @@ variables:            # other global variables are set in GitLab Admin: https://
   # Don't edit these variables
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"
   GIT_FETCH_EXTRA_FLAGS: "--tags"
-  CI_DEBUG_TRACE: "true"
+
 
 include:
   - local: 'deploy/scripts/.build-image.yml'
@@ -54,7 +54,7 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress_dev, script]         # replace ingress with rewrite-targets, sub-paths
-    - !reference [.verify_kustomization, script]      # validate kustomization
+    # - !reference [.verify_kustomization, script]      # validate kustomization
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
   environment:
@@ -99,7 +99,7 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]   # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
-    - !reference [.verify_kustomization, script]      # validate patches have correct syntax
+    # - !reference [.verify_kustomization, script]      # validate patches have correct syntax
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (staging)
   environment:
