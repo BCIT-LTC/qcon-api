@@ -1,8 +1,14 @@
 # LTC GitLab CI/CD Pipeline
 # Requirements:
-#   - Dockerfile: workflow is based on containerized microservice pattern
-#   - 3-branch workflow: main (default), feature branches (based on merge request names), and a release branch
-#   - Project token initialization: secure project communication by running the `auth-init.sh` script
+#   - Dockerfile:
+#       - workflow is based on container pattern
+#   - 3-branch workflow:
+#       - main (default)
+#       - feature branches (based on merge request names)
+#       - release branch
+#       - Semantic-release automatically increments version based on commit message prefix (feat, fix, patch)
+#   - Project token initialization:
+#       - secure project communication by running the `auth-init.sh` script
 #   - Copy and update the following files/folders:
 #       - `deploy` folder: update kubernetes manifiests accordingly
 #       - `docker-compose`: local development
@@ -24,7 +30,7 @@ variables:            # other global variables are set in GitLab Admin: https://
   GIT_FETCH_EXTRA_FLAGS: "--tags"
 
 
-image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/bitnami/kubectl
+image: bitnami/kubectl
 
 
 include:
