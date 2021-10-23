@@ -78,7 +78,7 @@
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
 
-          echo $(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g") \
+          echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
             > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
