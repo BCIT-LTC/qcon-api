@@ -81,20 +81,21 @@
           \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
+      else
+          echo -e " \
+            \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
 
+      echo -e "[ \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$PROJECT_ID\"}, \
+        \n]" > deploy/overlays/$BUILD_ENV/namespace-patch.json
+
       echo -e " \
-      \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-      
-      echo -e " \
-      \npatchesJson6902: \
-      \n- target: \
-      \n    kind: Namespace \
-      \n    namespace: $NAMESPACE_NAME \
-      \n  patch: |- \
-      \n    - op: add \
-      \n      path: /metadata/annotations/field.cattle.io~1projectId \
-      \n      value: $PROJECT_ID" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \npatches: \
+        \n  - target: \
+        \n      kind: Namespace \
+        \n      name: $NAMESPACE_NAME \
+        \n    path: namespace-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nNamespace patch added to kustomization"
 
@@ -128,12 +129,12 @@
         \n"
 
       echo -e " \
-      \npatches: \
-      \n  - target: \
-      \n      kind: Deployment \
-      \n      name: $CI_PROJECT_NAME \
-      \n      namespace: $NAMESPACE_NAME \
-      \n    path: deployment-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+        \npatches: \
+        \n  - target: \
+        \n      kind: Deployment \
+        \n      name: $CI_PROJECT_NAME \
+        \n      namespace: $NAMESPACE_NAME \
+        \n    path: deployment-patch.json" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nDeployment patch added to kustomization"
 
