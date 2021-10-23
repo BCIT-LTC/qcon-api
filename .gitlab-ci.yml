@@ -1,5 +1,5 @@
 # LTC GitLab CI/CD Pipeline
-#
+
 # Requirements:
 #   - Dockerfile:
 #       - workflow is based on container pattern
@@ -92,7 +92,7 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
 # kubectl set env deployments --all --containers="c1" ENV-
 
 
-.build_latest:                 # Build image with Kaniko (latest)
+build_latest:                 # Build image with Kaniko (latest)
   stage: build
   variables:
     BUILD_ENV: staging
