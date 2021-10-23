@@ -10,8 +10,8 @@ variables:            # other global variables are set in GitLab Admin: https://
   APP_TAGLINE: "Qcon - for question conversion"
   # Don't edit these variables
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"
-  GIT_FETCH_EXTRA_FLAGS: --tags
-  CI_DEBUG_TRACE: true
+  GIT_FETCH_EXTRA_FLAGS: "--tags"
+  CI_DEBUG_TRACE: "true"
 
 include:
   - local: 'deploy/scripts/.build-image.yml'
