@@ -60,12 +60,12 @@
       fi
 
       echo -e "Environment variables: \
-        \n  $CI_HOST \
-        \n  $NAMESPACE_NAME \
-        \n  $CLUSTER_ID \
-        \n  $PROJECT_ID \
-        \n  $TLS_SECRET_NAME \
-        \n  $VERSION_TAG"
+        \n  CI_HOST: $CI_HOST \
+        \n  NAMESPACE_NAME: $NAMESPACE_NAME \
+        \n  CLUSTER_ID: $CLUSTER_ID \
+        \n  PROJECT_ID: $PROJECT_ID \
+        \n  TLS_SECRET_NAME: $TLS_SECRET_NAME \
+        \n  VERSION_TAG: $VERSION_TAG"
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
@@ -77,14 +77,14 @@
       \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
       
       echo -e " \
-      \npatches: \
-      \n  - patch: |- \
-      \n      - op: add \
-      \n        path: /metadata/annotations/field.cattle.io~1projectId \
-      \n        value: \"$CLUSTER_ID:$PROJECT_ID\" \
-      \n    target: \
-      \n      kind: Namespace \
-      \n      namespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+      \npatchesJson6902: \
+      \n- target: \
+      \n    kind: Namespace \
+      \n    namespace: $NAMESPACE_NAME \
+      \n  patch: |- \
+      \n    - op: add \
+      \n      path: /metadata/annotations/field.cattle.io~1projectId \
+      \n      value: \"$PROJECT_ID\"" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
       then
