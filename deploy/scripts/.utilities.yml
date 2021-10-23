@@ -65,7 +65,8 @@
         \n  CLUSTER_ID: $CLUSTER_ID \
         \n  PROJECT_ID: $PROJECT_ID \
         \n  TLS_SECRET_NAME: $TLS_SECRET_NAME \
-        \n  VERSION_TAG: $VERSION_TAG"
+        \n  VERSION_TAG: $VERSION_TAG \
+        \n"
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
@@ -73,6 +74,15 @@
 .annotate_namespace:
   script:
     - |
+      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
+      then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+          echo -e " \
+          \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+          echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
+      fi
+
       echo -e " \
       \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
       
@@ -84,16 +94,7 @@
       \n  patch: |- \
       \n    - op: add \
       \n      path: /metadata/annotations/field.cattle.io~1projectId \
-      \n      value: \"$PROJECT_ID\"" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
-      then
-          NAMESPACE_NAME="$PROD_NAMESPACE"
-          echo -e " \
-          \nnamespace: $NAMESPACE_NAME" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-          echo -e "\nProd env detected. Reset NAMESPACE_NAME to $NAMESPACE_NAME"
-      fi
+      \n      value: $PROJECT_ID" >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nNamespace patch added to kustomization"
 
@@ -123,7 +124,8 @@
         \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
         \n  build_env: $BUILD_ENV \
         \n  path_name: $NAMESPACE_NAME \
-        \n  cluster_name: $BUILD_ENV"
+        \n  cluster_name: $BUILD_ENV \
+        \n"
 
       echo -e " \
       \npatches: \
