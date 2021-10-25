@@ -104,7 +104,7 @@
 
       else
           
-          echo " \
+          echo -e " \
             \napiVersion: v1 \
             \nkind: Namespace \
             \nmetadata: \
