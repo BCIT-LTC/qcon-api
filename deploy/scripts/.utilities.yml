@@ -95,10 +95,10 @@
 
       echo -e " \
         \npatches: \
-        \n  - path: namespace.patch.json" \
+        \n  - path: namespace.patch.json \
         \n    target: \
         \n      kind: Namespace \
-        \n      name: $NAMESPACE_NAME \
+        \n      name: $NAMESPACE_NAME" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -141,11 +141,11 @@
 
       echo -e " \
         \npatches: \
-        \n  - path: deployment.patch.json" \
+        \n  - path: deployment.patch.json \
         \n    target: \
         \n      kind: Deployment \
         \n      name: $CI_PROJECT_NAME \
-        \n      namespace: $NAMESPACE_NAME \
+        \n      namespace: $NAMESPACE_NAME" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
