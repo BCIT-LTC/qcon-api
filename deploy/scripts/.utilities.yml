@@ -115,17 +115,17 @@
     - |
       echo -e "\nDeployment json patch info: \
         \n \
-        \n  version: $VERSION_TAG \
-        \n  build_hash: $CI_COMMIT_SHA \
-        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
-        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
-        \n  build_env: $BUILD_ENV \
-        \n  namespace_name: $NAMESPACE_NAME \
-        \n  app_path_name: $NAMESPACE_NAME \
-        \n  cluster_name: $BUILD_ENV \
+        \n  version: ........ $VERSION_TAG \
+        \n  build_hash: ..... $CI_COMMIT_SHA \
+        \n  build_short_sha:  $CI_COMMIT_SHORT_SHA \
+        \n  build_timestamp:  $CI_PIPELINE_CREATED_AT \
+        \n  build_env: ...... $BUILD_ENV \
+        \n  namespace_name: . $NAMESPACE_NAME \
+        \n  app_path_name: .. $NAMESPACE_NAME \
+        \n  cluster_name: ... $BUILD_ENV \
         \n"
 
-      echo -e " \
+      echo -e "[ \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
@@ -134,7 +134,8 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/namespace_name\", \"value\": \"$NAMESPACE_NAME\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/app_path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"}" \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
+        \n]" \
         \
         > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
