@@ -5,5 +5,7 @@ resources:
   - ingress.yaml
   - namespace.yaml
 
-patchesStrategicMerge:
-  - deployment.yaml
+patches:
+  - path: deployment.yaml
+    target:
+      labelSelector: "env=dev"

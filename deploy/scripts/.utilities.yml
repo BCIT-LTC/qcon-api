@@ -225,7 +225,16 @@
         \ncommonAnnotations: \
         \n  field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\" \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n  version: $VERSION_TAG \
+        \n  build_hash: $CI_COMMIT_SHA \
+        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  build_env: $BUILD_ENV \
+        \n  namespace_name: $NAMESPACE_NAME \
+        \n  app_path_name: $NAMESPACE_NAME \
+        \n  cluster_name: $CLUSTER_ENV \
+        \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 

@@ -5,6 +5,7 @@ metadata:
   namespace: qcon-api
   labels:
     app: qcon-api
+    env: dev
 spec:
   template:
     spec:
