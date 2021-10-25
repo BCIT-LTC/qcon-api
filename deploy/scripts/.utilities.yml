@@ -85,7 +85,14 @@
           echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
             \
             > deploy/overlays/$BUILD_ENV/kustomization.yaml
-
+          
+          echo " \
+            \napiVersion: v1
+            \nkind: Namespace
+            \nmetadata:
+            \n  name: $NAMESPACE_NAME" \
+            \
+            > deploy/overlays/$BUILD_ENV/namespace.yaml
       fi
 
       echo -e "[ \
