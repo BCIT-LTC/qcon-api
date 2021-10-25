@@ -87,9 +87,9 @@
             > deploy/overlays/$BUILD_ENV/kustomization.yaml
           
           echo " \
-            \napiVersion: v1
-            \nkind: Namespace
-            \nmetadata:
+            \napiVersion: v1 \
+            \nkind: Namespace \
+            \nmetadata: \
             \n  name: $NAMESPACE_NAME" \
             \
             > deploy/base/namespace.yaml
