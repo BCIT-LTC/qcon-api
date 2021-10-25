@@ -68,6 +68,22 @@
         \n"
 
 
+# Honestly, screw it!
+.create_dev_kustomization:
+  script:
+    - |
+      echo -e " \
+      \nresources: \
+      \n  - ../../base \
+      \n  - ingress.yaml \
+      \n  - namespace.yaml \
+      \n \
+      \npatches: \
+      \n  - path: deployment.yaml" \
+      \
+      > deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
 .annotate_namespace:
   script:
@@ -82,9 +98,6 @@
 
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
       else
-          echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
-            \
-            > deploy/overlays/$BUILD_ENV/kustomization.yaml
           
           echo " \
             \napiVersion: v1 \
@@ -92,7 +105,7 @@
             \nmetadata: \
             \n  name: $NAMESPACE_NAME" \
             \
-            > deploy/base/namespace.yaml
+            > deploy/overlays/$BUILD_ENV/namespace.yaml
       fi
 
       echo -e "[ \
