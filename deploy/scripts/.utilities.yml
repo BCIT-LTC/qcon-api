@@ -9,10 +9,10 @@
 .init:
   image: alpine/git:latest
   script:
-    - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee build.env
+    - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
   artifacts:
     reports:
-      dotenv: build.env
+      dotenv: version_tag.env
   tags:
     - production
 
@@ -106,18 +106,6 @@
 .annotate_deployment:
   script:
     - |
-      echo -e "[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
-        \n]" \
-        \
-        > deploy/overlays/$BUILD_ENV/deployment-patch.json
-
       echo -e "\nDeployment json patch info: \
         \n \
         \n  version: $VERSION_TAG \
@@ -125,17 +113,32 @@
         \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
         \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
         \n  build_env: $BUILD_ENV \
-        \n  path_name: $NAMESPACE_NAME \
+        \n  namespace_name: $NAMESPACE_NAME \
+        \n  app_path_name: $NAMESPACE_NAME \
         \n  cluster_name: $BUILD_ENV \
         \n"
 
+      echo -e "[ \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/namespace_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/app_path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
+        \n]" \
+        \
+        > deploy/overlays/$BUILD_ENV/deployment-patch.json
+
       echo -e " \
-        \npatchesJson6902: \
-        \n  - target: \
+        \npatches: \
+        \n  - path: deployment-patch.json \
+        \n    target: \
         \n      kind: Deployment \
         \n      name: $CI_PROJECT_NAME \
-        \n      namespace: $NAMESPACE_NAME \
-        \n    path: deployment-patch.json" \
+        \n      namespace: $NAMESPACE_NAME" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
