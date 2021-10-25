@@ -92,7 +92,7 @@
             \nmetadata:
             \n  name: $NAMESPACE_NAME" \
             \
-            > deploy/overlays/$BUILD_ENV/namespace.yaml
+            > deploy/base/namespace.yaml
       fi
 
       echo -e "[ \
