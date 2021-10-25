@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-  namespace: qcon-api
   labels:
     app: qcon-api
+    env: staging
 spec:
   template:
   

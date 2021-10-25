@@ -2,13 +2,5 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-  namespace: qcon-api
   labels:
-    app: qcon-api
     env: dev
-spec:
-  template:
-    spec:
-      containers:
-      - name: qcon-api
-        image: qcon-api

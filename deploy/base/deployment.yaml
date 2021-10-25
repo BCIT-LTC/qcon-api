@@ -17,7 +17,7 @@ spec:
       serviceAccountName: dependabot-qcon-api
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
+        image: qcon-api
         resources:
           requests:
             cpu: 100m

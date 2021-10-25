@@ -16,7 +16,18 @@
 # --label tagline=$APP_TAGLINE
   script:
     - | 
-      echo "Building and shipping image to $CI_REGISTRY_IMAGE"
+      echo -e "Building and shipping image to $CI_REGISTRY_IMAGE \
+      \nImage Labels being applied: \
+      \n \
+      \norg.opencontainers.image.version=$VERSION_TAG \
+      \norg.opencontainers.image.revision=$CI_COMMIT_SHA \
+      \norg.opencontainers.image.source=$CI_PROJECT_URL \
+      \nversion=$VERSION_TAG \
+      \nbuild_hash=$CI_COMMIT_SHA \
+      \nbuild_short_sha=$CI_COMMIT_SHORT_SHA \
+      \nbuild_timestamp=$BUILD_DATE \
+      \nbuild_env=$BUILD_ENV \
+      \n"
       
       BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
 
