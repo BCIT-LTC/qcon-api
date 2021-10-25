@@ -104,6 +104,16 @@
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
+      echo -e " \
+        \napiVersion: v1 \
+        \nkind: Namespace \
+        \nmetadata: \
+        \n  name: $NAMESPACE_NAME" \
+        \
+        > deploy/overlays/$BUILD_ENV/namespace.yaml
+      
+      cat deploy/overlays/$BUILD_ENV/namespace.yaml
+
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
 .annotate_namespace:
