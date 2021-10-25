@@ -163,7 +163,7 @@
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG" \
+        \n    newTag: \"$DEPLOY_TAG\"" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
