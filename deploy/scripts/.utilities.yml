@@ -99,6 +99,9 @@
             > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
+
+          deploy/overlays/$BUILD_ENV/kustomization.yaml
+
       else
           
           echo " \
@@ -117,6 +120,8 @@
         \n]" \
         \
         > deploy/overlays/$BUILD_ENV/namespace-patch.json
+      
+      cat deploy/overlays/$BUILD_ENV/namespace-patch.json
 
       echo -e " \
         \npatchesJson6902: \
@@ -128,6 +133,8 @@
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nNamespace patch added to kustomization"
+
+      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
@@ -163,6 +170,8 @@
         \
         > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
+        cat deploy/overlays/$BUILD_ENV/deployment-patch.json
+
       echo -e " \
         \npatches: \
         \n  - path: deployment-patch.json \
@@ -174,6 +183,8 @@
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nDeployment patch added to kustomization"
+
+      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
 # Adds kustomizations to pull latest commit image for dev/staging
@@ -199,6 +210,8 @@
 
       echo -e "\nImage patch added to kustomization"
 
+      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+
 
 # Adds annotations that link a deployment to GitLab's Environment/Operations dashboards
 .add_common_annotations:
@@ -213,6 +226,8 @@
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nCommon annotations added to kustomization"
+
+      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
 # Patches existing `ingress.yaml` to be applied to dev
@@ -248,6 +263,8 @@
 
       echo -e " \
         \nIngress-dev resource replaced with kustomization"
+      
+      cat deploy/overlays/$BUILD_ENV/ingress.yaml
 
 
 # Patches existing `ingress.yaml` to be applied to staging/prod
@@ -295,6 +312,8 @@
         > deploy/overlays/$BUILD_ENV/ingress.yaml
 
       echo -e "\nIngress resource replaced with kustomization"
+
+      cat deploy/overlays/$BUILD_ENV/ingress.yaml
 
 
 # Creates tls secret for ingress via Kustomize secretGenerator
