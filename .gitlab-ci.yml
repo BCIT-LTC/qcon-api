@@ -58,7 +58,7 @@ initialize_build:             # Set standard variables and generate version tag 
   extends: .init
 
 
-build_for_review:             # Build image with Kaniko (dev)
+.build_for_review:             # Build image with Kaniko (dev)
   stage: build
   variables:
     BUILD_ENV: dev

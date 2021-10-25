@@ -58,6 +58,8 @@
       fi
 
       echo -e "Environment variables: \
+        \n  BUILD_ENV: $BUILD_ENV \
+        \n  CLUSTER_ENV: $CLUSTER_ENV \
         \n  CI_HOST: $CI_HOST \
         \n  NAMESPACE_NAME: $NAMESPACE_NAME \
         \n  CLUSTER_ID: $CLUSTER_ID \
@@ -118,7 +120,7 @@
         \n  cluster_name: $BUILD_ENV \
         \n"
 
-      echo -e "[ \
+      echo -e " \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
@@ -127,8 +129,7 @@
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/namespace_name\", \"value\": \"$NAMESPACE_NAME\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/app_path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
-        \n]" \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"}" \
         \
         > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
