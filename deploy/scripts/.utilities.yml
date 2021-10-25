@@ -79,7 +79,26 @@
         \n  - namespace.yaml \
         \n \
         \npatches: \
-        \n  - path: deployment.yaml" \
+        \n  - path: deployment.yaml \
+        \n \
+        \nimages: \
+        \n  - name: $CI_PROJECT_NAME \
+        \n    newName: $CI_REGISTRY_IMAGE \
+        \n    newTag: $DEPLOY_TAG \
+        \n \
+        \ncommonAnnotations: \
+        \n  field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\" \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n  version: $VERSION_TAG \
+        \n  build_hash: $CI_COMMIT_SHA \
+        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  build_env: $BUILD_ENV \
+        \n  namespace_name: $NAMESPACE_NAME \
+        \n  app_path_name: $NAMESPACE_NAME \
+        \n  cluster_name: $CLUSTER_ENV\
+        " \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -99,20 +118,6 @@
             > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
-
-          deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      else
-          
-          echo -e " \
-            \napiVersion: v1 \
-            \nkind: Namespace \
-            \nmetadata: \
-            \n  name: $NAMESPACE_NAME" \
-            \
-            > deploy/overlays/$BUILD_ENV/namespace.yaml
-
-          cat deploy/overlays/$BUILD_ENV/namespace.yaml 
       fi
 
       echo -e "[ \
@@ -120,8 +125,6 @@
         \n]" \
         \
         > deploy/overlays/$BUILD_ENV/namespace-patch.json
-      
-      cat deploy/overlays/$BUILD_ENV/namespace-patch.json
 
       echo -e " \
         \npatchesJson6902: \
@@ -134,8 +137,6 @@
 
       echo -e "\nNamespace patch added to kustomization"
 
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
-
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
 # Please note:
@@ -144,47 +145,41 @@
 .annotate_deployment:
   script:
     - |
-      echo -e "\nDeployment json patch info: \
-        \n \
-        \n  version: ........ $VERSION_TAG \
-        \n  build_hash: ..... $CI_COMMIT_SHA \
-        \n  build_short_sha:  $CI_COMMIT_SHORT_SHA \
-        \n  build_timestamp:  $CI_PIPELINE_CREATED_AT \
-        \n  build_env: ...... $BUILD_ENV \
-        \n  namespace_name: . $NAMESPACE_NAME \
-        \n  app_path_name: .. $NAMESPACE_NAME \
-        \n  cluster_name: ... $BUILD_ENV \
-        \n"
-
       echo -e "[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/namespace_name\", \"value\": \"$NAMESPACE_NAME\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/app_path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
+        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
         \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
         \n]" \
         \
         > deploy/overlays/$BUILD_ENV/deployment-patch.json
 
-        cat deploy/overlays/$BUILD_ENV/deployment-patch.json
+      echo -e "\nDeployment json patch info: \
+        \n \
+        \n  version: $VERSION_TAG \
+        \n  build_hash: $CI_COMMIT_SHA \
+        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  build_env: $BUILD_ENV \
+        \n  path_name: $NAMESPACE_NAME \
+        \n  cluster_name: $BUILD_ENV \
+        \n"
 
       echo -e " \
-        \npatches: \
-        \n  - path: deployment-patch.json \
-        \n    target: \
+        \npatchesJson6902: \
+        \n  - target: \
         \n      kind: Deployment \
         \n      name: $CI_PROJECT_NAME \
-        \n      namespace: $NAMESPACE_NAME" \
+        \n      namespace: $NAMESPACE_NAME \
+        \n    path: deployment-patch.json" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e "\nDeployment patch added to kustomization"
 
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
 # Adds kustomizations to pull latest commit image for dev/staging
@@ -195,7 +190,7 @@
       then
           DEPLOY_TAG="$CI_COMMIT_TAG"
       else
-          DEPLOY_TAG="$CI_COMMIT_SHA"
+          DEPLOY_TAG="$CI_COMMIT_SHORT_SHA"
       fi
 
       echo -e "\nDeploy tag set to: $DEPLOY_TAG"
@@ -210,7 +205,6 @@
 
       echo -e "\nImage patch added to kustomization"
 
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
 # Adds annotations that link a deployment to GitLab's Environment/Operations dashboards
