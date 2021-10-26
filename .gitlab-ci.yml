@@ -74,7 +74,14 @@ deploy_review:                        # Deploy feature branch image to a dev clu
   variables:
     BUILD_ENV: dev
   script:
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"
+    - !reference [.get_env, script]                         # set cluster env
+    - !reference [.replace_namespace, script]               # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.replace_deployment, script]              # add annotations about build to deployment
+    - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
+    - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
+    - !reference [.verify_kustomization, script]            # validate kustomization
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
+        | kubectl apply -f -"                               # apply kustomized deployment
   environment:
     name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
     url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG
@@ -112,7 +119,15 @@ deploy_latest:                        # Deploy `latest` image to staging k8s clu
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"
+    - !reference [.get_env, script]                         # set cluster env
+    - !reference [.replace_namespace, script]               # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.replace_deployment, script]              # add annotations about build to deployment
+    - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
+    - !reference [.create_tls_secret, script]               # create TLS secret
+    - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
+    - !reference [.verify_kustomization, script]            # validate kustomization
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
+        | kubectl apply -f -"                               # apply kustomized deployment
   environment:
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
@@ -163,7 +178,15 @@ deploy_production:                    # Deploy `stable` image to production k8s 
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"
+    - !reference [.get_env, script]                         # set cluster env
+    - !reference [.replace_namespace, script]               # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.replace_deployment, script]              # add annotations about build to deployment
+    - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
+    - !reference [.create_tls_secret, script]               # create TLS secret
+    - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
+    - !reference [.verify_kustomization, script]            # validate kustomization
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
+        | kubectl apply -f -"                               # apply kustomized deployment
   environment:
     name: production
     url: https://$PROD_HOST/$CI_PROJECT_NAME
