@@ -51,7 +51,6 @@
         kubectl kustomize deploy/overlays/$BUILD_ENV
 
       fi
-      kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -
 
 
 # Configures cluster ENVs
@@ -203,7 +202,7 @@
       if [ "$PIPELINE_DEBUG" == "true" ]
       then
         echo -e " \
-          \n\e[31m##### Updated deployment file:\e[0m \
+          \n\e[31m##### Updated deployment patch file:\e[0m \
           \n"
         cat deploy/overlays/$BUILD_ENV/deployment.yaml
       fi
