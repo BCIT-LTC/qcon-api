@@ -118,8 +118,8 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
       file: false
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
+    - !reference [.patch_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.patch_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
@@ -176,8 +176,8 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
       file: false
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_namespace, script]        # attempt to create namespace; fail gracefully if already present
-    - !reference [.annotate_deployment, script]       # attempt to create namespace; fail gracefully if already present
+    - !reference [.patch_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.patch_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
