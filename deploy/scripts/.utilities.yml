@@ -136,6 +136,9 @@
         \n  name: qcon-api \
         \n  labels: \
         \n    env: dev \
+        \n  annotations: \
+        \n    app.gitlab.com/app: \"$CI_PROJECT_PATH_SLUG\" \
+        \n    app.gitlab.com/env: \"$CI_ENVIRONMENT_SLUG\" \
         \nspec: \
         \n  template: \
         \n    metadata: \
@@ -147,8 +150,6 @@
         \n        build_env: \"$BUILD_ENV\" \
         \n        path_name: \"$NAMESPACE_NAME\" \
         \n        cluster_name: \"$CLUSTER_ENV\" \
-        \n        app.gitlab.com/app: \"$CI_PROJECT_PATH_SLUG\" \
-        \n        app.gitlab.com/env: \"$CI_ENVIRONMENT_SLUG\" \
         \n" \
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
