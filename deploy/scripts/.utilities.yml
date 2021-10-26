@@ -155,8 +155,7 @@
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      if [ "$PIPELINE_DEBUG" == "true" ]
-      then
+      if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
           \n\e[31m##### Updated deployment patch file:\e[0m \
           \n"
@@ -209,8 +208,7 @@
         \nImage patch added to kustomization \
         \n"
 
-      if [ "$PIPELINE_DEBUG" == "true" ]
-      then
+      if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
           \n\e[31m##### Patched kustomization file:\e[0m \
           \n"

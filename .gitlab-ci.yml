@@ -32,7 +32,7 @@ variables:                  # other global variables are set in GitLab Admin: ht
 #
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"    # Standard policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
   GIT_FETCH_EXTRA_FLAGS: "--tags"
-  PIPELINE_DEBUG: "true"
+  PIPELINE_DEBUG: "false"
 
 image: bitnami/kubectl
 
@@ -57,7 +57,7 @@ get_latest_version_tag:               # Set standard variables and generate vers
   extends: .version_tag
 
 
-.build_for_review:                     # Build image with Kaniko
+build_for_review:                     # Build image with Kaniko
   stage: build
   variables:
     BUILD_ENV: dev
@@ -176,6 +176,7 @@ deploy_production:                    # Deploy `stable` image to production k8s 
       file: false
   script:
     - !reference [.get_env, script]                         # set cluster env
+    - !reference [.update_version_tag, script]              # set cluster env
     - !reference [.replace_namespace, script]               # add namespace annotations to ensure it's in the default Rancher project
     - !reference [.replace_deployment, script]              # add annotations about build to deployment
     - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
