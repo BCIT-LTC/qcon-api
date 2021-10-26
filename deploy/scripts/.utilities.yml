@@ -24,11 +24,33 @@
     - !reference [.replace_deployment, script]              # add annotations about build to deployment
     - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
     - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
-    - "if [[ \"PIPELINE_DEBUG\" == \"true\"]]; then
-        !reference [.verify_kustomization, script]          # validate kustomization
-      fi"
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                               # apply kustomized deployment
+    - |
+      if [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]]; then
+
+        echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
+        echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
+
+        echo -e " \
+          \nData files for TLS secret generation created successfully \
+          \n"
+
+      if [[ "PIPELINE_DEBUG" == "true"]]; then
+
+        echo -e " \
+          \n##### Patched kustomization file: \
+          \n"
+
+        cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+        echo -e " \
+          \n##### Kustomized resources being applied to cluster: \
+          \n"
+
+        kubectl kustomize deploy/overlays/$BUILD_ENV
+
+      fi
+
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"         # apply kustomized deployment
 
 
 # Configures cluster ENVs
@@ -120,7 +142,9 @@
         \
         > deploy/overlays/$BUILD_ENV/namespace.yaml
       
-      cat deploy/overlays/$BUILD_ENV/namespace.yaml
+      if [[ "PIPELINE_DEBUG" == "true"]]; then
+        cat deploy/overlays/$BUILD_ENV/namespace.yaml
+      fi
 
       echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
         \
@@ -130,8 +154,10 @@
         \nNamespace patch added to kustomization \
         \n"
 
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
-
+      if [[ "PIPELINE_DEBUG" == "true"]]; then
+        cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+      fi
+  
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
 # Please note:
@@ -162,7 +188,9 @@
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      cat deploy/overlays/$BUILD_ENV/deployment.yaml
+      if [[ "PIPELINE_DEBUG" == "true"]]; then
+        cat deploy/overlays/$BUILD_ENV/deployment.yaml
+      fi
 
       echo -e " \
         \nDeployment patch info: \
@@ -210,19 +238,16 @@
         \nImage patch added to kustomization \
         \n"
 
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+      if [[ "PIPELINE_DEBUG" == "true"]]; then
+        cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+      fi
 
 
 # Creates tls secret for ingress via Kustomize secretGenerator
 .create_tls_secret:
   script:
     - |
-      echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
-      echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
-      echo -e " \
-        \nData files for TLS secret generation created successfully \
-        \n"
 
 
 # Patches `ingress.yaml`
@@ -309,8 +334,9 @@
         \nIngress resource replaced with $BUILD_ENV kustomization \
         \n"
       
-      cat deploy/overlays/$BUILD_ENV/ingress.yaml
-
+      if [[ "PIPELINE_DEBUG" == "true"]]; then
+        cat deploy/overlays/$BUILD_ENV/ingress.yaml
+      fi
 
 # Removes commit_short_sha from VERSION_TAG (Prod only)
 .update_version_tag:
@@ -321,18 +347,8 @@
 # DEBUG TRACE HELPER (enable in main pipeline): Validates kustomizations
 .verify_kustomization:
   script:
-    - |
-      echo -e " \
-        \n##### Patched kustomization file: \
-        \n"
+    - echo ""
 
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      echo -e " \
-        \n##### Kustomized resources being applied to cluster: \
-        \n"
-
-      kubectl kustomize deploy/overlays/$BUILD_ENV
 
 
 # Common Tags and Rules for jobs
