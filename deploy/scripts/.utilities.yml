@@ -137,7 +137,6 @@
       fi
 
       echo -e " \
-        \n--- \
         \napiVersion: v1 \
         \nkind: Namespace \
         \nmetadata: \
@@ -148,7 +147,7 @@
         \
         > deploy/overlays/$BUILD_ENV/namespace.yaml
       
-      if [ "PIPELINE_DEBUG" == "true" ]
+      if [ "$PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/namespace.yaml
       fi
@@ -161,7 +160,7 @@
         \nNamespace patch added to kustomization \
         \n"
 
-      if [ "PIPELINE_DEBUG" == "true" ]
+      if [ "$PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
@@ -175,7 +174,6 @@
   script:
     - |
       echo -e " \
-        \n--- \
         \napiVersion: apps/v1 \
         \nkind: Deployment \
         \nmetadata: \
@@ -183,20 +181,20 @@
         \n  labels: \
         \n    env: dev \
         \n  annotations: \
-        \n    version: $VERSION_TAG \
-        \n    build_hash: $CI_COMMIT_SHA \
-        \n    build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n    version: \"$VERSION_TAG\" \
+        \n    build_hash: \"$CI_COMMIT_SHA\" \
+        \n    build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
         \n    build_timestamp: $CI_PIPELINE_CREATED_AT \
-        \n    build_env: $BUILD_ENV \
-        \n    path_name: $NAMESPACE_NAME \
-        \n    cluster_name: $CLUSTER_ENV \
-        \n    app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n    app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n    build_env: \"$BUILD_ENV\" \
+        \n    path_name: \"$NAMESPACE_NAME\" \
+        \n    cluster_name: \"$CLUSTER_ENV\" \
+        \n    app.gitlab.com/app: \"$CI_PROJECT_PATH_SLUG\" \
+        \n    app.gitlab.com/env: \"$CI_ENVIRONMENT_SLUG\" \
         \n" \
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      if [ "PIPELINE_DEBUG" == "true" ]
+      if [ "$PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/deployment.yaml
       fi
@@ -248,7 +246,7 @@
         \nImage patch added to kustomization \
         \n"
 
-      if [ "PIPELINE_DEBUG" == "true" ]
+      if [ "$PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
@@ -286,7 +284,6 @@
       then
 
         echo -e " \
-          \n--- \
           \napiVersion: networking.k8s.io/v1 \
           \nkind: Ingress \
           \nmetadata: \
@@ -346,7 +343,7 @@
         \nIngress resource replaced with $BUILD_ENV kustomization \
         \n"
       
-      if [ "PIPELINE_DEBUG" == "true" ]
+      if [ "$PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/ingress.yaml
       fi
