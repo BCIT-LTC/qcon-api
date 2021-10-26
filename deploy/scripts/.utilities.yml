@@ -213,6 +213,27 @@
       fi
 
 
+# Adds annotations that link a deployment to GitLab's Environment/Operations dashboards
+.add_common_annotations:
+  script:
+    - |
+      echo -e " \
+        \ncommonAnnotations: \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n" \
+        \
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+      echo -e "\nCommon annotations added to kustomization"
+
+      if [[ "$PIPELINE_DEBUG" == "true" ]]; then
+        echo -e " \
+          \n\e[31m##### Patched kustomization file:\e[0m \
+          \n"
+        cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+      fi
+
 
 # Patches `ingress.yaml`
 # Dev target URL:
