@@ -5,6 +5,7 @@ namespace: qcon-api
 
 resources:
   - ../../base
+  - namespace.yaml
 
 patches:
   - path: deployment.yaml

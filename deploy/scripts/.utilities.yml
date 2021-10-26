@@ -71,6 +71,11 @@
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
+.patch_namespace:
+  script:
+    - |
+
+# Creates a namespace annotation to ensure it's visible in the Rancher Default project
 .annotate_namespace:
   script:
     - |
@@ -81,30 +86,44 @@
           echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
       fi
 
+      echo -e " \
+        \napiVersion: v1 \
+        \nkind: Namespace \
+        \nmetadata: \
+        \n  name: $NAMESPACE_NAME \
+        \n  annotations: \
+        \n    field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\" \
+        \n" \
+        \
+        > deploy/overlays/$BUILD_ENV/namespace.yaml
+      
+      cat deploy/overlays/$BUILD_ENV/namespace.yaml
+
       echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
-        \n]" \
-        \
-        > deploy/overlays/$BUILD_ENV/namespace.patch.json
-
-      cat deploy/overlays/$BUILD_ENV/namespace.patch.json
-
-      echo -e " \
-        \npatches: \
-        \n  - path: namespace.patch.json \
-        \n    target: \
-        \n      kind: Namespace \
-        \n      name: $NAMESPACE_NAME" \
-        \
-        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
       echo -e "\nNamespace patch added to kustomization"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
+
+# echo -e "[ \
+#   \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
+#   \n]" \
+#   \
+#   > deploy/overlays/$BUILD_ENV/namespace.patch.json
+
+# cat deploy/overlays/$BUILD_ENV/namespace.patch.json
+
+# echo -e " \
+#   \npatches: \
+#   \n  - path: namespace.patch.json \
+#   \n    target: \
+#   \n      kind: Namespace \
+#   \n      name: $NAMESPACE_NAME" \
+#   \
+#   >> deploy/overlays/$BUILD_ENV/kustomization.yaml
+
 
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
