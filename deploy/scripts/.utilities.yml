@@ -110,7 +110,7 @@
 .patch_deployment:
   script:
     - |
-      echo -e "[ \
+      echo -e " \
         \napiVersion: apps/v1 \
         \nkind: Deployment \
         \nmetadata: \
