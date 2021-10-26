@@ -30,8 +30,7 @@ variables:                  # other global variables are set in GitLab Admin: ht
 #
 #
 #
-# Standard Vault policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
-  VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"
+  VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"    # Standard policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
   GIT_FETCH_EXTRA_FLAGS: "--tags"
 
 
@@ -121,7 +120,6 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
     - !reference [.replace_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
-    # - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
     - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
@@ -179,9 +177,8 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
     - !reference [.replace_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
-    # - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # patch ingress to branch path
-    # - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
+    - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (prod)
   environment:
