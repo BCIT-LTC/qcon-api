@@ -10,4 +10,4 @@ resources:
 patches:
   - path: deployment.yaml
     target:
-      labelSelector: "env=dev"
+      kind: Deployment
