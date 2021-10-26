@@ -45,7 +45,7 @@ include:
 
 stages:
   - initialize_env
-  - tag
+  - analyze_for_tagging
   - build
   - test
   - deploy
@@ -136,7 +136,7 @@ deploy_latest:                        # Deploy `latest` image to staging cluster
 
 
 semver_tag:                           # Creates a semantic-version tag that is applied to the release branch
-  stage: tag
+  stage: analyze_for_tagging
   extends: 
     - .semver_tag_rules
     - .semantic_release
@@ -178,7 +178,7 @@ deploy_production:                    # Deploy `stable` image to production clus
       file: false
   script:
     - !reference [.get_env, script]                   # set cluster env
-    - !reference [.update_version_tag, script]        # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.update_version_tag, script]        # remove short_sha from VERSION_TAG
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
     - !reference [.replace_deployment, script]        # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image

@@ -4,6 +4,7 @@ metadata:
   name: qcon-api
   labels:
     app: qcon-api
+    env: prod
 spec:
   replicas: 3
   template:

@@ -9,7 +9,7 @@
 .version_tag:
   image: alpine/git:latest
   script:
-    - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
+    - echo "VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
   artifacts:
     reports:
       dotenv: version_tag.env
@@ -183,7 +183,7 @@
   script:
     - |
       if [[ "$BUILD_ENV" == "prod" ]]; then
-          DEPLOY_TAG="$CI_COMMIT_TAG"
+          DEPLOY_TAG="$VERSION_TAG"
       else
           DEPLOY_TAG="\"$CI_COMMIT_SHORT_SHA\""
       fi
@@ -340,7 +340,7 @@
 .update_version_tag:
   script:
     - |
-      VERSION_TAG="$(echo $CI_COMMIT_TAG | cut -c 2-)"
+      VERSION_TAG="v$(echo $CI_COMMIT_TAG | cut -c 2-)"
       echo -e " \
         \nPROD_NAMESPACE detected. Setting VERSION_TAG to $VERSION_TAG \
         \n"
