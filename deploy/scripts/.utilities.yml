@@ -59,12 +59,10 @@
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
 
       else
-
           echo -e " \
             \$BUILD_ENV is not set correctly \
             \n"
           exit 1
-
       fi
 
       echo -e " \
@@ -84,13 +82,10 @@
   script:
     - |
       if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
-
           NAMESPACE_NAME="$PROD_NAMESPACE"
-
           echo -e " \
             \nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME \
             \n"
-
       fi
 
       echo -e " \
@@ -141,16 +136,19 @@
         \n  name: qcon-api \
         \n  labels: \
         \n    env: dev \
-        \n  annotations: \
-        \n    version: \"$VERSION_TAG\" \
-        \n    build_hash: \"$CI_COMMIT_SHA\" \
-        \n    build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
-        \n    build_timestamp: $CI_PIPELINE_CREATED_AT \
-        \n    build_env: \"$BUILD_ENV\" \
-        \n    path_name: \"$NAMESPACE_NAME\" \
-        \n    cluster_name: \"$CLUSTER_ENV\" \
-        \n    app.gitlab.com/app: \"$CI_PROJECT_PATH_SLUG\" \
-        \n    app.gitlab.com/env: \"$CI_ENVIRONMENT_SLUG\" \
+        \nspec: \
+        \n  template: \
+        \n    metadata: \
+        \n      annotations: \
+        \n        version: \"$VERSION_TAG\" \
+        \n        build_hash: \"$CI_COMMIT_SHA\" \
+        \n        build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
+        \n        build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n        build_env: \"$BUILD_ENV\" \
+        \n        path_name: \"$NAMESPACE_NAME\" \
+        \n        cluster_name: \"$CLUSTER_ENV\" \
+        \n        app.gitlab.com/app: \"$CI_PROJECT_PATH_SLUG\" \
+        \n        app.gitlab.com/env: \"$CI_ENVIRONMENT_SLUG\" \
         \n" \
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
