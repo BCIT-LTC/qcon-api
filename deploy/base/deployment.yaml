@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qcon-api
-  namespace: qcon-api
   labels:
     app: qcon-api
 spec:
@@ -18,7 +17,7 @@ spec:
       serviceAccountName: dependabot-qcon-api
       containers:
       - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
+        image: qcon-api
         resources:
           requests:
             cpu: 100m
