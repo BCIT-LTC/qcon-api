@@ -163,7 +163,6 @@
         \n  - path: deployment.patch.json \
         \n    target: \
         \n      kind: Deployment \
-        \n      name: $CI_PROJECT_NAME \
         \n      namespace: $NAMESPACE_NAME" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
