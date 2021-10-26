@@ -51,7 +51,7 @@
         kubectl kustomize deploy/overlays/$BUILD_ENV
 
       fi
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"         # apply kustomized deployment
+      kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -
 
 
 # Configures cluster ENVs
