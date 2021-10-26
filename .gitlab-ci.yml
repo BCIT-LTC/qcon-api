@@ -158,7 +158,6 @@ build_stable:                         # Build image with Kaniko (stable)
   variables:
     BUILD_ENV: prod
   extends:
-    - .update_version_tag
     - .release_branch_rules
     - .build_image
 
