@@ -17,6 +17,20 @@
     - production
 
 
+.job_template:
+  script:
+    - !reference [.get_env, script]                         # set cluster env
+    - !reference [.replace_namespace, script]               # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.replace_deployment, script]              # add annotations about build to deployment
+    - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
+    - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
+    - "if [[ \"PIPELINE_DEBUG\" == \"true\"]]; then
+        !reference [.verify_kustomization, script]          # validate kustomization
+      fi"
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
+        | kubectl apply -f -"                               # apply kustomized deployment
+
+
 # Configures cluster ENVs
 #   - vars defined here are not available for GitLab `environment` definitions
 #   - currently limited to:
