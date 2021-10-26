@@ -169,10 +169,12 @@ stop_review:                          # Stop review environment
   stage: cleanup
   extends: .feature_branch_rules
   script:
-    - kubectl delete ns $CI_COMMIT_REF_SLUG
-    - echo "###########################################"
-    - echo "  $CI_COMMIT_REF_SLUG environment stopped  "
-    - echo "###########################################"
+    - |
+      kubectl delete ns $CI_COMMIT_REF_SLUG
+      echo -e " \
+        \n########################################### \
+        \n  $CI_COMMIT_REF_SLUG environment stopped  \
+        \n###########################################"
   environment:
     name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
     kubernetes:
