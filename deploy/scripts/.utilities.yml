@@ -143,7 +143,7 @@
         \n        version: \"$VERSION_TAG\" \
         \n        build_hash: \"$CI_COMMIT_SHA\" \
         \n        build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
-        \n        build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n        build_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
         \n        build_env: \"$BUILD_ENV\" \
         \n        path_name: \"$NAMESPACE_NAME\" \
         \n        cluster_name: \"$CLUSTER_ENV\" \
@@ -178,20 +178,20 @@
   script:
     - |
       if [[ "$BUILD_ENV" == "prod" ]]; then
-          DEPLOY_TAG="$VERSION_TAG"
+          IMAGE_TAG="$VERSION_TAG"
       else
-          DEPLOY_TAG="\"$CI_COMMIT_SHORT_SHA\""
+          IMAGE_TAG="\"$CI_COMMIT_SHORT_SHA\""
       fi
 
       echo -e " \
-        \nDeploy tag set to: $DEPLOY_TAG \
+        \nDeploy tag set to: $IMAGE_TAG \
         \n"
 
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG \
+        \n    newTag: $IMAGE_TAG \
         \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
