@@ -37,13 +37,13 @@
       if [[ "PIPELINE_DEBUG" == "true"]]; then
 
         echo -e " \
-          \n##### Patched kustomization file: \
+          \n\e[31m##### Patched kustomization file:\e[0m \
           \n"
 
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
         echo -e " \
-          \n##### Kustomized resources being applied to cluster: \
+          \n\e[31m##### Kustomized resources being applied to cluster:\e[0m \
           \n"
 
         kubectl kustomize deploy/overlays/$BUILD_ENV
@@ -62,7 +62,8 @@
 .get_env:
   script:
     - |
-      if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]; then
+      if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]
+      then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -337,6 +338,7 @@
       if [[ "PIPELINE_DEBUG" == "true"]]; then
         cat deploy/overlays/$BUILD_ENV/ingress.yaml
       fi
+
 
 # Removes commit_short_sha from VERSION_TAG (Prod only)
 .update_version_tag:
