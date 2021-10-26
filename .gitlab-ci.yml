@@ -73,6 +73,8 @@ deploy_review:                        # Deploy feature branch image to a dev clu
     - .job_template
   variables:
     BUILD_ENV: dev
+  script:
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"
   environment:
     name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
     url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG
@@ -109,6 +111,8 @@ deploy_latest:                        # Deploy `latest` image to staging k8s clu
     TLS_KEY:
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
+  script:
+    - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"
   environment:
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME

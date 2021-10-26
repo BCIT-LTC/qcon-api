@@ -25,31 +25,23 @@
     - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
     - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
     - |
-      if [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ]
-      then
+      if [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]]; then
         echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
         echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
-
         echo -e " \
           \nData files for TLS secret generation created successfully \
           \n"
       fi
 
-      if [ "$PIPELINE_DEBUG" == "true" ]
-      then
-
+      if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
           \n\e[31m##### Patched kustomization file:\e[0m \
           \n"
-
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
-
         echo -e " \
           \n\e[31m##### Kustomized resources being applied to cluster:\e[0m \
           \n"
-
         kubectl kustomize deploy/overlays/$BUILD_ENV
-
       fi
 
 
