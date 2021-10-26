@@ -6,7 +6,7 @@
 #   - GitLab release format: "v1.5.3"
 #   - app format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app format (release branch): "v1.5.3"
-.init:
+.version_tag:
   image: alpine/git:latest
   script:
     - echo "VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
@@ -26,40 +26,49 @@
 .get_env:
   script:
     - |
-      if [ "$BUILD_ENV" == "dev" ] && [ $CLUSTER_ENV == "dev-cp" ]
-      then
+      if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]; then
+
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
           CLUSTER_ID="$RANCHER_DEV_CP_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="secret not used in dev environment"
-      elif [ "$BUILD_ENV" == "dev" ] && [ $CLUSTER_ENV == "dev-vsm" ]
-      then
+
+      elif [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-vsm" ]]; then
+
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
           CLUSTER_ID="$RANCHER_DEV_VSM_CLUSTER_ID"
           PROJECT_ID="$RANCHER_DEV_VSM_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="secret not used in dev environment"
-      elif [ "$BUILD_ENV" == "staging" ]
-      then
+
+      elif [[ "$BUILD_ENV" == "staging" ]]; then
+
           CI_HOST="$STAGING_HOST"
           NAMESPACE_NAME="$CI_PROJECT_NAME"
           CLUSTER_ID="$RANCHER_STAGING_CLUSTER_ID"
           PROJECT_ID="$RANCHER_STAGING_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
-      elif [ "$BUILD_ENV" == "prod" ]
-      then
+
+      elif [[ "$BUILD_ENV" == "prod" ]]; then
+
           CI_HOST="$PROD_HOST"
           NAMESPACE_NAME="$CI_PROJECT_NAME"
           CLUSTER_ID="$RANCHER_PROD_CLUSTER_ID"
           PROJECT_ID="$RANCHER_PROD_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="star-dev-ltc-bcit-ca"
+
       else
-          echo "\"$BUILD_ENV\" is not set correctly"
+
+          echo -e " \
+            \$BUILD_ENV is not set correctly"
+
           exit 1
+
       fi
 
-      echo -e "Environment variables: \
+      echo -e " \
+        \nEnvironment variables: \
         \n  BUILD_ENV: $BUILD_ENV \
         \n  CLUSTER_ENV: $CLUSTER_ENV \
         \n  CI_HOST: $CI_HOST \
@@ -74,11 +83,14 @@
 .patch_namespace:
   script:
     - |
-      if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
-      then
+      if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
+
           NAMESPACE_NAME="$PROD_NAMESPACE"
 
-          echo -e "\nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
+          echo -e " \
+            \nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME \
+            \n"
+
       fi
 
       echo -e " \
@@ -94,11 +106,15 @@
       
       cat deploy/overlays/$BUILD_ENV/namespace.yaml
 
-      echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
+      echo -e " \
+        $(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g") \
+        \n" \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\nNamespace patch added to kustomization"
+      echo -e " \
+        \nNamespace patch added to kustomization \
+        \n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -133,7 +149,8 @@
 
       cat deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      echo -e "\nDeployment patch info: \
+      echo -e " \
+        \nDeployment patch info: \
         \n \
         \n  version: $VERSION_TAG \
         \n  build_hash: $CI_COMMIT_SHA \
@@ -151,24 +168,31 @@
 .kustomize_image:
   script:
     - |
-      if [ "$BUILD_ENV" == "prod" ]
-      then
+      if [[ "$BUILD_ENV" == "prod" ]]; then
+
           DEPLOY_TAG="$CI_COMMIT_TAG"
+
       else
+
           DEPLOY_TAG="$CI_COMMIT_SHORT_SHA"
+
       fi
 
-      echo -e "\nDeploy tag set to: $DEPLOY_TAG"
+      echo -e " \
+        \nDeploy tag set to: $DEPLOY_TAG"
 
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG" \
+        \n    newTag: $DEPLOY_TAG \
+        \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\nImage patch added to kustomization"
+      echo -e " \
+        \nImage patch added to kustomization \
+        \n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -180,7 +204,9 @@
       echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
-      echo -e "\nData files for TLS secret generation created successfully"
+      echo -e " \
+        \nData files for TLS secret generation created successfully \
+        \n"
 
 
 # Patches `ingress.yaml`
@@ -211,7 +237,6 @@
           \nkind: Ingress \
           \nmetadata: \
           \n  name: $CI_PROJECT_NAME-ingress \
-          \n  namespace: $NAMESPACE_NAME \
           \n  annotations: \
           \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
           \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
@@ -233,8 +258,6 @@
           \n              number: $APP_PORT" \
           \
           > deploy/overlays/$BUILD_ENV/ingress.yaml
-
-        echo -e "\nIngress resource replaced with kustomization";
       
       else
 
@@ -260,11 +283,12 @@
           \n              number: $APP_PORT" \
           \
           > deploy/overlays/$BUILD_ENV/ingress.yaml
-
-        echo -e " \
-          \nIngress-dev resource replaced with kustomization"
       
       fi
+
+      echo -e " \
+        \nIngress resource replaced with $BUILD_ENV kustomization \
+        \n"
       
       cat deploy/overlays/$BUILD_ENV/ingress.yaml
 
@@ -279,11 +303,15 @@
 .verify_kustomization:
   script:
     - |
-      echo -e "\n##### Kustomization being applied:\n"
+      echo -e " \
+        \n##### Kustomization being applied: \
+        \n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-      echo -e "\n##### Kustomized resources being applied to cluster:\n"
+      echo -e " \
+        \n##### Kustomized resources being applied to cluster: \
+        \n"
 
       kubectl kustomize deploy/overlays/$BUILD_ENV
 

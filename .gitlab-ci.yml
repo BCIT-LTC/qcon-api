@@ -45,7 +45,7 @@ include:
 
 
 stages:
-  - init
+  - initialize_build
   - tag
   - build
   - test
@@ -53,9 +53,9 @@ stages:
   - cleanup
 
 
-initialize_build:             # Set standard variables and generate version tag for build.
-  stage: init                 #   - $VERSION_TAG is added to the image as well as the deployment
-  extends: .init
+get_latest_version_tag:             # Set standard variables and generate version tag for build.
+  stage: initialize_build                 #   - $VERSION_TAG is added to the image as well as the deployment
+  extends: .version_tag
 
 
 build_for_review:             # Build image with Kaniko (dev)
