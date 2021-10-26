@@ -6,6 +6,7 @@ namespace: qcon-api
 resources:
   - ../../base
   - namespace.yaml
+  - ingress.yaml
 
 patches:
   - path: deployment.yaml
