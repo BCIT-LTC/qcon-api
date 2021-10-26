@@ -34,7 +34,7 @@
           \n"
       fi
 
-      if [[ "PIPELINE_DEBUG" == "true" ]]; then
+      if [[ "$PIPELINE_DEBUG" == "true" ]]; then
 
         echo -e " \
           \n\e[31m##### Patched kustomization file:\e[0m \
@@ -61,8 +61,7 @@
 .get_env:
   script:
     - |
-      if [ "$BUILD_ENV" == "dev" ] && [ $CLUSTER_ENV == "dev-cp" ]
-      then
+      if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
