@@ -74,11 +74,6 @@
 .patch_namespace:
   script:
     - |
-
-# Creates a namespace annotation to ensure it's visible in the Rancher Default project
-.annotate_namespace:
-  script:
-    - |
       if [ -n "$PROD_NAMESPACE" ] && ( [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ] )
       then
           NAMESPACE_NAME="$PROD_NAMESPACE"
@@ -107,45 +102,34 @@
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
-# echo -e "[ \
-#   \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/field.cattle.io~1projectId\", \"value\": \"$CLUSTER_ID:$PROJECT_ID\"} \
-#   \n]" \
-#   \
-#   > deploy/overlays/$BUILD_ENV/namespace.patch.json
-
-# cat deploy/overlays/$BUILD_ENV/namespace.patch.json
-
-# echo -e " \
-#   \npatches: \
-#   \n  - path: namespace.patch.json \
-#   \n    target: \
-#   \n      kind: Namespace \
-#   \n      name: $NAMESPACE_NAME" \
-#   \
-#   >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
 # Please note:
 #   - `path_name` and `cluster_name` are only added as annotations to the kubernetes resource
 #   - `title` and `description` are only added as labels to the image
-.annotate_deployment:
+.patch_deployment:
   script:
     - |
       echo -e "[ \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/version\", \"value\": \"$VERSION_TAG\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_hash\", \"value\": \"$CI_COMMIT_SHA\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_short_sha\", \"value\": \"$CI_COMMIT_SHORT_SHA\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_timestamp\", \"value\": \"$CI_PIPELINE_CREATED_AT\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/build_env\", \"value\": \"$BUILD_ENV\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/path_name\", \"value\": \"$NAMESPACE_NAME\"}, \
-        \n  {\"op\": \"add\", \"path\": \"/metadata/annotations/cluster_name\", \"value\": \"$CLUSTER_ENV\"} \
-        \n]" \
+        \napiVersion: apps/v1
+        \nkind: Deployment \
+        \nmetadata: \
+        \n  name: qcon-api \
+        \n  labels: \
+        \n    env: dev \
+        \n  annotations: \
+        \n    version: $VERSION_TAG \
+        \n    build_hash: $CI_COMMIT_SHA \
+        \n    build_short_sha: $CI_COMMIT_SHORT_SHA \
+        \n    build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n    build_env: $BUILD_ENV \
+        \n    path_name: $NAMESPACE_NAME \
+        \n    cluster_name: $CLUSTER_ENV\
+        \n" \
         \
-        > deploy/overlays/$BUILD_ENV/deployment.patch.json
+        > deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      cat deploy/overlays/$BUILD_ENV/deployment.patch.json
+      cat deploy/overlays/$BUILD_ENV/deployment.yaml
 
       echo -e "\nDeployment json patch info: \
         \n \
@@ -157,19 +141,6 @@
         \n  path_name: $NAMESPACE_NAME \
         \n  cluster_name: $BUILD_ENV \
         \n"
-
-      echo -e " \
-        \npatches: \
-        \n  - path: deployment.patch.json \
-        \n    target: \
-        \n      kind: Deployment \
-        \n      namespace: $NAMESPACE_NAME" \
-        \
-        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      echo -e "\nDeployment patch added to kustomization"
-
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
 # Adds kustomizations to pull latest commit image for dev/staging
