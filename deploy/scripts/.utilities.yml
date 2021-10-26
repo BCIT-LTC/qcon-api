@@ -61,7 +61,8 @@
       else
 
           echo -e " \
-            \$BUILD_ENV is not set correctly"
+            \$BUILD_ENV is not set correctly \
+            \n"
 
           exit 1
 
@@ -75,7 +76,8 @@
         \n  NAMESPACE_NAME: $NAMESPACE_NAME \
         \n  CLUSTER_ID: $CLUSTER_ID \
         \n  PROJECT_ID: $PROJECT_ID \
-        \n  TLS_SECRET_NAME: $TLS_SECRET_NAME"
+        \n  TLS_SECRET_NAME: $TLS_SECRET_NAME \
+        \n"
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
@@ -87,7 +89,8 @@
           NAMESPACE_NAME="$PROD_NAMESPACE"
 
           echo -e " \
-            \nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME"
+            \nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME \
+            \n"
 
       fi
 
@@ -98,19 +101,20 @@
         \nmetadata: \
         \n  name: $NAMESPACE_NAME \
         \n  annotations: \
-        \n    field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\"" \
+        \n    field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\" \
+        \n" \
         \
         > deploy/overlays/$BUILD_ENV/namespace.yaml
       
       cat deploy/overlays/$BUILD_ENV/namespace.yaml
 
-      echo -e " \
-        $(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
+      echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e " \
-        \nNamespace patch added to kustomization"
+        \nNamespace patch added to kustomization \
+        \n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -139,7 +143,8 @@
         \n    path_name: $NAMESPACE_NAME \
         \n    cluster_name: $CLUSTER_ENV \
         \n    app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n    app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" \
+        \n    app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n" \
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
@@ -156,7 +161,8 @@
         \n  path_name: $NAMESPACE_NAME \
         \n  cluster_name: $BUILD_ENV \
         \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG"
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n"
 
 
 # Adds kustomizations to pull latest commit image for dev/staging
@@ -174,18 +180,21 @@
       fi
 
       echo -e " \
-        \nDeploy tag set to: $DEPLOY_TAG"
+        \nDeploy tag set to: $DEPLOY_TAG \
+        \n"
 
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG" \
+        \n    newTag: $DEPLOY_TAG \
+        \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e " \
-        \nImage patch added to kustomization"
+        \nImage patch added to kustomization \
+        \n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -198,7 +207,8 @@
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
       echo -e " \
-        \nData files for TLS secret generation created successfully"
+        \nData files for TLS secret generation created successfully \
+        \n"
 
 
 # Patches `ingress.yaml`
@@ -248,7 +258,8 @@
           \n          service: \
           \n            name: $CI_PROJECT_NAME-service \
           \n            port: \
-          \n              number: $APP_PORT" \
+          \n              number: $APP_PORT \
+          \n" \
           \
           > deploy/overlays/$BUILD_ENV/ingress.yaml
       
@@ -273,14 +284,16 @@
           \n          service: \
           \n            name: $CI_PROJECT_NAME-service \
           \n            port: \
-          \n              number: $APP_PORT" \
+          \n              number: $APP_PORT \
+          \n" \
           \
           > deploy/overlays/$BUILD_ENV/ingress.yaml
       
       fi
 
       echo -e " \
-        \nIngress resource replaced with $BUILD_ENV kustomization"
+        \nIngress resource replaced with $BUILD_ENV kustomization \
+        \n"
       
       cat deploy/overlays/$BUILD_ENV/ingress.yaml
 
@@ -296,12 +309,14 @@
   script:
     - |
       echo -e " \
-        \n##### Patched kustomization file:"
+        \n##### Patched kustomization file: \
+        \n"
 
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       echo -e " \
-        \n##### Kustomized resources being applied to cluster:"
+        \n##### Kustomized resources being applied to cluster: \
+        \n"
 
       kubectl kustomize deploy/overlays/$BUILD_ENV
 
