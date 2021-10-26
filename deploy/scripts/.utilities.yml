@@ -25,7 +25,8 @@
     - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
     - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
     - |
-      if [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ]; then
+      if [ "$BUILD_ENV" == "staging" ] || [ "$BUILD_ENV" == "prod" ]
+      then
 
         echo "$TLS_CRT" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.crt
         echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
@@ -34,7 +35,8 @@
           \nData files for TLS secret generation created successfully \
           \n"
 
-      if [ "PIPELINE_DEBUG" == "true"]; then
+      if [ "PIPELINE_DEBUG" == "true" ]
+      then
 
         echo -e " \
           \n\e[31m##### Patched kustomization file:\e[0m \
@@ -49,7 +51,6 @@
         kubectl kustomize deploy/overlays/$BUILD_ENV
 
       fi
-
     - "kubectl kustomize deploy/overlays/$BUILD_ENV | kubectl apply -f -"         # apply kustomized deployment
 
 
@@ -147,7 +148,7 @@
         \
         > deploy/overlays/$BUILD_ENV/namespace.yaml
       
-      if [ "PIPELINE_DEBUG" == "true"]
+      if [ "PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/namespace.yaml
       fi
@@ -160,7 +161,7 @@
         \nNamespace patch added to kustomization \
         \n"
 
-      if [ "PIPELINE_DEBUG" == "true"]
+      if [ "PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
@@ -195,7 +196,7 @@
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      if [ "PIPELINE_DEBUG" == "true"]
+      if [ "PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/deployment.yaml
       fi
@@ -247,7 +248,7 @@
         \nImage patch added to kustomization \
         \n"
 
-      if [ "PIPELINE_DEBUG" == "true"]; then
+      if [ "PIPELINE_DEBUG" == "true" ]; then
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
 
@@ -344,7 +345,7 @@
         \nIngress resource replaced with $BUILD_ENV kustomization \
         \n"
       
-      if [ "PIPELINE_DEBUG" == "true"]
+      if [ "PIPELINE_DEBUG" == "true" ]
       then
         cat deploy/overlays/$BUILD_ENV/ingress.yaml
       fi
