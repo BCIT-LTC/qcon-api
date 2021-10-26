@@ -111,7 +111,7 @@
   script:
     - |
       echo -e "[ \
-        \napiVersion: apps/v1
+        \napiVersion: apps/v1 \
         \nkind: Deployment \
         \nmetadata: \
         \n  name: qcon-api \
