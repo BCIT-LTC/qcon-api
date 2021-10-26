@@ -263,20 +263,20 @@
           \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
           \nspec: \
           \n  tls: \
-          \n  - hosts: \
-          \n    - $CI_HOST \
-          \n    secretName: $TLS_SECRET_NAME \
+          \n    - hosts: \
+          \n      - $CI_HOST \
+          \n      secretName: $TLS_SECRET_NAME \
           \n  rules: \
-          \n  - host: $CI_HOST \
-          \n    http: \
-          \n      paths: \
-          \n      - path: /$CI_PROJECT_NAME \
-          \n        pathType: Prefix \
-          \n        backend: \
-          \n          service: \
-          \n            name: $CI_PROJECT_NAME-service \
-          \n            port: \
-          \n              number: $APP_PORT \
+          \n    - host: $CI_HOST \
+          \n      http: \
+          \n        paths: \
+          \n        - path: /$CI_PROJECT_NAME \
+          \n          pathType: Prefix \
+          \n          backend: \
+          \n            service: \
+          \n              name: $CI_PROJECT_NAME-service \
+          \n              port: \
+          \n                number: $APP_PORT \
           \n" \
           \
           > deploy/overlays/$BUILD_ENV/ingress.yaml
@@ -293,16 +293,16 @@
           \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
           \nspec: \
           \n  rules: \
-          \n  - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
-          \n    http: \
-          \n      paths: \
-          \n      - path: /$NAMESPACE_NAME \
-          \n        pathType: Prefix \
-          \n        backend: \
-          \n          service: \
-          \n            name: $CI_PROJECT_NAME-service \
-          \n            port: \
-          \n              number: $APP_PORT \
+          \n    - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
+          \n      http: \
+          \n        paths: \
+          \n          - path: /$NAMESPACE_NAME \
+          \n            pathType: Prefix \
+          \n            backend: \
+          \n              service: \
+          \n                name: $CI_PROJECT_NAME-service \
+          \n                port: \
+          \n                  number: $APP_PORT \
           \n" \
           \
           > deploy/overlays/$BUILD_ENV/ingress.yaml

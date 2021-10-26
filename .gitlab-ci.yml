@@ -53,7 +53,7 @@ stages:
 
 
 get_latest_version_tag:               # Set standard variables and generate version tag for build.
-  stage: initialize_env             #   - $VERSION_TAG is added to the image as well as the deployment
+  stage: initialize_env               #   - $VERSION_TAG is added to the image as well as the deployment
   extends: .version_tag
 
 
@@ -81,7 +81,7 @@ deploy_review:                        # Deploy feature branch image to a dev clu
     - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths
     - !reference [.verify_kustomization, script]      # validate kustomization
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                               # apply kustomized deployment
+        | kubectl apply -f -"                         # apply kustomized deployment
   environment:
     name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
     url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG
@@ -95,7 +95,7 @@ deploy_review:                        # Deploy feature branch image to a dev clu
 # kubectl set env deployments --all --containers="c1" ENV-
 
 
-build_latest:                         # Build image with Kaniko (latest)
+build_latest:                         # Build image with Kaniko
   stage: build
   variables:
     BUILD_ENV: staging
@@ -127,7 +127,7 @@ deploy_latest:                        # Deploy `latest` image to staging cluster
     - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths
     - !reference [.verify_kustomization, script]      # validate kustomization
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                               # apply kustomized deployment
+        | kubectl apply -f -"                         # apply kustomized deployment
   environment:
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
@@ -153,13 +153,19 @@ semver_tag:                           # Creates a semantic-version tag that is a
           @semantic-release/gitlab'"
 
 
-build_stable:                         # Build image with Kaniko (stable)
+build_stable:                         # Build image with Kaniko
   stage: build
   variables:
     BUILD_ENV: prod
   extends:
     - .release_branch_rules
     - .build_image
+  before_script:                      # remove short_sha from VERSION_TAG
+    - |
+      VERSION_TAG="v$(echo $CI_COMMIT_TAG | cut -c 2-)"
+      echo -e " \
+        \nPROD_NAMESPACE detected. Setting VERSION_TAG to $VERSION_TAG \
+        \n"
 
 
 deploy_production:                    # Deploy `stable` image to production cluster
@@ -175,12 +181,6 @@ deploy_production:                    # Deploy `stable` image to production clus
     TLS_KEY:
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
-  before_script:                      # remove short_sha from VERSION_TAG
-    - |
-      VERSION_TAG="v$(echo $CI_COMMIT_TAG | cut -c 2-)"
-      echo -e " \
-        \nPROD_NAMESPACE detected. Setting VERSION_TAG to $VERSION_TAG \
-        \n"
   script:
     - !reference [.get_env, script]                   # set cluster env
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
@@ -191,7 +191,7 @@ deploy_production:                    # Deploy `stable` image to production clus
     - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths
     - !reference [.verify_kustomization, script]      # validate kustomization
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                               # apply kustomized deployment
+        | kubectl apply -f -"                         # apply kustomized deployment
   environment:
     name: production
     url: https://$PROD_HOST/$CI_PROJECT_NAME
