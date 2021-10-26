@@ -32,7 +32,7 @@ variables:                  # other global variables are set in GitLab Admin: ht
 #
   VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"    # Standard policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
   GIT_FETCH_EXTRA_FLAGS: "--tags"
-  PIPELINE_DEBUG: "false"
+  PIPELINE_DEBUG: "true"
 
 image: bitnami/kubectl
 
@@ -70,15 +70,15 @@ deploy_review:                        # Deploy feature branch image to a dev clu
   stage: deploy
   extends:
     - .feature_branch_rules
+    - .get_env                        # set cluster env
+    - .replace_namespace              # add namespace annotations to ensure it's in the default Rancher project
+    - .replace_deployment             # add annotations about build to deployment
+    - .kustomize_image                # patch deployment to pull latest commit image
+    - .patch_ingress                  # replace ingress with rewrite-targets, sub-paths
+    - .verify_kustomization           # validate kustomization
   variables:
     BUILD_ENV: dev
   script:
-    - !reference [.get_env, script]                         # set cluster env
-    - !reference [.replace_namespace, script]               # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.replace_deployment, script]              # add annotations about build to deployment
-    - !reference [.kustomize_image, script]                 # patch deployment to pull latest commit image
-    - !reference [.patch_ingress, script]                   # replace ingress with rewrite-targets, sub-paths
-    - !reference [.verify_kustomization, script]            # validate kustomization
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                               # apply kustomized deployment
   environment:
