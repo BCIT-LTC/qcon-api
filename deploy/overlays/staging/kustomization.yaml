@@ -15,11 +15,11 @@ patches:
       kind: Deployment
       
 secretGenerator:
-- type: kubernetes.io/tls
-  name: star-dev-ltc-bcit-ca
-  files:
-    - tls.crt
-    - tls.key
+  - type: kubernetes.io/tls
+    name: star-dev-ltc-bcit-ca
+    files:
+      - tls.crt
+      - tls.key
 
 generatorOptions:
   disableNameSuffixHash: true

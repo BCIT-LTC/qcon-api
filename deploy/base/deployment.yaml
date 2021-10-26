@@ -16,27 +16,27 @@ spec:
     spec:
       serviceAccountName: dependabot-qcon-api
       containers:
-      - name: qcon-api
-        image: qcon-api
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-        volumeMounts:
-          - name: podinfo
-            mountPath: /etc/podinfo
-        ports:
-          - containerPort: 8000
-        readinessProbe:
-          tcpSocket:
-            port: 8000
-          initialDelaySeconds: 20
-          periodSeconds: 30
-        livenessProbe:                  
-          tcpSocket:
-            port: 8000
-          initialDelaySeconds: 30
-          periodSeconds: 30
+        - name: qcon-api
+          image: qcon-api
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - name: podinfo
+              mountPath: /etc/podinfo
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          livenessProbe:                  
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
       volumes:
         - name: podinfo
           downwardAPI:
