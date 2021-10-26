@@ -70,7 +70,6 @@ deploy_review:                        # Deploy feature branch image to a dev clu
   stage: deploy
   extends:
     - .feature_branch_rules
-    - .job_template
   variables:
     BUILD_ENV: dev
   script:
@@ -108,7 +107,6 @@ deploy_latest:                        # Deploy `latest` image to staging k8s clu
   stage: deploy
   extends: 
     - .main_branch_rules
-    - .job_template
   variables:
     BUILD_ENV: staging
   secrets:
@@ -167,7 +165,6 @@ deploy_production:                    # Deploy `stable` image to production k8s 
   stage: deploy
   extends: 
     - .release_branch_rules
-    - .job_template
   variables:
     BUILD_ENV: prod
   secrets:
