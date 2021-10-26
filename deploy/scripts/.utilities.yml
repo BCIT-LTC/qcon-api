@@ -124,14 +124,16 @@
         \n    build_timestamp: $CI_PIPELINE_CREATED_AT \
         \n    build_env: $BUILD_ENV \
         \n    path_name: $NAMESPACE_NAME \
-        \n    cluster_name: $CLUSTER_ENV\
+        \n    cluster_name: $CLUSTER_ENV \
+        \n    app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n    app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
         \n" \
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
       cat deploy/overlays/$BUILD_ENV/deployment.yaml
 
-      echo -e "\nDeployment json patch info: \
+      echo -e "\nDeployment patch info: \
         \n \
         \n  version: $VERSION_TAG \
         \n  build_hash: $CI_COMMIT_SHA \
@@ -140,6 +142,8 @@
         \n  build_env: $BUILD_ENV \
         \n  path_name: $NAMESPACE_NAME \
         \n  cluster_name: $BUILD_ENV \
+        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
+        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
         \n"
 
 
@@ -169,109 +173,6 @@
       cat deploy/overlays/$BUILD_ENV/kustomization.yaml
 
 
-
-# Adds annotations that link a deployment to GitLab's Environment/Operations dashboards
-.add_common_annotations:
-  script:
-    - |
-      echo -e " \
-        \ncommonAnnotations: \
-        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
-        \n" \
-        \
-        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-      echo -e "\nCommon annotations added to kustomization"
-
-      cat deploy/overlays/$BUILD_ENV/kustomization.yaml
-
-
-# Patches existing `ingress.yaml` to be applied to dev
-# Target URL:
-#   - https://{CI_PROJECT_NAME}.{CLUSTER_ENV}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
-#     eg. https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
-.patch_ingress_dev:
-  script:
-    - |
-      echo -e " \
-        \napiVersion: networking.k8s.io/v1 \
-        \nkind: Ingress \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
-        \nspec: \
-        \n  rules: \
-        \n  - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$NAMESPACE_NAME \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: $APP_PORT" \
-        \
-        > deploy/overlays/$BUILD_ENV/ingress.yaml
-
-      echo -e " \
-        \nIngress-dev resource replaced with kustomization"
-      
-      cat deploy/overlays/$BUILD_ENV/ingress.yaml
-
-
-# Patches existing `ingress.yaml` to be applied to staging/prod
-# Staging target URL: 
-  # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-  #   eg. https://latest.dev.ltc.bcit.ca/qcon-api
-
-# Prod target URLs:
-# Default
-  # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
-  #   eg. https://stable.dev.ltc.bcit.ca/qcon-api
-#
-# Extra (not yet implemented)
-  # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
-  #   eg. https://qcon-api.ltc.bcit.ca
-.patch_ingress:
-  script:
-    - |
-      echo -e " \
-        \napiVersion: networking.k8s.io/v1 \
-        \nkind: Ingress \
-        \nmetadata: \
-        \n  name: $CI_PROJECT_NAME-ingress \
-        \n  namespace: $NAMESPACE_NAME \
-        \n  annotations: \
-        \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
-        \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
-        \nspec: \
-        \n  tls: \
-        \n  - hosts: \
-        \n    - $CI_HOST \
-        \n    secretName: $TLS_SECRET_NAME \
-        \n  rules: \
-        \n  - host: $CI_HOST \
-        \n    http: \
-        \n      paths: \
-        \n      - path: /$CI_PROJECT_NAME \
-        \n        pathType: Prefix \
-        \n        backend: \
-        \n          service: \
-        \n            name: $CI_PROJECT_NAME-service \
-        \n            port: \
-        \n              number: $APP_PORT" \
-        \
-        > deploy/overlays/$BUILD_ENV/ingress.yaml
-
-      echo -e "\nIngress resource replaced with kustomization"
-
-      cat deploy/overlays/$BUILD_ENV/ingress.yaml
-
-
 # Creates tls secret for ingress via Kustomize secretGenerator
 .create_tls_secret:
   script:
@@ -280,6 +181,92 @@
       echo "$TLS_KEY" | base64 --decode > deploy/overlays/$BUILD_ENV/tls.key
 
       echo -e "\nData files for TLS secret generation created successfully"
+
+
+# Patches `ingress.yaml`
+# Dev target URL:
+#   - https://{CI_PROJECT_NAME}.{CLUSTER_ENV}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
+#     eg. https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
+#
+# Staging target URL: 
+  # - https://latest.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  #   eg. https://latest.dev.ltc.bcit.ca/qcon-api
+#
+# Prod target URLs:
+# Default
+  # - https://stable.dev.ltc.bcit.ca/{CI_PROJECT_NAME}
+  #   eg. https://stable.dev.ltc.bcit.ca/qcon-api
+#
+# Extra (not yet implemented)
+  # - https://{PROD_NAMESPACE}.ltc.bcit.ca/
+  #   eg. https://qcon-api.ltc.bcit.ca
+#
+.patch_ingress:
+  script:
+    - |
+      if [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]]; then
+
+        echo -e " \
+          \napiVersion: networking.k8s.io/v1 \
+          \nkind: Ingress \
+          \nmetadata: \
+          \n  name: $CI_PROJECT_NAME-ingress \
+          \n  namespace: $NAMESPACE_NAME \
+          \n  annotations: \
+          \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
+          \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
+          \nspec: \
+          \n  tls: \
+          \n  - hosts: \
+          \n    - $CI_HOST \
+          \n    secretName: $TLS_SECRET_NAME \
+          \n  rules: \
+          \n  - host: $CI_HOST \
+          \n    http: \
+          \n      paths: \
+          \n      - path: /$CI_PROJECT_NAME \
+          \n        pathType: Prefix \
+          \n        backend: \
+          \n          service: \
+          \n            name: $CI_PROJECT_NAME-service \
+          \n            port: \
+          \n              number: $APP_PORT" \
+          \
+          > deploy/overlays/$BUILD_ENV/ingress.yaml
+
+        echo -e "\nIngress resource replaced with kustomization";
+      
+      else
+
+        echo -e " \
+          \napiVersion: networking.k8s.io/v1 \
+          \nkind: Ingress \
+          \nmetadata: \
+          \n  name: $CI_PROJECT_NAME-ingress \
+          \n  annotations: \
+          \n    nginx.ingress.kubernetes.io/rewrite-target: /\$2 \
+          \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
+          \nspec: \
+          \n  rules: \
+          \n  - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
+          \n    http: \
+          \n      paths: \
+          \n      - path: /$NAMESPACE_NAME \
+          \n        pathType: Prefix \
+          \n        backend: \
+          \n          service: \
+          \n            name: $CI_PROJECT_NAME-service \
+          \n            port: \
+          \n              number: $APP_PORT" \
+          \
+          > deploy/overlays/$BUILD_ENV/ingress.yaml
+
+        echo -e " \
+          \nIngress-dev resource replaced with kustomization"
+      
+      fi
+      
+      cat deploy/overlays/$BUILD_ENV/ingress.yaml
 
 
 # Removes commit_short_sha from VERSION_TAG (Prod only)

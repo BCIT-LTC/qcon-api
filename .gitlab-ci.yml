@@ -77,8 +77,7 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
     - !reference [.patch_namespace, script]        # add namespace annotations to ensure it's in the default Rancher project
     - !reference [.patch_deployment, script]       # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
-    - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch_ingress_dev, script]         # replace ingress with rewrite-targets, sub-paths
+    - !reference [.patch_ingress, script]         # replace ingress with rewrite-targets, sub-paths
     - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment (dev)
