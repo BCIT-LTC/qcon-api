@@ -167,7 +167,6 @@ deploy_production:                    # Deploy `stable` image to production clus
   stage: deploy
   extends: 
     - .release_branch_rules
-    - .update_version_tag             # remove short_sha from VERSION_TAG
   variables:
     BUILD_ENV: prod
   secrets:
