@@ -74,8 +74,8 @@ deploy_review:                # Deploy image on feature branch to a k8s dev clus
     BUILD_ENV: dev
   script:
     - !reference [.get_env, script]                   # set cluster env
-    - !reference [.patch_namespace, script]        # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.patch_deployment, script]       # add annotations about build to deployment
+    - !reference [.replace_namespace, script]        # add namespace annotations to ensure it's in the default Rancher project
+    - !reference [.replace_deployment, script]       # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.patch_ingress, script]         # replace ingress with rewrite-targets, sub-paths
     - !reference [.verify_kustomization, script]      # validate kustomization (enable for debugging)
@@ -117,8 +117,8 @@ deploy_latest:                # Deploy `latest` image to staging k8s cluster
       file: false
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
-    - !reference [.patch_namespace, script]        # attempt to create namespace; fail gracefully if already present
-    - !reference [.patch_deployment, script]       # attempt to create namespace; fail gracefully if already present
+    - !reference [.replace_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.replace_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     # - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
@@ -175,8 +175,8 @@ deploy_production:            # Deploy `stable` image to production k8s cluster
       file: false
   script:
     - !reference [.get_env, script]                   # attempt to create namespace; fail gracefully if already present
-    - !reference [.patch_namespace, script]        # attempt to create namespace; fail gracefully if already present
-    - !reference [.patch_deployment, script]       # attempt to create namespace; fail gracefully if already present
+    - !reference [.replace_namespace, script]        # attempt to create namespace; fail gracefully if already present
+    - !reference [.replace_deployment, script]       # attempt to create namespace; fail gracefully if already present
     - !reference [.kustomize_image, script]           # add kustomization annotations to pull latest commit image
     - !reference [.create_tls_secret, script]         # create "dev" TLS secret
     # - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards

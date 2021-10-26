@@ -79,7 +79,7 @@
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
-.patch_namespace:
+.replace_namespace:
   script:
     - |
       if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
@@ -92,21 +92,20 @@
       fi
 
       echo -e " \
+        \n--- \
         \napiVersion: v1 \
         \nkind: Namespace \
         \nmetadata: \
         \n  name: $NAMESPACE_NAME \
         \n  annotations: \
-        \n    field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\" \
-        \n" \
+        \n    field.cattle.io/projectId: \"$CLUSTER_ID:$PROJECT_ID\"" \
         \
         > deploy/overlays/$BUILD_ENV/namespace.yaml
       
       cat deploy/overlays/$BUILD_ENV/namespace.yaml
 
       echo -e " \
-        $(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g") \
-        \n" \
+        $(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -120,10 +119,11 @@
 # Please note:
 #   - `path_name` and `cluster_name` are only added as annotations to the kubernetes resource
 #   - `title` and `description` are only added as labels to the image
-.patch_deployment:
+.replace_deployment:
   script:
     - |
       echo -e " \
+        \n--- \
         \napiVersion: apps/v1 \
         \nkind: Deployment \
         \nmetadata: \
@@ -139,8 +139,7 @@
         \n    path_name: $NAMESPACE_NAME \
         \n    cluster_name: $CLUSTER_ENV \
         \n    app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n    app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
-        \n" \
+        \n    app.gitlab.com/env: $CI_ENVIRONMENT_SLUG" \
         \
         > deploy/overlays/$BUILD_ENV/deployment.yaml
 
@@ -181,8 +180,7 @@
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
-        \n    newTag: $DEPLOY_TAG \
-        \n" \
+        \n    newTag: $DEPLOY_TAG" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
@@ -227,6 +225,7 @@
       if [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]]; then
 
         echo -e " \
+          \n--- \
           \napiVersion: networking.k8s.io/v1 \
           \nkind: Ingress \
           \nmetadata: \
