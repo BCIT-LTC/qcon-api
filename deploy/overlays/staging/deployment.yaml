@@ -10,12 +10,12 @@ spec:
   
     spec:
       containers:
-      - name: qcon-api
-        image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest
-        volumeMounts:
-          - mountPath: /code/.env
-            name: shared-data
-            subPath: .env
+        - name: qcon-api
+          image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:latest
+          volumeMounts:
+            - mountPath: /code/.env
+              name: shared-data
+              subPath: .env
       volumes:
         - configMap:
             items:

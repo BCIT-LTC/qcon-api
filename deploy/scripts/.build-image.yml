@@ -19,14 +19,14 @@
       echo -e "Building and shipping image to $CI_REGISTRY_IMAGE \
       \nImage Labels being applied: \
       \n \
-      \norg.opencontainers.image.version=$VERSION_TAG \
-      \norg.opencontainers.image.revision=$CI_COMMIT_SHA \
-      \norg.opencontainers.image.source=$CI_PROJECT_URL \
-      \nversion=$VERSION_TAG \
-      \nbuild_hash=$CI_COMMIT_SHA \
-      \nbuild_short_sha=$CI_COMMIT_SHORT_SHA \
-      \nbuild_timestamp=$BUILD_DATE \
-      \nbuild_env=$BUILD_ENV \
+      \n  org.opencontainers.image.version=$VERSION_TAG \
+      \n  org.opencontainers.image.revision=$CI_COMMIT_SHA \
+      \n  org.opencontainers.image.source=$CI_PROJECT_URL \
+      \n  version=$VERSION_TAG \
+      \n  build_hash=$CI_COMMIT_SHA \
+      \n  build_short_sha=$CI_COMMIT_SHORT_SHA \
+      \n  build_timestamp=$BUILD_DATE \
+      \n  build_env=$BUILD_ENV \
       \n"
       
       BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
@@ -34,10 +34,10 @@
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.created=$BUILD_DATE"
 
-      BUILDTITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
+      BUILD_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
 
       IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.title=$BUILDTITLE"
+        --label org.opencontainers.image.title=$BUILD_TITLE"
       
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
 
