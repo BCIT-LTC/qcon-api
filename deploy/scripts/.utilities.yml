@@ -281,7 +281,7 @@
           \n    - host: $CI_HOST \
           \n      http: \
           \n        paths: \
-          \n        - path: /$CI_PROJECT_NAME \
+          \n        - path: /$CI_PROJECT_NAME(/|$)(.*) \
           \n          pathType: Prefix \
           \n          backend: \
           \n            service: \
@@ -307,7 +307,7 @@
           \n    - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
           \n      http: \
           \n        paths: \
-          \n          - path: /$NAMESPACE_NAME \
+          \n          - path: /$NAMESPACE_NAME(/|$)(.*) \
           \n            pathType: Prefix \
           \n            backend: \
           \n              service: \
