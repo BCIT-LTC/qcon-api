@@ -16,6 +16,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.parsers import FileUploadParser
 
 from django.core.files.base import ContentFile
+from django.conf import settings
 # from os import makedirs, path, walk
 
 from .models import QuestionError, QuestionLibrary
@@ -221,8 +222,12 @@ class RootPath(APIView):
         from .serializers import StatusResponseSerializer
 
         status = StatusResponse(name='qcon-api',
-                                clustername='dev-cp',
-                                version_number='0.0.0')
+                                clustername=settings.CLUSTERNAME,
+                                version_number=settings.VERSION,
+                                build_env=settings.BUILD_ENV,
+                                build_hash=settings.BUILD_HASH,
+                                build_short_sha=settings.BUILD_SHORT_SHA,
+                                build_timestamp=settings.BUILD_TIMESTAMP)
         serializer = StatusResponseSerializer(status)
 
         return JsonResponse(serializer.data,
