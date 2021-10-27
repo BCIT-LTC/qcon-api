@@ -17,6 +17,13 @@ import os
 import sys
 from pathlib import Path
 
+VERSION = os.getenv('VERSION', 'dev')
+CLUSTERNAME = os.getenv('CLUSTERNAME', '')
+BUILD_ENV = os.getenv('BUILD_ENV', '')
+BUILD_HASH = os.getenv('BUILD_HASH', '')
+BUILD_SHORT_SHA = os.getenv('BUILD_SHORT_SHA', '')
+BUILD_TIMESTAMP = os.getenv('BUILD_TIMESTAMP', '')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
