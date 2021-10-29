@@ -7,6 +7,7 @@ services:
     image: qcon-api
     environment:
       - DEBUG=True
+      # - API_HOST="http://api.local"
     restart: always
     tty: true
     volumes:

@@ -61,6 +61,8 @@ build_for_review:                     # Build image with Kaniko
   stage: build
   variables:
     BUILD_ENV: dev
+  script:
+    - !reference [.get_env, script]   # set cluster env
   extends:
     - .build_image
     - .feature_branch_rules
@@ -73,7 +75,6 @@ deploy_review:                        # Deploy feature branch image to a dev clu
   variables:
     BUILD_ENV: dev
   script:
-    - !reference [.get_env, script]                   # set cluster env
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
     - !reference [.replace_deployment, script]        # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image

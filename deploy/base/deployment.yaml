@@ -22,9 +22,6 @@ spec:
             requests:
               cpu: 100m
               memory: 100Mi
-          volumeMounts:
-            - name: podinfo
-              mountPath: /etc/podinfo
           ports:
             - containerPort: 8000
           readinessProbe:
@@ -37,34 +34,3 @@ spec:
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 30
-      volumes:
-        - name: podinfo
-          downwardAPI:
-            items:
-              - path: "labels"
-                fieldRef:
-                  fieldPath: metadata.labels
-              - path: "annotations"
-                fieldRef:
-                  fieldPath: metadata.annotations
-              - path: "path_name"
-                fieldRef:
-                  fieldPath: metadata.annotations['path_name']
-              - path: "version"
-                fieldRef:
-                  fieldPath: metadata.annotations['version']
-              - path: "cluster_name"
-                fieldRef:
-                  fieldPath: metadata.annotations['cluster_name']
-              - path: "build_env"
-                fieldRef:
-                  fieldPath: metadata.annotations['build_env']
-              - path: "build_hash"
-                fieldRef:
-                  fieldPath: metadata.annotations['build_hash']
-              - path: "build_short_sha"
-                fieldRef:
-                  fieldPath: metadata.annotations['build_short_sha']
-              - path: "build_timestamp"
-                fieldRef:
-                  fieldPath: metadata.annotations['build_timestamp']
