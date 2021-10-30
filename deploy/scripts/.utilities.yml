@@ -12,16 +12,14 @@
     - |
       VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA
 
-      echo -e " \
-        VERSION_TAG=\"$VERSION_TAG\" \
-        \nBUILD_SHORT_SHA=\"$CI_COMMIT_SHORT_SHA\" \
-        \nBUILD_HASH=\"$CI_COMMIT_SHA\" \
-        \nBUILD_TIMESTAMP=\"$CI_PIPELINE_CREATED_AT\" \
+      echo -e "VERSION_TAG=$VERSION_TAG \
+        \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA \
+        \nBUILD_HASH=$CI_COMMIT_SHA \
+        \nBUILD_TIMESTAMP=$CI_PIPELINE_CREATED_AT \
         " > .env
 
       # API_HOST variable is specific to project
-      echo -e " \
-        API_HOST=\"http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG\" \
+      echo -e "API_HOST=http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG \
         " >> .env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
