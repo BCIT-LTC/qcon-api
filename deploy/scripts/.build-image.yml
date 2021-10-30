@@ -8,10 +8,8 @@
       --label org.opencontainers.image.version=$VERSION_TAG
       --label org.opencontainers.image.revision=$CI_COMMIT_SHA
       --label org.opencontainers.image.source=$CI_PROJECT_URL
-      --label version=$VERSION_TAG
       --label build_hash=$CI_COMMIT_SHA
       --label build_short_sha=$CI_COMMIT_SHORT_SHA
-      --label build_timestamp=$BUILD_DATE
       --label build_env=$BUILD_ENV
 # --label tagline=$APP_TAGLINE
   script:
