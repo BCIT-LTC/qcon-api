@@ -18,7 +18,6 @@
     - | 
       echo -e "Building and shipping image to $CI_REGISTRY_IMAGE \
       \nImage Labels being applied: \
-      \n \
       \n  org.opencontainers.image.version=$VERSION_TAG \
       \n  org.opencontainers.image.revision=$CI_COMMIT_SHA \
       \n  org.opencontainers.image.source=$CI_PROJECT_URL \

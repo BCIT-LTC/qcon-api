@@ -44,7 +44,7 @@ include:
 
 
 stages:
-  - initialize_env
+  - gather_info
   - analyze_for_tagging
   - build
   - test
@@ -53,7 +53,7 @@ stages:
 
 
 get_latest_version_tag:               # Set standard variables and generate version tag for build.
-  stage: initialize_env               #   - $VERSION_TAG is added to the image as well as the deployment
+  stage: gather_info               #   - $VERSION_TAG is added to the image as well as the deployment
   extends: .version_tag
 
 
@@ -62,6 +62,7 @@ build_for_review:                     # Build image with Kaniko
   variables:
     BUILD_ENV: dev
   extends:
+    - .update_env
     - .build_image
     - .feature_branch_rules
 
