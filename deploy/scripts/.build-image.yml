@@ -12,6 +12,8 @@
       --label build_short_sha=$CI_COMMIT_SHORT_SHA
       --label build_env=$BUILD_ENV
 # --label tagline=$APP_TAGLINE
+    KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
+    KANIKO_SNAPSHOT_ARGS: "--snapshotMode=redo"
   script:
     - | 
       echo -e "Building and shipping image to $CI_REGISTRY_IMAGE \
@@ -61,4 +63,4 @@
         > /kaniko/.docker/config.json
       /kaniko/executor \
         --context $CI_PROJECT_DIR \
-        --dockerfile $CI_PROJECT_DIR/Dockerfile $FORMATTEDTAGLIST $IMAGE_LABELS
+        --dockerfile $CI_PROJECT_DIR/Dockerfile $KANIKO_CACHE_ARGS $KANIKO_SNAPSHOT_ARGS $FORMATTEDTAGLIST $IMAGE_LABELS
