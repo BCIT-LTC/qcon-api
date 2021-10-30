@@ -23,7 +23,7 @@
       # API_HOST variable is specific to project
       echo -e " \
         \nAPI_HOST=\"http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG\" \
-        " >> .env"
+        " >> .env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
