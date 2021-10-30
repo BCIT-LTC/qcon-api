@@ -10,21 +10,26 @@
   image: alpine/git:latest
   script:
     - |
-      VERSION_TAG="v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA"
-      BUILD_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
-      BUILD_HASH="$CI_COMMIT_SHA"
-      BUILD_TIMESTAMP="$CI_PIPELINE_CREATED_AT"
+      VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA
+
+      echo -e " \
+        VERSION_TAG=\"$VERSION_TAG\" \
+        \nBUILD_SHORT_SHA=\"$CI_COMMIT_SHORT_SHA\" \
+        \nBUILD_HASH=\"$CI_COMMIT_SHA\" \
+        \nBUILD_TIMESTAMP=\"$CI_PIPELINE_CREATED_AT\" \
+        " > .env
 
       # API_HOST variable is specific to project
-      API_HOST="http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG"
-      
+      echo -e " \
+        API_HOST=\"http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG\" \
+        " >> .env
+
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
           \n\e[31m##### .env contents: #####\e[0m \
           \n"
         cat .env
       fi
-
   artifacts:
     reports:
       dotenv: .env
