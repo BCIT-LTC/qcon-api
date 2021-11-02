@@ -340,8 +340,7 @@
           \n                  number: $APP_PORT \
           \n" \
           \
-          > deploy/overlays/$BUILD_ENV/ingress.yaml
-      
+          > deploy/overlays/$BUILD_ENV/ingress.yaml      
       fi
 
       echo -e " \
