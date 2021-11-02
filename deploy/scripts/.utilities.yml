@@ -324,8 +324,8 @@
           \n  name: $CI_PROJECT_NAME-ingress \
           \n  annotations: \
           \n    nginx.ingress.kubernetes.io/configuration-snippet: \
-                  rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
-                  rewrite ^/($CI_PROJECT_NAME)/(.*) /\$2 break; \
+                  rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
+                  rewrite ^/($NAMESPACE_NAME)/(.*) /\$2 break; \
           \nspec: \
           \n  rules: \
           \n    - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
