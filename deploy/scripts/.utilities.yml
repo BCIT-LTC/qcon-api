@@ -169,20 +169,20 @@
         \n  kind: Deployment \
         \n  metadata: \
         \n    name: $CI_PROJECT_NAME \
-        \nspec: \
-        \n  template: \
-        \n    metadata: \
-        \n      annotations: \
-        \n        version: \"$VERSION_TAG\" \
-        \n        build_hash: \"$CI_COMMIT_SHA\" \
-        \n        build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
-        \n        build_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
-        \n        build_env: \"$BUILD_ENV\" \
-        \n        path_name: \"$NAMESPACE_NAME\" \
-        \n        cluster_name: \"$CLUSTER_ENV\" \
+        \n  spec: \
+        \n    template: \
+        \n      metadata: \
+        \n        annotations: \
+        \n          version: \"$VERSION_TAG\" \
+        \n          build_hash: \"$CI_COMMIT_SHA\" \
+        \n          build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
+        \n          build_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
+        \n          build_env: \"$BUILD_ENV\" \
+        \n          path_name: \"$NAMESPACE_NAME\" \
+        \n          cluster_name: \"$CLUSTER_ENV\" \
         \n" \
         \
-        > deploy/overlays/$BUILD_ENV/kustomization.yaml
+        >> deploy/overlays/$BUILD_ENV/kustomization.yaml
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
