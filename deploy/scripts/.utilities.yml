@@ -9,8 +9,7 @@
 .version_tag:
   image: alpine/git:latest
   script:
-    - |
-      VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA
+    - echo "VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
   artifacts:
     reports:
       dotenv: version_tag.env
@@ -22,7 +21,7 @@
 .update_version_tag:
   script:
     - |
-      VERSION_TAG="$(echo $CI_COMMIT_TAG | cut -c 2-)"
+      echo "VERSION_TAG=$(echo $CI_COMMIT_TAG | cut -c 2-)" | tee version_tag.env
       echo -e " \
         \nPROD_NAMESPACE detected. Setting VERSION_TAG to $VERSION_TAG \
         \n"
@@ -98,17 +97,14 @@
           exit 1
       fi
 
-      echo -e " \
-        \nEnvironment variables: \
-        \n  BUILD_ENV: $BUILD_ENV \
-        \n  CLUSTER_ENV: $CLUSTER_ENV \
-        \n  CI_HOST: $CI_HOST \
-        \n  NAMESPACE_NAME: $NAMESPACE_NAME \
-        \n  CLUSTER_ID: $CLUSTER_ID \
-        \n  PROJECT_ID: $PROJECT_ID \
-        \n  TLS_SECRET_NAME: $TLS_SECRET_NAME \
-        \n  VERSION_TAG: $VERSION_TAG \
-        \n"
+      echo -e "BUILD_ENV: $BUILD_ENV \
+        \n CLUSTER_ENV: $CLUSTER_ENV \
+        \n CI_HOST: $CI_HOST \
+        \n NAMESPACE_NAME: $NAMESPACE_NAME \
+        \n CLUSTER_ID: $CLUSTER_ID \
+        \n PROJECT_ID: $PROJECT_ID \
+        \n TLS_SECRET_NAME: $TLS_SECRET_NAME \
+        \n VERSION_TAG: $VERSION_TAG" | tee env_vars.env
   artifacts:
     reports:
       dotenv: env_vars.env
