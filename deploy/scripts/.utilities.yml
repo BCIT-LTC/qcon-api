@@ -293,7 +293,7 @@
           \n  name: $CI_PROJECT_NAME-ingress \
           \n  annotations: \
           \n    nginx.ingress.kubernetes.io/configuration-snippet: rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
-          rewrite ^/($CI_PROJECT_NAME)/(.*) /$2 break; \
+          rewrite ^/($CI_PROJECT_NAME)/(.*) \/$2 break; \
           \nspec: \
           \n  tls: \
           \n    - hosts: \
