@@ -353,7 +353,6 @@
         cat deploy/overlays/$BUILD_ENV/ingress.yaml
       fi
 
-
 # Creates tls secret for ingress via Kustomize secretGenerator
 .create_tls_secret:
   script:
