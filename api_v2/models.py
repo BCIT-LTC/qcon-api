@@ -519,7 +519,11 @@ class CustomToken(Token):
 
 
 class StatusResponse:
-    def __init__(self, name, clustername, version_number, created=None):
+    def __init__(self, name, clustername, version_number, build_env, build_hash, build_short_sha, build_timestamp, created=None):
         self.name = name
         self.clustername = clustername
         self.version_number = version_number
+        self.build_env = build_env
+        self.build_hash = build_hash
+        self.build_short_sha = build_short_sha
+        self.build_timestamp = build_timestamp

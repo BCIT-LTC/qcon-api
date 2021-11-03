@@ -8,6 +8,20 @@ export $(grep -v '^#' .env | xargs)
 # TODO: unset vars for running container
 # eg. `unset $(grep -v '^#' .env | sed -E 's/(.*)=.*/\1/' | xargs)`
 
+if [ -d "/etc/podinfo" ] 
+then
+    echo "Directory /etc/podinfo exists." 
+    export STATIC_URL_PATH=$(cat /etc/podinfo/path_name) 
+    export VERSION=$(cat /etc/podinfo/version) 
+    export CLUSTERNAME=$(cat /etc/podinfo/cluster_name) 
+    export BUILD_ENV=$(cat /etc/podinfo/build_env) 
+    export BUILD_HASH=$(cat /etc/podinfo/build_hash) 
+    export BUILD_SHORT_SHA=$(cat /etc/podinfo/build_short_sha) 
+    export BUILD_TIMESTAMP=$(cat /etc/podinfo/build_timestamp) 
+else
+    echo "Directory /etc/podinfo does not exists."
+fi
+
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2
 echo "-------------------------------------------------------------------------------------------\n"
