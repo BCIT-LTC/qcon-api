@@ -16,6 +16,16 @@
     KANIKO_SNAPSHOT_ARGS: "--snapshotMode=redo"
   script:
     - | 
+      
+      BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'" #rfc 3339 date
+
+      BUILD_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
+
+      IMAGE_LABELS="$IMAGE_LABELS \
+        --label build_timestamp=$BUILD_DATE \
+        --label org.opencontainers.image.created=$BUILD_DATE \
+        --label org.opencontainers.image.title=$BUILD_TITLE"
+      
       echo -e "Building and shipping image to $CI_REGISTRY_IMAGE \
       \nImage Labels being applied: \
       \n  org.opencontainers.image.version=$VERSION_TAG \
@@ -36,9 +46,6 @@
 
       BUILD_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
 
-      IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.title=$BUILD_TITLE"
-      
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $CI_COMMIT_SHORT_SHA"
 
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
