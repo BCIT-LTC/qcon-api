@@ -10,9 +10,12 @@
   image: alpine/git:latest
   script:
     - |
-      VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA
+      echo "VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
   tags:
     - production
+  artifacts:
+    reports:
+      dotenv: version_tag.env
 
 
 # Removes commit_short_sha from VERSION_TAG (Prod only)

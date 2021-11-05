@@ -17,12 +17,15 @@ import os
 import sys
 from pathlib import Path
 
+# Defaults in `.env`
+#### --- (added by DEV pipeline)
 VERSION = os.getenv('VERSION', 'dev')
-CLUSTERNAME = os.getenv('CLUSTERNAME', '')
-BUILD_ENV = os.getenv('BUILD_ENV', '')
 BUILD_HASH = os.getenv('BUILD_HASH', '')
 BUILD_SHORT_SHA = os.getenv('BUILD_SHORT_SHA', '')
 BUILD_TIMESTAMP = os.getenv('BUILD_TIMESTAMP', '')
+#### --- (injected by downward API)
+CLUSTER_ENV = os.getenv('CLUSTERNAME', '')
+BUILD_ENV = os.getenv('BUILD_ENV', '')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+# Defaults in `.secrets`
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'd8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
