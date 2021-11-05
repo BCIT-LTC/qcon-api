@@ -307,7 +307,7 @@
           \n          pathType: Prefix \
           \n          backend: \
           \n            service: \
-          \n              name: $CI_PROJECT_NAME-service \
+          \n              name: $CI_PROJECT_NAME \
           \n              port: \
           \n                number: $APP_PORT \
           \n" \
@@ -334,7 +334,7 @@
           \n            pathType: Prefix \
           \n            backend: \
           \n              service: \
-          \n                name: $CI_PROJECT_NAME-service \
+          \n                name: $CI_PROJECT_NAME \
           \n                port: \
           \n                  number: $APP_PORT \
           \n" \
