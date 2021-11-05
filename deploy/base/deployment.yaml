@@ -14,7 +14,7 @@ spec:
       labels:
         app: qcon-api
     spec:
-      serviceAccountName: dependabot-qcon-api
+      serviceAccountName: qcon-api
       containers:
         - name: qcon-api
           image: qcon-api

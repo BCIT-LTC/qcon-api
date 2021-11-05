@@ -13,7 +13,7 @@ data:
         method "kubernetes" {
             mount_path = "auth/kubernetes"
             config = {
-                role = "dependabot-qcon-api-prod"
+                role = "kubeauthbot-qcon-api-prod"
             }
         }
 
