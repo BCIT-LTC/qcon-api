@@ -16,14 +16,19 @@
 
       BUILD_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
 
-      # \$BUILD_TIMESTAMP will be slightly different from \$CI_PIPELINE_CREATED_AT
-      echo -e "BUILD_TIMESTAMP=\"'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'\"" \
+      # \$BUILD_DATE will be slightly different from \$CI_PIPELINE_CREATED_AT
+      BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'"   #rfc 3339 date
+
+      # Inject build timestamp into image
+      echo -e "BUILD_TIMESTAMP=$BUILD_DATE" \
         \
         | tee -a .env
 
+      cat .env
+
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$BUILD_TITLE \
-        --label org.opencontainers.image.created=$BUILD_TIMESTAMP \
+        --label org.opencontainers.image.created=$BUILD_DATE \
         --label git_tag=$GIT_TAG \
         --label build_short_sha=$BUILD_SHORT_SHA \
         --label build_env=$BUILD_ENV"
@@ -37,11 +42,11 @@
         \n  org.opencontainers.image.revision=$BUILD_HASH \
         \n  org.opencontainers.image.source=$CI_PROJECT_URL \
         \n  org.opencontainers.image.title=$BUILD_TITLE \
-        \n  org.opencontainers.image.created=$BUILD_TIMESTAMP \
+        \n  org.opencontainers.image.created=$BUILD_DATE \
         \n  git_tag=$GIT_TAG \
         \n  build_short_sha=$BUILD_SHORT_SHA \
         \n  build_env=$BUILD_ENV"
-
+        
         #\n  app_tagline=$APP_TAGLINE \
         #\n  app_description=$APP_DESCRIPTION \
 
