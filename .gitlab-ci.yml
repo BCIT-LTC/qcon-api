@@ -100,7 +100,6 @@ build_latest:                         # Build image with Kaniko
   variables:
     BUILD_ENV: staging
   extends:
-    - .update_build_envs
     - .build_image
     - .main_branch_rules
 
@@ -159,7 +158,6 @@ build_stable:                         # Build image with Kaniko
   variables:
     BUILD_ENV: prod
   extends:
-    - .update_build_envs
     - .build_image
     - .release_branch_rules
 
