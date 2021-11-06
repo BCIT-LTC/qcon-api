@@ -11,10 +11,9 @@
   image: alpine/git:latest
   script:
     - |
-      # Release(prod) pipeline only runs when new semver tag generated
       if [[ -n "$CI_COMMIT_TAG" ]]; then
-        GIT_TAG=$CI_COMMIT_TAG
-        IMAGE_TAG=$(echo $GIT_TAG | sed 's/^v//')
+        GIT_TAG="$CI_COMMIT_TAG"
+        IMAGE_TAG="$(echo $GIT_TAG | sed 's/^v//')"
 
         echo -e " \
           \nProduction BUILD_ENV detected.
@@ -33,10 +32,14 @@
         \
         >> .env
 
+      cat .env
+
       # Replace API_HOST
       echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
         \
         > .env | tee build_envs.env
+
+      cat .env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
