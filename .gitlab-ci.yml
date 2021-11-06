@@ -20,9 +20,9 @@
 variables:                  # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
   CLUSTER_ENV: "dev-cp"     # options: dev-cp, dev-vsm
   PROD_NAMESPACE: "qcon"    # combine apps into one namespace if following microservice pattern
-  APP_PORT: "8000"
   APP_DESCRIPTION: "Qcon makes it easy to update and manage quizzes and assessment questions using a familiar MS Word interface."
   APP_TAGLINE: "Qcon - for question conversion"
+  APP_PORT: "8000"
 #
 #
 #
@@ -52,9 +52,9 @@ stages:
   - cleanup
 
 
-get_latest_version_tag:               # Set standard variables and generate version tag for build.
-  stage: gather_info               #   - $VERSION_TAG is added to the image as well as the deployment
-  extends: .version_tag
+get_git_tag:
+  stage: gather_info
+  extends: .set_git_tag
 
 
 build_for_review:                     # Build image with Kaniko
@@ -62,7 +62,7 @@ build_for_review:                     # Build image with Kaniko
   variables:
     BUILD_ENV: dev
   extends:
-    - .update_env
+    - .update_build_envs
     - .build_image
     - .feature_branch_rules
 
@@ -74,9 +74,9 @@ deploy_review:                        # Deploy feature branch image to a dev clu
   variables:
     BUILD_ENV: dev
   script:
-    - !reference [.get_env, script]   # set cluster env
+    - !reference [.set_deploy_envs, script]   # set cluster env
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.replace_deployment, script]        # add annotations about build to deployment
+    - !reference [.patch_deployment, script]        # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths

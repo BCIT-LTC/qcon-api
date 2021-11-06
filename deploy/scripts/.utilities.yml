@@ -6,43 +6,49 @@
 #   - GitLab release format: "v1.5.3"
 #   - app format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app format (release branch): "v1.5.3"
-.version_tag:
+# IMAGE_TAG=$(echo $GIT_TAG | sed 's/^v//')                                                   # Eg. "1.14.5-53c96a3b"
+
+.set_git_tag:
   image: alpine/git:latest
   script:
     - |
-      echo "VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
+      GIT_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))-$CI_COMMIT_SHORT_SHA    # Eg. "v1.14.5-53c96a3b"
+
+      echo -e "GIT_TAG=$GIT_TAG" | tee git_tag.env
   tags:
     - production
   artifacts:
     reports:
-      dotenv: version_tag.env
+      dotenv: git_tag.env
 
 
-# Removes commit_short_sha from VERSION_TAG (Prod only)
-.update_version_tag:
+.update_build_envs:
   script:
     - |
-      echo "VERSION_TAG=$(echo $CI_COMMIT_TAG | cut -c 2-)" | tee version_tag.env
-      echo -e " \
-        \nPROD_NAMESPACE detected. Setting VERSION_TAG to $VERSION_TAG \
-        \n"
-  artifacts:
-    reports:
-      dotenv: version_tag.env
+      if [[ -n "$CI_COMMIT_TAG" ]]; then                      # Release(prod) pipeline only runs when new semver tag generated
+        GIT_TAG=$CI_COMMIT_TAG                                # Eg. "v1.14.5"
+        IMAGE_TAG=$(echo $GIT_TAG | sed 's/^v//')             # Eg. "1.14.5"
 
+        echo -e " \
+          \nProduction BUILD_ENV detected.
+          \n  - Setting GIT_TAG to $GIT_TAG \
+          \n  - Setting IMAGE_TAG to $IMAGE_TAG \
+          \n"
+      else
+        IMAGE_TAG=$CI_COMMIT_SHORT_SHA                        # Eg. "53c96a3b"; GIT_TAG same as defined above
+      fi
 
-.update_env:
-  script:
-    - |
-      echo -e "VERSION_TAG=$VERSION_TAG \
-        \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA \
+      echo -e "GIT_TAG=$GIT_TAG \
+        \nIMAGE_TAG=$IMAGE_TAG \
         \nBUILD_HASH=$CI_COMMIT_SHA \
-        \nBUILD_TIMESTAMP=$CI_PIPELINE_CREATED_AT \
-        " > .env
+        \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
+        \
+        >> .env
 
-      # API_HOST variable is specific to project
-      echo -e "API_HOST=http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG \
-        " >> .env
+      # API_HOST variable is specific to `qcon-api` project
+      echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
+        \
+        >> .env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
@@ -50,7 +56,9 @@
           \n"
         cat .env
       fi
-
+  artifacts:
+    reports:
+      dotenv: .env
 
 # Configures cluster ENVs
 #   - vars defined here are not available for GitLab `environment` definitions
@@ -58,7 +66,7 @@
 #       - "dev-cp"
 #       - "dev-vsm"
 # Please note: Secret names correspond to certificate SAN's (eg. star-dev-ltc-bcit-ca protects `*.dev.ltc.bcit.ca`)
-.get_env:
+.set_deploy_envs:
   script:
     - |
       if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]; then
@@ -99,30 +107,32 @@
           exit 1
       fi
 
+      if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+          echo -e " \
+            \nPROD_NAMESPACE variable detected. \
+            \n  - Setting NAMESPACE_NAME to $NAMESPACE_NAME \
+            \n"
+      fi
+
       echo -e "BUILD_ENV: $BUILD_ENV \
-        \n CLUSTER_ENV: $CLUSTER_ENV \
-        \n CI_HOST: $CI_HOST \
-        \n NAMESPACE_NAME: $NAMESPACE_NAME \
-        \n CLUSTER_ID: $CLUSTER_ID \
-        \n PROJECT_ID: $PROJECT_ID \
-        \n TLS_SECRET_NAME: $TLS_SECRET_NAME \
-        \n VERSION_TAG: $VERSION_TAG" | tee env_vars.env
+        \nCLUSTER_ENV: $CLUSTER_ENV \
+        \nCI_HOST: $CI_HOST \
+        \nNAMESPACE_NAME: $NAMESPACE_NAME \
+        \nCLUSTER_ID: $CLUSTER_ID \
+        \nPROJECT_ID: $PROJECT_ID \
+        \nTLS_SECRET_NAME: $TLS_SECRET_NAME" \
+        | tee deploy_envs.env
   artifacts:
     reports:
-      dotenv: env_vars.env
+      dotenv: deploy_envs.env
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
 .replace_namespace:
   script:
     - |
-      if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
-          NAMESPACE_NAME="$PROD_NAMESPACE"
-          echo -e " \
-            \nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME \
-            \n"
-      fi
-
+      # Replace `namespace.yaml` entirely with branch name
       echo -e " \
         \napiVersion: v1 \
         \nkind: Namespace \
@@ -141,6 +151,7 @@
         cat deploy/overlays/$BUILD_ENV/namespace.yaml
       fi
 
+      # Patch `kustomization.yaml` with new namespace value
       echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
@@ -155,33 +166,30 @@
           \n"
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
-  
+
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
 # Please note:
 #   - `path_name` and `cluster_name` are only added as annotations to the kubernetes resource
 #   - `title` and `description` are only added as labels to the image
-.replace_deployment:
+.patch_deployment:
   script:
     - |
       echo -e " \
-        \npatchesStrategicMerge: \
-        \n- |- \
-        \n  apiVersion: apps/v1 \
-        \n  kind: Deployment \
-        \n  metadata: \
-        \n    name: $CI_PROJECT_NAME \
-        \n  spec: \
-        \n    template: \
+        \npatches: \
+        \n  - patch: |- \
+        \n      apiVersion: apps/v1 \
+        \n      kind: Deployment \
         \n      metadata: \
-        \n        annotations: \
-        \n          version: \"$VERSION_TAG\" \
-        \n          build_hash: \"$CI_COMMIT_SHA\" \
-        \n          build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
-        \n          build_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
-        \n          build_env: \"$BUILD_ENV\" \
-        \n          path_name: \"$NAMESPACE_NAME\" \
-        \n          cluster_name: \"$CLUSTER_ENV\" \
+        \n        name: $CI_PROJECT_NAME \
+        \n      spec: \
+        \n        template: \
+        \n          metadata: \
+        \n            annotations: \
+        \n              git_tag: \"$GIT_TAG\" \
+        \n              pipeline_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
+        \n              cluster_env: \"$CLUSTER_ENV\" \
+        \n              build_env: \"$BUILD_ENV\" \
         \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
@@ -196,15 +204,10 @@
       echo -e " \
         \nDeployment patch info: \
         \n \
-        \n  version: $VERSION_TAG \
-        \n  build_hash: $CI_COMMIT_SHA \
-        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
-        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  git_tag: $GIT_TAG \
+        \n  pipeline_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  cluster_env: $BUILD_ENV \
         \n  build_env: $BUILD_ENV \
-        \n  path_name: $NAMESPACE_NAME \
-        \n  cluster_name: $BUILD_ENV \
-        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
         \n"
 
 
@@ -212,16 +215,6 @@
 .kustomize_image:
   script:
     - |
-      if [[ "$BUILD_ENV" == "prod" ]]; then
-          IMAGE_TAG=$(echo $CI_COMMIT_TAG | cut -c 2-)
-      else
-          IMAGE_TAG="\"$CI_COMMIT_SHORT_SHA\""
-      fi
-
-      echo -e " \
-        \nDeploy tag set to: $IMAGE_TAG \
-        \n"
-
       echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
