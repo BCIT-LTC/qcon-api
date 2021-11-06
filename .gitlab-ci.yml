@@ -101,8 +101,9 @@ build_latest:                         # Build image with Kaniko
   variables:
     BUILD_ENV: staging
   extends:
-    - .main_branch_rules
+    - .update_build_envs
     - .build_image
+    - .main_branch_rules
 
 
 deploy_latest:                        # Deploy `latest` image to staging cluster
@@ -119,9 +120,9 @@ deploy_latest:                        # Deploy `latest` image to staging cluster
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.get_env, script]                   # set cluster env
+    - !reference [.set_deploy_envs, script]                   # set cluster env
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.replace_deployment, script]        # add annotations about build to deployment
+    - !reference [.patch_deployment, script]        # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.create_tls_secret, script]         # create TLS secret
@@ -159,9 +160,9 @@ build_stable:                         # Build image with Kaniko
   variables:
     BUILD_ENV: prod
   extends:
-    - .release_branch_rules
-    - .update_version_tag             # remove short_sha from VERSION_TAG
+    - .update_build_envs
     - .build_image
+    - .release_branch_rules
 
 
 deploy_production:                    # Deploy `stable` image to production cluster
@@ -178,9 +179,9 @@ deploy_production:                    # Deploy `stable` image to production clus
       vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
       file: false
   script:
-    - !reference [.get_env, script]                   # set cluster env
+    - !reference [.set_deploy_envs, script]                   # set cluster env
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.replace_deployment, script]        # add annotations about build to deployment
+    - !reference [.patch_deployment, script]        # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.create_tls_secret, script]         # create TLS secret
