@@ -25,29 +25,29 @@
         IMAGE_TAG=$CI_COMMIT_SHORT_SHA                        # Eg. "53c96a3b"; GIT_TAG same as defined above
       fi
 
-      echo -e "GIT_TAG=$GIT_TAG \
-        \nIMAGE_TAG=$IMAGE_TAG \
-        \nBUILD_HASH=$CI_COMMIT_SHA \
-        \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
+      echo -e "\nGIT_TAG=\"$GIT_TAG\" \
+        \nIMAGE_TAG=\"$IMAGE_TAG\" \
+        \nBUILD_HASH=\"$CI_COMMIT_SHA\" \
+        \nBUILD_SHORT_SHA=\"$CI_COMMIT_SHORT_SHA\"" \
         \
         >> .env
 
-      # API_HOST variable is specific to `qcon-api` project
+      # Replace API_HOST
       echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
         \
-        >> .env
+        > .env | tee build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
-          \n\e[31m##### .env contents: #####\e[0m \
+          \n\e[31m##### build_envs.env contents: #####\e[0m \
           \n"
-        cat .env
+        cat build_envs.env
       fi
   tags:
     - production
   artifacts:
     reports:
-      dotenv: .env
+      dotenv: build_envs.env
 
 # Configures cluster ENVs
 #   - vars defined here are not available for GitLab `environment` definitions
