@@ -32,14 +32,10 @@
         \
         >> .env
 
-      cat .env
-
       # Replace API_HOST
       echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
         \
-        > .env | tee build_envs.env
-
-      cat .env
+        > .env && cp .env build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
