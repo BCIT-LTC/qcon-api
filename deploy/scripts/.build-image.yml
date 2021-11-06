@@ -22,15 +22,15 @@
       # Inject build timestamp into image
       echo -e "BUILD_TIMESTAMP=$BUILD_DATE" \
         \
-        >> .env
+        | tee -a .env
 
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$BUILD_TITLE \
         --label org.opencontainers.image.created=$BUILD_DATE \
         --label git_tag=$GIT_TAG \
         --label build_short_sha=$BUILD_SHORT_SHA \
-        --label build_env=$BUILD_ENV \
-        \n"
+        --label build_env=$BUILD_ENV"
+
         # --label app_description=$APP_DESCRIPTION \
         # --label app_tagline=$APP_TAGLINE \
 
@@ -43,8 +43,8 @@
         \n  org.opencontainers.image.created=$BUILD_DATE \
         \n  git_tag=$GIT_TAG \
         \n  build_short_sha=$BUILD_SHORT_SHA \
-        \n  build_env=$BUILD_ENV \
-        \n"
+        \n  build_env=$BUILD_ENV"
+        
         #\n  app_tagline=$APP_TAGLINE \
         #\n  app_description=$APP_DESCRIPTION \
 
