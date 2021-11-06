@@ -12,7 +12,7 @@
     KANIKO_SNAPSHOT_ARGS: "--snapshotMode=redo"
   script:
     - | 
-      echo -e "Building and shipping image to $CI_REGISTRY_IMAGE \
+      echo -e "Building and shipping image to $CI_REGISTRY_IMAGE"
 
       BUILD_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
 
