@@ -52,9 +52,9 @@ stages:
   - cleanup
 
 
-get_git_tag:
+get_build_envs:
   stage: gather_info
-  extends: .set_git_tag
+  extends: .set_build_envs
 
 
 build_for_review:                     # Build image with Kaniko
@@ -62,7 +62,6 @@ build_for_review:                     # Build image with Kaniko
   variables:
     BUILD_ENV: dev
   extends:
-    - .update_build_envs
     - .build_image
     - .feature_branch_rules
 
@@ -74,9 +73,9 @@ deploy_review:                        # Deploy feature branch image to a dev clu
   variables:
     BUILD_ENV: dev
   script:
-    - !reference [.set_deploy_envs, script]   # set cluster env
+    - !reference [.set_deploy_envs, script]           # set cluster env
     - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.patch_deployment, script]        # add annotations about build to deployment
+    - !reference [.patch_deployment, script]          # add annotations about build to deployment
     - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
     - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
     - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths

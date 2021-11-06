@@ -2,27 +2,13 @@
 
 # Sets standard vars and generates VERSION_TAG for dev/staging
 # Tag format:
-#   - image format: "1.5.3"
+#   - image tag format: "1.5.3"
 #   - GitLab release format: "v1.5.3"
-#   - app format (feature/main branch): "v1.5.3-c7754fc6"
-#   - app format (release branch): "v1.5.3"
-# IMAGE_TAG=$(echo $GIT_TAG | sed 's/^v//')                                                   # Eg. "1.14.5-53c96a3b"
+#   - app git tag format (feature/main branch): "v1.5.3-c7754fc6"
+#   - app git tag format (release branch): "v1.5.3"
 
-.set_git_tag:
+.set_build_envs:
   image: alpine/git:latest
-  script:
-    - |
-      GIT_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))-$CI_COMMIT_SHORT_SHA    # Eg. "v1.14.5-53c96a3b"
-
-      echo -e "GIT_TAG=$GIT_TAG" | tee git_tag.env
-  tags:
-    - production
-  artifacts:
-    reports:
-      dotenv: git_tag.env
-
-
-.update_build_envs:
   script:
     - |
       if [[ -n "$CI_COMMIT_TAG" ]]; then                      # Release(prod) pipeline only runs when new semver tag generated
@@ -35,6 +21,7 @@
           \n  - Setting IMAGE_TAG to $IMAGE_TAG \
           \n"
       else
+        GIT_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))-$CI_COMMIT_SHORT_SHA    # Eg. "v1.14.5-53c96a3b"
         IMAGE_TAG=$CI_COMMIT_SHORT_SHA                        # Eg. "53c96a3b"; GIT_TAG same as defined above
       fi
 
@@ -56,6 +43,8 @@
           \n"
         cat .env
       fi
+  tags:
+    - production
   artifacts:
     reports:
       dotenv: .env
