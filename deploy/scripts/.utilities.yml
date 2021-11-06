@@ -25,17 +25,17 @@
         IMAGE_TAG=$CI_COMMIT_SHORT_SHA
       fi
 
-      echo -e "\nGIT_TAG=\"$GIT_TAG\" \
-        \nIMAGE_TAG=\"$IMAGE_TAG\" \
-        \nBUILD_HASH=\"$CI_COMMIT_SHA\" \
-        \nBUILD_SHORT_SHA=\"$CI_COMMIT_SHORT_SHA\"" \
+      echo -e "\nGIT_TAG=$GIT_TAG \
+        \nIMAGE_TAG=$IMAGE_TAG \
+        \nBUILD_HASH=$CI_COMMIT_SHA \
+        \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
         \
         >> .env
 
       # Replace API_HOST
       echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
         \
-        > .env && cp .env build_envs.env
+        | tee .env build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
