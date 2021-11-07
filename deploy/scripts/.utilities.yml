@@ -111,7 +111,8 @@
         \nCLUSTER_ID: $CLUSTER_ID \
         \nPROJECT_ID: $PROJECT_ID \
         \nTLS_SECRET_NAME: $TLS_SECRET_NAME" \
-        | tee deploy_envs.env
+        \
+        >> .env && cp .env deploy_envs.env
   artifacts:
     reports:
       dotenv: deploy_envs.env

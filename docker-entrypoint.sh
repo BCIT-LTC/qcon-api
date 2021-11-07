@@ -5,13 +5,9 @@ set -e
 # TODO: still needs work to confirm production-ready
 export $(grep -v '^#' .secrets | xargs)
 
-if [ -d "/etc/podinfo" ] 
-then
-    echo "'/etc/podinfo' exists... setting shell variables." 
-    export $(grep -v '^#' /etc/podinfo | xargs)
-else
-    echo "'/etc/podinfo' does not exist."
-fi
+# set environment variables
+export $(grep -v '^#' .env | xargs)
+
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2
