@@ -222,7 +222,7 @@ class RootPath(APIView):
         from .serializers import StatusResponseSerializer
 
         status = StatusResponse(name='qcon-api',
-                                clustername=settings.CLUSTERNAME,
+                                cluster_env=settings.CLUSTER_ENV,
                                 version_number=settings.VERSION,
                                 build_env=settings.BUILD_ENV,
                                 build_hash=settings.BUILD_HASH,
