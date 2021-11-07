@@ -22,7 +22,7 @@ variables:                  # other global variables are set in GitLab Admin: ht
   PROD_NAMESPACE: "qcon"    # combine apps into one namespace if following microservice pattern
   APP_DESCRIPTION: "Qcon makes it easy to update and manage quizzes and assessment questions using a familiar MS Word interface."
   APP_TAGLINE: "Qcon - for question conversion"
-  APP_PORT: '8000'
+  APP_PORT: 8000
 #
 #
 #
