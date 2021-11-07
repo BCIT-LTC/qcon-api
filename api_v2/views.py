@@ -223,7 +223,7 @@ class RootPath(APIView):
 
         status = StatusResponse(name='qcon-api',
                                 cluster_env=settings.CLUSTER_ENV,
-                                version_number=settings.VERSION,
+                                version_number=settings.GIT_TAG,
                                 build_env=settings.BUILD_ENV,
                                 build_hash=settings.BUILD_HASH,
                                 build_short_sha=settings.BUILD_SHORT_SHA,

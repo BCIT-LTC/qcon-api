@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Defaults in `.env`
 #### --- (added by DEV pipeline)
-RELEASE_VERSION = os.getenv('GIT_TAG', 'dev')
+GIT_TAG = os.getenv('GIT_TAG', 'dev')
 BUILD_HASH = os.getenv('BUILD_HASH', '')
 BUILD_SHORT_SHA = os.getenv('BUILD_SHORT_SHA', '')
 BUILD_TIMESTAMP = os.getenv('BUILD_TIMESTAMP', '')
