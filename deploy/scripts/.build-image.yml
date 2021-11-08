@@ -18,6 +18,8 @@
       # \$BUILD_DATE will be slightly different from \$CI_PIPELINE_CREATED_AT
       BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'"   #rfc 3339 date
 
+      cat .env
+
       # Inject build envs into image
       echo -e "\nGIT_TAG=$GIT_TAG \
         \nIMAGE_TAG=$IMAGE_TAG \
@@ -27,6 +29,8 @@
         \nBUILD_DATE=$BUILD_DATE \
         \n" \
         >> .env
+
+      cat .env
 
       # Replace API_HOST
       echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
