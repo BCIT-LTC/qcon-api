@@ -23,7 +23,7 @@
         \nIMAGE_TAG=$IMAGE_TAG \
         \nBUILD_HASH=$BUILD_HASH \
         \nBUILD_SHORT_SHA=$BUILD_SHORT_SHA \
-        \NBUILD_TITLE=$BUILD_TITLE \
+        \nBUILD_TITLE=$BUILD_TITLE \
         \nBUILD_DATE=$BUILD_DATE \
         \n" \
         >> .env

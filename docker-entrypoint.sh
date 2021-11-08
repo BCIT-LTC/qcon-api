@@ -6,8 +6,9 @@ set -e
 export $(grep -v '^#' .secrets | xargs)
 
 # set environment variables
-export $(grep -v '^#' .env | xargs)
-
+set -a
+source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
+set +a
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2
