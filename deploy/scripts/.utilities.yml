@@ -21,8 +21,8 @@
           \n  - Setting IMAGE_TAG to $IMAGE_TAG \
           \n"
       else
-        GIT_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))-$CI_COMMIT_SHORT_SHA
-        IMAGE_TAG=$CI_COMMIT_SHORT_SHA
+        GIT_TAG="$(git describe --tags $(git rev-list --tags --max-count=1))-$CI_COMMIT_SHORT_SHA"
+        IMAGE_TAG="$CI_COMMIT_SHORT_SHA"
       fi
 
       echo -e "\nGIT_TAG=$GIT_TAG \
@@ -30,12 +30,7 @@
         \nBUILD_HASH=$CI_COMMIT_SHA \
         \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
         \
-        >> .env
-
-      # Replace API_HOST
-      echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
-        \
-        > .env && cp .env build_envs.env
+        >> .env && cp .env build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
@@ -58,7 +53,7 @@
 .set_deploy_envs:
   script:
     - |
-      if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]; then
+      if  [[ $CLUSTER_ENV == "dev-cp" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -66,7 +61,7 @@
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="secret not used in dev environment"
 
-      elif [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-vsm" ]]; then
+      elif [[ $CLUSTER_ENV == "dev-vsm" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -104,15 +99,15 @@
             \n"
       fi
 
-      echo -e "BUILD_ENV: $BUILD_ENV \
-        \nCLUSTER_ENV: $CLUSTER_ENV \
+      echo -e "\nCLUSTER_ENV=$CLUSTER_ENV \
+        \NBUILD_ENV: $BUILD_ENV \
         \nCI_HOST: $CI_HOST \
         \nNAMESPACE_NAME: $NAMESPACE_NAME \
         \nCLUSTER_ID: $CLUSTER_ID \
         \nPROJECT_ID: $PROJECT_ID \
         \nTLS_SECRET_NAME: $TLS_SECRET_NAME" \
         \
-        >> .env && cp .env deploy_envs.env
+        > deploy_envs.env
   artifacts:
     reports:
       dotenv: deploy_envs.env
@@ -180,6 +175,7 @@
         \n              pipeline_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
         \n              cluster_env: \"$CLUSTER_ENV\" \
         \n              build_env: \"$BUILD_ENV\" \
+        \n              namespace_name: \"$NAMESPACE_NAME\" \
         \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
@@ -198,6 +194,7 @@
         \n  pipeline_timestamp: $CI_PIPELINE_CREATED_AT \
         \n  cluster_env: $BUILD_ENV \
         \n  build_env: $BUILD_ENV \
+        \n  namespace_name: $NAMESPACE_NAME \
         \n"
 
 
@@ -269,9 +266,6 @@
 .patch_ingress:
   script:
     - |
-      # Workaround to remove quotes
-      APP_PORT=$(echo $APP_PORT | tr -d '"')
-
       if [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]]; then
 
         echo -e " \
