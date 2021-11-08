@@ -227,7 +227,9 @@ class RootPath(APIView):
                                 build_env=settings.BUILD_ENV,
                                 build_hash=settings.BUILD_HASH,
                                 build_short_sha=settings.BUILD_SHORT_SHA,
-                                build_date=settings.BUILD_DATE)
+                                build_date=settings.BUILD_DATE,
+                                app_description=settings.APP_DESCRIPTION,
+                                app_tagline=settings.APP_TAGLINE)
         serializer = StatusResponseSerializer(status)
 
         return JsonResponse(serializer.data,

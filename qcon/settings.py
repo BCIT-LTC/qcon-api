@@ -25,6 +25,8 @@ BUILD_SHORT_SHA = os.getenv('BUILD_SHORT_SHA', '')
 BUILD_DATE = os.getenv('BUILD_DATE', '')
 CLUSTER_ENV = os.getenv('cluster_env', '')
 BUILD_ENV = os.getenv('build_env', '')
+APP_DESCRIPTION = os.getenv('APP_DESCRIPTION', '')
+APP_TAGLINE = os.getenv('APP_TAGLINE', '')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
