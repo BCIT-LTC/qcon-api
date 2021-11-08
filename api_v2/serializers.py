@@ -280,4 +280,4 @@ class StatusResponseSerializer(serializers.Serializer):
     build_env = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
     build_hash = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
     build_short_sha = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
-    build_timestamp = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
+    build_date = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)

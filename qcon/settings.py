@@ -22,9 +22,9 @@ from pathlib import Path
 GIT_TAG = os.getenv('GIT_TAG', 'dev')
 BUILD_HASH = os.getenv('BUILD_HASH', '')
 BUILD_SHORT_SHA = os.getenv('BUILD_SHORT_SHA', '')
-BUILD_TIMESTAMP = os.getenv('BUILD_TIMESTAMP', '')
-CLUSTER_ENV = os.getenv('CLUSTER_ENV', '')
-BUILD_ENV = os.getenv('BUILD_ENV', '')
+BUILD_DATE = os.getenv('BUILD_DATE', '')
+CLUSTER_ENV = os.getenv('cluster_env', '')
+BUILD_ENV = os.getenv('build_env', '')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
