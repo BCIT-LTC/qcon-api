@@ -21,13 +21,13 @@
       cat .env
 
       # Inject build envs into image
-      echo -e "\nGIT_TAG=$GIT_TAG \
-        \nIMAGE_TAG=$IMAGE_TAG \
-        \nBUILD_HASH=$BUILD_HASH \
-        \nBUILD_SHORT_SHA=$BUILD_SHORT_SHA \
-        \nBUILD_TITLE=$BUILD_TITLE \
-        \nBUILD_DATE=$BUILD_DATE \
-        \n" \
+      echo -e "\nGIT_TAG=$GIT_TAG\
+      \nIMAGE_TAG=$IMAGE_TAG\
+      \nBUILD_HASH=$BUILD_HASH\
+      \nBUILD_SHORT_SHA=$BUILD_SHORT_SHA\
+      \nBUILD_TITLE=$BUILD_TITLE\
+      \nBUILD_DATE=$BUILD_DATE\
+      \n" \
         >> .env
 
       cat .env
