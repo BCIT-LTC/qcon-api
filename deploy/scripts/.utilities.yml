@@ -33,10 +33,10 @@
         >> .env
 
       # Sanitize envs
-      echo -e "$(cat .env | sed -e 's/\"/\\"/' -e 's/"$/\\"/') \
+      echo -e "$(cat .env | sed -e 's/\"/\\"/' -e 's/"$/\\"/')" \
         \
         > .env
-        
+
       # Store variables for later jobs
       cp .env build_envs.env
 
