@@ -6,12 +6,6 @@
 #   - GitLab release format: "v1.5.3"
 #   - app git tag format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app git tag format (release branch): "v1.5.3"
-      # Sanitize .env
-      # echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_NAME.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
-      #   \
-      #   > .env
-
-      # source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
 
 .set_build_envs:
   image: alpine/git:latest
@@ -38,6 +32,12 @@
         \
         >> .env
 
+      # Sanitize envs
+      echo -e "$(cat .env | sed -e 's/\"/\\"/' -e 's/"$/\\"/') \
+        \
+        > .env
+        
+      # Store variables for later jobs
       cp .env build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then

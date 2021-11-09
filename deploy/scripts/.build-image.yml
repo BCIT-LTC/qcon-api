@@ -31,6 +31,10 @@
       \n" \
         >> .env
 
+      cat .env
+
+      echo $IMAGE_LABELS
+
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$IMAGE_TITLE \
         --label org.opencontainers.image.created=$BUILD_DATE"
