@@ -44,7 +44,7 @@
     reports:
       dotenv: build_envs.env
 
-# Configures cluster ENVs
+# Configures cluster name
 #   - vars defined here are not available for GitLab `environment` definitions
 #   - currently limited to:
 #       - "dev-cp"
@@ -53,7 +53,7 @@
 .set_deploy_envs:
   script:
     - |
-      if  [[ $CLUSTER_ENV == "dev-cp" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
+      if  [[ $CLUSTER_NAME == "dev-cp" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -61,7 +61,7 @@
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="secret not used in dev environment"
 
-      elif [[ $CLUSTER_ENV == "dev-vsm" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
+      elif [[ $CLUSTER_NAME == "dev-vsm" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -99,7 +99,7 @@
             \n"
       fi
 
-      echo -e "\nCLUSTER_ENV=$CLUSTER_ENV \
+      echo -e "\nCLUSTER_NAME=$CLUSTER_NAME \
         \nBUILD_ENV=$BUILD_ENV \
         \nCI_HOST=$CI_HOST \
         \nNAMESPACE_NAME=$NAMESPACE_NAME \
@@ -173,7 +173,7 @@
         \n            annotations: \
         \n              git_tag: \"$GIT_TAG\" \
         \n              pipeline_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
-        \n              cluster_env: \"$CLUSTER_ENV\" \
+        \n              cluster_name: \"$CLUSTER_NAME\" \
         \n              build_env: \"$BUILD_ENV\" \
         \n              namespace_name: \"$NAMESPACE_NAME\" \
         \n" \
@@ -192,7 +192,7 @@
         \n \
         \n  git_tag: $GIT_TAG \
         \n  pipeline_timestamp: $CI_PIPELINE_CREATED_AT \
-        \n  cluster_env: $BUILD_ENV \
+        \n  cluster_name: $CLUSTER_NAME \
         \n  build_env: $BUILD_ENV \
         \n  namespace_name: $NAMESPACE_NAME \
         \n"

@@ -5,60 +5,51 @@
     entrypoint: [""]
   variables:
     IMAGE_LABELS: >
+      --label org.opencontainers.image.source=$CI_PROJECT_URL
       --label git_tag=$GIT_TAG
       --label org.opencontainers.image.version=$IMAGE_TAG
+      --label org.opencontainers.image.revision=$BUILD_HASH
+      --label build_short_sha=$BUILD_SHORT_SHA
     KANIKO_CACHE_ARGS: "--cache=true --cache-copy-layers=true --cache-ttl=24h"
     KANIKO_SNAPSHOT_ARGS: "--snapshotMode=redo"
   script:
     - | 
       echo -e "Building and shipping image to $CI_REGISTRY_IMAGE"
 
-      BUILD_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
+      IMAGE_TITLE=$(echo $CI_PROJECT_TITLE | tr " " "_")
 
       # \$BUILD_DATE will be slightly different from \$CI_PIPELINE_CREATED_AT
       BUILD_DATE="$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')"   #rfc 3339 date
-
-      cat .env
 
       # Inject build envs into image
       echo -e "\nGIT_TAG=$GIT_TAG\
       \nIMAGE_TAG=$IMAGE_TAG\
       \nBUILD_HASH=$BUILD_HASH\
       \nBUILD_SHORT_SHA=$BUILD_SHORT_SHA\
-      \nBUILD_TITLE=$BUILD_TITLE\
+      \nIMAGE_TITLE=$IMAGE_TITLE\
       \nBUILD_DATE=$BUILD_DATE\
       \n" \
         >> .env
 
-      cat .env
-
-      # Replace API_HOST
-      echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
-        \
-        > .env
-
-      cat .env
-
       IMAGE_LABELS="$IMAGE_LABELS \
-        --label org.opencontainers.image.title=$BUILD_TITLE \
-        --label org.opencontainers.image.source=$CI_PROJECT_URL \
-        --label org.opencontainers.image.created=$BUILD_DATE \
-        --label org.opencontainers.image.revision=$BUILD_HASH \
-        --label build_short_sha=$BUILD_SHORT_SHA \
-        --label build_env=$BUILD_ENV"
+        --label org.opencontainers.image.title=$IMAGE_TITLE \
+        --label org.opencontainers.image.created=$BUILD_DATE"
+
+      echo $IMAGE_LABELS
 
         # --label app_description=$APP_DESCRIPTION \
         # --label app_tagline=$APP_TAGLINE \
 
       echo -e " \
         \nImage Labels being applied: \
+        \n  org.opencontainers.image.source=$CI_PROJECT_URL \
         \n  git_tag=$GIT_TAG \
         \n  org.opencontainers.image.version=$IMAGE_TAG \
-        \n  org.opencontainers.image.title=$BUILD_TITLE \
-        \n  org.opencontainers.image.source=$CI_PROJECT_URL \
-        \n  org.opencontainers.image.created=$BUILD_DATE \
         \n  org.opencontainers.image.revision=$BUILD_HASH \
-        \n  build_short_sha=$BUILD_SHORT_SHA"
+        \n  build_short_sha=$BUILD_SHORT_SHA \
+        \n  org.opencontainers.image.title=$IMAGE_TITLE \
+        \n  org.opencontainers.image.created=$BUILD_DATE \
+        \n"
         
         #\n  app_tagline=$APP_TAGLINE \
         #\n  app_description=$APP_DESCRIPTION \

@@ -41,6 +41,10 @@ spec:
         - name: podinfo
           downwardAPI:
             items:
-              - path: "annotations"
+              - path: "cluster_name"
                 fieldRef:
-                  fieldPath: metadata.annotations
+                  fieldPath: metadata.annotations['cluster_name']
+              - path: "build_env"
+                fieldRef:
+                  fieldPath: metadata.annotations['build_env']
+
