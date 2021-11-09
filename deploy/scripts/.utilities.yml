@@ -210,16 +210,6 @@
 .kustomize_image:
   script:
     - |
-      if [[ "$BUILD_ENV" == "prod" ]]; then
-          IMAGE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)
-      else
-          IMAGE_TAG="\"$CI_COMMIT_SHORT_SHA\""
-      fi
-
-      echo -e " \
-        \nDeploy tag set to: $IMAGE_TAG \
-        \n"
-
       echo -e " \
         \nDeploy tag set to: $IMAGE_TAG \
         \n"
