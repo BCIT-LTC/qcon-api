@@ -33,13 +33,6 @@
 
       cat .env
 
-      # Sanitize envs
-      echo -e "$(cat .env | sed -e 's/\"/\\"/' -e 's/"$/\\"/')" \
-        \
-        > .env
-
-      cat .env
-
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$IMAGE_TITLE \
         --label org.opencontainers.image.created=$BUILD_DATE \
