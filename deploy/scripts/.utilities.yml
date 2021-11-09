@@ -211,6 +211,10 @@
   script:
     - |
       echo -e " \
+        \nDeploy tag set to: $IMAGE_TAG \
+        \n"
+
+      echo -e " \
         \nimages: \
         \n  - name: $CI_PROJECT_NAME \
         \n    newName: $CI_REGISTRY_IMAGE \
