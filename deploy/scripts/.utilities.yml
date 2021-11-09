@@ -6,6 +6,12 @@
 #   - GitLab release format: "v1.5.3"
 #   - app git tag format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app git tag format (release branch): "v1.5.3"
+      # Sanitize .env
+      # echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
+      #   \
+      #   > .env
+
+      # source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
 
 .set_build_envs:
   image: alpine/git:latest
@@ -30,7 +36,9 @@
         \nBUILD_HASH=$CI_COMMIT_SHA\
         \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
         \
-        >> .env && cp .env build_envs.env
+        >> .env
+
+      cp .env build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
@@ -371,7 +379,7 @@
       when: never
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
   tags:
-    - $CLUSTER_ENV
+    - $CLUSTER_NAME
 
 .main_branch_rules:
   rules:

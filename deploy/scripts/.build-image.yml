@@ -35,8 +35,6 @@
         --label org.opencontainers.image.title=$IMAGE_TITLE \
         --label org.opencontainers.image.created=$BUILD_DATE"
 
-      echo $IMAGE_LABELS
-
         # --label app_description=$APP_DESCRIPTION \
         # --label app_tagline=$APP_TAGLINE \
 
