@@ -275,9 +275,11 @@ class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
 
 class StatusResponseSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
-    clustername = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
+    app_description = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
     version_number = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
-    build_env = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
     build_hash = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
     build_short_sha = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
-    build_timestamp = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
+    build_date = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
+    cluster_name = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
+    build_env = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
+    app_tagline = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
