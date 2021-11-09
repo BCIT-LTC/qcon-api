@@ -18,9 +18,8 @@
 
 
 variables:                  # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
-  CLUSTER_ENV: "dev-cp"     # options: dev-cp, dev-vsm
+  CLUSTER_NAME: "dev-cp"    # options: dev-cp, dev-vsm
   PROD_NAMESPACE: "qcon"    # combine apps into one namespace if following microservice pattern; otherwise, set to ""
-  APP_PORT: 8000            # also set in `.env`
 #
 #
 #

@@ -19,7 +19,6 @@ else
     echo "/etc/podinfo does not exist... Assuming local cluster."
 fi
 
-
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2
 echo "-------------------------------------------------------------------------------------------\n"

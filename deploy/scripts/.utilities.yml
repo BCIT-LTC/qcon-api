@@ -25,9 +25,9 @@
         IMAGE_TAG="$CI_COMMIT_SHORT_SHA"
       fi
 
-      echo -e "\nGIT_TAG=$GIT_TAG \
-        \nIMAGE_TAG=$IMAGE_TAG \
-        \nBUILD_HASH=$CI_COMMIT_SHA \
+      echo -e "\nGIT_TAG=$GIT_TAG\
+        \nIMAGE_TAG=$IMAGE_TAG\
+        \nBUILD_HASH=$CI_COMMIT_SHA\
         \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
         \
         >> .env && cp .env build_envs.env
@@ -99,13 +99,13 @@
             \n"
       fi
 
-      echo -e "\nCLUSTER_NAME=$CLUSTER_NAME \
-        \nBUILD_ENV=$BUILD_ENV \
-        \nCI_HOST=$CI_HOST \
-        \nNAMESPACE_NAME=$NAMESPACE_NAME \
-        \nCLUSTER_ID=$CLUSTER_ID \
-        \nPROJECT_ID=$PROJECT_ID \
-        \nTLS_SECRET_NAME=$TLS_SECRET_NAME" \
+      echo -e "\nCLUSTER_NAME=$CLUSTER_NAME\
+        \nBUILD_ENV=$BUILD_ENV\
+        \nCI_HOST=$CI_HOST\
+        \nNAMESPACE_NAME=$NAMESPACE_NAME\
+        \nCLUSTER_ID=$CLUSTER_ID\
+        \nPROJECT_ID=$PROJECT_ID\
+        \nTLS_SECRET_NAME=$TLS_SECRET_NAME"\
         \
         > deploy_envs.env
   artifacts:
