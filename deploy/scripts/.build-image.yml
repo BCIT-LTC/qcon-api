@@ -33,6 +33,13 @@
 
       cat .env
 
+      # Sanitize envs
+      echo -e "$(cat .env | sed -e 's/\"/\\"/' -e 's/"$/\\"/')" \
+        \
+        > .env
+
+      cat .env
+
       echo $IMAGE_LABELS
 
       IMAGE_LABELS="$IMAGE_LABELS \
