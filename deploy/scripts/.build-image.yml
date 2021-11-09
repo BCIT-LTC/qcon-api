@@ -31,15 +31,9 @@
       \n" \
         >> .env
 
-      cat .env
-
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$IMAGE_TITLE \
-        --label org.opencontainers.image.created=$BUILD_DATE \
-        --label app_description=$APP_DESCRIPTION \
-        --label app_tagline=$APP_TAGLINE"
-
-      echo $IMAGE_LABELS
+        --label org.opencontainers.image.created=$BUILD_DATE"
 
       echo -e " \
         \nImage Labels being applied: \
@@ -52,9 +46,6 @@
         \n  org.opencontainers.image.created=$BUILD_DATE \
         \n"
         
-        #\n  app_tagline=$APP_TAGLINE \
-        #\n  app_description=$APP_DESCRIPTION \
-
       ADDITIONALTAGLIST="$ADDITIONALTAGLIST $IMAGE_TAG"
 
       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then ADDITIONALTAGLIST="$ADDITIONALTAGLIST latest"; fi
