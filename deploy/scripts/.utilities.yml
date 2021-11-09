@@ -7,7 +7,7 @@
 #   - app git tag format (feature/main branch): "v1.5.3-c7754fc6"
 #   - app git tag format (release branch): "v1.5.3"
       # Sanitize .env
-      # echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
+      # echo -e "$(cat .env | sed "s/^API_HOST=.*/API_HOST=\"http:\/\/$CI_PROJECT_NAME.$CLUSTER_NAME.$DEV_HOST\/$CI_COMMIT_REF_SLUG\"/g")" \
       #   \
       #   > .env
 
@@ -255,7 +255,7 @@
 
 # Patches `ingress.yaml`
 # Dev target URL:
-#   - https://{CI_PROJECT_NAME}.{CLUSTER_ENV}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
+#   - https://{CI_PROJECT_NAME}.{CLUSTER_NAME}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
 #     eg. https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
 #
 # Staging target URL: 
@@ -318,7 +318,7 @@
           \n      rewrite ^/($NAMESPACE_NAME)/(.*) /\$2 break; \
           \nspec: \
           \n  rules: \
-          \n    - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
+          \n    - host: $CI_PROJECT_NAME.$CLUSTER_NAME.$CI_HOST \
           \n      http: \
           \n        paths: \
           \n          - path: /$NAMESPACE_NAME \

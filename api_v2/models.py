@@ -526,6 +526,6 @@ class StatusResponse:
         self.build_hash = build_hash
         self.build_short_sha = build_short_sha
         self.build_date = build_date
-        self.cluster_name = cluster_env
+        self.cluster_name = cluster_name
         self.build_env = build_env
         self.app_tagline = app_tagline

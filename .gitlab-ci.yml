@@ -80,8 +80,8 @@ deploy_review:                        # Deploy feature branch image to a dev clu
     - "kubectl kustomize deploy/overlays/$BUILD_ENV \
         | kubectl apply -f -"                         # apply kustomized deployment
   environment:
-    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
-    url: http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG
+    name: $CLUSTER_NAME/review/$CI_COMMIT_REF_SLUG
+    url: http://$CI_PROJECT_NAME.$CLUSTER_NAME.$DEV_HOST/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
@@ -201,7 +201,7 @@ stop_review:                          # Stop review environment
         \n  $CI_COMMIT_REF_SLUG environment stopped  \
         \n###########################################"
   environment:
-    name: $CLUSTER_ENV/review/$CI_COMMIT_REF_SLUG
+    name: $CLUSTER_NAME/review/$CI_COMMIT_REF_SLUG
     kubernetes:
       namespace: $CI_COMMIT_REF_SLUG
     action: stop
@@ -209,4 +209,4 @@ stop_review:                          # Stop review environment
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
       when: manual
   tags:
-    - $CLUSTER_ENV
+    - $CLUSTER_NAME
