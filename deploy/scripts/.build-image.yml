@@ -40,14 +40,13 @@
 
       cat .env
 
-      echo $IMAGE_LABELS
-
       IMAGE_LABELS="$IMAGE_LABELS \
         --label org.opencontainers.image.title=$IMAGE_TITLE \
         --label org.opencontainers.image.created=$BUILD_DATE \
         --label app_description=$APP_DESCRIPTION \
         --label app_tagline=$APP_TAGLINE"
 
+      echo $IMAGE_LABELS
 
       echo -e " \
         \nImage Labels being applied: \
