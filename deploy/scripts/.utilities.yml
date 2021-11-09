@@ -2,64 +2,66 @@
 
 # Sets standard vars and generates VERSION_TAG for dev/staging
 # Tag format:
-#   - image format: "1.5.3"
+#   - image tag format: "1.5.3"
 #   - GitLab release format: "v1.5.3"
-#   - app format (feature/main branch): "v1.5.3-c7754fc6"
-#   - app format (release branch): "v1.5.3"
-.version_tag:
+#   - app git tag format (feature/main branch): "v1.5.3-c7754fc6"
+#   - app git tag format (release branch): "v1.5.3"
+
+.set_build_envs:
   image: alpine/git:latest
   script:
-    - echo "VERSION_TAG=v$(git describe --tags $(git rev-list --tags --max-count=1) | cut -c 2-)-$CI_COMMIT_SHORT_SHA" | tee version_tag.env
-  artifacts:
-    reports:
-      dotenv: version_tag.env
-  tags:
-    - production
-
-
-# Removes commit_short_sha from VERSION_TAG (Prod only)
-.update_version_tag:
-  script:
     - |
-      echo "VERSION_TAG=$(echo $CI_COMMIT_TAG | cut -c 2-)" | tee version_tag.env
-      echo -e " \
-        \nPROD_NAMESPACE detected. Setting VERSION_TAG to $VERSION_TAG \
-        \n"
-  artifacts:
-    reports:
-      dotenv: version_tag.env
+      if [[ -n "$CI_COMMIT_TAG" ]]; then
+        GIT_TAG="$CI_COMMIT_TAG"
+        IMAGE_TAG="$(echo $GIT_TAG | sed 's/^v//')"
 
+        echo -e " \
+          \nProduction BUILD_ENV detected.
+          \n  - Setting GIT_TAG to $GIT_TAG \
+          \n  - Setting IMAGE_TAG to $IMAGE_TAG \
+          \n"
+      else
+        GIT_TAG="$(git describe --tags $(git rev-list --tags --max-count=1))-$CI_COMMIT_SHORT_SHA"
+        IMAGE_TAG="$CI_COMMIT_SHORT_SHA"
+      fi
 
-.update_env:
-  script:
-    - |
-      VERSION_TAG=$VERSION_TAG
-      BUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA
-      BUILD_HASH=$CI_COMMIT_SHA
-      BUILD_TIMESTAMP=$CI_PIPELINE_CREATED_AT
+      echo -e "\nGIT_TAG=$GIT_TAG\
+        \nIMAGE_TAG=$IMAGE_TAG\
+        \nBUILD_HASH=$CI_COMMIT_SHA\
+        \nBUILD_SHORT_SHA=$CI_COMMIT_SHORT_SHA" \
+        \
+        >> .env
 
-      # API_HOST variable is specific to project
-      echo -e "API_HOST=http://$CI_PROJECT_NAME.$CLUSTER_ENV.$DEV_HOST/$CI_COMMIT_REF_SLUG \
-        " >> .env
+      # Sanitize envs (necessary?)
+      #echo -e "$(cat .env | sed -e 's/\"/\\"/' -e 's/"$/\\"/')" \
+      #  \
+      #  > .env
+
+      # Store variables for later jobs
+      cp .env build_envs.env
 
       if [[ "$PIPELINE_DEBUG" == "true" ]]; then
         echo -e " \
-          \n\e[31m##### .env contents: #####\e[0m \
+          \n\e[31m##### build_envs.env contents: #####\e[0m \
           \n"
-        cat .env
+        cat build_envs.env
       fi
+  tags:
+    - production
+  artifacts:
+    reports:
+      dotenv: build_envs.env
 
-
-# Configures cluster ENVs
+# Configures cluster name
 #   - vars defined here are not available for GitLab `environment` definitions
 #   - currently limited to:
 #       - "dev-cp"
 #       - "dev-vsm"
 # Please note: Secret names correspond to certificate SAN's (eg. star-dev-ltc-bcit-ca protects `*.dev.ltc.bcit.ca`)
-.get_env:
+.set_deploy_envs:
   script:
     - |
-      if [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-cp" ]]; then
+      if  [[ $CLUSTER_NAME == "dev-cp" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -67,7 +69,7 @@
           PROJECT_ID="$RANCHER_DEV_CP_DEFAULT_PROJECT_ID"
           TLS_SECRET_NAME="secret not used in dev environment"
 
-      elif [[ "$BUILD_ENV" == "dev" ]] && [[ $CLUSTER_ENV == "dev-vsm" ]]; then
+      elif [[ $CLUSTER_NAME == "dev-vsm" ]] && [[ "$BUILD_ENV" == "dev" ]]; then
 
           CI_HOST="$DEV_HOST"
           NAMESPACE_NAME="$CI_COMMIT_REF_SLUG"
@@ -97,30 +99,33 @@
           exit 1
       fi
 
-      echo -e "BUILD_ENV: $BUILD_ENV \
-        \n CLUSTER_ENV: $CLUSTER_ENV \
-        \n CI_HOST: $CI_HOST \
-        \n NAMESPACE_NAME: $NAMESPACE_NAME \
-        \n CLUSTER_ID: $CLUSTER_ID \
-        \n PROJECT_ID: $PROJECT_ID \
-        \n TLS_SECRET_NAME: $TLS_SECRET_NAME \
-        \n VERSION_TAG: $VERSION_TAG" | tee env_vars.env
+      if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
+          NAMESPACE_NAME="$PROD_NAMESPACE"
+          echo -e " \
+            \nPROD_NAMESPACE variable detected. \
+            \n  - Setting NAMESPACE_NAME to $NAMESPACE_NAME \
+            \n"
+      fi
+
+      echo -e "\nCLUSTER_NAME=$CLUSTER_NAME\
+        \nBUILD_ENV=$BUILD_ENV\
+        \nCI_HOST=$CI_HOST\
+        \nNAMESPACE_NAME=$NAMESPACE_NAME\
+        \nCLUSTER_ID=$CLUSTER_ID\
+        \nPROJECT_ID=$PROJECT_ID\
+        \nTLS_SECRET_NAME=$TLS_SECRET_NAME"\
+        \
+        > deploy_envs.env
   artifacts:
     reports:
-      dotenv: env_vars.env
+      dotenv: deploy_envs.env
 
 
 # Creates a namespace annotation to ensure it's visible in the Rancher Default project
 .replace_namespace:
   script:
     - |
-      if [[ -n "$PROD_NAMESPACE" ]] && ( [[ "$BUILD_ENV" == "staging" ]] || [[ "$BUILD_ENV" == "prod" ]] ); then
-          NAMESPACE_NAME="$PROD_NAMESPACE"
-          echo -e " \
-            \nPROD_NAMESPACE detected. Setting NAMESPACE_NAME to $NAMESPACE_NAME \
-            \n"
-      fi
-
+      # Replace `namespace.yaml` entirely with branch name
       echo -e " \
         \napiVersion: v1 \
         \nkind: Namespace \
@@ -139,6 +144,7 @@
         cat deploy/overlays/$BUILD_ENV/namespace.yaml
       fi
 
+      # Patch `kustomization.yaml` with new namespace value
       echo -e "$(cat deploy/overlays/$BUILD_ENV/kustomization.yaml | sed "s/namespace:.*/namespace: $NAMESPACE_NAME/g")" \
         \
         > deploy/overlays/$BUILD_ENV/kustomization.yaml
@@ -153,33 +159,31 @@
           \n"
         cat deploy/overlays/$BUILD_ENV/kustomization.yaml
       fi
-  
+
 
 # Creates deployment annotations that mirror image labels that can be injected into the kubernetes resource
 # Please note:
 #   - `path_name` and `cluster_name` are only added as annotations to the kubernetes resource
 #   - `title` and `description` are only added as labels to the image
-.replace_deployment:
+.patch_deployment:
   script:
     - |
       echo -e " \
-        \npatchesStrategicMerge: \
-        \n- |- \
-        \n  apiVersion: apps/v1 \
-        \n  kind: Deployment \
-        \n  metadata: \
-        \n    name: $CI_PROJECT_NAME \
-        \n  spec: \
-        \n    template: \
+        \npatches: \
+        \n  - patch: |- \
+        \n      apiVersion: apps/v1 \
+        \n      kind: Deployment \
         \n      metadata: \
-        \n        annotations: \
-        \n          version: \"$VERSION_TAG\" \
-        \n          build_hash: \"$CI_COMMIT_SHA\" \
-        \n          build_short_sha: \"$CI_COMMIT_SHORT_SHA\" \
-        \n          build_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
-        \n          build_env: \"$BUILD_ENV\" \
-        \n          path_name: \"$NAMESPACE_NAME\" \
-        \n          cluster_name: \"$CLUSTER_ENV\" \
+        \n        name: $CI_PROJECT_NAME \
+        \n      spec: \
+        \n        template: \
+        \n          metadata: \
+        \n            annotations: \
+        \n              git_tag: \"$GIT_TAG\" \
+        \n              pipeline_timestamp: \"$CI_PIPELINE_CREATED_AT\" \
+        \n              cluster_name: \"$CLUSTER_NAME\" \
+        \n              build_env: \"$BUILD_ENV\" \
+        \n              namespace_name: \"$NAMESPACE_NAME\" \
         \n" \
         \
         >> deploy/overlays/$BUILD_ENV/kustomization.yaml
@@ -194,15 +198,11 @@
       echo -e " \
         \nDeployment patch info: \
         \n \
-        \n  version: $VERSION_TAG \
-        \n  build_hash: $CI_COMMIT_SHA \
-        \n  build_short_sha: $CI_COMMIT_SHORT_SHA \
-        \n  build_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  git_tag: $GIT_TAG \
+        \n  pipeline_timestamp: $CI_PIPELINE_CREATED_AT \
+        \n  cluster_name: $CLUSTER_NAME \
         \n  build_env: $BUILD_ENV \
-        \n  path_name: $NAMESPACE_NAME \
-        \n  cluster_name: $BUILD_ENV \
-        \n  app.gitlab.com/app: $CI_PROJECT_PATH_SLUG \
-        \n  app.gitlab.com/env: $CI_ENVIRONMENT_SLUG \
+        \n  namespace_name: $NAMESPACE_NAME \
         \n"
 
 
@@ -265,7 +265,7 @@
 
 # Patches `ingress.yaml`
 # Dev target URL:
-#   - https://{CI_PROJECT_NAME}.{CLUSTER_ENV}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
+#   - https://{CI_PROJECT_NAME}.{CLUSTER_NAME}.reviews.dev.ltc.bcit.ca/{CI_COMMIT_REF_SLUG}
 #     eg. https://qcon-api.dev-cp.reviews.dev.ltc.bcit.ca/189-fix-tls
 #
 # Staging target URL: 
@@ -293,8 +293,8 @@
           \n  name: $CI_PROJECT_NAME-ingress \
           \n  annotations: \
           \n    nginx.ingress.kubernetes.io/configuration-snippet: \
-                  rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
-                  rewrite ^/($CI_PROJECT_NAME)/(.*) /\$2 break; \
+          \n      rewrite ($CI_PROJECT_NAME)$ $CI_PROJECT_NAME/ redirect; \
+          \n      rewrite ^/($CI_PROJECT_NAME)/(.*) /\$2 break; \
           \nspec: \
           \n  tls: \
           \n    - hosts: \
@@ -308,7 +308,7 @@
           \n          pathType: Prefix \
           \n          backend: \
           \n            service: \
-          \n              name: $CI_PROJECT_NAME-service \
+          \n              name: $CI_PROJECT_NAME \
           \n              port: \
           \n                number: $APP_PORT \
           \n" \
@@ -324,18 +324,18 @@
           \n  name: $CI_PROJECT_NAME-ingress \
           \n  annotations: \
           \n    nginx.ingress.kubernetes.io/configuration-snippet: \
-                  rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
-                  rewrite ^/($NAMESPACE_NAME)/(.*) /\$2 break; \
+          \n      rewrite ($NAMESPACE_NAME)$ $NAMESPACE_NAME/ redirect; \
+          \n      rewrite ^/($NAMESPACE_NAME)/(.*) /\$2 break; \
           \nspec: \
           \n  rules: \
-          \n    - host: $CI_PROJECT_NAME.$CLUSTER_ENV.$CI_HOST \
+          \n    - host: $CI_PROJECT_NAME.$CLUSTER_NAME.$CI_HOST \
           \n      http: \
           \n        paths: \
           \n          - path: /$NAMESPACE_NAME \
           \n            pathType: Prefix \
           \n            backend: \
           \n              service: \
-          \n                name: $CI_PROJECT_NAME-service \
+          \n                name: $CI_PROJECT_NAME \
           \n                port: \
           \n                  number: $APP_PORT \
           \n" \
@@ -389,7 +389,7 @@
       when: never
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
   tags:
-    - $CLUSTER_ENV
+    - $CLUSTER_NAME
 
 .main_branch_rules:
   rules:

@@ -1,25 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
-# set env vars
-export $(grep -v '^#' .env | xargs)
-# disables remove command because this is problematic when running docker compose
-# rm .env
-# TODO: unset vars for running container
-# eg. `unset $(grep -v '^#' .env | sed -E 's/(.*)=.*/\1/' | xargs)`
+# set secrets
+# TODO: still needs work to confirm production-ready
+export $(grep -v '^#' .secrets | xargs)
+
+# set environment variables
+set -a
+source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
+set +a
 
 if [ -d "/etc/podinfo" ] 
 then
-    echo "Directory /etc/podinfo exists." 
-    export STATIC_URL_PATH=$(cat /etc/podinfo/path_name) 
-    export VERSION=$(cat /etc/podinfo/version) 
-    export CLUSTERNAME=$(cat /etc/podinfo/cluster_name) 
-    export BUILD_ENV=$(cat /etc/podinfo/build_env) 
-    export BUILD_HASH=$(cat /etc/podinfo/build_hash) 
-    export BUILD_SHORT_SHA=$(cat /etc/podinfo/build_short_sha) 
-    export BUILD_TIMESTAMP=$(cat /etc/podinfo/build_timestamp) 
+    echo "/etc/podinfo exists... Setting CLUSTER_NAME and BUILD_ENV"
+    export CLUSTER_NAME=$(cat /etc/podinfo/cluster_name)
+    export BUILD_ENV=$(cat /etc/podinfo/build_env)
 else
-    echo "Directory /etc/podinfo does not exists."
+    echo "/etc/podinfo does not exist... Assuming local cluster."
 fi
 
 >&2 echo "make Database migrations"

@@ -13,9 +13,9 @@ spec:
         - name: qcon-api
           image: registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api:stable
           volumeMounts:
-            - mountPath: /code/.env
+            - mountPath: /code/.secrets
               name: shared-data
-              subPath: .env
+              subPath: .secrets
       volumes:
         - configMap:
             items:

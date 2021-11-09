@@ -10,6 +10,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: qcon-api-service
+                name: qcon-api
                 port:
                   number: 8000
