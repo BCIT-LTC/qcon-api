@@ -21,12 +21,28 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
-
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from api_v2 import views
 
 urlpatterns = [
     # # path('admin/', admin.site.urls),
-    path('', include('api_v2.urls'))
+    path('', include('api_v2.urls')),
+    path('v2/', include('api_v2.urls')),
+    path('v3/', include('api_v3.urls'))
 ]
+
+if settings.DEBUG:
+    # OPENAPI
+    # PATTERNS
+    # UI:
+    urlpatterns += [
+        path('',
+             SpectacularSwaggerView.as_view(url_name='schema'),
+             name='swagger-ui'),
+        path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    ]
+else:
+    urlpatterns += [path('', views.RootPath.as_view(), name='root')]
 
 handler404 = 'api_v2.views.view_404'
 

@@ -56,6 +56,7 @@ COPY --from=qcon-api-base /opt/venv /opt/venv
 
 COPY qcon qcon
 COPY api_v2 api_v2
+COPY api_v3 api_v3
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

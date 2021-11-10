@@ -20,7 +20,7 @@ else
 fi
 
 >&2 echo "make Database migrations"
-python manage.py makemigrations api_v2
+python manage.py makemigrations api_v2 api_v3
 echo "-------------------------------------------------------------------------------------------\n"
 
 >&2 echo "Run Database migrations"
