@@ -11,7 +11,7 @@ tests
 database
 
 migrations
-
+temp
 *.class
 *.interp
 *.tokens
