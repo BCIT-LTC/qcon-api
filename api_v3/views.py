@@ -34,7 +34,7 @@ class TokenAuthenticationWithBearer(TokenAuthentication):
 
 class WordToZip(APIView):
     parser_classes = [MultiPartParser]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToZipSerializer
 
@@ -96,7 +96,7 @@ class WordToZip(APIView):
 
 class WordToJsonZip(APIView):
     parser_classes = [MultiPartParser]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToJsonZipSerializer
 
