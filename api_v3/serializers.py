@@ -162,13 +162,6 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
-        # ===========  1  ==================
-        newconversion.create_pandocstring()
-        # ===========  2  ==================
-        newconversion.run_parser()
-
-        count_errors(newconversion)
-
         return newconversion
 
     def update(self, instance, validated_data):
