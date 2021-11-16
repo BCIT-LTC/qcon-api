@@ -106,104 +106,6 @@ class QuestionLibrary(models.Model):
     class Meta:
         verbose_name_plural = "question libraries"
 
-
-# Prevents illegal characters for the filename
-
-    def filter_section_name(self):
-        section_name = self.section_name.strip()
-        section_name = section_name.lower()
-        filtered_section_name = re.sub('[\W_]+', ' ', section_name).strip()
-        filtered_section_name = filtered_section_name.replace(' ', '-')
-
-        # If the file name is illegal Windows string, replace with "Converted-Exam"
-        filtered_section_name = filtered_section_name.replace(
-            '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam',
-            re.IGNORECASE)
-
-        # Limit the filename to 30 characters
-        filtered_section_name = (
-            filtered_section_name[:50]
-        ) if len(filtered_section_name) > 50 else filtered_section_name
-
-        self.filtered_section_name = filtered_section_name
-
-    def create_directory(self):
-        # self.folder_path('/code/temp/' + str(self.id))
-        if not path.exists(self.folder_path):
-            makedirs(self.folder_path)
-
-    def create_pandocstring(self):
-        try:
-            mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
-
-            pandocstring = pypandoc.convert_file(
-                self.temp_file.path,
-                format='docx',
-                to=
-                'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
-                extra_args=[
-                    '--extract-media=' + self.folder_path, '--no-highlight',
-                    '--self-contained', '--atx-headers', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false', '--lua-filter=' + mdblockquotePath
-                ])
-
-            self.pandoc_string = "\n" + pandocstring
-            # raise Exception('')
-            logger.info("[" + str(self.transaction) + "] " +
-                                      "Markdown String Created")
-            self.transaction.progress = 1
-            self.transaction.save()
-            self.save()
-        except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
-                                       "Markdown String Failed")
-            self.error = "Markdown String Failed"
-            self.save()
-
-    def run_parser(self):
-        try:
-            L1_result = L1Converter(self)
-            L1_result = "\n" + L1_result
-            self.splitter_string = L1_result
-            self.save()
-            logger.info("[" + str(self.transaction) + "] " +
-                                      "Splitter Finished")
-        except:
-            logger.error("[" + str(self.transaction) + "] " +
-                                       "Splitter Failed")
-            self.error = "Splitter Failed"
-            self.save()
-            return None
-
-        try:
-            question_parser(self, L1_result)
-            self.save()
-            self.transaction.progress = 2
-            self.transaction.save()
-            logger.info("[" + str(self.transaction) + "] " +
-                                      "Parser Finished")
-            # # COUNT NUMBER OF DOCUMENT ERRORS
-
-            # doc_errorlist = DocumentError.objects.filter(document=self)
-            # print("DOC ERROPOROOR")
-            # print(doc_errorlist.count())
-            # self.total_document_errors = doc_errorlist.count()
-
-            # # COUNT NUMBER OF QUESTION ERRORS
-            # questionlist = Question.objects.filter(question_library=self)
-            # for q in questionlist:
-            #     q_errorlist = QuestionError.objects.filter(question=q)
-            #     self.total_question_errors = q_errorlist.count()
-            #     # print("QUESTION ERORORO")
-            #     # print(q_errorlist.count())
-
-        except:
-            logger.error("[" + str(self.transaction) + "] " +
-                                       "Parser Failed")
-            self.error = "Parser Failed"
-            self.save()
-            return None
-
     # ImsManifest string create ===================================================================================
 
     def create_xml_files(self):
@@ -344,7 +246,6 @@ class QuestionLibrary(models.Model):
 
     def __str__(self):
         return str(self.transaction)
-
 
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
