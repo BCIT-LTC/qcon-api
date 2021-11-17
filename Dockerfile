@@ -1,7 +1,7 @@
 FROM python:3.9 AS qcon-api-base
 
 ENV ARCH amd64
-ENV PANDOC_VERSION 2.11.3.2
+ENV PANDOC_VERSION 2.16.1
 ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
 ENV PATH="/opt/venv/bin:/base:$PATH"
 
