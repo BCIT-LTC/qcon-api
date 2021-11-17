@@ -7,7 +7,6 @@ from django.db import models
 
 import pypandoc
 
-from api_v3.questionsplitter.L1Converter import L1Converter
 from api_v3.parser.QuestionParserMain import question_parser
 
 from api_v3.scorm.XmlWriter import XmlWriter
