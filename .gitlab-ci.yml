@@ -86,8 +86,8 @@ deploy_review:                        # Deploy feature branch image to a dev clu
       namespace: $CI_COMMIT_REF_SLUG
     on_stop: stop_review
     auto_stop_in: 1 week
-  after_script:
-    - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
+  # after_script:
+  #   - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
 # TODO: Remove the environment variable ENV from container 'c1' in all deployment configs
 # kubectl set env deployments --all --containers="c1" ENV-
 
