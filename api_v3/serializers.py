@@ -162,6 +162,7 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.create_directory()
         newconversion.save()
 
+        # newconversion.create_pandocstring()
         return newconversion
 
     def update(self, instance, validated_data):
