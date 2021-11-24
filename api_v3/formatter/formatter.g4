@@ -12,7 +12,7 @@ rootbody: section+;
 
 // sectionlist: sectionheader? rootlist*;
 
-section: sectionheader? sectionbody;
+section: sectionheader? content? sectionbody;
 
 sectionbody: rootlist+;
 
