@@ -142,10 +142,7 @@ class QuestionLibrary(models.Model):
                     '--self-contained', '--atx-headers', '--preserve-tabs',
                     '--wrap=preserve', '--indent=false', '--lua-filter=' + mdblockquotePath
                 ])
-
-                
-
-            print(pandocstring)
+                            
             self.pandoc_string = "\n" + pandocstring
             # raise Exception('')
             logger.info("[" + str(self.transaction) + "] " +

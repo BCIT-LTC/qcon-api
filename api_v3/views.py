@@ -198,8 +198,12 @@ class WordToJson(APIView):
             question_library = QuestionLibrary.objects.get(
                 transaction=instance.transaction.id)
 
-            question_library.create_pandocstring()
+            # ==============  start the process  ========
+            from .process import process
+            process(question_library)
             
+
+
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
 
