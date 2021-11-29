@@ -7,7 +7,7 @@ else:
 
 # This class defines a complete listener for a parse tree produced by formatterParser.
 class formatterListener(ParseTreeListener):
-    def __init__(self, question_library):
+    def __init__(self):
         self.header = None
         self.sections = []
         self.answers = None

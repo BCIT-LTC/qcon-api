@@ -19,7 +19,7 @@ def formatter(question_library):
         parser = formatterParser(stream)
         tree = parser.formatter()
         #
-        printer = formatterListener(question_library)
+        printer = formatterListener()
         walker = ParseTreeWalker()
         # print(tree.toStringTree(recog=parser))
         walker.walk(printer, tree)
