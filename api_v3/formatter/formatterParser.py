@@ -50,7 +50,7 @@ def serializedATN():
 
 
 class formatterParser ( Parser ):
-    
+
     grammarFileName = "formatter.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
@@ -123,17 +123,11 @@ class formatterParser ( Parser ):
             if hasattr( listener, "exitFormatter" ):
                 listener.exitFormatter(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFormatter" ):
-                return visitor.visitFormatter(self)
-            else:
-                return visitor.visitChildren(self)
-
 
 
 
     def formatter(self):
-        
+
         localctx = formatterParser.FormatterContext(self, self._ctx, self.state)
         self.enterRule(localctx, 0, self.RULE_formatter)
         self._la = 0 # Token type
@@ -191,12 +185,6 @@ class formatterParser ( Parser ):
             if hasattr( listener, "exitRootheading" ):
                 listener.exitRootheading(self)
 
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitRootheading" ):
-                return visitor.visitRootheading(self)
-            else:
-                return visitor.visitChildren(self)
-
 
 
 
@@ -252,12 +240,6 @@ class formatterParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitRootbody" ):
                 listener.exitRootbody(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitRootbody" ):
-                return visitor.visitRootbody(self)
-            else:
-                return visitor.visitChildren(self)
 
 
 
@@ -345,12 +327,6 @@ class formatterParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitSection" ):
                 listener.exitSection(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSection" ):
-                return visitor.visitSection(self)
-            else:
-                return visitor.visitChildren(self)
 
 
 
@@ -547,12 +523,6 @@ class formatterParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitEnd_answers_block" ):
                 listener.exitEnd_answers_block(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitEnd_answers_block" ):
-                return visitor.visitEnd_answers_block(self)
-            else:
-                return visitor.visitChildren(self)
 
 
 

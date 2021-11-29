@@ -19,7 +19,6 @@ class formatterListener(ParseTreeListener):
 
     # Enter a parse tree produced by formatterParser#formatter.
     def enterFormatter(self, ctx:formatterParser.FormatterContext):
-        print("enter formatter")
         pass
 
     # Exit a parse tree produced by formatterParser#formatter.
@@ -44,7 +43,6 @@ class formatterListener(ParseTreeListener):
 
     # Exit a parse tree produced by formatterParser#rootbody.
     def exitRootbody(self, ctx:formatterParser.RootbodyContext):
-        print("body found")
         if ctx.section() != None:
             for val in ctx.section():
                 self.sections.append(val.getText())
