@@ -23,12 +23,21 @@ def formatter(question_library):
         walker = ParseTreeWalker()
         # print(tree.toStringTree(recog=parser))
         walker.walk(printer, tree)
-        # result = printer.get_results()
-    except:
+        result = printer.get_results()
+    except Exception as e: 
 
-        print("ANTLR ERROR")
+        print("ANTLR ERROR: " + str(e))
         pass
 
-
+    print("HEADER================")
+    if result[0] is not None:
+        print(result[0])  
+    print("sections================")
+    if result[1] is not None:
+        for val in result[1]:
+            print(val)   
+    print("answers================")
+    if result[2] is not None:
+        print(result[2])   
 
     pass
