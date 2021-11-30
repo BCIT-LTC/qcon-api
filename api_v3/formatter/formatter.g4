@@ -4,11 +4,64 @@
 
 grammar formatter;
 
-formatter: rootheader? EOF;
+formatter: rootheading? rootbody end_answers_block? EOF;
 
-rootheader: content;
+rootheading: (ALL_CHARACTER+);
 
-content: ALL_CHARACTER+;
+rootbody: section+;
+
+// section: sectionheader? content? sectionbody;
+section: SECTION? (ALL_CHARACTER+)? ((((POINTS (ALL_CHARACTER+)
+    |   TITLE (ALL_CHARACTER+)
+    |   TYPE (ALL_CHARACTER+)
+    |   RANDOMIZE (ALL_CHARACTER+))+)? NUMLIST_PREFIX (ALL_CHARACTER+))+);
+
+// sectionbody: (((POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content)+)? NUMLIST_PREFIX content)+;
+
+// rootlist: ((POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content)+)? NUMLIST_PREFIX content;
+
+// numlist: NUMLIST_PREFIX content;
+// question_header: 
+//     (POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content)+;     
+
+// question_header_parameter
+//     :   POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content
+//     ;
+
+end_answers_block
+    :   END_ANSWER ((ALL_CHARACTER+)? NUMLIST_PREFIX (ALL_CHARACTER+))+
+    ;
+
+// sectionheader
+//     : SECTION
+//     ;
+
+// end_answer_token
+//     :   END_ANSWER
+//     ;
+
+// end_answers_item
+//     :  content? NUMLIST_PREFIX content
+//     ;
+
+// title:   TITLE;
+// points:   POINTS;
+// questiontype: TYPE;
+// randomize:   RANDOMIZE;
+
+// content: ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment DIGIT: [0-9];
@@ -46,9 +99,17 @@ fragment W:   'W' | 'w';
 fragment Y:   'Y' | 'y';  
 fragment Z:   'Z' | 'z';  
 
+// ENDOFLIST: '<!-- -->' NEWLINE;
+
 NUMLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* WHITESPACE* DELIMITER WHITESPACE*;
+
+TITLE:  NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T I T L E S? WHITESPACE* ;
+POINTS:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* P O I N T S? WHITESPACE*  ;
+TYPE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T Y P E S? WHITESPACE*;
+RANDOMIZE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
 
 END_ANSWER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R (S)? WHITESPACE* COLON WHITESPACE*;
 
-ALL_CHARACTER: .;
+SECTION: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* S E C T I O N? WHITESPACE* COLON WHITESPACE*;
 
+ALL_CHARACTER: .;

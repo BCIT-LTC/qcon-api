@@ -104,7 +104,58 @@ class QuestionLibrary(models.Model):
 
     class Meta:
         verbose_name_plural = "question libraries"
+# Prevents illegal characters for the filename
 
+    def filter_section_name(self):
+        section_name = self.section_name.strip()
+        section_name = section_name.lower()
+        filtered_section_name = re.sub('[\W_]+', ' ', section_name).strip()
+        filtered_section_name = filtered_section_name.replace(' ', '-')
+
+        # If the file name is illegal Windows string, replace with "Converted-Exam"
+        filtered_section_name = filtered_section_name.replace(
+            '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam',
+            re.IGNORECASE)
+
+        # Limit the filename to 30 characters
+        filtered_section_name = (
+            filtered_section_name[:50]
+        ) if len(filtered_section_name) > 50 else filtered_section_name
+
+        self.filtered_section_name = filtered_section_name
+
+    def create_directory(self):
+        # self.folder_path('/code/temp/' + str(self.id))
+        if not path.exists(self.folder_path):
+            makedirs(self.folder_path)
+
+    def create_pandocstring(self):
+        try:
+            mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
+            pandocstring = pypandoc.convert_file(
+                self.temp_file.path,
+                format='docx',
+                to=
+                'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
+                extra_args=[
+                    '--extract-media=' + self.folder_path, '--no-highlight',
+                    '--self-contained', '--atx-headers', '--preserve-tabs',
+                    '--wrap=preserve', '--indent=false', '--lua-filter=' + mdblockquotePath
+                ])
+                            
+            self.pandoc_string = "\n" + pandocstring
+            # raise Exception('')
+            logger.info("[" + str(self.transaction) + "] " +
+                                      "Markdown String Created")
+            self.transaction.progress = 1
+            self.transaction.save()
+            self.save()
+        except Exception as e:
+            logger.error("[" + str(self.transaction) + "] " +
+                                       "Markdown String Failed")
+            self.error = "Markdown String Failed"
+            self.save()
+            
     # ImsManifest string create ===================================================================================
 
     def create_xml_files(self):
