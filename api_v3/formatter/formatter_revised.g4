@@ -10,14 +10,58 @@ rootheading: (ALL_CHARACTER+);
 
 rootbody: section+;
 
+// section: sectionheader? content? sectionbody;
 section: SECTION? (ALL_CHARACTER+)? ((((POINTS (ALL_CHARACTER+)
     |   TITLE (ALL_CHARACTER+)
     |   TYPE (ALL_CHARACTER+)
     |   RANDOMIZE (ALL_CHARACTER+))+)? NUMLIST_PREFIX (ALL_CHARACTER+))+);
 
+// sectionbody: (((POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content)+)? NUMLIST_PREFIX content)+;
+
+// rootlist: ((POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content)+)? NUMLIST_PREFIX content;
+
+// numlist: NUMLIST_PREFIX content;
+// question_header: 
+//     (POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content)+;     
+
+// question_header_parameter
+//     :   POINTS content
+//     |   TITLE content
+//     |   TYPE content
+//     |   RANDOMIZE content
+//     ;
+
 end_answers_block
     :   END_ANSWER ((ALL_CHARACTER+)? NUMLIST_PREFIX (ALL_CHARACTER+))+
     ;
+
+// sectionheader
+//     : SECTION
+//     ;
+
+// end_answer_token
+//     :   END_ANSWER
+//     ;
+
+// end_answers_item
+//     :  content? NUMLIST_PREFIX content
+//     ;
+
+// title:   TITLE;
+// points:   POINTS;
+// questiontype: TYPE;
+// randomize:   RANDOMIZE;
+
+// content: ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment DIGIT: [0-9];
