@@ -3,7 +3,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.urls import include, path, re_path
-from django.conf.urls import url
 from . import views
 from django.conf import settings
 
