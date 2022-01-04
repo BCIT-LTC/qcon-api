@@ -15,5 +15,3 @@ temp
 *.class
 *.interp
 *.tokens
-*.java
-.antlr

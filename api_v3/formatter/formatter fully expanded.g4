@@ -6,18 +6,48 @@ grammar formatter;
 
 formatter: rootheading? rootbody end_answers_block? EOF;
 
-rootheading: (ALL_CHARACTER+);
+rootheading: content;
 
 rootbody: section+;
 
-section: SECTION? (ALL_CHARACTER+)? ((((POINTS (ALL_CHARACTER+)
-    |   TITLE (ALL_CHARACTER+)
-    |   TYPE (ALL_CHARACTER+)
-    |   RANDOMIZE (ALL_CHARACTER+))+)? NUMLIST_PREFIX (ALL_CHARACTER+))+);
+section: sectionheader? content? sectionbody;
+
+sectionbody: rootlist+;
+
+rootlist: question_header? numlist;
+
+numlist: NUMLIST_PREFIX content;
+question_header: question_header_parameter+;     
+
+question_header_parameter
+    :   points content
+    |   title content
+    |   questiontype content
+    |   randomize content
+    ;
 
 end_answers_block
-    :   END_ANSWER ((ALL_CHARACTER+)? NUMLIST_PREFIX (ALL_CHARACTER+))+
+    :   end_answer_token end_answers_item+
     ;
+
+sectionheader
+    : SECTION
+    ;
+
+end_answer_token
+    :   END_ANSWER
+    ;
+
+end_answers_item
+    :  content? numlist
+    ;
+
+title:   TITLE;
+points:   POINTS;
+questiontype: TYPE;
+randomize:   RANDOMIZE;
+
+content: ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment DIGIT: [0-9];
