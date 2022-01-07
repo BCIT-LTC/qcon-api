@@ -29,9 +29,47 @@ RUN set -ex; \
         \
         pip install --upgrade pip; \
         pip install -r requirements.txt; 
+####################################################### ANTLR BUILD
+FROM openjdk:19-jdk AS antlr-builder
+ENV GET_ANTLR_URL https://www.antlr.org/download
+ENV ANTLR_VERSION 4.9.3
 
+WORKDIR /usr/local/lib
 
-#######################################################
+RUN set -ex; \
+        curl -O \
+            "$GET_ANTLR_URL/antlr-$ANTLR_VERSION-complete.jar";
+
+# BUILD FORMATTER
+WORKDIR /usr/src/formatter
+COPY /api_v3/formatter/formatter.g4 ./
+
+RUN set -ex; \
+    export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
+    java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" formatter.g4; \
+    javac *.java;
+
+# BELOW CODE TEMPLATE FOR OTHER STAGES
+
+# BUILD SPLITTER
+# WORKDIR /usr/src/splitter
+# COPY /api_v3/splitter/splitter.g4 ./
+
+# RUN set -ex; \
+#     export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
+#     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" splitter.g4; \
+#     javac *.java;
+
+# # BUILD PARSER
+# WORKDIR /usr/src/parser
+# COPY /api_v3/parser/parser.g4 ./
+
+# RUN set -ex; \
+#     export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
+#     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" parser.g4; \
+#     javac *.java;
+
+####################################################### RELEASE
 FROM python:3.9-alpine AS release  
 LABEL maintainer courseproduction@bcit.ca
 
@@ -53,6 +91,8 @@ COPY docker-entrypoint.sh /usr/local/bin
 COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
+
+COPY --from=antlr-builder /usr/src/formatter /test/formatter
 
 COPY qcon qcon
 COPY api_v2 api_v2
