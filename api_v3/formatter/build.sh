@@ -5,7 +5,7 @@
 #!/bin/bash
 
 FILE="formatter"
-ANTLR=$(echo $CLASSPATH | tr ':' '\n' | grep -m 1 "antlr-4.8-complete.jar")
+ANTLR=$(echo $CLASSPATH | tr ':' '\n' | grep -m 1 "antlr-4.9.3-complete.jar")
 java -jar $ANTLR $FILE.g4
 javac $FILE*.java
 
