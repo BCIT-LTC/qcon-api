@@ -80,6 +80,7 @@ WORKDIR /code
 
 RUN apk --update add \
         nginx \
+        openjdk17 \
         bash; \
     chmod -R 755 /var/lib/nginx;
 
