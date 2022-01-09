@@ -1,5 +1,10 @@
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.misc.OrderedHashMap;
 import org.antlr.v4.runtime.*;
+
+import org.antlr.v4.runtime.tree.*;
+
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,6 +24,27 @@ import java.io.IOException;  // Import this class to handle errors
 import java.nio.file.*;
 
 public class formatter {
+
+    public static class formatterVisitor extends
+        formatterBaseVisitor<Void>
+    {
+        Map<String,String> props = new OrderedHashMap<String, String>();
+        int count = 0;
+      public Void visitRootheading(formatterParser.RootheadingContext ctx) {
+            props.put("rootheading",ctx.getText());
+            // props.put(id, value);
+            return null; // Java says must return something even when Void
+        }
+      public Void visitSection(formatterParser.SectionContext ctx) {
+            count += 1;
+            // System.out.println(Integer.toString(count));
+            props.put(Integer.toString(count),ctx.getText());
+            // props.put(id, value);
+            return null; // Java says must return something even when Void
+        }
+    }
+
+
    public static void main(String args[]) {
       // System.out.println("Number of Command Line Argument = "+args.length);
       // System.out.println(String.format("Command Line Argument %d is %s", i, args[i]));		
@@ -79,7 +105,7 @@ public class formatter {
       // ANTLR
       String javaClassContent = "";
       try {
-            Path fileName = Paths.get("long.txt");
+            Path fileName = Paths.get(args[0]);
             javaClassContent = Files.readString(fileName);
       } catch (IOException e) {
          System.out.println("An error occurred.");
@@ -90,16 +116,15 @@ public class formatter {
       formatterLexer formatterLexer = new formatterLexer(CharStreams.fromString(javaClassContent));
       CommonTokenStream tokens = new CommonTokenStream(formatterLexer);
       formatterParser parser = new formatterParser(tokens);
-      formatterParser.FormatterContext tree = parser.formatter();
-      ParseTreeWalker walker = new ParseTreeWalker();
-      formatterBaseListener listener= new formatterBaseListener();
-      System.out.println("starting walk");
-      walker.walk(listener, tree);
+      // formatterParser.FormatterContext tree = parser.formatter();
+      // ParseTreeWalker walker = new ParseTreeWalker();
 
-      Document result = listener.get_result();
+      ParseTree tree = parser.formatter();
 
-      File thefile = new File("pathtest");
-      System.out.println("Absolute Path: " + thefile.getAbsolutePath());
+      formatterVisitor loader = new formatterVisitor();
+      loader.visit(tree);
+      System.out.println(loader.props);
+
       // try{
       //    // create the xml file
       //    //transform the DOM Object to an XML File
