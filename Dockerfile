@@ -30,7 +30,7 @@ RUN set -ex; \
         pip install --upgrade pip; \
         pip install -r requirements.txt; 
 ####################################################### ANTLR BUILD
-FROM openjdk:19-jdk AS antlr-builder
+FROM openjdk:17-jdk AS antlr-builder
 ENV GET_ANTLR_URL https://www.antlr.org/download
 ENV ANTLR_VERSION 4.9.3
 
@@ -43,31 +43,14 @@ RUN set -ex; \
 # BUILD FORMATTER
 WORKDIR /usr/src/formatter
 COPY /api_v3/formatter/formatter.g4 ./
+COPY /api_v3/formatter/formatter.java ./
 
 RUN set -ex; \
+    cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
     export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
-    java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" formatter.g4; \
-    javac *.java;
-
-# BELOW CODE TEMPLATE FOR OTHER STAGES
-
-# BUILD SPLITTER
-# WORKDIR /usr/src/splitter
-# COPY /api_v3/splitter/splitter.g4 ./
-
-# RUN set -ex; \
-#     export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
-#     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" splitter.g4; \
-#     javac *.java;
-
-# # BUILD PARSER
-# WORKDIR /usr/src/parser
-# COPY /api_v3/parser/parser.g4 ./
-
-# RUN set -ex; \
-#     export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
-#     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" parser.g4; \
-#     javac *.java;
+    java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" formatter.g4 -visitor -no-listener; \
+    javac *.java; \
+    jar cvfe formatter.jar formatter  *.class ./antlr.jar;
 
 ####################################################### RELEASE
 FROM python:3.9-alpine AS release  
