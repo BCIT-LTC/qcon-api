@@ -6,17 +6,17 @@ import org.antlr.v4.runtime.tree.*;
 
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+// import javax.xml.parsers.DocumentBuilder;
+// import javax.xml.parsers.DocumentBuilderFactory;
+// import javax.xml.parsers.ParserConfigurationException;
+// import javax.xml.transform.Transformer;
+// import javax.xml.transform.TransformerException;
+// import javax.xml.transform.TransformerFactory;
+// import javax.xml.transform.dom.DOMSource;
+// import javax.xml.transform.stream.StreamResult;
+// import org.w3c.dom.Attr;
+// import org.w3c.dom.Document;
+// import org.w3c.dom.Element;
 
 import java.io.File;  // Import the File class
 import java.io.IOException;  // Import this class to handle errors
@@ -25,7 +25,7 @@ import java.nio.file.*;
 
 public class formatter {
 
-    public static class formatterVisitor extends
+   public static class formatterVisitor extends
         formatterBaseVisitor<Void>
     {
         Map<String,String> props = new OrderedHashMap<String, String>();
@@ -35,11 +35,7 @@ public class formatter {
             // props.put(id, value);
             return null; // Java says must return something even when Void
         }
-      public Void visitSection(formatterParser.SectionContext ctx) {
-            count += 1;
-            // System.out.println(Integer.toString(count));
             props.put(Integer.toString(count),ctx.getText());
-            // props.put(id, value);
             return null; // Java says must return something even when Void
         }
     }
