@@ -44,15 +44,14 @@ def format_file_path(instance, file_name):
 
 # TODO format_media_path for custom media folder
 
+# class Transaction(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     # will be generated from TOKEN authentication in the future
+#     client = models.TextField(blank=True, null=True)
+#     progress = models.TextField(blank=True, null=True)
 
-class Transaction(models.Model):
-    id = models.AutoField(primary_key=True)
-    # will be generated from TOKEN authentication in the future
-    client = models.TextField(blank=True, null=True)
-    progress = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return str(self.id)
+#     def __str__(self):
+#         return str(self.id)
 
 
 class QuestionLibrary(models.Model):
