@@ -148,10 +148,10 @@ class WordToJsonSerializer(serializers.Serializer):
                                       use_url=True)
 
     def create(self, validated_data):
-        newtransaction = Transaction(client='qconweb')
-        newtransaction.save()
+        # newtransaction = Transaction(client='qconweb')
+        # newtransaction.save()
         newconversion = QuestionLibrary.objects.create()
-        newconversion.transaction = newtransaction
+        # newconversion.transaction = newtransaction
         newconversion.temp_file = validated_data.get('temp_file',
                                                      validated_data)
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
