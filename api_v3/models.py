@@ -296,25 +296,18 @@ class QuestionLibrary(models.Model):
     def __str__(self):
         return str(self.transaction)
 
-class Question(models.Model):
+
+class Section(models.Model):
     id = models.AutoField(primary_key=True)
     question_library = models.ForeignKey(QuestionLibrary,
-                                         related_name='questions',
+                                         related_name='sections',
                                          on_delete=models.CASCADE)
-    prefix = models.CharField(max_length=5, null=False)
-    question_type = models.CharField(max_length=100, null=True)
-    title = models.CharField(max_length=250, null=True)
-    points = models.DecimalField(unique=False,
-                                 max_digits=2,
-                                 decimal_places=1,
-                                 null=True)
-    randomize_answer = models.BooleanField(blank=True, null=True, default=None)
-    question_body = models.TextField(blank=True, null=True)
-    question_feedback = models.TextField(blank=True, null=True)
-    hint = models.TextField(blank=True, null=True)
-    correct_answers_length = models.PositiveBigIntegerField(blank=True,
-                                                            null=True,
-                                                            default=0)
+    validated = models.BooleanField(blank=True, null=True, default=False)
+    finished_processing = models.BooleanField(blank=True, null=True, default=False)
+    raw_data = models.TextField(blank=True, null=True)
+    section_name = models.TextField(blank=True, null=True)
+    questions_processed = models.DecimalField(max_digits=3, decimal_places=0)
+    questions_expected = models.DecimalField(max_digits=3, decimal_places=0)
 
     def __str__(self):
         return str(self.prefix) + " Transaction" + str(
