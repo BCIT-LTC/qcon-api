@@ -5,7 +5,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
-from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer, QuestionLibraryErrorSummarySerializer
+from .serializers import WordToJsonSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,9 +18,7 @@ from rest_framework.parsers import FileUploadParser
 from django.core.files.base import ContentFile
 from django.conf import settings
 
-from .models import QuestionError, QuestionLibrary
-from .models import Question
-from .models import Transaction
+from .models import QuestionLibrary
 
 import logging
 logger = logging.getLogger(__name__)
@@ -32,142 +30,142 @@ class TokenAuthenticationWithBearer(TokenAuthentication):
         super(TokenAuthenticationWithBearer, self).__init__()
 
 
-class WordToZip(APIView):
-    parser_classes = [MultiPartParser]
-    permission_classes = [AllowAny]
-    authentication_classes = [TokenAuthenticationWithBearer]
-    serializer_class = WordToZipSerializer
+# class WordToZip(APIView):
+#     parser_classes = [MultiPartParser]
+#     permission_classes = [AllowAny]
+#     authentication_classes = [TokenAuthenticationWithBearer]
+#     serializer_class = WordToZipSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description=
-        'Upload a Word document(.docx) and receive a zip(.zip) file',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
-    def post(self, request, format=None):
-        # file_obj = request.FILES.get('temp_file')
-        is_random = False
-        if 'randomize' in request.POST:
-            if request.POST['randomize'].lower() in ("true", "yes"):
-                is_random = True
+#     @extend_schema(
+#         # override default docstring extraction
+#         description=
+#         'Upload a Word document(.docx) and receive a zip(.zip) file',
+#         # provide Authentication class that deviates from the views default
+#         auth=None,
+#         # change the auto-generated operation name
+#         operation_id=None,
+#         # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+#         operation=None,
+#         # attach request/response examples to the operation.
+#     )
+#     def post(self, request, format=None):
+#         # file_obj = request.FILES.get('temp_file')
+#         is_random = False
+#         if 'randomize' in request.POST:
+#             if request.POST['randomize'].lower() in ("true", "yes"):
+#                 is_random = True
 
-        file_obj2 = request.data['temp_file']
-        serializer = WordToZipSerializer(data={
-            'temp_file': file_obj2,
-            'randomize': is_random
-        })
+#         file_obj2 = request.data['temp_file']
+#         serializer = WordToZipSerializer(data={
+#             'temp_file': file_obj2,
+#             'randomize': is_random
+#         })
 
-        if serializer.is_valid():
-            instance = serializer.save()
+#         if serializer.is_valid():
+#             instance = serializer.save()
 
-            filename = instance.zip_file.name.split("/")[1]
+#             filename = instance.zip_file.name.split("/")[1]
 
-            if (instance.total_question_errors +
-                    instance.total_document_errors == 0):
-                theresponse = FileResponse(instance.zip_file)
-                theresponse[
-                    'Content-Disposition'] = 'attachment; filename="' + filename + '"'
-                logger.info("[" + str(instance.transaction) + "] " +
-                            ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
-                instance.cleanup()
-                return theresponse
-            else:
-                #Serializer to query only the records that contain errors
+#             if (instance.total_question_errors +
+#                     instance.total_document_errors == 0):
+#                 theresponse = FileResponse(instance.zip_file)
+#                 theresponse[
+#                     'Content-Disposition'] = 'attachment; filename="' + filename + '"'
+#                 logger.info("[" + str(instance.transaction) + "] " +
+#                             ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+#                 instance.cleanup()
+#                 return theresponse
+#             else:
+#                 #Serializer to query only the records that contain errors
 
-                serialized_data = QuestionLibraryErrorSummarySerializer(
-                    instance)
+#                 serialized_data = QuestionLibraryErrorSummarySerializer(
+#                     instance)
 
-                logger.info(
-                    "[" + str(instance.transaction) + "] " +
-                    ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
+#                 logger.info(
+#                     "[" + str(instance.transaction) + "] " +
+#                     ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
 
-                theresponse = JsonResponse(serialized_data.data, status=201)
-                instance.cleanup()
-                return theresponse
+#                 theresponse = JsonResponse(serialized_data.data, status=201)
+#                 instance.cleanup()
+#                 return theresponse
 
-        return JsonResponse(serializer.errors, status=400)
+#         return JsonResponse(serializer.errors, status=400)
 
 
-class WordToJsonZip(APIView):
-    parser_classes = [MultiPartParser]
-    permission_classes = [AllowAny]
-    authentication_classes = [TokenAuthenticationWithBearer]
-    serializer_class = WordToJsonZipSerializer
+# class WordToJsonZip(APIView):
+#     parser_classes = [MultiPartParser]
+#     permission_classes = [AllowAny]
+#     authentication_classes = [TokenAuthenticationWithBearer]
+#     serializer_class = WordToJsonZipSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description=
-        'Upload a Word document(.docx) and receive a Zip package with Json included',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
-    def post(self, request, format=None):
-        # file_obj = request.FILES.get('temp_file')
-        file_obj2 = request.data['temp_file']
+#     @extend_schema(
+#         # override default docstring extraction
+#         description=
+#         'Upload a Word document(.docx) and receive a Zip package with Json included',
+#         # provide Authentication class that deviates from the views default
+#         auth=None,
+#         # change the auto-generated operation name
+#         operation_id=None,
+#         # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
+#         operation=None,
+#         # attach request/response examples to the operation.
+#     )
+#     def post(self, request, format=None):
+#         # file_obj = request.FILES.get('temp_file')
+#         file_obj2 = request.data['temp_file']
 
-        is_random = False
-        if 'randomize' in request.POST:
-            if request.POST['randomize'].lower() in ("true", "yes"):
-                is_random = True
+#         is_random = False
+#         if 'randomize' in request.POST:
+#             if request.POST['randomize'].lower() in ("true", "yes"):
+#                 is_random = True
 
-        convertserializer = WordToJsonZipSerializer(data={
-            'temp_file': file_obj2,
-            'randomize': is_random
-        })
+#         convertserializer = WordToJsonZipSerializer(data={
+#             'temp_file': file_obj2,
+#             'randomize': is_random
+#         })
 
-        if convertserializer.is_valid():
-            instance = convertserializer.save()
+#         if convertserializer.is_valid():
+#             instance = convertserializer.save()
 
-            question_library = QuestionLibrary.objects.get(
-                transaction=instance.transaction.id)
+#             question_library = QuestionLibrary.objects.get(
+#                 transaction=instance.transaction.id)
 
-            question_library_serializer = QuestionLibrarySerializer(
-                question_library)
-            import json
-            # print(json.dumps(question_library_serializer.data, indent=4))
-            jsonfile = ContentFile(str(
-                json.dumps(question_library_serializer.data, indent=4)),
-                                   name="output.json")
-            instance.json_file = jsonfile
-            instance.save()
-            if instance.total_document_errors == 0:
-                instance.create_zip_file_package()
+#             question_library_serializer = QuestionLibrarySerializer(
+#                 question_library)
+#             import json
+#             # print(json.dumps(question_library_serializer.data, indent=4))
+#             jsonfile = ContentFile(str(
+#                 json.dumps(question_library_serializer.data, indent=4)),
+#                                    name="output.json")
+#             instance.json_file = jsonfile
+#             instance.save()
+#             if instance.total_document_errors == 0:
+#                 instance.create_zip_file_package()
 
-                filename = instance.output_zip_file.name.split("/")[1]
-                file_response = FileResponse(instance.output_zip_file)
-                file_response[
-                    'Content-Disposition'] = 'attachment; filename="' + filename + '"'
+#                 filename = instance.output_zip_file.name.split("/")[1]
+#                 file_response = FileResponse(instance.output_zip_file)
+#                 file_response[
+#                     'Content-Disposition'] = 'attachment; filename="' + filename + '"'
 
-                logger.info("[" + str(instance.transaction) + "] " +
-                            ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
-                instance.cleanup()
-                return file_response
-            else:
-                #Query only the records that contain errors
-                serialized_data = QuestionLibraryErrorSummarySerializer(
-                    instance)
-                theresponse = JsonResponse(serialized_data.data, status=400)
+#                 logger.info("[" + str(instance.transaction) + "] " +
+#                             ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+#                 instance.cleanup()
+#                 return file_response
+#             else:
+#                 #Query only the records that contain errors
+#                 serialized_data = QuestionLibraryErrorSummarySerializer(
+#                     instance)
+#                 theresponse = JsonResponse(serialized_data.data, status=400)
 
-                logger.info(
-                    "[" + str(instance.transaction) + "] " +
-                    ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>"
-                )
-                instance.cleanup()
-                return theresponse
+#                 logger.info(
+#                     "[" + str(instance.transaction) + "] " +
+#                     ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>"
+#                 )
+#                 instance.cleanup()
+#                 return theresponse
 
-            # return Response("None")
-        return JsonResponse(convertserializer.errors, status=400)
+#             # return Response("None")
+#         return JsonResponse(convertserializer.errors, status=400)
 
 
 class WordToJson(APIView):
