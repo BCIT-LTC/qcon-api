@@ -24,7 +24,8 @@ from .models import Question
 from .models import Transaction
 
 # from django_q.tasks import async_task
-
+import base64
+import os
 import logging
 logger = logging.getLogger(__name__)
 # WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
@@ -142,10 +143,22 @@ class WordToJsonZip(APIView):
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
             import json
-            # print(json.dumps(question_library_serializer.data, indent=4))
-            jsonfile = ContentFile(str(
-                json.dumps(question_library_serializer.data, indent=4)),
-                                   name="output.json")
+            json_string = str(json.dumps(question_library_serializer.data, indent=4))
+
+            # Replace images src inside json file with base64
+            for image_name in os.listdir(question_library.image_path):
+                image_path = os.path.join(question_library.image_path, image_name)
+                
+                try:
+                    with open(image_path, "rb") as image_file:
+                        base64_image = base64.b64encode(image_file.read())
+                        base64_image = "data:image/jpeg;base64," + base64_image.decode()
+                        img_relative_path = os.path.join('assessment-assets', question_library.filtered_section_name, image_name)
+                        json_string = json_string.replace(img_relative_path, base64_image)
+                except OSError:
+                    logger.error("Can't' find image in: " + image_path)
+
+            jsonfile = ContentFile(json_string, name="output.json")
             instance.json_file = jsonfile
             instance.save()
             if instance.total_document_errors == 0:

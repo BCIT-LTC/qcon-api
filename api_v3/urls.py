@@ -7,7 +7,7 @@ from . import views
 from django.conf import settings
 
 urlpatterns = [
-    path('wordzip', views.WordToZip.as_view(), name='WordToZip'),
+    # path('wordzip', views.WordToZip.as_view(), name='WordToZip'),
     path('wordjson', views.WordToJson.as_view(), name='WordToJson'),
-    path('wordjsonzip', views.WordToJsonZip.as_view(), name='WordToJsonZip'),
+    # path('wordjsonzip', views.WordToJsonZip.as_view(), name='WordToJsonZip'),
 ]
