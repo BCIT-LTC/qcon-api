@@ -17,7 +17,10 @@ def create_section_name():
 def run_formatter(questionlibrary):
 
     os.chdir('/formatter/jarfile')
-    os.system('java -cp formatter.jar:* formatter')
+    # filename = '/code/temp/' +  questionlibrary.pandoc_output_file.name
+    destination = '/code/temp/' + str(questionlibrary.id) + '/'
+    # print(destination)
+    os.system('java -cp formatter.jar:* formatter ' + destination)
     os.chdir('/code')
 
     pass
