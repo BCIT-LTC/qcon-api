@@ -4,9 +4,9 @@
 
 grammar formatter;
 
-formatter: rootheading? rootbody end_answers_block? EOF;
+formatter: rootheader? rootbody end_answers_block? EOF;
 
-rootheading: (ALL_CHARACTER+);
+rootheader: (ALL_CHARACTER+);
 
 rootbody: section+;
 

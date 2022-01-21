@@ -63,6 +63,20 @@ public class formatter {
          Section.setAttributeNode(attr);
 
          root.appendChild(Section);
+
+         return null; // Java says must return something even when Void
+      }
+
+      public Void visitEnd_answers_block(formatterParser.End_answers_blockContext ctx) {
+         // System.out.println(Integer.toString(count));
+         // props.put(Integer.toString(count), ctx.getText());
+         // props.put(id, value);
+         System.out.println("End_answers_block FOUND");
+
+         Element End_answer = document.createElement("endanswer");
+         End_answer.appendChild(document.createTextNode(ctx.getText()));
+         root.appendChild(End_answer);
+
          return null; // Java says must return something even when Void
       }
    }
