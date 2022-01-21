@@ -157,12 +157,13 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.section_name = newconversion.temp_file.name.split(".")[0]
         newconversion.filter_section_name()
         newconversion.folder_path = settings.MEDIA_ROOT + \
-            str(newconversion.transaction)
+            str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
 
         newconversion.create_pandocstring()
+        newconversion.save()
         return newconversion
 
     def update(self, instance, validated_data):

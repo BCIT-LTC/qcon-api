@@ -23,6 +23,7 @@ from .models import QuestionLibrary
 import logging
 logger = logging.getLogger(__name__)
 
+
 class TokenAuthenticationWithBearer(TokenAuthentication):
     keyword = 'Bearer'
 
@@ -90,7 +91,6 @@ class TokenAuthenticationWithBearer(TokenAuthentication):
 #                 return theresponse
 
 #         return JsonResponse(serializer.errors, status=400)
-
 
 # class WordToJsonZip(APIView):
 #     parser_classes = [MultiPartParser]
@@ -193,20 +193,22 @@ class WordToJson(APIView):
         if serializer.is_valid():
             instance = serializer.save()
 
-            question_library = QuestionLibrary.objects.get(
-                transaction=instance.transaction.id)
+            # question_library = QuestionLibrary.objects.get(
+            #     transaction=instance.transaction.id)
+
+            # question_library = instance
 
             # ==============  start the process  ========
             from .process import process
-            process(question_library)
-            
+            process(instance)
 
-
-            question_library_serializer = QuestionLibrarySerializer(
-                question_library)
+            # question_library_serializer = QuestionLibrarySerializer(
+            #     question_library)
 
             instance.cleanup()
-            return JsonResponse(question_library_serializer.data, status=200)
+            # return JsonResponse(question_library_serializer.data, status=200)
+
+            return JsonResponse({}, status=200)
 
         return JsonResponse(serializer.errors, status=400)
 
@@ -232,6 +234,7 @@ class RootPath(APIView):
         return JsonResponse(serializer.data,
                             json_dumps_params={'indent': 2},
                             status=200)
+
 
 from django.shortcuts import redirect
 

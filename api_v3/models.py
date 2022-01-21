@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     # print('{0}/{1}'.format(instance.id, file_name))
-    return '{0}/{1}'.format(instance.transaction, file_name)
+    return '{0}/{1}'.format(instance.id, file_name)
 
 
 # TODO format_media_path for custom media folder
@@ -55,7 +55,7 @@ def format_file_path(instance, file_name):
 
 
 class QuestionLibrary(models.Model):
-    # id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     folder_path = models.FilePathField(path="/code",
                                        match=None,
                                        recursive=False,
@@ -71,6 +71,9 @@ class QuestionLibrary(models.Model):
     general_header = models.TextField(blank=True, null=True)
     endanswers = models.TextField(blank=True, null=True)
     pandoc_string = models.TextField(blank=True, null=True)
+    pandoc_output_file = models.FileField(upload_to=format_file_path,
+                                blank=True,
+                                null=True)
     splitter_string = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(upload_to=format_file_path,
@@ -144,14 +147,11 @@ class QuestionLibrary(models.Model):
                 ])
 
             self.pandoc_string = "\n" + pandocstring
-            # raise Exception('')
-            logger.info("[" + str(self.transaction) + "] " +
-                        "Markdown String Created")
-            self.transaction.progress = 1
-            self.transaction.save()
+            self.pandoc_output_file = ContentFile("\n" + pandocstring, name="pandoc_string")
+
             self.save()
         except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.id) + "] " +
                          "Markdown String Failed")
             self.error = "Markdown String Failed"
             self.save()
@@ -294,7 +294,7 @@ class QuestionLibrary(models.Model):
             self.delete()
 
     def __str__(self):
-        return str(self.transaction)
+        return str(self.id)
 
 
 class Section(models.Model):

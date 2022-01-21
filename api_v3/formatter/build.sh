@@ -6,7 +6,7 @@
 
 FILE="formatter"
 ANTLR=$(echo $CLASSPATH | tr ':' '\n' | grep -m 1 "antlr-4.9.3-complete.jar")
-java -jar $ANTLR $FILE.g4
+java -jar $ANTLR $FILE.g4 -visitor -no-listener
 javac $FILE*.java
 
 # grun formatter formatter -gui test.txt -tokens
