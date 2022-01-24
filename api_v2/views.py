@@ -146,17 +146,18 @@ class WordToJsonZip(APIView):
             json_string = str(json.dumps(question_library_serializer.data, indent=4))
 
             # Replace images src inside json file with base64
-            for image_name in os.listdir(question_library.image_path):
-                image_path = os.path.join(question_library.image_path, image_name)
+            if os.path.exists(question_library.image_path):
+                for image_name in os.listdir(question_library.image_path):
+                    image_path = os.path.join(question_library.image_path, image_name)
                 
-                try:
-                    with open(image_path, "rb") as image_file:
-                        base64_image = base64.b64encode(image_file.read())
-                        base64_image = "data:image/jpeg;base64," + base64_image.decode()
-                        img_relative_path = os.path.join('assessment-assets', question_library.filtered_section_name, image_name)
-                        json_string = json_string.replace(img_relative_path, base64_image)
-                except OSError:
-                    logger.error("Can't' find image in: " + image_path)
+                    try:
+                        with open(image_path, "rb") as image_file:
+                            base64_image = base64.b64encode(image_file.read())
+                            base64_image = "data:image/jpeg;base64," + base64_image.decode()
+                            img_relative_path = os.path.join('assessment-assets', question_library.filtered_section_name, image_name)
+                            json_string = json_string.replace(img_relative_path, base64_image)
+                    except OSError:
+                        logger.error("Can't' find image in: " + image_path)
 
             jsonfile = ContentFile(json_string, name="output.json")
             instance.json_file = jsonfile
