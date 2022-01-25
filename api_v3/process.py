@@ -1,29 +1,21 @@
 import os
+import xml.etree.ElementTree as ET
+
 
 def create_section_name():
     pass
 
-
-# Input markdown , Output Root elements(optional RootHeader, Mandatory Body and optional Answers)
-# No writing to model here
-# def markdown_to_root_elements(questionlibrary):
-
-#     from api_v3.formatter.formatter import formatter
-#     formatter(questionlibrary)
-
-#     pass
-
-
 def run_formatter(questionlibrary):
 
     os.chdir('/formatter/jarfile')
-    # filename = '/code/temp/' +  questionlibrary.pandoc_output_file.name
     destination = '/code/temp/' + str(questionlibrary.id) + '/'
-    # print(destination)
     os.system('java -cp formatter.jar:* formatter ' + destination)
     os.chdir('/code')
 
-    pass
+    tree = ET.parse('/code/temp/' + str(questionlibrary.id) + '/' + 'formatter.xml')
+    root = tree.getroot()
+    for child in root:
+        print(child.tag, child.attrib)
 
 
 # Input Body , Output Array of 1 or more sections
