@@ -32,14 +32,14 @@ public class formatter {
 
    public static class formatterVisitor extends
          formatterBaseVisitor<Void> {
-      public Void visitRootheader(formatterParser.RootheaderContext ctx){
+      public Void visitRootheader(formatterParser.RootheaderContext ctx) {
          Element rootheader = document.createElement("rootheader");
          rootheader.appendChild(document.createTextNode(ctx.getText()));
          root.appendChild(rootheader);
          return null;
       }
 
-      public Void visitBody(formatterParser.BodyContext ctx){
+      public Void visitBody(formatterParser.BodyContext ctx) {
          Element body = document.createElement("body");
          body.appendChild(document.createTextNode(ctx.getText()));
          root.appendChild(body);
@@ -50,7 +50,7 @@ public class formatter {
    public static void main(String args[]) {
 
       if (args.length < 1) {
-         System.out.println("filename not provided");
+         System.out.println("formatter: filename not provided");
          System.exit(0);
       } else {
          System.out.println(args[0]);
@@ -63,7 +63,7 @@ public class formatter {
          Path fileName = Paths.get(inputfile);
          pandocContent = Files.readString(fileName);
       } catch (IOException e) {
-         System.out.println("An error occurred.");
+         System.out.println("formatter error reading file:" + inputfile);
          e.printStackTrace();
       }
       System.out.println("starting parsing");
@@ -80,7 +80,7 @@ public class formatter {
          root = document.createElement("root");
          document.appendChild(root);
       } catch (ParserConfigurationException pce) {
-         System.out.println("An error occurred.");
+         System.out.println("formatter error reading: " + inputfile);
          pce.printStackTrace();
       }
 
@@ -96,8 +96,8 @@ public class formatter {
          DOMSource domSource = new DOMSource(document);
          StreamResult streamResult = new StreamResult(new File(targetfile));
          transformer.transform(domSource, streamResult);
-         System.out.println("Done creating XML File");
       } catch (TransformerException tfe) {
+         System.out.println("formatter error writing: " + args[0]);
          tfe.printStackTrace();
       }
    }
