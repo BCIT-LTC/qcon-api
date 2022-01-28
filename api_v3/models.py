@@ -152,7 +152,6 @@ class QuestionLibrary(models.Model):
                 'markdown_github',
                 format='html+empty_paragraphs',
                 extra_args=[
-                    '--extract-media=' + self.folder_path,
                     '--lua-filter=' + mdblockquotePath,
                     '--lua-filter=' + emptyparaPath
                 ])
