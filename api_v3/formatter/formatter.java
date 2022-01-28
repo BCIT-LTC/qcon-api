@@ -57,7 +57,7 @@ public class formatter {
       }
 
       String pandocContent = "";
-      String inputfile = args[0] + "pandoc_string";
+      String inputfile = args[0] + "pandoc_output";
 
       try {
          Path fileName = Paths.get(inputfile);

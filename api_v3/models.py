@@ -135,7 +135,7 @@ class QuestionLibrary(models.Model):
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
-            pandocstring1 = pypandoc.convert_file(
+            pandoc_word_to_html = pypandoc.convert_file(
                 self.temp_file.path,
                 format='docx+empty_paragraphs',
                 to='html+empty_paragraphs',
@@ -147,8 +147,8 @@ class QuestionLibrary(models.Model):
 
             # to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
 
-            pandocstring2 = pypandoc.convert_text(
-                pandocstring1,
+            pandoc_html_md = pypandoc.convert_text(
+                pandoc_word_to_html,
                 'markdown_github',
                 format='html+empty_paragraphs',
                 extra_args=[
@@ -157,10 +157,8 @@ class QuestionLibrary(models.Model):
                     '--lua-filter=' + emptyparaPath
                 ])
 
-            self.pandocstring2 = "\n" + pandocstring2
-
-            self.pandoc_output_file = ContentFile("\n" + pandocstring2,
-                                                  name="pandoc_string")
+            self.pandoc_output_file = ContentFile("\n" + pandoc_html_md,
+                                                  name="pandoc_output")
 
             self.save()
         except Exception as e:
