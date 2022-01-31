@@ -72,8 +72,8 @@ class QuestionLibrary(models.Model):
     endanswers = models.TextField(blank=True, null=True)
     pandoc_string = models.TextField(blank=True, null=True)
     pandoc_output_file = models.FileField(upload_to=format_file_path,
-                                blank=True,
-                                null=True)
+                                          blank=True,
+                                          null=True)
     splitter_string = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(upload_to=format_file_path,
@@ -134,25 +134,36 @@ class QuestionLibrary(models.Model):
     def create_pandocstring(self):
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
-            pandocstring = pypandoc.convert_file(
+            emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
+            pandoc_word_to_html = pypandoc.convert_file(
                 self.temp_file.path,
-                format='docx',
-                to=
-                'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
+                format='docx+empty_paragraphs',
+                to='html+empty_paragraphs',
                 extra_args=[
-                    '--extract-media=' + self.folder_path, '--no-highlight',
-                    '--self-contained', '--atx-headers', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false',
-                    '--lua-filter=' + mdblockquotePath
+                    '--no-highlight',
+                    '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
+                    '--wrap=preserve', '--indent=false'
+                ])
+                
+            print("test folder path " +self.folder_path)
+            pandoc_html_to_md = pypandoc.convert_text(
+                pandoc_word_to_html,
+                'markdown_github',
+                format='html+empty_paragraphs',
+                extra_args=[
+                    '--no-highlight',
+                    '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
+                    '--wrap=preserve', '--indent=false'
+                    '--lua-filter=' + mdblockquotePath,
+                    '--lua-filter=' + emptyparaPath
                 ])
 
-            self.pandoc_string = "\n" + pandocstring
-            self.pandoc_output_file = ContentFile("\n" + pandocstring, name="pandoc_string")
+            self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,
+                                                  name="pandoc_output.md")
 
             self.save()
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "Markdown String Failed")
+            logger.error("[" + str(self.id) + "] " + "Markdown String Failed")
             self.error = "Markdown String Failed"
             self.save()
 
@@ -303,7 +314,9 @@ class Section(models.Model):
                                          related_name='sections',
                                          on_delete=models.CASCADE)
     validated = models.BooleanField(blank=True, null=True, default=False)
-    finished_processing = models.BooleanField(blank=True, null=True, default=False)
+    finished_processing = models.BooleanField(blank=True,
+                                              null=True,
+                                              default=False)
     raw_data = models.TextField(blank=True, null=True)
     section_name = models.TextField(blank=True, null=True)
     questions_processed = models.DecimalField(max_digits=3, decimal_places=0)
