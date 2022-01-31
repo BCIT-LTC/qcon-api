@@ -140,22 +140,26 @@ class QuestionLibrary(models.Model):
                 format='docx+empty_paragraphs',
                 to='html+empty_paragraphs',
                 extra_args=[
-                    '--extract-media=' + self.folder_path, '--no-highlight',
+                    '--no-highlight',
                     '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
                     '--wrap=preserve', '--indent=false'
                 ])
                 
-            pandoc_html_md = pypandoc.convert_text(
+            print("test folder path " +self.folder_path)
+            pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
                 'markdown_github',
                 format='html+empty_paragraphs',
                 extra_args=[
+                    '--no-highlight',
+                    '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
+                    '--wrap=preserve', '--indent=false'
                     '--lua-filter=' + mdblockquotePath,
                     '--lua-filter=' + emptyparaPath
                 ])
 
-            self.pandoc_output_file = ContentFile("\n" + pandoc_html_md,
-                                                  name="pandoc_output")
+            self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,
+                                                  name="pandoc_output.md")
 
             self.save()
         except Exception as e:
