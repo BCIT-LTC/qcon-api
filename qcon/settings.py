@@ -224,6 +224,11 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'api_v3': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
         }
     },
 }

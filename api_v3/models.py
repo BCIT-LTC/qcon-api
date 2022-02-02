@@ -53,7 +53,6 @@ def format_file_path(instance, file_name):
 #     def __str__(self):
 #         return str(self.id)
 
-
 class QuestionLibrary(models.Model):
     id = models.AutoField(primary_key=True)
     folder_path = models.FilePathField(path="/code",
@@ -69,12 +68,12 @@ class QuestionLibrary(models.Model):
                                       recursive=False,
                                       max_length=None)
     general_header = models.TextField(blank=True, null=True)
-    endanswers = models.TextField(blank=True, null=True)
-    pandoc_string = models.TextField(blank=True, null=True)
+    end_answers = models.TextField(blank=True, null=True)
+    formatter_error = models.TextField(blank=True, null=True)
+    formatter_output = models.TextField(blank=True, null=True)
     pandoc_output_file = models.FileField(upload_to=format_file_path,
                                           blank=True,
                                           null=True)
-    splitter_string = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(upload_to=format_file_path,
                                         blank=True,
@@ -135,6 +134,7 @@ class QuestionLibrary(models.Model):
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
+            listsPath = "./api_v3/pandoc-filters/lists.lua"
             pandoc_word_to_html = pypandoc.convert_file(
                 self.temp_file.path,
                 format='docx+empty_paragraphs',
@@ -145,7 +145,6 @@ class QuestionLibrary(models.Model):
                     '--wrap=preserve', '--indent=false'
                 ])
                 
-            print("test folder path " +self.folder_path)
             pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
                 'markdown_github',
@@ -153,9 +152,10 @@ class QuestionLibrary(models.Model):
                 extra_args=[
                     '--no-highlight',
                     '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false'
+                    '--wrap=preserve', '--indent=false',
                     '--lua-filter=' + mdblockquotePath,
-                    '--lua-filter=' + emptyparaPath
+                    '--lua-filter=' + emptyparaPath,
+                    '--lua-filter=' + listsPath
                 ])
 
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,

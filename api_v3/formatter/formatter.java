@@ -32,17 +32,24 @@ public class formatter {
 
    public static class formatterVisitor extends
          formatterBaseVisitor<Void> {
-      public Void visitRootheader(formatterParser.RootheaderContext ctx) {
-         Element rootheader = document.createElement("rootheader");
-         rootheader.appendChild(document.createTextNode(ctx.getText()));
-         root.appendChild(rootheader);
-         return null;
-      }
+      // public Void visitRootheader(formatterParser.RootheaderContext ctx) {
+      //    Element rootheader = document.createElement("rootheader");
+      //    rootheader.appendChild(document.createTextNode(ctx.getText()));
+      //    root.appendChild(rootheader);
+      //    return null;
+      // }
 
       public Void visitBody(formatterParser.BodyContext ctx) {
          Element body = document.createElement("body");
          body.appendChild(document.createTextNode(ctx.getText()));
          root.appendChild(body);
+         return null;
+      }
+
+      public Void visitEnd_answers(formatterParser.End_answersContext ctx){
+         Element end_answers = document.createElement("end_answers");
+         end_answers.appendChild(document.createTextNode(ctx.getText()));
+         root.appendChild(end_answers);
          return null;
       }
    }
@@ -57,7 +64,7 @@ public class formatter {
       }
 
       String pandocContent = "";
-      String inputfile = args[0] + "pandoc_output";
+      String inputfile = args[0] + "pandoc_output.md";
 
       try {
          Path fileName = Paths.get(inputfile);
@@ -66,7 +73,7 @@ public class formatter {
          System.out.println("formatter error reading file:" + inputfile);
          e.printStackTrace();
       }
-      System.out.println("starting parsing");
+      System.out.println("starting formatter");
       formatterLexer formatterLexer = new formatterLexer(CharStreams.fromString(pandocContent));
       CommonTokenStream tokens = new CommonTokenStream(formatterLexer);
       formatterParser parser = new formatterParser(tokens);
