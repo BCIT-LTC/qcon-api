@@ -135,6 +135,7 @@ class QuestionLibrary(models.Model):
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
+            listsPath = "./api_v3/pandoc-filters/lists.lua"
             pandoc_word_to_html = pypandoc.convert_file(
                 self.temp_file.path,
                 format='docx+empty_paragraphs',
@@ -153,9 +154,10 @@ class QuestionLibrary(models.Model):
                 extra_args=[
                     '--no-highlight',
                     '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false'
+                    '--wrap=preserve', '--indent=false',
                     '--lua-filter=' + mdblockquotePath,
-                    '--lua-filter=' + emptyparaPath
+                    '--lua-filter=' + emptyparaPath,
+                    '--lua-filter=' + listsPath
                 ])
 
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,
