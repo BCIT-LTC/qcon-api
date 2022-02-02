@@ -24,6 +24,8 @@ def run_formatter(questionlibrary):
 
     try:
         if root[0].tag == "body" :
+            questionlibrary.formatter_output = root[0].text
+            questionlibrary.save()
             pass
         else:
             logger.error("Body not found")
