@@ -4,12 +4,17 @@
 
 grammar formatter;
 
-formatter: rootheader? body EOF;
+formatter: unused_content? body? end_answers? EOF;
 
-rootheader: (ALL_CHARACTER+);
+unused_content: (ALL_CHARACTER+);
 
-body : body ((SECTION_HEADING ALL_CHARACTER+)? NUMBER_ONE (ALL_CHARACTER+)) |
-    ((SECTION_HEADING ALL_CHARACTER+)? NUMBER_ONE (ALL_CHARACTER+)) ;
+body: body_with_heading_1;
+
+body_with_heading_1: (HEADING_1) (ALL_CHARACTER+);
+
+// body_without_heading_1: NUMBER_ONE (ALL_CHARACTER+);
+
+end_answers: END_ANSWER_BLOCK ALL_CHARACTER+ ;
 
 // ================================ TOKENS
 fragment NEWLINE:   ('\r'? '\n' | '\r');
@@ -18,14 +23,35 @@ fragment BACKSLASH: '\\';
 fragment ASTERISK: '*';
 fragment DOUBLE_ASTERISK: '**';
 fragment DOT: '.';
+fragment COLON:   ':';
 fragment WHITESPACE: ' ' | '\t';
 fragment DELIMITER: BACKSLASH? (DOT | CLOSING_PARENTHESIS);
+fragment A:   'A' | 'a';
+fragment N:   'N' | 'n';
+fragment S:   'S' | 's';
+fragment W:   'W' | 'w';
+fragment E:   'E' | 'e';
+fragment R:   'R' | 'r';
 
-fragment DOUBLE_HASH: '##';
-fragment ONE: '1';
+fragment ANSWER: A N S W E R (S)?;
 
-NUMBER_ONE: NEWLINE WHITESPACE* DOUBLE_ASTERISK? ONE WHITESPACE* WHITESPACE* DELIMITER WHITESPACE*;
+// HASH: '#';
+// DOUBLE_HASH: '##';
 
-SECTION_HEADING: NEWLINE DOUBLE_HASH;
+// START_OF_LIST: '<!-- START OF OL -->' | '<!-- START OF BL -->';
+// END_OF_LIST: '<!-- END OF OL -->' | '<!-- END OF BL -->';
+
+HEADING_1: NEWLINE '#' WHITESPACE;
+// SECTION_HEADING: NEWLINE DOUBLE_HASH;
+
+// START_NUMBER_ONE: NEWLINE '1' WHITESPACE* DELIMITER;
+
+// END_ANSWERS: NEWLINE WHITESPACE* A N S W E R (S)? WHITESPACE* COLON WHITESPACE*;
+
+// END_OF_QUESTIONS: NEWLINE 
+
+// NUMBER_ONE: NEWLINE WHITESPACE* DOUBLE_ASTERISK? '1' WHITESPACE* DELIMITER WHITESPACE*;
+
+END_ANSWER_BLOCK: NEWLINE WHITESPACE* ANSWER WHITESPACE* COLON WHITESPACE*;
 
 ALL_CHARACTER: .;
