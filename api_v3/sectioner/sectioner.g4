@@ -6,20 +6,15 @@ grammar sectioner;
 
 sectioner: section+ EOF;
 
-section:
-	ALL_CHARACTER+ SECTION_START
-	| ALL_CHARACTER+ SECTION_END
-	| SECTION_START ALL_CHARACTER+
-	| ALL_CHARACTER+;
-// marked_section: SECTION_START CONTENT+ SECTION_END; unmarked_section: CONTENT+;
+title: HEADING;
 
-// section_title: HEADING CONTENT;
+section: SECTION_START title? content SECTION_END
+| content;
 
-// section_title: TITLE; section: SECTION_START section_title ALL_CHARACTER+ SECTION_END;
+content: ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment NEWLINE: ('\r'? '\n' | '\r');
-fragment BACKSLASH: '\\';
 fragment WHITESPACE: ' ' | '\t';
 
 fragment S: 'S' | 's';
@@ -33,15 +28,12 @@ fragment N: 'N' | 'n';
 fragment HASH: '#';
 fragment DOUBLE_HASH: '##';
 
-SECTION_START:
-	NEWLINE (HASH | DOUBLE_HASH)? WHITESPACE* HASH S E C T I O N WHITESPACE*;
-SECTION_END:
-	NEWLINE (HASH | DOUBLE_HASH)? WHITESPACE* '/' S E C T I O N WHITESPACE*;
+fragment HEADING_START: (HASH | DOUBLE_HASH) WHITESPACE;
 
-// HEADING: NEWLINE (HASH | DOUBLE_HASH) WHITESPACE;
-// ALL_EXCEPT_NEWLINE: ~('\n');
-// MARKED_SECTION: SECTION_START ALL_CHARACTER+ SECTION_END;
-// TITLE: HEADING ALL_CHARACTER+ NEWLINE;
-// CONTENT: NEWLINE ((~'#'))|((~'/'))+ NEWLINE;
+SECTION_START:
+	NEWLINE (HASH | DOUBLE_HASH)? WHITESPACE HASH S E C T I O N WHITESPACE* NEWLINE+;
+SECTION_END: NEWLINE (HASH | DOUBLE_HASH)? WHITESPACE* '/' S E C T I O N WHITESPACE*;
+
+HEADING: HEADING_START (~'#' | ~'\n') .*? NEWLINE;
 
 ALL_CHARACTER: .;
