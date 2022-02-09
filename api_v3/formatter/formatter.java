@@ -5,10 +5,14 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 import java.util.Map;
+import java.util.*;
+
+import java.io.OutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -23,6 +27,9 @@ import java.io.IOException; // Import this class to handle errors
 
 import java.nio.file.*;
 
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.lang.StringBuilder;
 public class formatter {
 
    public static DocumentBuilderFactory documentFactory;
@@ -33,10 +40,10 @@ public class formatter {
    public static class formatterVisitor extends
          formatterBaseVisitor<Void> {
       // public Void visitRootheader(formatterParser.RootheaderContext ctx) {
-      //    Element rootheader = document.createElement("rootheader");
-      //    rootheader.appendChild(document.createTextNode(ctx.getText()));
-      //    root.appendChild(rootheader);
-      //    return null;
+      // Element rootheader = document.createElement("rootheader");
+      // rootheader.appendChild(document.createTextNode(ctx.getText()));
+      // root.appendChild(rootheader);
+      // return null;
       // }
 
       public Void visitBody(formatterParser.BodyContext ctx) {
@@ -46,7 +53,7 @@ public class formatter {
          return null;
       }
 
-      public Void visitEnd_answers(formatterParser.End_answersContext ctx){
+      public Void visitEnd_answers(formatterParser.End_answersContext ctx) {
          Element end_answers = document.createElement("end_answers");
          end_answers.appendChild(document.createTextNode(ctx.getText()));
          root.appendChild(end_answers);
@@ -54,26 +61,46 @@ public class formatter {
       }
    }
 
-   public static void main(String args[]) {
-
-      if (args.length < 1) {
-         System.out.println("formatter: filename not provided");
-         System.exit(0);
-      } else {
-         System.out.println(args[0]);
-      }
-
-      String pandocContent = "";
-      String inputfile = args[0] + "pandoc_output.md";
-
+   public static void serializeDocument(Document document, OutputStream os) {
       try {
-         Path fileName = Paths.get(inputfile);
-         pandocContent = Files.readString(fileName);
-      } catch (IOException e) {
-         System.out.println("formatter error reading file:" + inputfile);
+         TransformerFactory tFactory = TransformerFactory.newInstance();
+         Transformer transformer = tFactory.newTransformer();
+         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+         DOMSource source = new DOMSource(document);
+         StreamResult result = new StreamResult(os);
+         transformer.transform(source, result);
+      } catch (TransformerException e) {
          e.printStackTrace();
       }
-      System.out.println("starting formatter");
+   }
+
+   public static void printDocument(Document document) {
+      serializeDocument(document, System.out);
+   }
+
+   public static String readinput(){
+      InputStreamReader reader = new InputStreamReader(System.in);
+
+      char[] buffer = new char[1000];
+      StringBuilder sb = new StringBuilder();
+      String input = "";
+      int count;           
+      try{
+         while((count = reader.read(buffer)) != -1) {
+            sb.append(buffer, 0, count);
+         }
+         input = sb.toString();
+      } catch (Exception e) {
+         e.printStackTrace();
+      }      
+      return input;
+   }
+
+   public static void main(String args[]) {
+
+      String pandocContent = readinput();
+
       formatterLexer formatterLexer = new formatterLexer(CharStreams.fromString(pandocContent));
       CommonTokenStream tokens = new CommonTokenStream(formatterLexer);
       formatterParser parser = new formatterParser(tokens);
@@ -87,25 +114,28 @@ public class formatter {
          root = document.createElement("root");
          document.appendChild(root);
       } catch (ParserConfigurationException pce) {
-         System.out.println("formatter error reading: " + inputfile);
          pce.printStackTrace();
       }
 
       formatterVisitor loader = new formatterVisitor();
       loader.visit(tree);
 
-      try {
-         // transform the DOM Object to an XML File
-         String targetfile = args[0] + "formatter.xml";
+      printDocument(document);
 
-         TransformerFactory transformerFactory = TransformerFactory.newInstance();
-         Transformer transformer = transformerFactory.newTransformer();
-         DOMSource domSource = new DOMSource(document);
-         StreamResult streamResult = new StreamResult(new File(targetfile));
-         transformer.transform(domSource, streamResult);
-      } catch (TransformerException tfe) {
-         System.out.println("formatter error writing: " + args[0]);
-         tfe.printStackTrace();
-      }
+      // try {
+      // // transform the DOM Object to an XML File
+      // String targetfile = args[0] + "formatter.xml";
+
+      // TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      // Transformer transformer = transformerFactory.newTransformer();
+      // DOMSource domSource = new DOMSource(document);
+      // StreamResult streamResult = new StreamResult(new File(targetfile));
+      // transformer.transform(domSource, streamResult);
+      // } catch (TransformerException tfe) {
+      // System.out.println("formatter error writing: " + args[0]);
+      // tfe.printStackTrace();
+      // }
+
    }
+
 }
