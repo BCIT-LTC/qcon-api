@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def create_section_name():
     pass
 
-
+# This is to split end_answers and body and trim the unused data at the top
 def run_formatter(questionlibrary):
 
     os.chdir('/formatter/jarfile')
@@ -46,10 +46,9 @@ def run_formatter(questionlibrary):
     except:
         logger.error("Answer section not found")
 
+# This is to split sections into separate objects
+def run_sectioner(questionlibrary):
 
-# Input Body , Output Array of 1 or more sections
-# No writing to model here
-def body_to_sections():
     pass
 
 
@@ -66,8 +65,8 @@ def run_parser():
 
 def process(questionlibrary):
 
-    # ====================== Convert to markdown
-    # print(questionlibrary.pandoc_string)
+    # ====================== 
     run_formatter(questionlibrary)
-
+    run_sectioner(questionlibrary)
+    
     pass
