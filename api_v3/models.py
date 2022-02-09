@@ -74,6 +74,7 @@ class QuestionLibrary(models.Model):
     pandoc_output_file = models.FileField(upload_to=format_file_path,
                                           blank=True,
                                           null=True)
+    pandoc_output = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(upload_to=format_file_path,
                                         blank=True,
@@ -160,6 +161,8 @@ class QuestionLibrary(models.Model):
 
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,
                                                   name="pandoc_output.md")
+            
+            self.pandoc_output = "\n" + pandoc_html_to_md
 
             self.save()
         except Exception as e:
