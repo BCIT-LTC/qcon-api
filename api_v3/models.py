@@ -318,27 +318,15 @@ class Section(models.Model):
                                               null=True,
                                               default=False)
     raw_data = models.TextField(blank=True, null=True)
-    section_name = models.TextField(blank=True, null=True)
     questions_processed = models.DecimalField(max_digits=3, decimal_places=0)
     questions_expected = models.DecimalField(max_digits=3, decimal_places=0)
-
-    def __str__(self):
-        return str(self.prefix) + " Transaction" + str(
-            self.question_library.transaction.id)
-
-from django.db import models
-
-
-class Section(models.Model):
-    id = models.AutoField(primary_key=True)
-    question_library = models.ForeignKey(QuestionLibrary, related_name='sections', on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     is_text_displayed = models.BooleanField(blank=True, null=True)
     shuffle = models.BooleanField(blank=True, null=True)
     
-
+        
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
     section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
@@ -361,7 +349,6 @@ class MultipleChoice(models.Model):
 class MultipleChoiceAnswer(models.Model):
     id = models.AutoField(primary_key=True)
     multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiplechoiceanswers', on_delete=models.CASCADE)
-    part_id = models.PositiveSmallIntegerField(blank=True, null=True)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
