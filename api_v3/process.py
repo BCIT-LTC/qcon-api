@@ -42,9 +42,9 @@ def run_formatter(questionlibrary):
             questionlibrary.end_answers = root[1].text
             questionlibrary.save()
         else:
-            logger.error("Answer Section not found")
+            logger.warning("Answer Section not found")
     except:
-        logger.error("Answer section not found")
+        logger.warning("Answer section not found")
 
 # This is to split sections into separate objects
 def run_sectioner(questionlibrary):
@@ -68,5 +68,5 @@ def process(questionlibrary):
     # ====================== 
     run_formatter(questionlibrary)
     run_sectioner(questionlibrary)
-    
+
     pass
