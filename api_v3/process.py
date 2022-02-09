@@ -19,40 +19,32 @@ def run_formatter(questionlibrary):
                             shell=True,
                             input=questionlibrary.pandoc_output.encode(),
                             capture_output=True)
-
-    print(result.stdout)
     os.chdir('/code')
 
-    # root = None
-    # try:
-    #     os.chdir('/formatter/jarfile')
-    #     destination = '/code/temp/' + str(questionlibrary.id) + '/'
-    #     os.system('java -cp formatter.jar:* formatter ' + destination)
-    #     os.chdir('/code')
+    root = None
+    try:
+        root = ET.fromstring(result.stdout.decode("utf-8"))
+    except:
+        pass
 
-    #     tree = ET.parse('/code/temp/' + str(questionlibrary.id) + '/' + 'formatter.xml')
-    #     root = tree.getroot()
-    # except:
-    #     pass
+    try:
+        if root[0].tag == "body" :
+            questionlibrary.formatter_output = root[0].text
+            questionlibrary.save()
+            pass
+        else:
+            logger.error("Body not found")
+    except:
+        logger.error("Body not found")
 
-    # try:
-    #     if root[0].tag == "body" :
-    #         questionlibrary.formatter_output = root[0].text
-    #         questionlibrary.save()
-    #         pass
-    #     else:
-    #         logger.error("Body not found")
-    # except:
-    #     logger.error("Body not found")
-
-    # try:
-    #     if root[1].tag == "end_answers" :
-    #         questionlibrary.end_answers = root[1].text
-    #         questionlibrary.save()
-    #     else:
-    #         logger.error("Answer Section not found")
-    # except:
-    #     logger.error("Answer section not found")
+    try:
+        if root[1].tag == "end_answers" :
+            questionlibrary.end_answers = root[1].text
+            questionlibrary.save()
+        else:
+            logger.error("Answer Section not found")
+    except:
+        logger.error("Answer section not found")
 
 
 # Input Body , Output Array of 1 or more sections
