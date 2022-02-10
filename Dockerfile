@@ -52,6 +52,18 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe formatter.jar formatter  *.class ./antlr.jar;
 
+# BUILD SECTIONER
+WORKDIR /usr/src/sectioner
+COPY /api_v3/sectioner/sectioner.g4 ./
+COPY /api_v3/sectioner/sectioner.java ./
+
+RUN set -ex; \
+    cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
+    export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
+    java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" sectioner.g4 -visitor -no-listener; \
+    javac *.java; \
+    jar cvfe sectioner.jar sectioner  *.class ./antlr.jar;
+
 ####################################################### RELEASE
 FROM python:3.9-alpine AS release  
 LABEL maintainer courseproduction@bcit.ca
@@ -77,6 +89,7 @@ COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
 
 COPY --from=antlr-builder /usr/src/formatter /formatter/jarfile
+COPY --from=antlr-builder /usr/src/sectioner /sectioner/jarfile
 
 COPY qcon qcon
 COPY api_v2 api_v2

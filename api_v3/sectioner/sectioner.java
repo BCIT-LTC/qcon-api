@@ -30,27 +30,38 @@ import java.nio.file.*;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.lang.StringBuilder;
-public class formatter {
+
+public class sectioner {
 
    public static DocumentBuilderFactory documentFactory;
    public static DocumentBuilder documentBuilder;
    public static Document document;
    public static Element root;
 
-   public static class formatterVisitor extends
-         formatterBaseVisitor<Void> {
+   public static class sectionerVisitor extends
+         sectionerBaseVisitor<Void> {
 
-      public Void visitBody(formatterParser.BodyContext ctx) {
-         Element body = document.createElement("body");
-         body.appendChild(document.createTextNode(ctx.getText()));
-         root.appendChild(body);
+      public Void visitSectioner(sectionerParser.SectionerContext ctx) {
+
+         System.out.println("SECTION FOUND");
+         // System.out.println(ctx);
          return null;
       }
 
-      public Void visitEnd_answers(formatterParser.End_answersContext ctx) {
-         Element end_answers = document.createElement("end_answers");
-         end_answers.appendChild(document.createTextNode(ctx.getText()));
-         root.appendChild(end_answers);
+      public Void visitSection(sectionerParser.SectionContext ctx) {
+         System.out.println("visitSection");
+         // System.out.println(ctx.getText());
+         return null;
+      }
+
+      public Void visitTitle(sectionerParser.TitleContext ctx) {
+         System.out.println("visitTitle");
+         // System.out.println(ctx.getText());
+         return null;
+      }
+
+      public Void visitContent(sectionerParser.ContentContext ctx) {
+         System.out.println("visitContent");
          return null;
       }
    }
@@ -73,33 +84,35 @@ public class formatter {
       serializeDocument(document, System.out);
    }
 
-   public static String readinput(){
+   public static String readinput() {
       InputStreamReader reader = new InputStreamReader(System.in);
-
       char[] buffer = new char[1000];
       StringBuilder sb = new StringBuilder();
       String input = "";
-      int count;           
-      try{
-         while((count = reader.read(buffer)) != -1) {
+      int count;
+      try {
+         while ((count = reader.read(buffer)) != -1) {
             sb.append(buffer, 0, count);
          }
          input = sb.toString();
       } catch (Exception e) {
          e.printStackTrace();
-      }      
+      }
       return input;
    }
 
    public static void main(String args[]) {
 
-      String pandocContent = readinput();
+      String Content = readinput();
+      // System.out.println("INPUT");
+      // System.out.println(Content);
+      // System.out.println("END");
 
-      formatterLexer formatterLexer = new formatterLexer(CharStreams.fromString(pandocContent));
-      CommonTokenStream tokens = new CommonTokenStream(formatterLexer);
-      formatterParser parser = new formatterParser(tokens);
+      sectionerLexer sectionerLexer = new sectionerLexer(CharStreams.fromString(Content));
+      CommonTokenStream tokens = new CommonTokenStream(sectionerLexer);
+      sectionerParser parser = new sectionerParser(tokens);
 
-      ParseTree tree = parser.formatter();
+      ParseTree tree = parser.sectioner();
 
       try {
          documentFactory = DocumentBuilderFactory.newInstance();
@@ -111,25 +124,10 @@ public class formatter {
          pce.printStackTrace();
       }
 
-      formatterVisitor loader = new formatterVisitor();
+      sectionerVisitor loader = new sectionerVisitor();
       loader.visit(tree);
 
-      printDocument(document);
-
-      // try {
-      // // transform the DOM Object to an XML File
-      // String targetfile = args[0] + "formatter.xml";
-
-      // TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      // Transformer transformer = transformerFactory.newTransformer();
-      // DOMSource domSource = new DOMSource(document);
-      // StreamResult streamResult = new StreamResult(new File(targetfile));
-      // transformer.transform(domSource, streamResult);
-      // } catch (TransformerException tfe) {
-      // System.out.println("formatter error writing: " + args[0]);
-      // tfe.printStackTrace();
-      // }
+      // printDocument(document);
 
    }
-
 }
