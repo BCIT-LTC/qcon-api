@@ -195,7 +195,7 @@ class TrueFalseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrueFalse
-        fields = ['type', 'text', 'order', 'size', 'weight']
+        fields = ['true_weight', 'true_feedback', 'false_weight', 'false_feedback', 'enumeration']
 
 
 class FibSerializer(serializers.ModelSerializer):
