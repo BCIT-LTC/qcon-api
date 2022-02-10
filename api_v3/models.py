@@ -321,14 +321,86 @@ class Section(models.Model):
                                               null=True,
                                               default=False)
     raw_data = models.TextField(blank=True, null=True)
-    section_name = models.TextField(blank=True, null=True)
     questions_processed = models.DecimalField(max_digits=3, decimal_places=0)
     questions_expected = models.DecimalField(max_digits=3, decimal_places=0)
+    title = models.TextField(blank=True, null=True)
+    is_title_displayed = models.BooleanField(blank=True, null=True)
+    text = models.TextField(blank=True, null=True)
+    is_text_displayed = models.BooleanField(blank=True, null=True)
+    shuffle = models.BooleanField(blank=True, null=True)
+    
+        
+class Question(models.Model):
+    id = models.AutoField(primary_key=True)
+    section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
+    title = models.TextField(blank=True, null=True)
+    text = models.TextField(blank=True, null=True)
+    point = models.DecimalField(unique=False,max_digits=3,decimal_places=2,null=True,default=0)
+    difficulty = models.PositiveSmallIntegerField(blank=True, null=True)
+    mandatory = models.BooleanField(blank=True, null=True)
+    hint = models.TextField(blank=True, null=True)
+    feedback = models.TextField(blank=True, null=True)
 
-    def __str__(self):
-        return str(self.prefix) + " Transaction" + str(
-            self.question_library.transaction.id)
 
+class MultipleChoice(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='multiplechoices', on_delete=models.CASCADE)
+    randomize = models.BooleanField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+
+
+class MultipleChoiceAnswer(models.Model):
+    id = models.AutoField(primary_key=True)
+    multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiplechoiceanswers', on_delete=models.CASCADE)
+    answer = models.TextField(blank=True, null=True)
+    answer_feedback = models.TextField(blank=True, null=True)
+    weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+
+
+class TrueFalse(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='truefalse', on_delete=models.CASCADE)
+    true_weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    true_feedback = models.TextField(blank=True, null=True)
+    false_weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    false_feedback = models.TextField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+
+
+class Fib(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='fibs', on_delete=models.CASCADE)
+    type = models.CharField(max_length=7, null=False)
+    text = models.TextField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
+    size = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+
+
+class MultipleSelect(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='multipleselects', on_delete=models.CASCADE)
+    randomize = models.BooleanField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+    style = models.PositiveSmallIntegerField(blank=True, null=True)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True)
+
+
+class MultipleSelectAnswer(models.Model):
+    id = models.AutoField(primary_key=True)
+    multiple_select = models.ForeignKey(MultipleSelect, related_name='multipleselectanswers', on_delete=models.CASCADE)
+    answer = models.TextField(blank=True, null=True)
+    answer_feedback = models.TextField(blank=True, null=True)
+    is_correct = models.BooleanField(blank=True, null=True)
+
+
+class WrittenResponse(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='writtenresponses', on_delete=models.CASCADE)
+    enable_student_editor = models.BooleanField(blank=True, null=True)
+    initial_text = models.TextField(blank=True, null=True)
+    answer_key = models.TextField(blank=True, null=True)
+    enable_attachments = models.BooleanField(blank=True, null=True)
 
 # class Question(models.Model):
 #     id = models.AutoField(primary_key=True)

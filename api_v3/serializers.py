@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from rest_framework import serializers
-from .models import QuestionLibrary, Section
+from .models import QuestionLibrary, Section, Question, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, WrittenResponse
 from django.conf import settings
 
 
@@ -171,6 +171,91 @@ class WordToJsonSerializer(serializers.Serializer):
                                                 instance.temp_file)
         instance.save()
         return instance
+
+
+
+
+class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MultipleChoiceAnswer
+        fields = ['answer', 'answer_feedback', 'weight']
+
+
+
+class MultipleChoiceSerializer(serializers.ModelSerializer):
+    multiple_choices = MultipleChoiceAnswerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MultipleChoice
+        fields = ['randomize', 'enumeration']
+
+
+class TrueFalseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TrueFalse
+        fields = ['true_weight', 'true_feedback', 'false_weight', 'false_feedback', 'enumeration']
+
+
+class FibSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Fib
+        fields = ['type', 'text', 'order', 'size', 'weight']
+
+
+class MultipleSelectAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MultipleSelectAnswer
+        fields = ['answer', 'answer_feedback', 'is_correct']
+
+
+class MultipleSelectSerializer(serializers.ModelSerializer):
+    multiple_selects = MultipleSelectAnswerSerializer(many=True, read_only=True)
+    class Meta:
+        model = MultipleSelect
+        fields = ['randomize', 'enumeration', 'style', 'grading_type']
+
+
+class WrittenResponseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = WrittenResponse
+        fields = ['enable_student_editor', 'initial_text', 'answer_key', 'enable_attachments']
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    multiple_choices = MultipleChoiceSerializer(many=True, read_only=True)
+    true_false = TrueFalseSerializer(many=True, read_only=True)
+    fibs = FibSerializer(many=True, read_only=True)
+    multiple_selects = MultipleSelectSerializer(many=True, read_only=True)
+    written_responses = WrittenResponseSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QuestionLibrary
+        fields = ['title', 'text', 'point', 'difficulty', 'mandatory', 'hint', 'feedback']
+
+class SectionSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QuestionLibrary
+        fields = ['validated', 'finished_processing', 'raw_data', 'questions_processed', 'questions_expected', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle']
+
+
+class QuestionLibrarySerializer(serializers.ModelSerializer):
+    sections = SectionSerializer(many=True, read_only=True)
+    questions = QuestionSerializer(many=True, read_only=True)
+    # documenterrors = DocumentErrorSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QuestionLibrary
+        fields = [
+            'section_name', 'randomize_answer', 'total_question_errors',
+            'total_document_errors', 'documenterrors', 'questions'
+        ]
 
 
 # class FibSerializer(serializers.ModelSerializer):
