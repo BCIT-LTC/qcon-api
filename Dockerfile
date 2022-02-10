@@ -89,6 +89,7 @@ COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
 
 COPY --from=antlr-builder /usr/src/formatter /formatter/jarfile
+COPY --from=antlr-builder /usr/src/sectioner /sectioner/jarfile
 
 COPY qcon qcon
 COPY api_v2 api_v2

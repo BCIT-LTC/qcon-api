@@ -39,12 +39,6 @@ public class formatter {
 
    public static class formatterVisitor extends
          formatterBaseVisitor<Void> {
-      // public Void visitRootheader(formatterParser.RootheaderContext ctx) {
-      // Element rootheader = document.createElement("rootheader");
-      // rootheader.appendChild(document.createTextNode(ctx.getText()));
-      // root.appendChild(rootheader);
-      // return null;
-      // }
 
       public Void visitBody(formatterParser.BodyContext ctx) {
          Element body = document.createElement("body");

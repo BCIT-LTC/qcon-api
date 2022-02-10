@@ -34,20 +34,33 @@ def run_formatter(questionlibrary):
             pass
         else:
             logger.error("Body not found")
+            pass
     except:
         logger.error("Body not found")
+        pass
 
     try:
         if root[1].tag == "end_answers" :
             questionlibrary.end_answers = root[1].text
             questionlibrary.save()
         else:
-            logger.warning("Answer Section not found")
+            # logger.warning("Answer Section not found")
+            pass
     except:
-        logger.warning("Answer section not found")
+        # logger.warning("Answer section not found")
+        pass
 
 # This is to split sections into separate objects
 def run_sectioner(questionlibrary):
+
+    os.chdir('/sectioner/jarfile')
+    result = subprocess.run('java -cp sectioner.jar:* sectioner',
+                            shell=True,
+                            input=questionlibrary.formatter_output.encode("utf-8"),
+                            capture_output=True)
+    os.chdir('/code')
+
+    print(result.stdout.decode("utf-8"))
 
     pass
 
