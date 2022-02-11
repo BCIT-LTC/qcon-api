@@ -42,7 +42,6 @@ public class sectioner {
          sectionerBaseVisitor<Void> {
 
       public Void visitSectioner(sectionerParser.SectionerContext ctx) {
-
          System.out.println("SECTION FOUND");
          // System.out.println(ctx);
          return null;
@@ -103,10 +102,20 @@ public class sectioner {
 
    public static void main(String args[]) {
 
-      String Content = readinput();
-      // System.out.println("INPUT");
+      // String Content = readinput();
+
+      String Content = "";
+      String inputfile = "file.md";
+
+      try {
+         Path fileName = Paths.get(inputfile);
+         Content = Files.readString(fileName);
+      } catch (IOException e) {
+         System.out.println("formatter error reading file:" + inputfile);
+         e.printStackTrace();
+      }
+
       // System.out.println(Content);
-      // System.out.println("END");
 
       sectionerLexer sectionerLexer = new sectionerLexer(CharStreams.fromString(Content));
       CommonTokenStream tokens = new CommonTokenStream(sectionerLexer);
