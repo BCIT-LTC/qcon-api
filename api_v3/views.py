@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -176,7 +177,7 @@ class WordToJson(APIView):
 
     @extend_schema(
         # override default docstring extraction
-        description='Upload a Word document(.docx) and receive a JSON string',
+        description='Upload a Word document(.docx) and return a JSON file (.json)',
         # provide Authentication class that deviates from the views default
         auth=None,
         # change the auto-generated operation name
@@ -205,10 +206,17 @@ class WordToJson(APIView):
             # question_library_serializer = QuestionLibrarySerializer(
             #     question_library)
 
-            instance.cleanup()
-            # return JsonResponse(question_library_serializer.data, status=200)
+            
+            json_test = { "section_name": "ABC", "randomize_answer": "null", "total_question_errors": "0", "total_document_errors": "0", "documenterrors": [], "questions": [ { "prefix": "1", "title": "is a measure of:", "points": "1.0", "randomize_answer": "null", "question_type": "MC", "question_body": "<p>is a measure of:</p>", "question_feedback": "null", "hint": "null", "correct_answers_length": 1, "questionerrors": [], "answers": [ { "prefix": "a.", "answer_body": "<p>Resistance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 1 }, { "prefix": "b.", "answer_body": "<p>Current</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 2 }, { "prefix": "c.", "answer_body": "<p>Impedance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 3 }, { "prefix": "d. \\*", "answer_body": "<p>Voltage</p>", "answer_feedback": "null", "is_correct": "true", "match_left": "null", "match_right": "null", "order": 4 } ], "fib": [] }, { "prefix": "2", "title": "Amplitude (2) of:", "points": "1.0", "randomize_answer": "null", "question_type": "MC", "question_body": "<p><em>Amplitude</em> (2) of:</p>", "question_feedback": "null", "hint": "null", "correct_answers_length": 1, "questionerrors": [], "answers": [ { "prefix": "a.", "answer_body": "<p>aaa</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 1 }, { "prefix": "b.", "answer_body": "<p>bbb</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 2 }, { "prefix": "c.", "answer_body": "<p>xxx</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 3 }, { "prefix": "d. \\*", "answer_body": "<p>sss</p>", "answer_feedback": "null", "is_correct": "true", "match_left": "null", "match_right": "null", "order": 4 } ], "fib": [] }, { "prefix": "3", "title": "of:", "points": "1.0", "randomize_answer": "null", "question_type": "MC", "question_body": "<p>of:</p>", "question_feedback": "null", "hint": "null", "correct_answers_length": 1, "questionerrors": [], "answers": [ { "prefix": "a.", "answer_body": "<p>Resistance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 1 }, { "prefix": "b.", "answer_body": "<p>Current</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 2 }, { "prefix": "c.", "answer_body": "<p>Impedance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 3 }, { "prefix": "d. \\*", "answer_body": "<p>Voltage</p>", "answer_feedback": "null", "is_correct": "true", "match_left": "null", "match_right": "null", "order": 4 } ], "fib": [] } ] }
+            json_string = str(json.dumps(json_test, indent=4))
+            json_file = ContentFile(json_string, name="result.json")
+            instance.json_file = json_file
+            instance.save()
+            file_response = FileResponse(instance.json_file)
+            file_response['Content-Disposition'] = 'attachment; filename="' + "result.json" + '"'
 
-            return JsonResponse({}, status=200)
+            instance.cleanup()
+            return file_response
 
         return JsonResponse(serializer.errors, status=400)
 
