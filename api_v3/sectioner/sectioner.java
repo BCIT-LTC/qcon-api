@@ -1,11 +1,14 @@
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.misc.OrderedHashMap;
+
+// import org.antlr.v4.runtime.tree.ParseTreeWalker;
+// import org.antlr.v4.misc.OrderedHashMap;
 import org.antlr.v4.runtime.*;
 
 import org.antlr.v4.runtime.tree.*;
 
-import java.util.Map;
-import java.util.*;
+// import org.antlr.v4.runtime.CharStreams;
+
+// import java.util.Map;
+// import java.util.*;
 
 import java.io.OutputStream;
 
@@ -41,29 +44,73 @@ public class sectioner {
    public static class sectionerVisitor extends
          sectionerBaseVisitor<Void> {
 
+      int count = 0;
+
       public Void visitSectioner(sectionerParser.SectionerContext ctx) {
 
-         System.out.println("SECTION FOUND");
-         // System.out.println(ctx);
+         int SizeofSections = ctx.section().size();
+
+         for (int i = 0; i < SizeofSections; i++) {
+            // System.out.println(i);
+
+            Element section = document.createElement("section");
+            section.setAttribute("id", Integer.toString(i));
+            // body.appendChild(document.createTextNode(ctx.getText()));
+            // root.appendChild(body);
+
+
+            // CHECK FOR TITLE
+            try {
+               Element title = document.createElement("title");
+               title.appendChild(document.createTextNode(ctx.section().get(i).title().getText()));
+               section.appendChild(title);
+               // section.appendChild(document.createTextNode(ctx.section().get(i).title().getText()));
+
+            } catch (Exception e) {
+            }
+
+            // // CHECK FOR CONTENT
+
+            try{
+            Element content = document.createElement("content");
+            content.appendChild(document.createTextNode(ctx.section().get(i).content().getText()));
+            section.appendChild(content);
+            }
+            catch(Exception e){
+            }
+
+            //CHECK FOR MAIN SECTION
+
+            try{
+            Element maincontent = document.createElement("maincontent");
+            maincontent.appendChild(document.createTextNode(ctx.section().get(i).maincontent().getText()));
+            section.appendChild(maincontent);
+            }
+            catch(Exception e){
+            }
+
+            root.appendChild(section);
+         }
+
          return null;
       }
 
-      public Void visitSection(sectionerParser.SectionContext ctx) {
-         System.out.println("visitSection");
-         // System.out.println(ctx.getText());
-         return null;
-      }
+      // public Void visitSection(sectionerParser.SectionContext ctx) {
+      // System.out.println("visitSection");
+      // System.out.println(ctx.getText());
+      // return null;
+      // }
 
-      public Void visitTitle(sectionerParser.TitleContext ctx) {
-         System.out.println("visitTitle");
-         // System.out.println(ctx.getText());
-         return null;
-      }
+      // public Void visitTitle(sectionerParser.TitleContext ctx) {
+      // System.out.println("visitTitle");
+      // // System.out.println(ctx.getText());
+      // return null;
+      // }
 
-      public Void visitContent(sectionerParser.ContentContext ctx) {
-         System.out.println("visitContent");
-         return null;
-      }
+      // public Void visitContent(sectionerParser.ContentContext ctx) {
+      // System.out.println("visitContent");
+      // return null;
+      // }
    }
 
    public static void serializeDocument(Document document, OutputStream os) {
@@ -104,9 +151,19 @@ public class sectioner {
    public static void main(String args[]) {
 
       String Content = readinput();
-      // System.out.println("INPUT");
+
+      // String Content = "";
+      // String inputfile = "file.md";
+
+      // try {
+      //    Path fileName = Paths.get(inputfile);
+      //    Content = Files.readString(fileName);
+      // } catch (IOException e) {
+      //    System.out.println("formatter error reading file:" + inputfile);
+      //    e.printStackTrace();
+      // }
+
       // System.out.println(Content);
-      // System.out.println("END");
 
       sectionerLexer sectionerLexer = new sectionerLexer(CharStreams.fromString(Content));
       CommonTokenStream tokens = new CommonTokenStream(sectionerLexer);
@@ -127,7 +184,7 @@ public class sectioner {
       sectionerVisitor loader = new sectionerVisitor();
       loader.visit(tree);
 
-      // printDocument(document);
+      printDocument(document);
 
    }
 }
