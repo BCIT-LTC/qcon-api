@@ -150,18 +150,18 @@ public class sectioner {
 
    public static void main(String args[]) {
 
-      // String Content = readinput();
+      String Content = readinput();
 
-      String Content = "";
-      String inputfile = "file.md";
+      // String Content = "";
+      // String inputfile = "file.md";
 
-      try {
-         Path fileName = Paths.get(inputfile);
-         Content = Files.readString(fileName);
-      } catch (IOException e) {
-         System.out.println("formatter error reading file:" + inputfile);
-         e.printStackTrace();
-      }
+      // try {
+      //    Path fileName = Paths.get(inputfile);
+      //    Content = Files.readString(fileName);
+      // } catch (IOException e) {
+      //    System.out.println("formatter error reading file:" + inputfile);
+      //    e.printStackTrace();
+      // }
 
       // System.out.println(Content);
 
