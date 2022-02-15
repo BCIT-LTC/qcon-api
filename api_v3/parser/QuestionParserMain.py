@@ -30,4 +30,4 @@ def question_parser(question_library, text_string):
         parsed_questions = listener.get_results()
         return parsed_questions
     except:
-        logger.error("["+str(question_library.transaction) +"]" + "ANTLR LEXER failed and cannot continue")
+        logger.error("["+str(question_library.id) +"]" + "ANTLR LEXER failed and cannot continue")
