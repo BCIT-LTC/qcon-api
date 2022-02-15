@@ -41,17 +41,8 @@ def format_file_path(instance, file_name):
     # print('{0}/{1}'.format(instance.id, file_name))
     return '{0}/{1}'.format(instance.id, file_name)
 
-
 # TODO format_media_path for custom media folder
 
-# class Transaction(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     # will be generated from TOKEN authentication in the future
-#     client = models.TextField(blank=True, null=True)
-#     progress = models.TextField(blank=True, null=True)
-
-#     def __str__(self):
-#         return str(self.id)
 
 class QuestionLibrary(models.Model):
     id = models.AutoField(primary_key=True)
@@ -195,14 +186,12 @@ class QuestionLibrary(models.Model):
             self.imsmanifest_string = parsed_imsmanifest
             self.save()
 
-            logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.id) + "] " +
                         "imsmanifest String Created")
 
-            self.transaction.progress = 3
-            self.transaction.save()
 
         except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.id) + "] " +
                          "imsmanifest String Failed")
 
             self.error = "imsmanifest String Failed"
@@ -228,13 +217,12 @@ class QuestionLibrary(models.Model):
                                            name="imsmanifest.xml")
             self.imsmanifest_file = imsmanifest_file
             self.save()
-            logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.id) + "] " +
                         "QuestionDB String Created")
 
-            self.transaction.progress = 4
-            self.transaction.save()
+
         except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.id) + "] " +
                          "QuestionDB String Failed")
 
             self.error = "QuestionDB String Failed"
@@ -246,13 +234,13 @@ class QuestionLibrary(models.Model):
             self.questiondb_file = questiondb_file
             # question_library.checkpoint = 5;
             self.save()
-            logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.id) + "] " +
                         "XML files Created")
             # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
-            self.transaction.progress = 5
-            self.transaction.save()
+
+
         except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.id) + "] " +
                          "XML files Failed")
             self.error = "XML files Failed"
             self.save()
@@ -272,15 +260,14 @@ class QuestionLibrary(models.Model):
                             self.filtered_section_name + '/' + filename)
 
             self.zip_file.name = str(
-                self.transaction) + "/" + self.filtered_section_name + '.zip'
+                self.id) + "/" + self.filtered_section_name + '.zip'
             self.save()
-            logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.id) + "] " +
                         "ZIP file Created")
 
-            self.transaction.progress = 6
-            self.transaction.save()
+
         except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.id) + "] " +
                          "ZIP file Failed")
 
             self.error = "ZIP file Failed"
@@ -294,12 +281,12 @@ class QuestionLibrary(models.Model):
                 myzip.write(self.json_file.path, 'result.json')
 
             self.output_zip_file.name = str(
-                self.transaction) + "/" + 'package.zip'
+                self.id) + "/" + 'package.zip'
             self.save()
-            logger.info("[" + str(self.transaction) + "] " +
+            logger.info("[" + str(self.id) + "] " +
                         "ZIP file with JSON package Created")
         except Exception as e:
-            logger.error("[" + str(self.transaction) + "] " +
+            logger.error("[" + str(self.id) + "] " +
                          "ZIP file with JSON package Failed")
             self.error = "ZIP file Failed"
             self.save()
@@ -330,10 +317,11 @@ class Section(models.Model):
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     is_text_displayed = models.BooleanField(blank=True, null=True)
-    shuffle = models.BooleanField(blank=True, null=True)    
-
+    shuffle = models.BooleanField(blank=True, null=True)
+    
     def __str__(self):
         return str(self.id)
+    
         
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
@@ -348,6 +336,9 @@ class Question(models.Model):
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return str(self.text)
 
 
 class MultipleChoice(models.Model):
@@ -355,6 +346,9 @@ class MultipleChoice(models.Model):
     question = models.ForeignKey(Question, related_name='multiplechoices', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+    
+    def __str__(self):
+        return str(self.id)
 
 
 class MultipleChoiceAnswer(models.Model):
@@ -363,6 +357,9 @@ class MultipleChoiceAnswer(models.Model):
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    
+    def __str__(self):
+        return str(self.id)
 
 
 class TrueFalse(models.Model):
@@ -373,6 +370,9 @@ class TrueFalse(models.Model):
     false_weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
     false_feedback = models.TextField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+    
+    def __str__(self):
+        return str(self.id)
 
 
 class Fib(models.Model):
@@ -383,6 +383,9 @@ class Fib(models.Model):
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     size = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
     weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    
+    def __str__(self):
+        return str(self.id)
 
 
 class MultipleSelect(models.Model):
@@ -392,6 +395,9 @@ class MultipleSelect(models.Model):
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
     style = models.PositiveSmallIntegerField(blank=True, null=True)
     grading_type = models.PositiveSmallIntegerField(blank=True, null=True)
+    
+    def __str__(self):
+        return str(self.id)
 
 
 class MultipleSelectAnswer(models.Model):
@@ -400,6 +406,9 @@ class MultipleSelectAnswer(models.Model):
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
 
 
 class WrittenResponse(models.Model):
@@ -410,130 +419,74 @@ class WrittenResponse(models.Model):
     answer_key = models.TextField(blank=True, null=True)
     enable_attachments = models.BooleanField(blank=True, null=True)
 
-# class Question(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     question_library = models.ForeignKey(QuestionLibrary,
-#                                          related_name='questions',
-#                                          on_delete=models.CASCADE)
-#     prefix = models.CharField(max_length=5, null=False)
-#     question_type = models.CharField(max_length=100, null=True)
-#     title = models.CharField(max_length=250, null=True)
-#     points = models.DecimalField(unique=False,
-#                                  max_digits=2,
-#                                  decimal_places=1,
-#                                  null=True)
-#     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
-#     question_body = models.TextField(blank=True, null=True)
-#     question_feedback = models.TextField(blank=True, null=True)
-#     hint = models.TextField(blank=True, null=True)
-#     correct_answers_length = models.PositiveBigIntegerField(blank=True,
-#                                                             null=True,
-#                                                             default=0)
+    def __str__(self):
+        return str(self.id)
 
-#     # error = models.TextField(blank=True, null=True)
 
-#     def get_answers(self):
-#         return Answer.objects.filter(question=self.id)
+class ErrorType(models.Model):
+    error_type = models.CharField(max_length=7, primary_key=True)
+    link = models.TextField(max_length=12, null=False)
 
-#     def get_fib(self):
-#         return Fib.objects.filter(question=self.id).order_by('order')
+    def __str__(self):
+        return str(self.error_type)
 
-#     def get_fib_answers(self):
-#         return Fib.objects.filter(question=self.id, type='answer')
+class QuestionErrorType(str, Enum):  # A subclass of Enum
+    MC1 = "MC1"
+    TF1 = "TF1"
+    TF2 = "TF2"
+    TF3 = "TF3"
+    TF4 = "TF4"
+    MS1 = "MS1"
+    MT1 = "MT1"
+    MT2 = "MT2"
+    MT3 = "MT3"
+    ORD1 = "ORD1"
+    ORD2 = "ORD2"
+    ORD3 = "ORD3"
+    FIB1 = "FIB1"
+    FIB2 = "FIB2"
+    WR1 = "WR1"
+    WR2 = "WR2"
+    HEADER1 = "HEADER1"
+    HEADER2 = "HEADER2"
+    HEADER3 = "HEADER3"
+    END1 = "END1"
 
-#     def __str__(self):
-#         return str(self.prefix) + " Transaction" + str(
-#             self.question_library.transaction.id)
+class QuestionError(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question,
+                                 related_name='questionerrors',
+                                 on_delete=models.CASCADE)
+    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
+    error_type = models.TextField(max_length=50,
+                                 choices=[(tag, tag.value)
+                                          for tag in QuestionErrorType
+                                          ])  # Choices is a list of Tuple)
+    message = models.TextField(max_length=50)
+    action = models.TextField(max_length=50)
 
-# class Answer(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     question = models.ForeignKey(Question,
-#                                  related_name='answers',
-#                                  on_delete=models.CASCADE)
-#     prefix = models.CharField(max_length=5, null=False)
-#     answer_body = models.TextField(blank=True, null=True)
-#     answer_feedback = models.TextField(blank=True, null=True)
-#     is_correct = models.BooleanField(blank=True, null=True)
-#     match_left = models.TextField(blank=True, null=True)
-#     match_right = models.TextField(blank=True, null=True)
-#     order = models.PositiveSmallIntegerField(blank=True, null=True)
+    def __str__(self):
+        return str(self.id)
 
-#     def __str__(self):
-#         return str(self.answer_body)
+class DocumentErrorType(str, Enum):  # A subclass of Enum
+    SPLITTER1 = "SPLITTER1"
+    SPLITTER2 = "SPLITTER2"
 
-# class Fib(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     question = models.ForeignKey(Question,
-#                                  related_name='fib',
-#                                  on_delete=models.CASCADE)
-#     type = models.CharField(max_length=7, null=False)
-#     text = models.TextField(blank=True, null=True)
-#     order = models.PositiveSmallIntegerField(blank=True, null=True)
+class DocumentError(models.Model):
+    id = models.AutoField(primary_key=True)
+    document = models.ForeignKey(QuestionLibrary,
+                                 related_name='documenterrors',
+                                 on_delete=models.CASCADE)
+    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
+    error_type = models.TextField(max_length=50,
+                                 choices=[(tag, tag.value)
+                                          for tag in DocumentErrorType
+                                          ])  # Choices is a list of Tuple)
+    message = models.TextField(max_length=50)
+    action = models.TextField(max_length=50)
 
-# class ErrorType(models.Model):
-#     errortype = models.CharField(max_length=7, primary_key=True)
-#     link = models.TextField(max_length=12, null=False)
-
-#     def __str__(self):
-#         return str(self.errortype)
-
-# class QuestionErrorType(str, Enum):  # A subclass of Enum
-#     MC1 = "MC1"
-#     TF1 = "TF1"
-#     TF2 = "TF2"
-#     TF3 = "TF3"
-#     TF4 = "TF4"
-#     MS1 = "MS1"
-#     MT1 = "MT1"
-#     MT2 = "MT2"
-#     MT3 = "MT3"
-#     ORD1 = "ORD1"
-#     ORD2 = "ORD2"
-#     ORD3 = "ORD3"
-#     FIB1 = "FIB1"
-#     FIB2 = "FIB2"
-#     WR1 = "WR1"
-#     WR2 = "WR2"
-#     HEADER1 = "HEADER1"
-#     HEADER2 = "HEADER2"
-#     HEADER3 = "HEADER3"
-#     END1 = "END1"
-
-# class QuestionError(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     question = models.ForeignKey(Question,
-#                                  related_name='questionerrors',
-#                                  on_delete=models.CASCADE)
-#     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
-#     errortype = models.TextField(max_length=50,
-#                                  choices=[(tag, tag.value)
-#                                           for tag in QuestionErrorType
-#                                           ])  # Choices is a list of Tuple)
-#     message = models.TextField(max_length=50)
-#     action = models.TextField(max_length=50)
-
-#     def __str__(self):
-#         return str(self.id)
-
-# class DocumentErrorType(str, Enum):  # A subclass of Enum
-#     SPLITTER1 = "SPLITTER1"
-#     SPLITTER2 = "SPLITTER2"
-
-# class DocumentError(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     document = models.ForeignKey(QuestionLibrary,
-#                                  related_name='documenterrors',
-#                                  on_delete=models.CASCADE)
-#     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
-#     errortype = models.TextField(max_length=50,
-#                                  choices=[(tag, tag.value)
-#                                           for tag in DocumentErrorType
-#                                           ])  # Choices is a list of Tuple)
-#     message = models.TextField(max_length=50)
-#     action = models.TextField(max_length=50)
-
-#     def __str__(self):
-#         return str(self.id)
+    def __str__(self):
+        return str(self.id)
 
 
 @receiver(post_delete, sender=QuestionLibrary, dispatch_uid="delete_files")
