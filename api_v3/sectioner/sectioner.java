@@ -72,9 +72,9 @@ public class sectioner {
             // // CHECK FOR CONTENT
 
             try{
-            Element content = document.createElement("content");
-            content.appendChild(document.createTextNode(ctx.section().get(i).content().getText()));
-            section.appendChild(content);
+            Element sectioncontent = document.createElement("sectioncontent");
+            sectioncontent.appendChild(document.createTextNode(ctx.section().get(i).sectioncontent().getText()));
+            section.appendChild(sectioncontent);
             }
             catch(Exception e){
             }
