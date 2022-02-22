@@ -75,6 +75,7 @@ class QuestionLibrary(models.Model):
                                           blank=True,
                                           null=True)
     pandoc_output = models.TextField(blank=True, null=True)
+    sectioner_output = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(upload_to=format_file_path,
                                         blank=True,
@@ -316,19 +317,20 @@ class Section(models.Model):
     question_library = models.ForeignKey(QuestionLibrary,
                                          related_name='sections',
                                          on_delete=models.CASCADE)
+    is_main_content = models.BooleanField(blank=True, null=True)
+    order = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     validated = models.BooleanField(blank=True, null=True, default=False)
     finished_processing = models.BooleanField(blank=True,
                                               null=True,
                                               default=False)
-    raw_data = models.TextField(blank=True, null=True)
-    questions_processed = models.DecimalField(max_digits=3, decimal_places=0)
-    questions_expected = models.DecimalField(max_digits=3, decimal_places=0)
+    raw_content = models.TextField(blank=True, null=True)
+    questions_processed = models.DecimalField(max_digits=3, decimal_places=0, null=True)
+    questions_expected = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     title = models.TextField(blank=True, null=True)
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     is_text_displayed = models.BooleanField(blank=True, null=True)
-    shuffle = models.BooleanField(blank=True, null=True)
-    
+    shuffle = models.BooleanField(blank=True, null=True)    
         
 class Question(models.Model):
     id = models.AutoField(primary_key=True)

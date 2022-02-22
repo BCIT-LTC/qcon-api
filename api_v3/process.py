@@ -1,4 +1,3 @@
-from aifc import Error
 import os
 import xml.etree.ElementTree as ET
 import logging
@@ -7,6 +6,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+from .models import Section
 
 def create_section_name():
     pass
@@ -60,8 +60,40 @@ def run_sectioner(questionlibrary):
                             capture_output=True)
     os.chdir('/code')
 
-    print(result.stdout.decode("utf-8"))
+    # print(result.stdout.decode("utf-8"))
+    questionlibrary.sectioner_output = result.stdout.decode("utf-8")
+    questionlibrary.save()
 
+    root = None
+    try:
+        root = ET.fromstring(result.stdout.decode("utf-8"))
+    except:
+        pass
+
+
+    for section in root:
+
+        sectionobject = Section.objects.create(question_library = questionlibrary)
+
+        sectionobject.save()
+
+        sectionobject.order = section.attrib.get("id")
+
+        sectiontitle = section.find('title')
+        if sectiontitle is not None:
+            sectionobject.title = sectiontitle.text
+
+        maincontent = section.find('maincontent')
+        if maincontent is not None:
+            sectionobject.raw_content = maincontent.text
+            sectionobject.is_main_content = True
+
+        sectioncontent = section.find('sectioncontent')
+        if sectioncontent is not None:
+            sectionobject.raw_content = sectioncontent.text
+            sectionobject.is_main_content = False
+
+        sectionobject.save()
     pass
 
 

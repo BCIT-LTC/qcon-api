@@ -8,11 +8,11 @@ sectioner: section+ EOF;
 
 title: HEADING;
 
-section: SECTION_START unused_content? title? content SECTION_END | maincontent;
+section: SECTION_START unused_content? title? sectioncontent SECTION_END | maincontent;
 
 unused_content: ALL_CHARACTER+;
 
-content: ALL_CHARACTER+;
+sectioncontent: ALL_CHARACTER+;
 
 maincontent: ALL_CHARACTER+;
 
