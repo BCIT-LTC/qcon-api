@@ -3,19 +3,16 @@ version: "3"
 services:
   app:
     build: .
-    command: python manage.py runserver 0.0.0.0:8002
+    command: python manage.py runserver 0.0.0.0:8001
     image: qcon-api
     environment:
       - DEBUG=True
-      # - API_HOST="http://api.local"
     restart: always
     tty: true
     volumes:
       - .:/code
     ports:
       - "8000:8000"
-      - "8002:8002"
-      - "8001:8001"
     hostname: api.local
     networks:
       qcon-network:
