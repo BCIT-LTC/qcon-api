@@ -4,18 +4,32 @@
 
 grammar splitter;
 
-splitter: question+ EOF;
+splitter: EOF;
 
-question: content;
+// question: question_header? content;
 
-content: ALL_CHARACTER+;
+// question_header: question_header_part+;  
+
+// question_header_part
+//     :   points content
+//     |   title content
+//     |   questiontype content
+//     |   randomize content
+//     ;
+
+// title:   TITLE;
+// points:   POINTS;
+// questiontype: TYPE;
+// randomize:   RANDOMIZE;
+
+// content: ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment DIGIT: [0-9];
 fragment NEWLINE:   ('\r'? '\n' | '\r');
 fragment CLOSING_PARENTHESIS: ')';
 fragment LETTER: [a-zA-Z];
-fragment NUMBER: DIGIT+ (DIGIT+)?;
+fragment NUMBER: DIGIT+ (DIGIT+)? (DIGIT+)?;
 fragment BACKSLASH: '\\';
 fragment ASTERISK: '*';
 fragment DOUBLE_ASTERISK: '**';
@@ -46,9 +60,18 @@ fragment W:   'W' | 'w';
 fragment Y:   'Y' | 'y';  
 fragment Z:   'Z' | 'z';  
 
-NUMLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* WHITESPACE* DELIMITER WHITESPACE*;
+fragment NEWLINE_ADDED: '<!-- NewLine -->';
 
-END_ANSWER: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* A N S W E R (S)? WHITESPACE* COLON WHITESPACE*;
+
+NUM_LIST_ONE: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? '1' WHITESPACE* DELIMITER WHITESPACE*;
+NUMLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* DELIMITER WHITESPACE*;
+
+NEWLINE_MARKER: NEWLINE_ADDED;
+
+TITLE:  NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T I T L E S? WHITESPACE* ;
+POINTS:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* P O I N T S? WHITESPACE*  ;
+TYPE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T Y P E S? WHITESPACE*;
+RANDOMIZE:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
 
 ALL_CHARACTER: .;
 
