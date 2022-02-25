@@ -95,6 +95,8 @@ COPY qcon qcon
 COPY api_v2 api_v2
 COPY api_v3 api_v3
 
+RUN mkdir -p /run/daphne
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8000
