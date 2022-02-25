@@ -48,6 +48,8 @@ echo "from api_v2.models import CustomToken; \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
 
+mkdir /run/daphne
+
 >&2 echo "Starting Nginx"
 nginx
 

@@ -82,7 +82,7 @@ RUN apk --update add \
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY .env ./
 COPY .secrets .
-COPY manage.py supervisord.conf .
+COPY manage.py supervisord.conf ./
 COPY docker-entrypoint.sh /usr/local/bin
 COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
