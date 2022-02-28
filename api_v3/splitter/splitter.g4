@@ -4,16 +4,9 @@
 
 grammar splitter;
 
-// splitter: first_question? questions+  EOF;
 splitter: first_question? questions+ EOF;
 
-// extra: ALL_CHARACTER+;
-
-// first_question: NUM_LIST_ONE content | first_question content ;
-
 questions: question_header? START_OF_QUESTION content;
-
-// first_question: content? NUM_LIST_ONE content;
 
 question_header: question_header_parameter+;   
 
@@ -34,11 +27,8 @@ first_question: ALL_CHARACTER+;
 content: ALL_CHARACTER+;
 
 // ================================ TOKENS
-// fragment DIGIT: [0-9];
 fragment NEWLINE:   ('\r'? '\n' | '\r');
 fragment CLOSING_PARENTHESIS: ')';
-// fragment LETTER: [a-zA-Z];
-// fragment NUMBER: DIGIT+ (DIGIT+)? (DIGIT+)?;
 fragment BACKSLASH: '\\';
 fragment ASTERISK: '*';
 fragment DOUBLE_ASTERISK: '**';
@@ -76,7 +66,6 @@ fragment EXCLUDE_ONE: EXCLUDE_1 | (INCLUDE_1 (ZERO|INCLUDE_1|EXCLUDE_1)+ ) | (EX
 
 fragment NEWLINE_ADDED: '<!-- NewLine -->';
 fragment START_OL: '<!-- START OF OL -->';
-
 
 fragment NUMLIST_EXCLUDE_1_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? EXCLUDE_ONE WHITESPACE* DELIMITER WHITESPACE*;
 
