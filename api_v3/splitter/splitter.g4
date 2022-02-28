@@ -4,39 +4,47 @@
 
 grammar splitter;
 
-splitter: EOF;
+// splitter: first_question? questions+  EOF;
+splitter: first_question? questions+ EOF;
 
-// question: question_header? content;
+// extra: ALL_CHARACTER+;
 
-// question_header: question_header_part+;  
+// first_question: NUM_LIST_ONE content | first_question content ;
 
-// question_header_part
-//     :   points content
-//     |   title content
-//     |   questiontype content
-//     |   randomize content
-//     ;
+questions: question_header? START_OF_QUESTION content;
 
-// title:   TITLE;
-// points:   POINTS;
-// questiontype: TYPE;
-// randomize:   RANDOMIZE;
+// first_question: content? NUM_LIST_ONE content;
 
-// content: ALL_CHARACTER+;
+question_header: question_header_parameter+;   
+
+question_header_parameter
+    :   points content
+    |   title content
+    |   questiontype content
+    |   randomize content
+    ;
+
+title:   TITLE;
+points:   POINTS;
+questiontype: TYPE;
+randomize:   RANDOMIZE;
+
+first_question: ALL_CHARACTER+;
+
+content: ALL_CHARACTER+;
 
 // ================================ TOKENS
-fragment DIGIT: [0-9];
+// fragment DIGIT: [0-9];
 fragment NEWLINE:   ('\r'? '\n' | '\r');
 fragment CLOSING_PARENTHESIS: ')';
-fragment LETTER: [a-zA-Z];
-fragment NUMBER: DIGIT+ (DIGIT+)? (DIGIT+)?;
+// fragment LETTER: [a-zA-Z];
+// fragment NUMBER: DIGIT+ (DIGIT+)? (DIGIT+)?;
 fragment BACKSLASH: '\\';
 fragment ASTERISK: '*';
 fragment DOUBLE_ASTERISK: '**';
 fragment DOT: '.';
 fragment WHITESPACE: ' ' | '\t';
 fragment DELIMITER: BACKSLASH? (DOT | CLOSING_PARENTHESIS);
-fragment ANSWER_MARKER: BACKSLASH ASTERISK;
 fragment GREATER_THAN: '>';
 fragment COLON:   ':';
 fragment A:   'A' | 'a';
@@ -60,13 +68,19 @@ fragment W:   'W' | 'w';
 fragment Y:   'Y' | 'y';  
 fragment Z:   'Z' | 'z';  
 
+fragment EXCLUDE_1: [2-9];
+fragment INCLUDE_1: '1';
+fragment ZERO: '0';
+
+fragment EXCLUDE_ONE: EXCLUDE_1 | (INCLUDE_1 (ZERO|INCLUDE_1|EXCLUDE_1)+ ) | (EXCLUDE_1 (ZERO|INCLUDE_1|EXCLUDE_1)+);
+
 fragment NEWLINE_ADDED: '<!-- NewLine -->';
+fragment START_OL: '<!-- START OF OL -->';
 
 
-NUM_LIST_ONE: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? '1' WHITESPACE* DELIMITER WHITESPACE*;
-NUMLIST_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* DELIMITER WHITESPACE*;
+fragment NUMLIST_EXCLUDE_1_PREFIX: NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* DOUBLE_ASTERISK? EXCLUDE_ONE WHITESPACE* DELIMITER WHITESPACE*;
 
-NEWLINE_MARKER: NEWLINE_ADDED;
+START_OF_QUESTION: NEWLINE_ADDED NEWLINE* START_OL? NEWLINE* NUMLIST_EXCLUDE_1_PREFIX;
 
 TITLE:  NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* T I T L E S? WHITESPACE* ;
 POINTS:   NEWLINE WHITESPACE* GREATER_THAN? WHITESPACE* P O I N T S? WHITESPACE*  ;
