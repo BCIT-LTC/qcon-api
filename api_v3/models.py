@@ -149,12 +149,12 @@ class QuestionLibrary(models.Model):
                 
             pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
-                'markdown_github',
+                'gfm',
                 format='html+empty_paragraphs',
                 extra_args=[
                     '--no-highlight',
                     '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false',
+                    '--wrap=preserve', '--indent=false'
                     '--lua-filter=' + mdblockquotePath,
                     '--lua-filter=' + emptyparaPath,
                     '--lua-filter=' + listsPath
