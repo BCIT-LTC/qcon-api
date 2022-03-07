@@ -331,10 +331,16 @@ class Section(models.Model):
     text = models.TextField(blank=True, null=True)
     is_text_displayed = models.BooleanField(blank=True, null=True)
     shuffle = models.BooleanField(blank=True, null=True)    
+
+    def __str__(self):
+        return str(self.id)
         
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
     section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
+    number_provided = models.TextField(blank=True, null=True)
+    raw_header = models.TextField(blank=True, null=True)
+    raw_content = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     point = models.DecimalField(unique=False,max_digits=3,decimal_places=2,null=True,default=0)

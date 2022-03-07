@@ -6,7 +6,8 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import QuestionLibrary, Section
+from .models import QuestionLibrary, Section, Question
 
 admin.site.register(QuestionLibrary)
 admin.site.register(Section)
+admin.site.register(Question)
