@@ -77,9 +77,7 @@ class QuestionLibrary(models.Model):
     zip_file = models.FileField(upload_to=format_file_path,
                                 blank=True,
                                 null=True)
-    json_file = models.FileField(upload_to=format_file_path,
-                                 blank=True,
-                                 null=True)
+    json_output = models.JSONField(null=True, blank=True)
     output_zip_file = models.FileField(upload_to=format_file_path,
                                        blank=True,
                                        null=True)
@@ -272,23 +270,23 @@ class QuestionLibrary(models.Model):
             self.error = "ZIP file Failed"
             self.save()
 
-    def create_zip_file_package(self):
-        try:
-            with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
-                myzip.write(self.zip_file.path,
-                            self.filtered_section_name + '.zip')
-                myzip.write(self.json_file.path, 'result.json')
+    # def create_zip_file_package(self):
+    #     try:
+    #         with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
+    #             myzip.write(self.zip_file.path,
+    #                         self.filtered_section_name + '.zip')
+    #             myzip.write(self.json_file.path, 'result.json')
 
-            self.output_zip_file.name = str(
-                self.id) + "/" + 'package.zip'
-            self.save()
-            logger.info("[" + str(self.id) + "] " +
-                        "ZIP file with JSON package Created")
-        except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "ZIP file with JSON package Failed")
-            self.error = "ZIP file Failed"
-            self.save()
+    #         self.output_zip_file.name = str(
+    #             self.id) + "/" + 'package.zip'
+    #         self.save()
+    #         logger.info("[" + str(self.id) + "] " +
+    #                     "ZIP file with JSON package Created")
+    #     except Exception as e:
+    #         logger.error("[" + str(self.id) + "] " +
+    #                      "ZIP file with JSON package Failed")
+    #         self.error = "ZIP file Failed"
+    #         self.save()
 
     def cleanup(self):
         if not settings.DEBUG:
@@ -416,6 +414,47 @@ class WrittenResponse(models.Model):
     def __str__(self):
         return str(self.id)
 
+class Ordering(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='ordering', on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
+    ord_feedback = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return str(self.id)
+
+
+class Matching(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='matching', on_delete=models.CASCADE)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    # def get_matching_choices(self):
+    #         return MatchingChoice.objects.filter(question=self.id).order_by('id')
+
+
+class MatchingChoice(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='matchingchoices', on_delete=models.CASCADE)
+    choice_text = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    # def get_matching_answers(self):
+    #         return MatchingAnswer.objects.filter(matching_choice=self.id).order_by('id')
+
+class MatchingAnswer(models.Model):
+    id = models.AutoField(primary_key=True)
+    matching_choice = models.ForeignKey(MatchingChoice, related_name='matchinganswers', on_delete=models.CASCADE)
+    answer_text = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
 
 class ErrorType(models.Model):
     error_type = models.CharField(max_length=7, primary_key=True)
