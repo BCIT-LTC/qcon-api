@@ -6,7 +6,7 @@ import json
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
-from .serializers import JsonToScormSerializer, QuestionLibraryErrorSummarySerializer, WordToJsonSerializer
+from .serializers import JsonToScormSerializer, QuestionLibraryErrorSummarySerializer, QuestionLibrarySerializer, WordToJsonSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -64,8 +64,7 @@ class WordToJson(APIView):
         if serializer.is_valid():
             instance = serializer.save()
 
-            # question_library = QuestionLibrary.objects.get(
-            #     transaction=instance.transaction.id)
+            # question_library = QuestionLibrary.objects.first()
 
             # question_library = instance
 
@@ -73,20 +72,99 @@ class WordToJson(APIView):
             from .process import process
             process(instance)
 
-            # question_library_serializer = QuestionLibrarySerializer(
-            #     question_library)
+            # question_library_serializer = QuestionLibrarySerializer(question_library)
 
             
-            json_test = { "section_name": "ABC", "randomize_answer": "null", "total_question_errors": "0", "total_document_errors": "0", "documenterrors": [], "questions": [ { "prefix": "1", "title": "is a measure of:", "points": "1.0", "randomize_answer": "null", "question_type": "MC", "question_body": "<p>is a measure of:</p>", "question_feedback": "null", "hint": "null", "correct_answers_length": 1, "questionerrors": [], "answers": [ { "prefix": "a.", "answer_body": "<p>Resistance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 1 }, { "prefix": "b.", "answer_body": "<p>Current</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 2 }, { "prefix": "c.", "answer_body": "<p>Impedance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 3 }, { "prefix": "d. \\*", "answer_body": "<p>Voltage</p>", "answer_feedback": "null", "is_correct": "true", "match_left": "null", "match_right": "null", "order": 4 } ], "fib": [] }, { "prefix": "2", "title": "Amplitude (2) of:", "points": "1.0", "randomize_answer": "null", "question_type": "MC", "question_body": "<p><em>Amplitude</em> (2) of:</p>", "question_feedback": "null", "hint": "null", "correct_answers_length": 1, "questionerrors": [], "answers": [ { "prefix": "a.", "answer_body": "<p>aaa</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 1 }, { "prefix": "b.", "answer_body": "<p>bbb</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 2 }, { "prefix": "c.", "answer_body": "<p>xxx</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 3 }, { "prefix": "d. \\*", "answer_body": "<p>sss</p>", "answer_feedback": "null", "is_correct": "true", "match_left": "null", "match_right": "null", "order": 4 } ], "fib": [] }, { "prefix": "3", "title": "of:", "points": "1.0", "randomize_answer": "null", "question_type": "MC", "question_body": "<p>of:</p>", "question_feedback": "null", "hint": "null", "correct_answers_length": 1, "questionerrors": [], "answers": [ { "prefix": "a.", "answer_body": "<p>Resistance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 1 }, { "prefix": "b.", "answer_body": "<p>Current</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 2 }, { "prefix": "c.", "answer_body": "<p>Impedance</p>", "answer_feedback": "null", "is_correct": "false", "match_left": "null", "match_right": "null", "order": 3 }, { "prefix": "d. \\*", "answer_body": "<p>Voltage</p>", "answer_feedback": "null", "is_correct": "true", "match_left": "null", "match_right": "null", "order": 4 } ], "fib": [] } ] }
-            json_string = str(json.dumps(json_test, indent=4))
-            json_file = ContentFile(json_string, name="result.json")
-            instance.json_file = json_file
-            instance.save()
-            file_response = FileResponse(instance.json_file)
-            file_response['Content-Disposition'] = 'attachment; filename="' + "result.json" + '"'
+            json_test = {"general_header":"General Header","randomize_answer":False,"total_question_errors":"1","total_document_errors":"0","sections":[{"title":"Section title","is_title_displayed":False,"text":None,"is_text_displayed":False,"shuffle":False,"questions":[{"title":"MC title","text":"Question text","point":3.5,"difficulty":3,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":{"randomize":True,"enumeration":1,"multiple_choices_answers":[{"answer":"MC first answer text","answer_feedback":"MC first answer feedback","weight":100},{"answer":"MC second answer text","answer_feedback":"MC second answer feedback","weight":0}]},"true_false":None,"fib":None,"multiple_select":None,"written_response":None},{"title":"TF title","text":"Question text","point":1,"difficulty":1,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":{"true_weight":100,"true_feedback":"True feedback","false_weight":0,"false_feedback":"True feedback","enumeration":2},"fib":None,"multiple_select":None,"written_response":None},{"title":"MS title","text":"Question text","point":1,"difficulty":1,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":{"randomize":True,"enumeration":1,"style":2,"multiple_select_answers":[{"answer":"MS first answer text","answer_feedback":"MS first answer feedback","is_correct":True},{"answer":"MS second answer text","answer_feedback":"MS second answer feedback","is_correct":True}]},"written_response":None},{"title":"WR title","text":"Question text","point":5,"difficulty":5,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":None,"written_response":{"enable_student_editor":False,"initial_text":None,"answer_key":"WR answer key","enable_attachments":False}},{"title":"FIB title","text":"Question text","point":4,"difficulty":3,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":[{"type":"fibquestion","text":"1+15?","order":1,"size":None,"weight":None},{"type":"fibanswer","text":"16","order":2,"size":3,"weight":100}],"multiple_select":None,"written_response":None}]}]}
+            # json_string = str(json.dumps(json_test, indent=4))
+            for item in json_test:
+                match item:
+                    case "general_header":
+                        print(json_test["general_header"])
+                    case "randomize_answer":
+                        print(json_test["randomize_answer"])
+                    case "total_question_errors":
+                        print(json_test["total_question_errors"])
+                    case "total_document_errors":
+                        print(json_test["total_document_errors"])
+                    case "sections":
+                        for section in json_test["sections"]:
+                            print("\t", section["title"])
+                            print("\t", section["is_title_displayed"])
+                            print("\t", section["text"])
+                            print("\t", section["is_text_displayed"])
+                            print("\t", section["shuffle"])
 
+                            for question in section["questions"]:
+                                print("\t\t", question["title"])
+                                print("\t\t", question["text"])
+                                print("\t\t", question["point"])
+                                print("\t\t", question["difficulty"])
+                                print("\t\t", question["mandatory"])
+                                print("\t\t", question["hint"])
+                                print("\t\t", question["feedback"])
+                                
+                                if question["multiple_choice"]:
+                                    print("\t\t\tmultiple_choice")
+                                    print("\t\t\t\t", question["multiple_choice"]["randomize"])
+                                    print("\t\t\t\t", question["multiple_choice"]["enumeration"])
+
+                                    print("\t\t\t\tmultiple_choices_answers")
+                                    for mc_answers in question["multiple_choice"]["multiple_choices_answers"]:
+                                            print("\t\t\t\t\t", mc_answers["answer"])
+                                            print("\t\t\t\t\t", mc_answers["answer_feedback"])
+                                            print("\t\t\t\t\t", mc_answers["weight"])
+                                            print("")
+                                                    
+                                elif question["true_false"] :
+                                    print("\t\t\ttrue_false")
+                                    print("\t\t\t\t", question["true_false"]["true_weight"])
+                                    print("\t\t\t\t", question["true_false"]["true_feedback"])
+                                    print("\t\t\t\t", question["true_false"]["false_weight"])
+                                    print("\t\t\t\t", question["true_false"]["false_feedback"])
+                                    print("\t\t\t\t", question["true_false"]["enumeration"])
+
+                                elif question["fib"] :
+                                    print("\t\t\tfib")
+                                    for fib in question["fib"]:
+                                        print("\t\t\t\t", fib["type"])
+                                        print("\t\t\t\t", fib["text"])
+                                        print("\t\t\t\t", fib["order"])
+                                        print("\t\t\t\t", fib["size"])
+                                        print("\t\t\t\t", fib["weight"])
+                                        print("")
+                                elif question["multiple_select"]:
+                                    print("\t\t\tmultiple_select")
+                                    print("\t\t\t\t", question["multiple_select"]["randomize"])
+                                    print("\t\t\t\t", question["multiple_select"]["enumeration"])
+                                    print("\t\t\t\t", question["multiple_select"]["style"])
+
+                                    print("\t\t\t\tmultiple_select_answers")
+                                    for ms_answers in question["multiple_select"]["multiple_select_answers"]:
+                                            print("\t\t\t\t\t", ms_answers["answer"])
+                                            print("\t\t\t\t\t", ms_answers["answer_feedback"])
+                                            print("\t\t\t\t\t", ms_answers["is_correct"])
+                                            print("")
+
+                                   
+                                elif question["written_response"]:
+                                    print("\t\t\twritten_response")
+                                    print("\t\t\t\t", question["written_response"]["enable_student_editor"])
+                                    print("\t\t\t\t", question["written_response"]["initial_text"])
+                                    print("\t\t\t\t", question["written_response"]["answer_key"])
+                                    print("\t\t\t\t", question["written_response"]["enable_attachments"])
+                                else:
+                                    print("NO QUESTION TYPE")
+
+
+               
+
+
+            instance.json_output = json_test
+            instance.save()
+            # print(instance.json_output)
             instance.cleanup()
-            return file_response
+            JsonResponse(json_test, status=200)
 
         return JsonResponse(serializer.errors, status=400)
 
