@@ -17,20 +17,22 @@ from zipfile import *
 
 class XmlWriter():
 
-	def __init__(self, question_library, questions) :
+	def __init__(self, question_library, json_output) :
+		json_output = {"general_header":"General Header","randomize_answer":False,"total_question_errors":"1","total_document_errors":"0","sections":[{"title":"Section title","is_title_displayed":False,"text":None,"is_text_displayed":False,"shuffle":False,"questions":[{"title":"MC title","text":"Question text","point":3.5,"difficulty":3,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":{"randomize":True,"enumeration":1,"multiple_choices_answers":[{"answer":"MC first answer text","answer_feedback":"MC first answer feedback","weight":100},{"answer":"MC second answer text","answer_feedback":"MC second answer feedback","weight":0}]},"true_false":None,"fib":None,"multiple_select":None,"written_response":None},{"title":"TF title","text":"Question text","point":1,"difficulty":1,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":{"true_weight":100,"true_feedback":"True feedback","false_weight":0,"false_feedback":"True feedback","enumeration":2},"fib":None,"multiple_select":None,"written_response":None},{"title":"MS title","text":"Question text","point":1,"difficulty":1,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":{"randomize":True,"enumeration":1,"style":2,"multiple_select_answers":[{"answer":"MS first answer text","answer_feedback":"MS first answer feedback","is_correct":True},{"answer":"MS second answer text","answer_feedback":"MS second answer feedback","is_correct":True}]},"written_response":None},{"title":"WR title","text":"Question text","point":5,"difficulty":5,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":None,"written_response":{"enable_student_editor":False,"initial_text":None,"answer_key":"WR answer key","enable_attachments":False}},{"title":"FIB title","text":"Question text","point":4,"difficulty":3,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":[{"type":"fibquestion","text":"1+15?","order":1,"size":None,"weight":None},{"type":"fibanswer","text":"16","order":2,"size":3,"weight":100}],"multiple_select":None,"written_response":None}]}]}
 
+		
 		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 		sectionIdent = 'SECT_' + ident
 		questionLibraryIdent = 'QLIB_' + ident
 
 		self.root = ET.Element("questestinterop")
 		self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		self.section = ET.SubElement(self.objectbank, "section", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': sectionIdent, 'title': question_library.section_name})
-		self.presentation_material()
+		self.section = ET.SubElement(self.objectbank, "section", {'ident': sectionIdent, 'title': json_output["general_header"]})
+		# self.presentation_material()
 		self.sectionproc_extension()
 
-		self.questions = questions
-		self.parse_question(questions)
+		self.json_output = json_output
+		self.parse_json_to_xml(json_output)
 
 		self.questiondb_string = self.xml_to_string(self.root)
 
@@ -42,32 +44,52 @@ class XmlWriter():
 		return pretty_xml
 		# sys.exit()
 		
-	def parse_question(self, questions) :
+	def parse_json_to_xml(self, json_output) :
 		ident_prefix = int(datetime.date.today().strftime("%y%m%d")) + int(UUID(int=0x12345678123456781234567812345678))
 		index = 1
-		for question in questions:
-			ident = str(ident_prefix + index)
-			question_ident = 'QUES_' + ident
-			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': question.title})
-			
-			if question.question_type == 'MC':
-				self.generate_multiple_choice(it, question_ident, question)
-			elif question.question_type == 'MS':
-				self.generate_multi_select(it, question_ident, question)
-			elif question.question_type == 'FIB':
-				self.generate_fill_in_the_blanks(it, question_ident, question)
-			elif question.question_type == 'ORD':
-				self.generate_ordering(it, question_ident, question)
-			elif question.question_type == 'WR':
-				self.generate_written_response(it, question_ident, question)
-			elif question.question_type == 'MT':
-				self.generate_matching(it, question_ident, question)
-			elif question.question_type == 'TF':
-				self.generate_true_false(it, question_ident, question)
 
-			self.section.append(it)
-			index +=1
-		pass
+		for item in json_output:
+			match item:
+				case "general_header":
+					print(json_output["general_header"])
+				case "randomize_answer":
+					print(json_output["randomize_answer"])
+				case "total_question_errors":
+					print(json_output["total_question_errors"])
+				case "total_document_errors":
+					print(json_output["total_document_errors"])
+				case "sections":
+					for section in json_output["sections"]:
+						print("\t", section["title"])
+						print("\t", section["is_title_displayed"])
+						print("\t", section["text"])
+						print("\t", section["is_text_displayed"])
+						print("\t", section["shuffle"])
+
+						for question in section["questions"]:
+							ident = str(ident_prefix + index)
+							question_ident = 'QUES_' + ident
+							it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': question["title"]})
+							
+							if question["multiple_choice"]:
+								self.generate_multiple_choice(it, question_ident, question)
+								
+							elif question["true_false"] :
+								self.generate_true_false(it, question_ident, question)
+
+							elif question["fib"] :
+								self.generate_fill_in_the_blanks(it, question_ident, question)
+
+							elif question["multiple_select"]:
+								self.generate_multi_select(it, question_ident, question)
+
+							elif question["matching"]:
+								self.generate_matching(it, question_ident, question)
+								
+							elif question["written_response"]:
+								self.generate_written_response(it, question_ident, question)
+							else:
+								print("NO QUESTION TYPE")
 
 	
 	def create_manifest(self, manifest_entity, folder_path):
@@ -122,7 +144,7 @@ class XmlWriter():
 		it_weighting_label = ET.SubElement(it_weighting, "fieldlabel")
 		it_weighting_label.text = 'qmd_weighting'
 		it_weighting_entry = ET.SubElement(it_weighting, "fieldentry")
-		it_weighting_entry.text = "{:.4f}".format(question.points)
+		it_weighting_entry.text = "{:.4f}".format(question["point"])
 
 
 	def itemproc_extension(self, it) :
@@ -169,7 +191,7 @@ class XmlWriter():
 
 		#Presentation -> Material
 		it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-		question_text = question.question_body
+		question_text = question["text"]
 		it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Presentation -> Flow -> Response_extension
@@ -185,21 +207,21 @@ class XmlWriter():
 		it_pre_flow_lid = ET.SubElement(it_pre_flow, "response_lid", {'ident': question_lid, 'rcardinality': 'Multiple'})
 
 		# Commented this to deactivate MC randomized answer order
-		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if question.randomize_answer else 'no')})
+		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if self.json_output["randomize"] else 'no')})
 
 		#Add hint
-		if question.hint != None:
-			self.generate_hint(it, question.hint)
+		if question["hint"]:
+			self.generate_hint(it, question["hint"])
 
 		#Reprocessing
 		it_res = ET.SubElement(it, "resprocessing")
 
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
 
 		index = 1
-		for answer in question.get_answers():
+		for mc_answers in question["multiple_choice"]["multiple_choices_answers"]:
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
@@ -207,7 +229,7 @@ class XmlWriter():
 			flow_mat = ET.SubElement(response_label, "flow_mat")
 			material = ET.SubElement(flow_mat, "material")
 			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
-			mattext.append(CDATA(answer.answer_body))
+			mattext.append(CDATA(mc_answers["answer"]))
 
 			#Reprocessing -> Respcondition
 			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition' + str(index)})
@@ -215,12 +237,12 @@ class XmlWriter():
 			it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'respident': question_lid})
 			it_res_con_var_equal.text = question_ident_answer + str(index)
 			it_res_set_var = ET.SubElement(it_res_con, "setvar", {'action' : 'Set'})
-			it_res_set_var.text = '100.0000' if answer.is_correct == True else '0.0000'
+			it_res_set_var.text = '100.0000' if mc_answers["weight"] else '0.0000'
 			it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(index)})
 
 			#Add Answer specific feedback
-			if answer.answer_feedback != None:
-				self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
+			if mc_answers["answer_feedback"]:
+				self.generate_feedback(it, question_ident_feedback + str(index), mc_answers["answer_feedback"])
 			index += 1
 
 
@@ -242,7 +264,7 @@ class XmlWriter():
 
 		#Presentation -> Material
 		it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-		question_text = question.question_body
+		question_text = question["text"]
 		it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Presentation -> Flow -> Response_extension
@@ -262,19 +284,20 @@ class XmlWriter():
 		it_res = ET.SubElement(it, "resprocessing")
 
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
 
 		index = 1
-		for answer in question.get_answers():
-
+		answer_text = ["True", "False"]
+		while index <= 2:
+			tf = answer_text[index].lower()
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
 			response_label = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(index)})
 			flow_mat = ET.SubElement(response_label, "flow_mat")
 			material = ET.SubElement(flow_mat, "material")
 			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/plain'})
-			mattext.text = answer.answer_body
+			mattext.text = answer_text[index]
 
 			#Reprocessing -> Respcondition
 			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition' + str(index)})
@@ -282,12 +305,14 @@ class XmlWriter():
 			it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'respident': question_lid})
 			it_res_con_var_equal.text = question_ident_answer + str(index)
 			it_res_set_var = ET.SubElement(it_res_con, "setvar", {'action' : 'Set'})
-			it_res_set_var.text = '100.0000' if answer.is_correct == True else '0.0000'
+			it_res_set_var.text = '100.0000' if question["true_false"][f'{tf}_weight'] else '0.0000'
+
 			it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(index)})
 
 			#Add Answer specific feedback
-			if answer.answer_feedback != None:
-				self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
+			if  question["true_false"][f'{tf}_feedback']:
+				self.generate_feedback(it, question_ident_feedback + str(index), question["true_false"][f'{tf}_feedback'])
+			
 			index += 1
 	
 	def generate_multi_select(self, it, question_ident, question) :
@@ -307,7 +332,7 @@ class XmlWriter():
 
 		#Presentation -> Material
 		it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-		question_text = question.question_body
+		question_text = question["text"]
 		it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Presentation -> Flow -> Response_extension
@@ -321,11 +346,11 @@ class XmlWriter():
 
 		#Presentation -> Flow -> Response_lid
 		it_pre_flow_lid = ET.SubElement(it_pre_flow, "response_lid", {'ident': question_lid, 'rcardinality': 'Multiple'})
-		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if question.randomize_answer else 'no')})
+		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if self.json_output["randomize"] else 'no')})
 
 		#Add hint
-		if question.hint != None:
-			self.generate_hint(it, question.hint)
+		if question["hint"]:
+			self.generate_hint(it, question["hint"])
 
 		#Reprocessing
 		it_res = ET.SubElement(it, "resprocessing")
@@ -335,11 +360,11 @@ class XmlWriter():
 		it_out_incorrect = ET.SubElement(it_out, "decvar", {'vartype': 'Integer', 'defaultval': '0', 'varname': 'D2L_Incorrect', 'minvalue': '0'})
 
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
 
 		index = 1
-		for answer in question.get_answers():
+		for ms_answers in question["multiple_select"]["multiple_select_answers"]:
 
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
@@ -347,7 +372,7 @@ class XmlWriter():
 			flow_mat = ET.SubElement(response_label, "flow_mat")
 			material = ET.SubElement(flow_mat, "material")
 			mattext = ET.SubElement(material, "mattext", {'texttype': 'text/html'})
-			mattext.text = answer.answer_body
+			mattext.text = ms_answers["answer"]
 
 			#Reprocessing -> Respcondition
 			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition', 'continue': 'yes'})
@@ -356,19 +381,20 @@ class XmlWriter():
 			it_res_con_var_equal.text = question_ident_answer
 
 			it_res_con_var_equal.text = question_ident_answer + str(index)
-			if answer.is_correct == True :
+			if ms_answers["is_correct"] == True :
 				it_res_set_var = ET.SubElement(it_res_con, "setvar", {'varname':'D2L_Correct', 'action' : 'Add'})
 			else :
 				it_res_set_var = ET.SubElement(it_res_con, "setvar", {'varname':'D2L_Incorrect', 'action' : 'Add'})
 
 			#Add Answer specific feedback
-			if answer.answer_feedback != None:
-				self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
+			if ms_answers["answer_feedback"]:
+				self.generate_feedback(it, question_ident_feedback + str(index), ms_answers["answer_feedback"])
 			index += 1
 
 		it_res_con = ET.SubElement(it_res, "respcondition")
 		it_res_set_var = ET.SubElement(it_res_con, "setvar", {'varname':'que_score', 'action' : 'Set'})
 		it_res_set_var.text = 'D2L_Correct'
+
 
 	def generate_fill_in_the_blanks(self, it, question_ident, question) :	
 		self.itemetadata(it, 'Fill in the Blanks', question)
@@ -380,35 +406,38 @@ class XmlWriter():
 		#Presentation -> Flow
 		
 		idx = 1
-		for fib in question.get_fib():
+		for fib in question["fib"]:
 			question_str = question_ident + str(idx) + '_STR'
 			question_ans = question_ident + str(idx) + '_ANS'
-			if fib.type == 'answer':
+			if fib["type"] == 'fibanswer':
     			#Presentation -> Flow -> Response_str
 				it_pre_flow_str = ET.SubElement(it_pre_flow, "response_str", {'rcardinality': 'Single', 'ident': question_str})
 				it_pre_flow_str_render = ET.SubElement(it_pre_flow_str, "render_fib", {'fibtype': 'String', 'prompt': 'Box', 'columns': '30', 'rows': '1'})
 				it_pre_flow_str_render_label = ET.SubElement(it_pre_flow_str_render, "response_label", {'ident': question_ans})
 				idx += 1
-			elif fib.type == 'question':
+			elif fib["type"] == 'fibquestion':
 				#Presentation -> Flow -> Material
 				it_pre_flow_mat = ET.SubElement(it_pre_flow, "material")
 				it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-				question_text = fib.text
+				question_text = fib["text"]
 				it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Add hint
-		if question.hint != None:
-			self.generate_hint(it, question.hint)
+		if question["hint"]:
+			self.generate_hint(it, question["hint"])
 
 		#Resprocessing
 		it_res = ET.SubElement(it, "resprocessing")
 		it_out = ET.SubElement(it_res, "outcomes")
 
 		index = 1
-		for fib in question.get_fib_answers():
-			answers = [a.strip() for a in fib.text.split(',')]
+		key_value = ['fibanswer']
+		fib_answers = [fib for fib in question["fib"] if fib['type'] in key_value]
+
+		for fib in fib_answers:
+			answers = [a.strip() for a in fib["text"].split(',')]
 			
-			answer_weight = str(100.0 / len(question.get_fib_answers()))
+			answer_weight =  fib["weight"] if fib["weight"] else str(100.0 / len(fib_answers))
 			question_ans = question_ident + str(index) + '_ANS'
 			for answer in answers:
 				it_res_con = ET.SubElement(it_res, "respcondition")
@@ -423,8 +452,8 @@ class XmlWriter():
 			index += 1
 
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
 
 
 	def generate_ordering(self, it, question_ident, question) :
@@ -443,7 +472,7 @@ class XmlWriter():
 		#Presentation -> Flow -> Material
 		it_pre_flow_mat = ET.SubElement(it_pre_flow, "material")
 		it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-		question_text = question.question_body
+		question_text = question["text"]
 		it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Presentation -> Flow -> Response_extension
@@ -458,8 +487,8 @@ class XmlWriter():
 		it_pre_flow_res_grp_render_flow = ET.SubElement(it_pre_flow_res_grp_render, "flow_label", {'class': 'Block'}) #populated in the loop
 
 		#Add hint
-		if question.hint != None:
-			self.generate_hint(it, question.hint)
+		if question["hint"]:
+			self.generate_hint(it, question["hint"])
 
 		#Resprocessing
 		it_res = ET.SubElement(it, "resprocessing") #populated in the loop
@@ -476,18 +505,18 @@ class XmlWriter():
 		it_res_con_other_setvar.text = "D2L_Correct"
 
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
 			
 		index = 1
-		for answer in question.get_answers():
+		for ord_obj in question["ordering"]:
 			ident_num = question_o + str(index)
 			#Presentation -> Flow -> Response_grp -> response_label
 			it_pre_flow_res_grp_render_flow_res = ET.SubElement(it_pre_flow_res_grp_render_flow, "response_label", {'ident': ident_num})
 			it_pre_flow_res_grp_render_flow_res_flow = ET.SubElement(it_pre_flow_res_grp_render_flow_res, "flow_mat")
 			it_pre_flow_res_grp_render_flow_res_flow_mat = ET.SubElement(it_pre_flow_res_grp_render_flow_res_flow, "material")
 			it_pre_flow_res_grp_render_flow_res_flow_mat_text = ET.SubElement(it_pre_flow_res_grp_render_flow_res_flow_mat, "mattext", {'texttype': 'text/html'})
-			question_text = answer.answer_body
+			question_text = ord_obj["text"]
 			it_pre_flow_res_grp_render_flow_res_flow_mat_text.append(CDATA(question_text))
 
 			#Resprocessing -> Respcondition
@@ -507,8 +536,8 @@ class XmlWriter():
 			it_res_con_incorrect_setvar.text = str(1)
 
 			#Add Answer specific feedback
-			if answer.answer_feedback != None:
-				self.generate_feedback(it, question_ident_feedback + str(index), answer.answer_feedback)
+			if ord_obj["ord_feedback"]:
+				self.generate_feedback(it, question_ident_feedback + str(index), ord_obj["ord_feedback"])
 			index += 1
 
 	def generate_written_response(self, it, question_ident, question) :	
@@ -526,7 +555,7 @@ class XmlWriter():
 		#Presentation -> Flow -> Material
 		it_pre_flow_mat = ET.SubElement(it_pre_flow, "material")
 		it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-		question_text = question.question_body
+		question_text = question["text"]
 		it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Presentation -> Flow -> Response_extension
@@ -535,8 +564,8 @@ class XmlWriter():
 		it_pre_flow_mat_res_ext_sign.append(CDATA("no"))
 		it_pre_flow_mat_res_ext_editor = ET.SubElement(it_pre_flow_mat_res_ext, "d2l_2p0:has_htmleditor")
 		
-		#Change it to "no" to deactivate student HTML editor answer
-		it_pre_flow_mat_res_ext_editor.append(CDATA("no"))
+		has_editor = "yes" if question["written_response"]["enable_student_editor"] else 'no'
+		it_pre_flow_mat_res_ext_editor.append(CDATA(has_editor))
 
 		#Presentation -> Flow -> Response_str
 		it_pre_flow_mat_res_str = ET.SubElement(it_pre_flow, "response_str", {'rcardinality': 'Multiple', 'ident': question_ident_str})
@@ -546,11 +575,11 @@ class XmlWriter():
 		it_pre_flow_mat_res_str_render_label_mat_text = ET.SubElement(it_pre_flow_mat_res_str_render_label_mat, "mattext", {'texttype': 'text/html'})
 
 		#Add hint
-		if question.hint != None:
-			self.generate_hint(it, question.hint)
+		if question["hint"]:
+			self.generate_hint(it, question["hint"])
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
 		#Initial_text
 		it_init_text = ET.SubElement(it, "initial_text")
 		it_init_text_mat = ET.SubElement(it, "initial_text_material")
@@ -563,17 +592,12 @@ class XmlWriter():
 		it_ans_mat_flow = ET.SubElement(it_ans_mat, "flow_mat")
 		it_ans_mat_flow_mat = ET.SubElement(it_ans_mat_flow, "material")
 		it_ans_mat_flow_mat_text = ET.SubElement(it_ans_mat_flow_mat, "mattext", {'texttype': 'text/html'})
-		answer_key = ""
-		for answer in question.get_answers():
-			# TODO: ADD PREFIX OR SOLVE LIST INSIDE LIST
-			answer_key = answer_key + answer.answer_body
-
-		it_ans_mat_flow_mat_text.append(CDATA(answer_key))
+		it_ans_mat_flow_mat_text.append(CDATA(question["written_response"]["answer_key"]))
 
 	def generate_matching(self, it, question_ident, question) :
 		
 		self.itemetadata(it, 'Matching', question)
-		self.itemproc_extension(it)
+		self.itemproc_extension(it) #shouldn't be here
 
 		question_lid = question_ident + '_LID'
 		question_ident_answer = question_ident + '_A'
@@ -584,8 +608,8 @@ class XmlWriter():
 		it_pre_flow = ET.SubElement(it_pre, "flow")
 
 		#Add hint
-		if question.hint != None:
-			self.generate_hint(it, question.hint)
+		if question["hint"]:
+			self.generate_hint(it, question["hint"])
 
 		#Resprocessing Node
 		it_res = ET.SubElement(it, "resprocessing")
@@ -601,7 +625,7 @@ class XmlWriter():
 
 		#Presentation -> Material
 		it_pre_flow_mat_text = ET.SubElement(it_pre_flow_mat, "mattext", {'texttype': 'text/html'})
-		question_text = question.question_body
+		question_text = question["text"]
 		it_pre_flow_mat_text.append(CDATA(question_text))
 
 		#Presentation -> Flow -> Response_extension
@@ -610,13 +634,13 @@ class XmlWriter():
 		it_pre_flow_res_grading_type.text = '0'
 
 		#Presentation -> Flow -> Response_grp -> Render_choice
-		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': 'no'})
+		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': 'yes'})
 		it_pre_flow_res_grp_ren_flow = ET.SubElement(it_pre_flow_res_grp_ren, "flow_label", {'class': 'Block'})
 
 		respcondition_string = "<group>"
 
 		index = 1
-		for answer in question.get_answers():
+		for choice in question["matching"]["matching_choices"]:
 
 			question_answer_index = question_ident_answer + str(index)
 
@@ -624,7 +648,7 @@ class XmlWriter():
 			it_grp_ren_flow_lab_flow = ET.SubElement(it_grp_ren_flow_lab, "flow_mat")
 			it_grp_ren_flow_lab_flow_mat = ET.SubElement(it_grp_ren_flow_lab_flow, "material")
 			it_grp_ren_flow_lab_flow_mat_text = ET.SubElement(it_grp_ren_flow_lab_flow_mat, "mattext", {'texttype': 'text/html'})
-			it_grp_ren_flow_lab_flow_mat_text.append(CDATA(answer.match_right))
+			it_grp_ren_flow_lab_flow_mat_text.append(CDATA(choice["choice_text"]))
 			index +=1
 
 			it_respcondition = ET.Element("respcondition")
@@ -636,32 +660,31 @@ class XmlWriter():
 
 			respcondition_string += ET.tostring(it_respcondition, 'utf-8').decode("utf-8") + "\n"
 
+			answer_index = 1
+			for answer in choice["matching_answers"]:
+				question_index = question_lid + str(answer_index)
+				question_answer_index = question_ident_answer + str(answer_index)
+
+				#Presentation -> Flow -> Response_grp
+				it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'respident': question_index, 'rcardinality': 'Single'})
+				
+				#Presentation -> Flow -> Response_grp -> Material
+				it_pre_flow_res_grp_mat = ET.SubElement(it_pre_flow_res_grp, "material")
+				it_pre_flow_res_grp_mattext = ET.SubElement(it_pre_flow_res_grp_mat, "mattext", {'texttype': 'text/html'})
+				it_pre_flow_res_grp_mattext.append(CDATA(answer["answer_text"]))
+
+				#Presentation -> Flow -> Response_grp -> Render_choice
+				it_pre_flow_res_grp.append(it_pre_flow_res_grp_ren)
+
+				respcondition_elem_string = respcondition_string.replace("##question_lid##", question_index)
+				respcondition_elem_string = re.sub(r'(<respcondition.*?' + question_answer_index + r'.*?)(D2L_Incorrect)(.*?<\/respcondition>)', r'\1D2L_Correct\3', respcondition_elem_string, re.MULTILINE)
+				respcondition_elem_string = respcondition_elem_string.replace("\n", "")
+				
+				elem = ET.fromstring(respcondition_elem_string)
+				it_res.extend(list(elem))
+				answer_index +=1
+
 		respcondition_string += "</group>"
-
-		index = 1
-		for answer in question.get_answers():
-
-			question_index = question_lid + str(index)
-			question_answer_index = question_ident_answer + str(index)
-
-			#Presentation -> Flow -> Response_grp
-			it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'respident': question_index, 'rcardinality': 'Single'})
-			
-			#Presentation -> Flow -> Response_grp -> Material
-			it_pre_flow_res_grp_mat = ET.SubElement(it_pre_flow_res_grp, "material")
-			it_pre_flow_res_grp_mattext = ET.SubElement(it_pre_flow_res_grp_mat, "mattext", {'texttype': 'text/html'})
-			it_pre_flow_res_grp_mattext.append(CDATA(answer.match_left))
-
-			#Presentation -> Flow -> Response_grp -> Render_choice
-			it_pre_flow_res_grp.append(it_pre_flow_res_grp_ren)
-
-			respcondition_elem_string = respcondition_string.replace("##question_lid##", question_index)
-			respcondition_elem_string = re.sub(r'(<respcondition.*?' + question_answer_index + r'.*?)(D2L_Incorrect)(.*?<\/respcondition>)', r'\1D2L_Correct\3', respcondition_elem_string, re.MULTILINE)
-			respcondition_elem_string = respcondition_elem_string.replace("\n", "")
-			
-			elem = ET.fromstring(respcondition_elem_string)
-			it_res.extend(list(elem))
-			index +=1
 
 
 		it_respcondition = ET.SubElement(it_res, "respcondition")
@@ -672,5 +695,5 @@ class XmlWriter():
 
 
 		#Add General feedback
-		if question.question_feedback != None:
-			self.generate_feedback(it, question_ident, question.question_feedback)
+		if question["feedback"]:
+			self.generate_feedback(it, question_ident, question["feedback"])
