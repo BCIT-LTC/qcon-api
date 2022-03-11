@@ -183,9 +183,9 @@ class WordToJson(APIView):
                
 
 
-            instance.json_output = json_test
+            instance.json_data = json_test
             instance.save()
-            # print(instance.json_output)
+            # print(instance.json_data)
             instance.cleanup()
             return JsonResponse(json_test, status=200)
 
