@@ -77,7 +77,7 @@ class QuestionLibrary(models.Model):
     zip_file = models.FileField(upload_to=format_file_path,
                                 blank=True,
                                 null=True)
-    json_output = models.JSONField(null=True, blank=True)
+    json_data = models.JSONField(null=True, blank=True)
     output_zip_file = models.FileField(upload_to=format_file_path,
                                        blank=True,
                                        null=True)

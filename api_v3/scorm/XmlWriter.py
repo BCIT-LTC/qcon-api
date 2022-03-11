@@ -17,8 +17,8 @@ from zipfile import *
 
 class XmlWriter():
 
-	def __init__(self, question_library, json_output) :
-		json_output = {"general_header": "General Header","randomize_answer":False,"total_question_errors": "1","total_document_errors": "0","sections": [{"title": "Section title","is_title_displayed":False,"text":None,"is_text_displayed":False,"shuffle":False,"questions": [{"title": "MC title","text": "Question text","point": 3.5,"difficulty": 3,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice": {"randomize":True,"enumeration": 1,"multiple_choices_answers": [{"answer": "MC first answer text","answer_feedback": "MC first answer feedback","weight": 100},{"answer": "MC second answer text","answer_feedback": "MC second answer feedback","weight": 0}]},"true_false":None,"fib":None,"multiple_select":None,"written_response":None},{"title": "TF title","text": "Question text","point": 1,"difficulty": 1,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false": {"true_weight": 100,"true_feedback": "True feedback","false_weight": 0,"false_feedback": "True feedback","enumeration": 2},"fib":None,"multiple_select":None,"written_response":None},{"title": "MS title","text": "Question text","point": 1,"difficulty": 1,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select": {"randomize":True,"enumeration": 1,"style": 2,"multiple_select_answers": [{"answer": "MS first answer text","answer_feedback": "MS first answer feedback","is_correct":True},{"answer": "MS second answer text","answer_feedback": "MS second answer feedback","is_correct":True}]},"written_response":None},{"title": "WR title","text": "Question text","point": 5,"difficulty": 5,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":None,"written_response": {"enable_student_editor":False,"initial_text":None,"answer_key": "WR answer key","enable_attachments":False}},{"title": "FIB title","text": "Question text","point": 4,"difficulty": 3,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": [{"type": "fibquestion","text": "1+15?","order": 1,"size":None,"weight":None},{"type": "fibanswer","text": "16","order": 2,"size": 3,"weight": 100}],"multiple_select":None,"written_response":None},{"title": "Ordering title","text": "Question text","point": 6,"difficulty": 2,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": None,"multiple_select":None,"ordering": [{"text": "Order 1","order": 1,"ord_feedback": "Ordering 1 feedback"},{"text": "Order 1","order": 2,"ord_feedback": "Ordering 2 feedback"},{"text": "Order 1","order": 3,"ord_feedback": "Ordering 3 feedback"}],"matching":None,"written_response":None},{"title": "Matching title","text": "Question text","point": 6,"difficulty": 2,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": None,"multiple_select":None,"ordering": None,"matching": {"grading_type": 1,"matching_choices": [{"choice_text": "Choice 1","matching_answers": [{"answer_text": "Choice 1 answer a"},{"answer_text": "Choice 1 answer b"}]},{"choice_text": "Choice 2","matching_answers": [{"answer_text": "Choice 2 answer a"},{"answer_text": "Choice 2 answer b"}]}]},"written_response":None}]}]}
+	def __init__(self, question_library, json_data) :
+		json_data = {"general_header": "General Header","randomize_answer":False,"total_question_errors": "1","total_document_errors": "0","sections": [{"title": "Section title","is_title_displayed":False,"text":None,"is_text_displayed":False,"shuffle":False,"questions": [{"title": "MC title","text": "Question text","point": 3.5,"difficulty": 3,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice": {"randomize":True,"enumeration": 1,"multiple_choices_answers": [{"answer": "MC first answer text","answer_feedback": "MC first answer feedback","weight": 100},{"answer": "MC second answer text","answer_feedback": "MC second answer feedback","weight": 0}]},"true_false":None,"fib":None,"multiple_select":None,"written_response":None},{"title": "TF title","text": "Question text","point": 1,"difficulty": 1,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false": {"true_weight": 100,"true_feedback": "True feedback","false_weight": 0,"false_feedback": "True feedback","enumeration": 2},"fib":None,"multiple_select":None,"written_response":None},{"title": "MS title","text": "Question text","point": 1,"difficulty": 1,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select": {"randomize":True,"enumeration": 1,"style": 2,"multiple_select_answers": [{"answer": "MS first answer text","answer_feedback": "MS first answer feedback","is_correct":True},{"answer": "MS second answer text","answer_feedback": "MS second answer feedback","is_correct":True}]},"written_response":None},{"title": "WR title","text": "Question text","point": 5,"difficulty": 5,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":None,"written_response": {"enable_student_editor":False,"initial_text":None,"answer_key": "WR answer key","enable_attachments":False}},{"title": "FIB title","text": "Question text","point": 4,"difficulty": 3,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": [{"type": "fibquestion","text": "1+15?","order": 1,"size":None,"weight":None},{"type": "fibanswer","text": "16","order": 2,"size": 3,"weight": 100}],"multiple_select":None,"written_response":None},{"title": "Ordering title","text": "Question text","point": 6,"difficulty": 2,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": None,"multiple_select":None,"ordering": [{"text": "Order 1","order": 1,"ord_feedback": "Ordering 1 feedback"},{"text": "Order 1","order": 2,"ord_feedback": "Ordering 2 feedback"},{"text": "Order 1","order": 3,"ord_feedback": "Ordering 3 feedback"}],"matching":None,"written_response":None},{"title": "Matching title","text": "Question text","point": 6,"difficulty": 2,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": None,"multiple_select":None,"ordering": None,"matching": {"grading_type": 1,"matching_choices": [{"choice_text": "Choice 1","matching_answers": [{"answer_text": "Choice 1 answer a"},{"answer_text": "Choice 1 answer b"}]},{"choice_text": "Choice 2","matching_answers": [{"answer_text": "Choice 2 answer a"},{"answer_text": "Choice 2 answer b"}]}]},"written_response":None}]}]}
 
 		
 		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -27,12 +27,12 @@ class XmlWriter():
 
 		self.root = ET.Element("questestinterop")
 		self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		self.section = ET.SubElement(self.objectbank, "section", {'ident': sectionIdent, 'title': json_output["general_header"]})
+		self.section = ET.SubElement(self.objectbank, "section", {'ident': sectionIdent, 'title': json_data["general_header"]})
 		# self.presentation_material()
 		self.sectionproc_extension()
 
-		self.json_output = json_output
-		self.parse_json_to_xml(json_output)
+		self.json_data = json_data
+		self.parse_json_to_xml(json_data)
 
 		self.questiondb_string = self.xml_to_string(self.root)
 
@@ -44,22 +44,22 @@ class XmlWriter():
 		return pretty_xml
 		# sys.exit()
 		
-	def parse_json_to_xml(self, json_output) :
+	def parse_json_to_xml(self, json_data) :
 		ident_prefix = int(datetime.date.today().strftime("%y%m%d")) + int(UUID(int=0x12345678123456781234567812345678))
 		index = 1
 
-		for item in json_output:
+		for item in json_data:
 			match item:
 				case "general_header":
-					print(json_output["general_header"])
+					print(json_data["general_header"])
 				case "randomize_answer":
-					print(json_output["randomize_answer"])
+					print(json_data["randomize_answer"])
 				case "total_question_errors":
-					print(json_output["total_question_errors"])
+					print(json_data["total_question_errors"])
 				case "total_document_errors":
-					print(json_output["total_document_errors"])
+					print(json_data["total_document_errors"])
 				case "sections":
-					for section in json_output["sections"]:
+					for section in json_data["sections"]:
 						print("\t", section["title"])
 						print("\t", section["is_title_displayed"])
 						print("\t", section["text"])
@@ -210,7 +210,7 @@ class XmlWriter():
 		it_pre_flow_lid = ET.SubElement(it_pre_flow, "response_lid", {'ident': question_lid, 'rcardinality': 'Multiple'})
 
 		# Commented this to deactivate MC randomized answer order
-		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if self.json_output["randomize"] else 'no')})
+		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if self.json_data["randomize"] else 'no')})
 
 		#Add hint
 		if question["hint"]:
@@ -349,7 +349,7 @@ class XmlWriter():
 
 		#Presentation -> Flow -> Response_lid
 		it_pre_flow_lid = ET.SubElement(it_pre_flow, "response_lid", {'ident': question_lid, 'rcardinality': 'Multiple'})
-		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if self.json_output["randomize"] else 'no')})
+		it_pre_flow_lid_render_choice = ET.SubElement(it_pre_flow_lid, "render_choice", {'shuffle': ('yes' if self.json_data["randomize"] else 'no')})
 
 		#Add hint
 		if question["hint"]:
