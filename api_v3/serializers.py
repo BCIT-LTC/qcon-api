@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from rest_framework import serializers
-from .models import DocumentError, Matching, MatchingAnswer, MatchingChoice, QuestionError, QuestionLibrary, Section, Question, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, WrittenResponse
+from .models import DocumentError, Matching, MatchingAnswer, MatchingChoice, Ordering, QuestionError, QuestionLibrary, Section, Question, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, WrittenResponse
 from django.conf import settings
 
 
@@ -151,8 +151,8 @@ class FibSerializer(serializers.ModelSerializer):
 class OrderingSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Fib
-        fields = ['text', 'ord_feedback', 'order']
+        model = Ordering
+        fields = ['text', 'order', 'ord_feedback']
 
 
 class MultipleSelectAnswerSerializer(serializers.ModelSerializer):
@@ -183,7 +183,7 @@ class MatchingChoiceSerializer(serializers.ModelSerializer):
         model = MatchingChoice
         fields = ['choice_text', 'matching_answers']
 
-class Matching(serializers.ModelSerializer):
+class MatchingSerializer(serializers.ModelSerializer):
     matching_choices = MatchingChoiceSerializer(many=True, read_only=True)
 
     class Meta:
@@ -203,7 +203,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     true_false = TrueFalseSerializer(many=True, read_only=True, allow_null=True)
     fib = FibSerializer(many=True, read_only=True, allow_null=True)
     multiple_select = MultipleSelectSerializer(many=True, read_only=True, allow_null=True)
-    matching = Matching(many=True, read_only=True, allow_null=True)
+    matching = MatchingSerializer(many=True, read_only=True, allow_null=True)
     ordering = OrderingSerializer(many=True, read_only=True, allow_null=True)
     written_response = WrittenResponseSerializer(many=True, read_only=True, allow_null=True)
 

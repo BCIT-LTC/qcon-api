@@ -75,7 +75,7 @@ class WordToJson(APIView):
             # question_library_serializer = QuestionLibrarySerializer(question_library)
 
             
-            json_test = {"general_header":"General Header","randomize_answer":False,"total_question_errors":"1","total_document_errors":"0","sections":[{"title":"Section title","is_title_displayed":False,"text":None,"is_text_displayed":False,"shuffle":False,"questions":[{"title":"MC title","text":"Question text","point":3.5,"difficulty":3,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":{"randomize":True,"enumeration":1,"multiple_choices_answers":[{"answer":"MC first answer text","answer_feedback":"MC first answer feedback","weight":100},{"answer":"MC second answer text","answer_feedback":"MC second answer feedback","weight":0}]},"true_false":None,"fib":None,"multiple_select":None,"written_response":None},{"title":"TF title","text":"Question text","point":1,"difficulty":1,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":{"true_weight":100,"true_feedback":"True feedback","false_weight":0,"false_feedback":"True feedback","enumeration":2},"fib":None,"multiple_select":None,"written_response":None},{"title":"MS title","text":"Question text","point":1,"difficulty":1,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":{"randomize":True,"enumeration":1,"style":2,"multiple_select_answers":[{"answer":"MS first answer text","answer_feedback":"MS first answer feedback","is_correct":True},{"answer":"MS second answer text","answer_feedback":"MS second answer feedback","is_correct":True}]},"written_response":None},{"title":"WR title","text":"Question text","point":5,"difficulty":5,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":None,"written_response":{"enable_student_editor":False,"initial_text":None,"answer_key":"WR answer key","enable_attachments":False}},{"title":"FIB title","text":"Question text","point":4,"difficulty":3,"mandatory":False,"hint":"Question hint","feedback":"Question feedback","multiple_choice":None,"true_false":None,"fib":[{"type":"fibquestion","text":"1+15?","order":1,"size":None,"weight":None},{"type":"fibanswer","text":"16","order":2,"size":3,"weight":100}],"multiple_select":None,"written_response":None}]}]}
+            json_test = {"general_header": "General Header","randomize_answer":False,"total_question_errors": "1","total_document_errors": "0","sections": [{"title": "Section title","is_title_displayed":False,"text":None,"is_text_displayed":False,"shuffle":False,"questions": [{"title": "MC title","text": "Question text","point": 3.5,"difficulty": 3,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice": {"randomize":True,"enumeration": 1,"multiple_choices_answers": [{"answer": "MC first answer text","answer_feedback": "MC first answer feedback","weight": 100},{"answer": "MC second answer text","answer_feedback": "MC second answer feedback","weight": 0}]},"true_false":None,"fib":None,"multiple_select":None,"written_response":None},{"title": "TF title","text": "Question text","point": 1,"difficulty": 1,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false": {"true_weight": 100,"true_feedback": "True feedback","false_weight": 0,"false_feedback": "True feedback","enumeration": 2},"fib":None,"multiple_select":None,"written_response":None},{"title": "MS title","text": "Question text","point": 1,"difficulty": 1,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select": {"randomize":True,"enumeration": 1,"style": 2,"multiple_select_answers": [{"answer": "MS first answer text","answer_feedback": "MS first answer feedback","is_correct":True},{"answer": "MS second answer text","answer_feedback": "MS second answer feedback","is_correct":True}]},"written_response":None},{"title": "WR title","text": "Question text","point": 5,"difficulty": 5,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib":None,"multiple_select":None,"written_response": {"enable_student_editor":False,"initial_text":None,"answer_key": "WR answer key","enable_attachments":False}},{"title": "FIB title","text": "Question text","point": 4,"difficulty": 3,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": [{"type": "fibquestion","text": "1+15?","order": 1,"size":None,"weight":None},{"type": "fibanswer","text": "16","order": 2,"size": 3,"weight": 100}],"multiple_select":None,"written_response":None},{"title": "Ordering title","text": "Question text","point": 6,"difficulty": 2,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": None,"multiple_select":None,"ordering": [{"text": "Order 1","order": 1,"ord_feedback": "Ordering 1 feedback"},{"text": "Order 1","order": 2,"ord_feedback": "Ordering 2 feedback"},{"text": "Order 1","order": 3,"ord_feedback": "Ordering 3 feedback"}],"matching":None,"written_response":None},{"title": "Matching title","text": "Question text","point": 6,"difficulty": 2,"mandatory":False,"hint": "Question hint","feedback": "Question feedback","multiple_choice":None,"true_false":None,"fib": None,"multiple_select":None,"ordering": None,"matching": {"grading_type": 1,"matching_choices": [{"choice_text": "Choice 1","matching_answers": [{"answer_text": "Choice 1 answer a"},{"answer_text": "Choice 1 answer b"}]},{"choice_text": "Choice 2","matching_answers": [{"answer_text": "Choice 2 answer a"},{"answer_text": "Choice 2 answer b"}]}]},"written_response":None}]}]}
             # json_string = str(json.dumps(json_test, indent=4))
             for item in json_test:
                 match item:
@@ -111,10 +111,10 @@ class WordToJson(APIView):
 
                                     print("\t\t\t\tmultiple_choices_answers")
                                     for mc_answers in question["multiple_choice"]["multiple_choices_answers"]:
-                                            print("\t\t\t\t\t", mc_answers["answer"])
-                                            print("\t\t\t\t\t", mc_answers["answer_feedback"])
-                                            print("\t\t\t\t\t", mc_answers["weight"])
-                                            print("")
+                                        print("\t\t\t\t\t", mc_answers["answer"])
+                                        print("\t\t\t\t\t", mc_answers["answer_feedback"])
+                                        print("\t\t\t\t\t", mc_answers["weight"])
+                                        print("")
                                                     
                                 elif question["true_false"] :
                                     print("\t\t\ttrue_false")
@@ -141,20 +141,43 @@ class WordToJson(APIView):
 
                                     print("\t\t\t\tmultiple_select_answers")
                                     for ms_answers in question["multiple_select"]["multiple_select_answers"]:
-                                            print("\t\t\t\t\t", ms_answers["answer"])
-                                            print("\t\t\t\t\t", ms_answers["answer_feedback"])
-                                            print("\t\t\t\t\t", ms_answers["is_correct"])
-                                            print("")
+                                        print("\t\t\t\t\t", ms_answers["answer"])
+                                        print("\t\t\t\t\t", ms_answers["answer_feedback"])
+                                        print("\t\t\t\t\t", ms_answers["is_correct"])
+                                        print("")
 
-                                   
                                 elif question["written_response"]:
                                     print("\t\t\twritten_response")
                                     print("\t\t\t\t", question["written_response"]["enable_student_editor"])
                                     print("\t\t\t\t", question["written_response"]["initial_text"])
                                     print("\t\t\t\t", question["written_response"]["answer_key"])
                                     print("\t\t\t\t", question["written_response"]["enable_attachments"])
+
+                                elif question["matching"]:
+                                    print("\t\t\tmatching")
+                                    print("\t\t\t\t", question["matching"]["grading_type"])
+
+                                    print("\t\t\t\tmatching_choices")
+                                    for matching_choice in question["matching"]["matching_choices"]:
+                                        print("\t\t\t\t\t", matching_choice["choice_text"])
+                                        if matching_choice["matching_answers"]:
+                                            for matching_answer in matching_choice["matching_answers"]:
+                                                print("\t\t\t\t\t\t", matching_answer["answer_text"])
+                                                print("")
+                                
+                                elif question["ordering"]:
+                                    print("\t\t\tordering")
+                                    for ordering in question["ordering"]:
+                                        print("\t\t\t\t", ordering["text"])
+                                        print("\t\t\t\t", ordering["order"])
+                                        print("\t\t\t\t", ordering["ord_feedback"])
+                                        print("")
                                 else:
-                                    print("NO QUESTION TYPE")
+                                    print("******************************************************")
+                                    print("NO QUESTION TYPE\n\n")
+                                    print(question)
+                                    print("******************************************************")
+
 
 
                
