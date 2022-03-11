@@ -44,7 +44,6 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 DEBUG = os.getenv('DEBUG', False) == 'True'
 ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
 
-
 ALLOWED_HOSTS = ['*']
 
 CSRF_USE_SESSIONS = True
@@ -53,6 +52,7 @@ CSRF_COOKIE_HTTPONLY = True
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -101,7 +101,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'qcon.wsgi.application'
+# WSGI_APPLICATION = 'qcon.wsgi.application'
+
+# Channels
+ASGI_APPLICATION = 'qcon.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

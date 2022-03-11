@@ -94,7 +94,7 @@ RUN apk --update add \
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY .env ./
 COPY .secrets .
-COPY manage.py supervisord.conf .
+COPY manage.py supervisord.conf ./
 COPY docker-entrypoint.sh /usr/local/bin
 COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
@@ -107,6 +107,8 @@ COPY --from=antlr-builder /usr/src/splitter /splitter/jarfile
 COPY qcon qcon
 COPY api_v2 api_v2
 COPY api_v3 api_v3
+
+RUN mkdir -p /run/daphne
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
