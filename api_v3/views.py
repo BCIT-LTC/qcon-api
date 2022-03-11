@@ -187,7 +187,7 @@ class WordToJson(APIView):
             instance.save()
             # print(instance.json_output)
             instance.cleanup()
-            JsonResponse(json_test, status=200)
+            return JsonResponse(json_test, status=200)
 
         return JsonResponse(serializer.errors, status=400)
 
