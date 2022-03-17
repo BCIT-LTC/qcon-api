@@ -4,9 +4,22 @@
 
 from django.contrib import admin
 
+
 # Register your models here.
 
-from .models import QuestionLibrary, Section
+from .models import Fib, Matching, MatchingAnswer, MatchingChoice, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Ordering, Question, QuestionLibrary, Section, TrueFalse, WrittenResponse
 
 admin.site.register(QuestionLibrary)
 admin.site.register(Section)
+admin.site.register(Question)
+admin.site.register(MultipleChoice)
+admin.site.register(MultipleChoiceAnswer)
+admin.site.register(TrueFalse)
+admin.site.register(MultipleSelect)
+admin.site.register(MultipleSelectAnswer)
+admin.site.register(Fib)
+admin.site.register(WrittenResponse)
+admin.site.register(Ordering)
+admin.site.register(Matching)
+admin.site.register(MatchingChoice)
+admin.site.register(MatchingAnswer)

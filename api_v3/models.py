@@ -77,16 +77,16 @@ class QuestionLibrary(models.Model):
     zip_file = models.FileField(upload_to=format_file_path,
                                 blank=True,
                                 null=True)
-    json_data = models.JSONField(null=True, blank=True)
+    json_data = models.JSONField(null=True, blank=True, default=dict)
     output_zip_file = models.FileField(upload_to=format_file_path,
                                        blank=True,
                                        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    total_question_errors = models.DecimalField(max_digits=2,
+    total_question_errors = models.DecimalField(max_digits=6,
                                                 decimal_places=0,
                                                 blank=True,
                                                 null=True)
-    total_document_errors = models.DecimalField(max_digits=2,
+    total_document_errors = models.DecimalField(max_digits=6,
                                                 decimal_places=0,
                                                 blank=True,
                                                 null=True)
@@ -164,23 +164,31 @@ class QuestionLibrary(models.Model):
     def create_xml_files(self):
 
         try:
-            parsed_questions_result = Question.objects.filter(
-                question_library=self)
-
-            parsed_xml = XmlWriter(self, parsed_questions_result)
+            # parsed_questions_result = Question.objects.filter(question_library=self)
+            print("______________________________1______________________________")
+            
+            parsed_xml = XmlWriter(self, self.json_data)
+            print("______________________________2______________________________")
             manifest_entity = ManifestEntity()
+            print("______________________________3______________________________")
             manifest_resource_entity = ManifestResourceEntity(
                 'res_question_library', 'webcontent', 'd2lquestionlibrary',
                 'questiondb.xml', 'Question Library')
+            print("______________________________4______________________________")
             manifest_entity.add_resource(manifest_resource_entity)
-            manifest = parsed_xml.create_manifest(manifest_entity,
-                                                  self.folder_path)
+            print("______________________________5______________________________")
+            manifest = parsed_xml.create_manifest(manifest_entity, self.folder_path)
+            print("______________________________6______________________________")
             parsed_imsmanifest = ET.tostring(manifest.getroot(),
                                              encoding='utf-8',
                                              xml_declaration=True).decode()
+            print("______________________________7______________________________")
             parsed_imsmanifest = parseString(parsed_imsmanifest)
+            print("______________________________8______________________________")
             parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
+            print("______________________________9______________________________")
             self.imsmanifest_string = parsed_imsmanifest
+            print("______________________________10______________________________")
             self.save()
 
             logger.info("[" + str(self.id) + "] " +
@@ -256,8 +264,8 @@ class QuestionLibrary(models.Model):
                             path.join(root, filename), '/assessment-assets/' +
                             self.filtered_section_name + '/' + filename)
 
-            self.zip_file.name = str(
-                self.id) + "/" + self.filtered_section_name + '.zip'
+            # self.zip_file.name = str(self.id) + "/" + self.filtered_section_name + '.zip'
+            self.zip_file.name =  'test.zip'
             self.save()
             logger.info("[" + str(self.id) + "] " +
                         "ZIP file Created")
@@ -270,23 +278,27 @@ class QuestionLibrary(models.Model):
             self.error = "ZIP file Failed"
             self.save()
 
-    # def create_zip_file_package(self):
-    #     try:
-    #         with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
-    #             myzip.write(self.zip_file.path,
-    #                         self.filtered_section_name + '.zip')
-    #             myzip.write(self.json_file.path, 'result.json')
+    def create_zip_file_package(self):
+        try:
+            with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
+                print("_________________________________ZipFile")
+                print(self.filtered_section_name + '.zip')
+                myzip.write(self.zip_file.path, self.filtered_section_name + '.zip')
+                print("_________________________________ZipFile2")
+                myzip.write(self.json_file.path, 'result.json')
+                print("_________________________________ZipFile3")
 
-    #         self.output_zip_file.name = str(
-    #             self.id) + "/" + 'package.zip'
-    #         self.save()
-    #         logger.info("[" + str(self.id) + "] " +
-    #                     "ZIP file with JSON package Created")
-    #     except Exception as e:
-    #         logger.error("[" + str(self.id) + "] " +
-    #                      "ZIP file with JSON package Failed")
-    #         self.error = "ZIP file Failed"
-    #         self.save()
+            self.output_zip_file.name = str(
+                self.id) + "/" + 'package.zip'
+            print("_________________________________ZipFile4")
+            self.save()
+            logger.info("[" + str(self.id) + "] " +
+                        "ZIP file with JSON package Created")
+        except Exception as e:
+            logger.error("[" + str(self.id) + "] " +
+                         "ZIP file with JSON package Failed")
+            self.error = "ZIP file Failed"
+            self.save()
 
     def cleanup(self):
         if not settings.DEBUG:
@@ -306,8 +318,8 @@ class Section(models.Model):
                                               null=True,
                                               default=False)
     raw_data = models.TextField(blank=True, null=True)
-    questions_processed = models.DecimalField(max_digits=3, decimal_places=0)
-    questions_expected = models.DecimalField(max_digits=3, decimal_places=0)
+    questions_processed = models.DecimalField(max_digits=6, decimal_places=0,blank=True, null=True)
+    questions_expected = models.DecimalField(max_digits=6, decimal_places=0,blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
@@ -323,7 +335,7 @@ class Question(models.Model):
     section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
-    point = models.DecimalField(unique=False,max_digits=3,decimal_places=2,null=True,default=0)
+    point = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True,default=0)
     difficulty = models.PositiveSmallIntegerField(blank=True, null=True)
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
@@ -348,7 +360,7 @@ class MultipleChoiceAnswer(models.Model):
     multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiplechoiceanswers', on_delete=models.CASCADE)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
-    weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
     
     def __str__(self):
         return str(self.id)
@@ -357,9 +369,9 @@ class MultipleChoiceAnswer(models.Model):
 class TrueFalse(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='truefalse', on_delete=models.CASCADE)
-    true_weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    true_weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
     true_feedback = models.TextField(blank=True, null=True)
-    false_weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    false_weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
     false_feedback = models.TextField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
     
@@ -370,11 +382,11 @@ class TrueFalse(models.Model):
 class Fib(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='fibs', on_delete=models.CASCADE)
-    type = models.CharField(max_length=7, null=False)
+    type = models.CharField(max_length=11, null=False)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
-    size = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
-    weight = models.DecimalField(unique=False,max_digits=2,decimal_places=1,null=True)
+    size = models.DecimalField(unique=False,max_digits=3,decimal_places=0,null=True)
+    weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
     
     def __str__(self):
         return str(self.id)
@@ -416,7 +428,7 @@ class WrittenResponse(models.Model):
 
 class Ordering(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='ordering', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='orderings', on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     ord_feedback = models.TextField(blank=True, null=True)
@@ -427,7 +439,7 @@ class Ordering(models.Model):
 
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='matching', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
     grading_type = models.PositiveSmallIntegerField(blank=True, null=True)
 
     def __str__(self):
@@ -439,7 +451,7 @@ class Matching(models.Model):
 
 class MatchingChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='matchingchoices', on_delete=models.CASCADE)
+    matching = models.ForeignKey(Matching, related_name='matchingchoices', on_delete=models.CASCADE)
     choice_text = models.TextField(blank=True, null=True)
 
     def __str__(self):

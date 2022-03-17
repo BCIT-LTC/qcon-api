@@ -11,9 +11,6 @@ def validate_docx_file(value):
     if value.name.split(".")[1] != "docx":
         raise serializers.ValidationError("not a valid word file")
 
-def validate_json_file(value):
-    if value.name.split(".")[1] != "json":
-        raise serializers.ValidationError("not a valid json file")
 
 def count_errors(questionlibrary):
     # COUNT NUMBER OF DOCUMENT ERRORS
@@ -67,26 +64,13 @@ class WordToJsonSerializer(serializers.Serializer):
 
 
 class JsonToScormSerializer(serializers.Serializer):
-
-    temp_file = serializers.FileField(validators=[validate_json_file],
-                                      max_length=100,
-                                      allow_empty_file=False,
-                                      use_url=True)
-
-    randomize = serializers.BooleanField(default=False)
+    json_data = serializers.JSONField(initial=dict)
 
     def create(self, validated_data):
         newconversion = QuestionLibrary.objects.create()
-        newconversion.temp_file = validated_data.get('temp_file',
-                                                     validated_data)
+        newconversion.json_data = validated_data.get('json_data', validated_data)
 
-        newconversion.randomize_answer = validated_data.get(
-            'randomize', validated_data)
-
-        newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.filter_section_name()
-        newconversion.folder_path = settings.MEDIA_ROOT + \
-            str(newconversion.id)
+        newconversion.folder_path = settings.MEDIA_ROOT + str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
@@ -106,17 +90,19 @@ class JsonToScormSerializer(serializers.Serializer):
 
         # if newconversion.total_document_errors == 0:
         #     # ===========  3, 4, 5  ==================
-        newconversion.create_xml_files()
+        # print("newconversion.create_xml_files()--------------------------------------")
+        # newconversion.create_xml_files()
+        # print("newconversion.zip_files()--------------------------------------")
         #     # ===========  6  ==================
-        newconversion.zip_files()
+        # newconversion.zip_files()
 
         return newconversion
 
-    def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get('temp_file',
-                                                instance.temp_file)
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     instance.temp_file = validated_data.get('temp_file',
+    #                                             instance.temp_file)
+    #     instance.save()
+    #     return instance
 
 class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
@@ -127,11 +113,11 @@ class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
 
 class MultipleChoiceSerializer(serializers.ModelSerializer):
-    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, read_only=True)
+    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True,allow_null=True)
 
     class Meta:
         model = MultipleChoice
-        fields = ['randomize', 'enumeration', 'multiple_choices_answers']
+        fields = ['randomize', 'enumeration', 'multiple_choice_answers']
 
 
 class TrueFalseSerializer(serializers.ModelSerializer):
@@ -163,7 +149,7 @@ class MultipleSelectAnswerSerializer(serializers.ModelSerializer):
 
 
 class MultipleSelectSerializer(serializers.ModelSerializer):
-    multiple_select_answers = MultipleSelectAnswerSerializer(many=True, read_only=True)
+    multiple_select_answers = MultipleSelectAnswerSerializer(many=True,allow_null=True)
 
     class Meta:
         model = MultipleSelect
@@ -177,14 +163,14 @@ class MatchingAnswersSerializer(serializers.ModelSerializer):
         fields = ['answer_text']
 
 class MatchingChoiceSerializer(serializers.ModelSerializer):
-    matching_answers = MatchingAnswersSerializer(many=True, read_only=True)
+    matching_answers = MatchingAnswersSerializer(many=True,allow_null=True)
 
     class Meta:
         model = MatchingChoice
         fields = ['choice_text', 'matching_answers']
 
 class MatchingSerializer(serializers.ModelSerializer):
-    matching_choices = MatchingChoiceSerializer(many=True, read_only=True)
+    matching_choices = MatchingChoiceSerializer(many=True,allow_null=True)
 
     class Meta:
         model = Matching
@@ -199,13 +185,13 @@ class WrittenResponseSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    multiple_choice = MultipleChoiceSerializer(many=True, read_only=True, allow_null=True)
-    true_false = TrueFalseSerializer(many=True, read_only=True, allow_null=True)
-    fib = FibSerializer(many=True, read_only=True, allow_null=True)
-    multiple_select = MultipleSelectSerializer(many=True, read_only=True, allow_null=True)
-    matching = MatchingSerializer(many=True, read_only=True, allow_null=True)
-    ordering = OrderingSerializer(many=True, read_only=True, allow_null=True)
-    written_response = WrittenResponseSerializer(many=True, read_only=True, allow_null=True)
+    multiple_choice = MultipleChoiceSerializer(many=True, allow_null=True)
+    true_false = TrueFalseSerializer(many=True, allow_null=True)
+    fib = FibSerializer(many=True, allow_null=True)
+    multiple_select = MultipleSelectSerializer(many=True, allow_null=True)
+    matching = MatchingSerializer(many=True, allow_null=True)
+    ordering = OrderingSerializer(many=True, allow_null=True)
+    written_response = WrittenResponseSerializer(many=True, allow_null=True)
 
     class Meta:
         model = Question
@@ -213,7 +199,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class SectionSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, read_only=True)
+    questions = QuestionSerializer(many=True,allow_null=True)
 
     class Meta:
         model = Section
@@ -263,7 +249,7 @@ class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
         ]
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True)
+    sections = SectionSerializer(many=True,allow_null=True)
     # documenterrors = DocumentErrorSerializer(many=True, read_only=True)
 
     class Meta:
@@ -273,6 +259,77 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
             'total_document_errors', 'sections'
         ]
 
+    def create(self, validated_data):
+        sections_data = validated_data.pop('sections')
+        question_library_instance = QuestionLibrary.objects.create(**validated_data)
+
+        for section in sections_data:
+            questions_data = section.pop('questions')
+            section_instance = Section.objects.create(question_library=question_library_instance, **section)
+
+            for question in questions_data:
+                mc_data = question.pop('multiple_choice')
+                tf_data = question.pop('true_false')
+                fib_data = question.pop('fib')
+                ms_data = question.pop('multiple_select')
+                mat_data = question.pop('matching')
+                ord_data = question.pop('ordering')
+                wr_data = question.pop('written_response')
+
+                question_instance = Question.objects.create(section=section_instance, **question)
+
+                if mc_data:
+                    for multiple_choice in mc_data:
+                        mc_answers_data = multiple_choice.pop('multiple_choice_answers')
+                        mc_instance = MultipleChoice.objects.create(question=question_instance, **multiple_choice)
+
+                        for mc_answers in mc_answers_data:
+                            mc_answers_instance = MultipleChoiceAnswer.objects.create(multiple_choice=mc_instance, **mc_answers)
+                
+                
+                if tf_data:
+                    for true_false in tf_data:
+                        tf_instance = TrueFalse.objects.create(question=question_instance, **true_false)
+
+
+                if fib_data:
+                    for fib_item in fib_data:
+                        fib_item_instance = Fib.objects.create(question=question_instance, **fib_item)
+
+
+                if ms_data:
+                    for multiple_select in ms_data:
+                        ms_answers_data = multiple_select.pop('multiple_select_answers')
+                        ms_instance = MultipleSelect.objects.create(question=question_instance, **multiple_select)
+
+                        for ms_answers in ms_answers_data:
+                            ms_answers_instance = MultipleSelectAnswer.objects.create(multiple_select=ms_instance, **ms_answers)
+
+
+                if mat_data:
+                    for matching in mat_data:
+                        mat_choices_data = matching.pop('matching_choices')
+                        
+                        matching_instance = Matching.objects.create(question=question_instance, **matching)
+
+                        for mat_choice_item in mat_choices_data:
+                            mat_answers_data = mat_choice_item.pop('matching_answers')
+                            mat_choice_item_instance = MatchingChoice.objects.create(matching=matching_instance, **mat_choice_item)
+
+                            for mat_answer_item in mat_answers_data:
+                                mat_answer_item_instance = MatchingAnswer.objects.create(matching_choice=mat_choice_item_instance, **mat_answer_item)
+
+
+                if ord_data:
+                    for ord_item in ord_data:
+                        ord_item_instance = Ordering.objects.create(question=question_instance, **ord_item)
+
+
+                if wr_data:
+                    for written_response in wr_data:
+                        wr_instance = WrittenResponse.objects.create(question=question_instance, **written_response)
+                
+        return question_library_instance
 
 
 # class QuestionErrorSerializer(serializers.ModelSerializer):
