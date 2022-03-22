@@ -16,11 +16,11 @@ class TextConsumer(AsyncWebsocketConsumer):
         print("disconnected")
         pass
 
-    async def receive(self, text_data):
+    async def receive(self, bytes_data):
         # text_data_json = json.loads(text_data)
         # message = text_data_json['message']
 
-        print(text_data)
+        print(bytes_data)
         # import socket
 
         # await self.send(text_data=json.dumps({
