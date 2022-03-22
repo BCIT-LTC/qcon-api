@@ -6,11 +6,13 @@ class TextConsumer(AsyncWebsocketConsumer):
         print("connected")
         await self.accept()
 
-        import socket
+        # import socket
         
-        await self.send(text_data=json.dumps({
-            'hostname': socket.gethostname()
-        }))
+        # await self.send(text_data=json.dumps({
+        #     'hostname': socket.gethostname(),
+        #     'data' : None,
+        #     'progress' : "not done"
+        # }))
 
     async def disconnect(self, close_code):
         print("disconnected")
@@ -23,6 +25,9 @@ class TextConsumer(AsyncWebsocketConsumer):
         print(bytes_data)
         # import socket
 
-        # await self.send(text_data=json.dumps({
-        #     'hostname': socket.gethostname()
-        # }))
+        import socket
+        await self.send(text_data=json.dumps({
+            'hostname': socket.gethostname(),
+            'data' : "data after file received by API",
+            'progress' : "done"
+        }))
