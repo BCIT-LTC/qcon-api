@@ -44,8 +44,8 @@ class WordToJsonSerializer(serializers.Serializer):
         newconversion.randomize_answer = validated_data.get(
             'randomize', validated_data)
         
-        newconversion.section_name = newconversion.temp_file.name.split(".")[0]
-        newconversion.filter_section_name()
+        newconversion.main_title = newconversion.temp_file.name.split(".")[0]
+        newconversion.filter_main_title()
         newconversion.folder_path = settings.MEDIA_ROOT + \
             str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
@@ -69,7 +69,7 @@ class JsonToScormSerializer(serializers.Serializer):
     def create(self, validated_data):
         newconversion = QuestionLibrary.objects.create()
         newconversion.json_data = validated_data.get('json_data', validated_data)
-
+        
         newconversion.folder_path = settings.MEDIA_ROOT + str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
@@ -244,7 +244,7 @@ class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionLibrary
         fields = [
-            'section_name', 'total_question_errors',
+            'main_title', 'total_question_errors',
             'total_document_errors', 'document_errors', 'questions'
         ]
 
@@ -255,7 +255,7 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionLibrary
         fields = [
-            'general_header', 'randomize_answer', 'total_question_errors',
+            'main_title', 'randomize_answer', 'total_question_errors',
             'total_document_errors', 'sections'
         ]
 

@@ -8,7 +8,7 @@ import sys
 logger = logging.getLogger(__name__)
 
 
-def create_section_name():
+def create_main_title():
     pass
 
 # This is to split end_answers and body and trim the unused data at the top
