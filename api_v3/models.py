@@ -58,7 +58,8 @@ class QuestionLibrary(models.Model):
                                       match=None,
                                       recursive=False,
                                       max_length=None)
-    general_header = models.TextField(blank=True, null=True)
+    main_title = models.TextField(blank=True, null=True)
+    filtered_main_title = models.TextField(blank=True, null=True)
     end_answers = models.TextField(blank=True, null=True)
     formatter_error = models.TextField(blank=True, null=True)
     formatter_output = models.TextField(blank=True, null=True)
@@ -98,23 +99,23 @@ class QuestionLibrary(models.Model):
 
 # Prevents illegal characters for the filename
 
-    def filter_section_name(self):
-        section_name = self.section_name.strip()
-        section_name = section_name.lower()
-        filtered_section_name = re.sub('[\W_]+', ' ', section_name).strip()
-        filtered_section_name = filtered_section_name.replace(' ', '-')
+    def filter_main_title(self):
+        main_title = self.main_title.strip()
+        main_title = main_title.lower()
+        filtered_main_title = re.sub('[\W_]+', ' ', main_title).strip()
+        filtered_main_title = filtered_main_title.replace(' ', '-')
 
         # If the file name is illegal Windows string, replace with "Converted-Exam"
-        filtered_section_name = filtered_section_name.replace(
+        filtered_main_title = filtered_main_title.replace(
             '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam',
             re.IGNORECASE)
 
         # Limit the filename to 30 characters
-        filtered_section_name = (
-            filtered_section_name[:50]
-        ) if len(filtered_section_name) > 50 else filtered_section_name
+        filtered_main_title = (
+            filtered_main_title[:50]
+        ) if len(filtered_main_title) > 50 else filtered_main_title
 
-        self.filtered_section_name = filtered_section_name
+        self.filtered_main_title = filtered_main_title
 
     def create_directory(self):
         # self.folder_path('/code/temp/' + str(self.id))
@@ -168,7 +169,10 @@ class QuestionLibrary(models.Model):
             # parsed_questions_result = Question.objects.filter(question_library=self)
             print("______________________________1______________________________")
             
-            parsed_xml = XmlWriter(self, self.json_data)
+            parsed_questions_result = Question.objects.filter(question_library=self)
+
+            parsed_xml = XmlWriter(self, parsed_questions_result)
+
             print("______________________________2______________________________")
             manifest_entity = ManifestEntity()
             print("______________________________3______________________________")
@@ -211,7 +215,7 @@ class QuestionLibrary(models.Model):
             for idx, img in enumerate(img_elements):
                 element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
                 new_img = '<img src="{0}" alt="{1}" />'.format(
-                    'assessment-assets/' + self.filtered_section_name + '/' +
+                    'assessment-assets/' + self.filtered_main_title + '/' +
                     basename(element[0]), basename(element[0]))
                 questiondb_string = questiondb_string.replace(
                     img_elements[idx], new_img)
@@ -255,7 +259,7 @@ class QuestionLibrary(models.Model):
 
         try:
             with ZipFile(
-                    self.folder_path + "/" + self.filtered_section_name +
+                    self.folder_path + "/" + self.filtered_main_title +
                     '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
@@ -263,10 +267,9 @@ class QuestionLibrary(models.Model):
                     for filename in files:
                         myzip.write(
                             path.join(root, filename), '/assessment-assets/' +
-                            self.filtered_section_name + '/' + filename)
+                            self.filtered_main_title + '/' + filename)
 
-            # self.zip_file.name = str(self.id) + "/" + self.filtered_section_name + '.zip'
-            self.zip_file.name =  'test.zip'
+            self.zip_file.name = str(self.id) + "/" + self.filtered_main_title + '.zip'
             self.save()
             logger.info("[" + str(self.id) + "] " +
                         "ZIP file Created")
@@ -282,16 +285,11 @@ class QuestionLibrary(models.Model):
     def create_zip_file_package(self):
         try:
             with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
-                print("_________________________________ZipFile")
-                print(self.filtered_section_name + '.zip')
-                myzip.write(self.zip_file.path, self.filtered_section_name + '.zip')
-                print("_________________________________ZipFile2")
+                myzip.write(self.zip_file.path, self.filtered_main_title + '.zip')
                 myzip.write(self.json_file.path, 'result.json')
-                print("_________________________________ZipFile3")
 
             self.output_zip_file.name = str(
                 self.id) + "/" + 'package.zip'
-            print("_________________________________ZipFile4")
             self.save()
             logger.info("[" + str(self.id) + "] " +
                         "ZIP file with JSON package Created")
@@ -341,7 +339,7 @@ class Question(models.Model):
     raw_content = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
-    point = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True,default=0)
+    points = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True,default=0)
     difficulty = models.PositiveSmallIntegerField(blank=True, null=True)
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
@@ -349,6 +347,30 @@ class Question(models.Model):
     
     def __str__(self):
         return str(self.text)
+
+    def get_multiple_choice(self):
+        return MultipleChoice.objects.filter(question=self.id).first()
+
+    def get_true_false(self):
+        return TrueFalse.objects.filter(question=self.id).first()
+
+    def get_multiple_select(self):
+        return MultipleSelect.objects.filter(question=self.id).first()
+
+    def get_fibs(self):
+        return Fib.objects.filter(question=self.id).order_by('order')
+
+    def get_fib_answers(self):
+        return Fib.objects.filter(question=self.id, type='fibanswer').order_by('id')
+
+    def get_orderings(self):
+        return Ordering.objects.filter(question=self.id).order_by('order')
+
+    def get_written_response(self):
+        return WrittenResponse.objects.filter(question=self.id).first()
+
+    def get_matching(self):
+        return Matching.objects.filter(question=self.id).first()
 
 
 class MultipleChoice(models.Model):
@@ -359,6 +381,9 @@ class MultipleChoice(models.Model):
     
     def __str__(self):
         return str(self.id)
+    
+    def get_multiple_choice_answers(self):
+        return MultipleChoice.objects.filter(multiple_choice=self.id).order_by('id')
 
 
 class MultipleChoiceAnswer(models.Model):
@@ -409,6 +434,9 @@ class MultipleSelect(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def get_multiple_select_answers(self):
+        return MultipleSelectAnswer.objects.filter(multiple_select=self.id).order_by('id')
+
 
 class MultipleSelectAnswer(models.Model):
     id = models.AutoField(primary_key=True)
@@ -451,8 +479,8 @@ class Matching(models.Model):
     def __str__(self):
         return str(self.id)
 
-    # def get_matching_choices(self):
-    #         return MatchingChoice.objects.filter(question=self.id).order_by('id')
+    def get_matching_choices(self):
+            return MatchingChoice.objects.filter(matching=self.id).order_by('id')
 
 
 class MatchingChoice(models.Model):
@@ -463,8 +491,8 @@ class MatchingChoice(models.Model):
     def __str__(self):
         return str(self.id)
 
-    # def get_matching_answers(self):
-    #         return MatchingAnswer.objects.filter(matching_choice=self.id).order_by('id')
+    def get_matching_answers(self):
+            return MatchingAnswer.objects.filter(matching_choice=self.id).order_by('id')
 
 class MatchingAnswer(models.Model):
     id = models.AutoField(primary_key=True)
