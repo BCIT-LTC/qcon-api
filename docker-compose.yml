@@ -8,7 +8,6 @@ services:
     environment:
       - DEBUG=True
     restart: always
-    tty: true
     volumes:
       - .:/code
     ports:
