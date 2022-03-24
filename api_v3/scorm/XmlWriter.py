@@ -2,7 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import json
+import copy
+from difflib import Match
 import os
 import shutil
 import datetime
@@ -18,91 +19,90 @@ from zipfile import *
 
 class XmlWriter():
 
-	def __init__(self, question_library, questions) :
-		
-		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-		sectionIdent = 'SECT_' + ident
+	def __init__(self, question_library) :
+		ident = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
 		questionLibraryIdent = 'QLIB_' + ident
+		root_el = ET.Element("questestinterop")	
+		objectbank_el = ET.SubElement(root_el, "objectbank", {'ident': questionLibraryIdent, 'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0'})
+		root_section_obj = question_library.get_root_section()
+		root_section_el = self.create_section(objectbank_el, root_section_obj)
+		section_objs = question_library.get_sections()
+		for section_obj in section_objs:
+			if section_obj.is_main_content is True:
+				root_question_objs = section_obj.get_questions()
+				self.create_questions(root_section_el, root_question_objs)
+			else:
+				current_section_el = self.create_section(root_section_el, section_obj)
+				question_objs = section_obj.get_questions()
+				self.create_questions(current_section_el, question_objs)
+		self.questiondb_string = self.xml_to_string(root_el)
 
-		self.root = ET.Element("questestinterop")	
-		self.objectbank = ET.SubElement(self.root, "objectbank", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'ident': questionLibraryIdent})
-		self.section = ET.SubElement(self.objectbank, "section", {'ident': sectionIdent, 'title': question_library.main_title})
-		# self.presentation_material()
-		self.sectionproc_extension()
-
-		self.questions = questions
-		self.parse_question(questions)
-
-		self.questiondb_string = self.xml_to_string(self.root)
-
-
-	def xml_to_string(self, xml) :
-		rough_string = ET.tostring(xml, 'utf-8')
-		reparsed = parseString(rough_string)
-		pretty_xml = reparsed.toprettyxml(indent="\t")
-		return pretty_xml
-		# sys.exit()
 		
-	def parse_question(self, questions) :
-		ident_prefix = int(datetime.date.today().strftime("%y%m%d")) + int(UUID(int=0x12345678123456781234567812345678))
-		index = 1
-
-		for question in questions:
-			ident = str(ident_prefix + index)
-			question_ident = 'QUES_' + ident
-			it = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': question.title})
-
-			if question.multiple_choice:
-				self.generate_multiple_choice(it, question_ident, question)
-			elif question.true_false:
-				self.generate_true_false(it, question_ident, question)
-			elif question.fib:
-				self.generate_fill_in_the_blanks(it, question_ident, question)
-			elif question.multiple_select:
-				self.generate_multi_select(it, question_ident, question)
-			elif question.ordering:
-				self.generate_ordering(it, question_ident, question)
-			elif question.matching:
-				self.generate_matching(it, question_ident, question)
-			elif question.written_response:
-				self.generate_written_response(it, question_ident, question)
-			
-			self.section.append(it)
-			index +=1
-
 	
-	def create_manifest(self, manifest_entity, folder_path):
-		path = folder_path + '/imsmanifest.xml'
-		root = ET.Element("manifest", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1', 'identifier': 'MANIFEST_1'})
-		doc = ET.SubElement(root, "resources")
+	def create_section(self, parent_el, section_obj):
+		sectionIdent = 'SECT_' + str(datetime.datetime.now().strftime('%Y%m%d%H%M%S')) + str(int(UUID(int=0x12345678123456781234567812345678)))
+		section_el = ET.SubElement(parent_el, "section", {'ident': sectionIdent, 'title': section_obj.title})
+		if section_obj.shuffle is True:
+			self.create_section_shuffle(section_el)
 
-		for resource in manifest_entity.resources:
-			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type,
-				'href': resource.href, 'd2l_2p0:link_target' : resource.link_target,
-				'title' : resource.title})
+		self.create_presentation_material(section_el, section_obj.text)
+		self.create_sectionproc_extension(section_el, section_obj)
 
-		tree = ET.ElementTree(root)
-		# tree.write(path)
-		return tree
+		return section_el
 
-	def presentation_material(self) :
+
+	def create_section_shuffle(self, section_el):
+		# section > selection_ordering > order
+		sel_ord = ET.SubElement(section_el, "selection_ordering")
+		sel_ord_ord = ET.SubElement(sel_ord, "order", {'order_type': 'Random'})
+
+
+	def create_presentation_material(self, section_el, section_text) :
 		#presentation_material Node
-		sec_pres_mat = ET.SubElement(self.section, "presentation_material")
+		sec_pres_mat = ET.SubElement(section_el, "presentation_material")
 		sec_pres_mat_flo = ET.SubElement(sec_pres_mat, "flow_mat")
 		sec_pres_mat_flo_flo = ET.SubElement(sec_pres_mat_flo, "flow_mat")
 		sec_pres_mat_flo_flo_mat = ET.SubElement(sec_pres_mat_flo_flo, "material")
 		sec_pres_mat_flo_flo_mat_text = ET.SubElement(sec_pres_mat_flo_flo, "mattext", {'texttype': 'text/html'})
+		sec_pres_mat_flo_flo_mat_text.text = section_text if section_text else ''
 
 
-	def sectionproc_extension(self) :
+	def create_sectionproc_extension(self, section_el, section_obj) :
 		#presentation_material Node
-		sec_proc = ET.SubElement(self.section, "sectionproc_extension")
+		sec_proc = ET.SubElement(section_el, "sectionproc_extension")
 		sec_proc_dis_name = ET.SubElement(sec_proc, "d2l_2p0:display_section_name")
-		sec_proc_dis_name.text = 'yes'
+		sec_proc_dis_name.text = 'yes' if section_obj.is_title_displayed else 'no'
 		sec_proc_dis_line = ET.SubElement(sec_proc, "d2l_2p0:display_section_line")
 		sec_proc_dis_line.text = 'no'
 		sec_proc_dis_sec = ET.SubElement(sec_proc, "d2l_2p0:type_display_section")
-		sec_proc_dis_sec.text = '1'
+		sec_proc_dis_sec.text = '1' if section_obj.is_text_displayed else '0'
+
+	def create_questions(self, section_el, question_objs) :
+		ident_prefix = int(datetime.date.today().strftime("%y%m%d")) + int(UUID(int=0x12345678123456781234567812345678))
+		index = 1
+		for question in question_objs:
+			ident = str(ident_prefix + index)
+			question_ident = 'QUES_' + ident
+			item_el = ET.Element("item", {'ident': 'OBJ_' + ident, 'label': question_ident, 'd2l_2p0:page': '1', 'title': question.title})
+			question_type = question.get_question_type()
+			match question_type:
+				case 'MC':
+					self.generate_multiple_choice(item_el, question_ident, question)
+				case 'TF':
+					self.generate_true_false(item_el, question_ident, question)
+				case 'FIB':
+					self.generate_fill_in_the_blanks(item_el, question_ident, question)
+				case 'MS':
+					self.generate_multi_select(item_el, question_ident, question)
+				case 'ORD':
+					self.generate_ordering(item_el, question_ident, question)
+				case 'MAT':
+					self.generate_matching(item_el, question_ident, question)
+				case 'WR':
+					self.generate_written_response(item_el, question_ident, question)
+			
+			section_el.append(item_el)
+			index +=1
 
 
 	def itemetadata(self, it, question_type, question) :
@@ -153,10 +153,31 @@ class XmlWriter():
 		it_hint_mat_flow_text.append(CDATA(hint))
 
 
+	def xml_to_string(self, xml) :
+		rough_string = ET.tostring(xml, 'utf-8')
+		reparsed = parseString(rough_string)
+		pretty_xml = reparsed.toprettyxml(indent="\t")
+		return pretty_xml
+
+
+	def create_manifest(self, manifest_entity, folder_path):
+		path = folder_path + '/imsmanifest.xml'
+		root = ET.Element("manifest", {'xmlns:d2l_2p0':'http://desire2learn.com/xsd/d2lcp_v2p0', 'xmlns': 'http://www.imsglobal.org/xsd/imscp_v1p1', 'identifier': 'MANIFEST_1'})
+		doc = ET.SubElement(root, "resources")
+
+		for resource in manifest_entity.resources:
+			ET.SubElement(doc, "resource", {'identifier':resource.identifier, 'type': resource.resource_type, 'd2l_2p0:material_type': resource.material_type,
+				'href': resource.href, 'd2l_2p0:link_target' : resource.link_target,
+				'title' : resource.title})
+
+		tree = ET.ElementTree(root)
+		# tree.write(path)
+		return tree
+
+
 	def generate_multiple_choice(self, it, question_ident, question) :
 		self.itemetadata(it, 'Multiple Choice', question)
 		self.itemproc_extension(it)
-
 		question_lid = question_ident + '_LID'
 		question_ident_answer = question_ident + '_A'
 		question_ident_feedback = question_ident + '_IF'
@@ -182,7 +203,6 @@ class XmlWriter():
 		it_pre_flow_res_enumeration.text = str(multiple_choice.enumeration) if multiple_choice.enumeration else '4'
 		it_pre_flow_res_grading_type = ET.SubElement(it_pre_flow_res, "d2l_2p0:grading_type")
 		it_pre_flow_res_grading_type.text = '0'
-
 		#Presentation -> Flow -> Response_lid
 		it_pre_flow_lid = ET.SubElement(it_pre_flow, "response_lid", {'ident': question_lid, 'rcardinality': 'Multiple'})
 
@@ -223,7 +243,7 @@ class XmlWriter():
 			#Add Answer specific feedback
 			if mc_answer.answer_feedback:
 				self.generate_feedback(it, question_ident_feedback + str(mc_answer_index), mc_answer.answer_feedback)
-			index += 1
+			mc_answer_index += 1
 
 
 	def generate_true_false(self, it, question_ident, question) :
@@ -268,9 +288,9 @@ class XmlWriter():
 		if question.feedback:
 			self.generate_feedback(it, question_ident, question.feedback)
 
-		tf_index = 1
+		tf_index = 0
 		answer_text = ["True", "False"]
-		while tf_index <= 2:
+		while tf_index < 2:
 			#Presentation -> Flow -> Response_lid -> Render_choice -> Flow_label
 			flow = ET.SubElement(it_pre_flow_lid_render_choice, "flow_label", {'class': 'Block'})
 			response_label = ET.SubElement(flow, "response_label", {'ident': question_ident_answer + str(tf_index)})
@@ -280,13 +300,13 @@ class XmlWriter():
 			mattext.text = answer_text[tf_index]
 
 			#Reprocessing -> Respcondition
-			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition' + str(tf_index)})
+			it_res_con = ET.SubElement(it_res, "respcondition", {'title': 'Response Condition' + str(tf_index+1)})
 			it_res_con_var = ET.SubElement(it_res_con, "conditionvar")
 			it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {'respident': question_lid})
-			it_res_con_var_equal.text = question_ident_answer + str(tf_index)
+			it_res_con_var_equal.text = question_ident_answer + str(tf_index+1)
 			it_res_set_var = ET.SubElement(it_res_con, "setvar", {'action' : 'Set'})
-			
-			if tf_index == 1:
+		
+			if tf_index == 0:
 				current_weight = true_false.true_weight
 				current_feedback = true_false.false_feedback
 			else:
@@ -294,12 +314,11 @@ class XmlWriter():
 				current_feedback = true_false.false_feedback
 			
 			it_res_set_var.text = str(current_weight) if current_weight else '0.0000'
-			it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(tf_index)})
+			it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {'feedbacktype' : 'Response', 'linkrefid': question_ident_feedback + str(tf_index+1)})
 
 			#Add Answer specific feedback
-			if  current_feedback:
-				self.generate_feedback(it, question_ident_feedback + str(tf_index), current_feedback)
-			
+			if current_feedback:
+				self.generate_feedback(it, question_ident_feedback + str(tf_index+1), current_feedback)
 			tf_index += 1
 	
 	def generate_multi_select(self, it, question_ident, question) :
@@ -586,7 +605,7 @@ class XmlWriter():
 		self.itemetadata(it, 'Matching', question)
 		self.itemproc_extension(it)
 		matching = question.get_matching()
-		question_lid = question_ident + '_LID'
+		question_ident_choice = question_ident + '_C'
 		question_ident_answer = question_ident + '_A'
 		question_ident_feedback = question_ident + '_IF'
 
@@ -618,67 +637,103 @@ class XmlWriter():
 		#Presentation -> Flow -> Response_extension
 		it_pre_flow_res = ET.SubElement(it_pre_flow, "response_extension")
 		it_pre_flow_res_grading_type = ET.SubElement(it_pre_flow_res, "d2l_2p0:grading_type")
-		it_pre_flow_res_grading_type.text = '0'
+		it_pre_flow_res_grading_type.text = str(matching.grading_type)
 
 		#Presentation -> Flow -> Response_grp -> Render_choice
-		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': 'yes'})
+		it_pre_flow_res_grp_ren = ET.Element("render_choice", {'shuffle': 'yes'}) # add to response_grp later
 		it_pre_flow_res_grp_ren_flow = ET.SubElement(it_pre_flow_res_grp_ren, "flow_label", {'class': 'Block'})
-
-		respcondition_string = "<group>"
 		
-		matching_choice_index = 1
-		for matching_choice in matching.get_matching_choices():
 
-			question_answer_index = question_ident_answer + str(matching_choice_index)
+		it_temp = ET.Element("temp")
+		matching_answers = matching.get_unique_matching_answers()
 
-			it_grp_ren_flow_lab = ET.SubElement(it_pre_flow_res_grp_ren_flow, "response_label", {'ident': question_answer_index })
+		ma_index = 1
+		for matching_answer_text in matching_answers:
+			matching_answer_index = question_ident_answer + str(ma_index)
+			it_grp_ren_flow_lab = ET.SubElement(it_pre_flow_res_grp_ren_flow, "response_label", {'ident': matching_answer_index })
 			it_grp_ren_flow_lab_flow = ET.SubElement(it_grp_ren_flow_lab, "flow_mat")
 			it_grp_ren_flow_lab_flow_mat = ET.SubElement(it_grp_ren_flow_lab_flow, "material")
 			it_grp_ren_flow_lab_flow_mat_text = ET.SubElement(it_grp_ren_flow_lab_flow_mat, "mattext", {'texttype': 'text/html'})
-			it_grp_ren_flow_lab_flow_mat_text.append(CDATA(matching_choice.choice_text))
-			matching_choice_index +=1
+			it_grp_ren_flow_lab_flow_mat_text.append(CDATA(matching_answer_text))
 
-			it_respcondition = ET.Element("respcondition")
-			it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
-			it_respcondition_varequal = ET.SubElement(it_respcondition_var, "varequal", {'respident': '##question_lid##'})
-			it_respcondition_varequal.text = question_answer_index
-			it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'D2L_Incorrect', 'action': 'Add'})
-			it_resp_setvar.text = "1"
+			it_respcondition = ET.SubElement(it_temp, "respcondition")
+			it_respcondition_conditionvar = ET.SubElement(it_respcondition, "conditionvar")
+			it_respcondition_varequal = ET.SubElement(it_respcondition_conditionvar, "varequal")
+			it_respcondition_varequal.text = matching_answer_text
+			it_respcondition_setvar = ET.SubElement(it_respcondition, "setvar", {'action':'Add'})
+			it_respcondition_setvar.text = '1'
 
-			respcondition_string += ET.tostring(it_respcondition, 'utf-8').decode("utf-8") + "\n"
-
-			matching_answer_index = 1
-			for matching_answer in matching_choice.get_matching_answers():
-
-				question_index = question_lid + str(matching_answer_index)
-				question_answer_index = question_ident_answer + str(matching_answer_index)
-
-				#Presentation -> Flow -> Response_grp
-				it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'respident': question_index, 'rcardinality': 'Single'})
-				
-				#Presentation -> Flow -> Response_grp -> Material
-				it_pre_flow_res_grp_mat = ET.SubElement(it_pre_flow_res_grp, "material")
-				it_pre_flow_res_grp_mattext = ET.SubElement(it_pre_flow_res_grp_mat, "mattext", {'texttype': 'text/html'})
-				it_pre_flow_res_grp_mattext.append(CDATA(matching_answer.answer_text))
-
-				#Presentation -> Flow -> Response_grp -> Render_choice
-				it_pre_flow_res_grp.append(it_pre_flow_res_grp_ren)
-
-				respcondition_elem_string = respcondition_string.replace("##question_lid##", question_index)
-				respcondition_elem_string = re.sub(r'(<respcondition.*?' + question_answer_index + r'.*?)(D2L_Incorrect)(.*?<\/respcondition>)', r'\1D2L_Correct\3', respcondition_elem_string, re.MULTILINE)
-				respcondition_elem_string = respcondition_elem_string.replace("\n", "")
-				
-				elem = ET.fromstring(respcondition_elem_string)
-				it_res.extend(list(elem))
-				matching_answer_index +=1
-		respcondition_string += "</group>"
+			ma_index += 1
 
 
-		it_respcondition = ET.SubElement(it_res, "respcondition")
-		it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
-		it_respcondition_var_other = ET.SubElement(it_respcondition_var, "other")
-		it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'que_score', 'action': 'Set'})
-		it_resp_setvar.text = "D2L_Correct"
+		# respcondition_string = "<group>"
+		mc_index = 1
+		for matching_choice in matching.get_matching_choices():
+			matching_choice_index = question_ident_choice + str(mc_index)
+
+			#Presentation -> Flow -> Response_grp
+			it_pre_flow_res_grp = ET.SubElement(it_pre_flow, "response_grp", {'respident': matching_choice_index, 'rcardinality': 'Single'})
+			
+			#Presentation -> Flow -> Response_grp -> Material
+			it_pre_flow_res_grp_mat = ET.SubElement(it_pre_flow_res_grp, "material")
+			it_pre_flow_res_grp_mattext = ET.SubElement(it_pre_flow_res_grp_mat, "mattext", {'texttype': 'text/html'})
+			it_pre_flow_res_grp_mattext.append(CDATA(matching_choice.choice_text))
+			it_pre_flow_res_grp.append(it_pre_flow_res_grp_ren)
+
+
+			for respcondition in it_temp:
+				conditionvar = respcondition.find('conditionvar')
+				varequal = conditionvar.find('varequal')
+				varequal.set("respident", matching_choice_index)
+				setvar = respcondition.find('setvar')
+				is_correct = matching_choice.has_matching_answer(varequal.text)
+				if is_correct:
+					setvar.set('varname', "D2L_Correct")
+				else:
+					setvar.set('varname', "D2L_Incorrect")
+				it_res.append(copy.deepcopy(respcondition))
+			mc_index += 1
+
+		
+		match matching.grading_type:
+			case 0:
+				it_respcondition = ET.SubElement(it_res, "respcondition")
+				it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
+				it_respcondition_var_other = ET.SubElement(it_respcondition_var, "other")
+				it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'que_score', 'action': 'Set'})
+				it_resp_setvar.text = "D2L_Correct"
+			case 1:
+				it_respcondition = ET.SubElement(it_res, "respcondition")
+				it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
+				it_respcondition_var_vargte = ET.SubElement(it_respcondition_var, "vargte", {"respident":"D2L_Incorrect"})
+				it_respcondition_var_vargte.text = "0"
+				it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'que_score', 'action': 'Set'})
+				it_resp_setvar.text = "0"
+
+				it_respcondition2 = copy.deepcopy(it_respcondition)
+				it_resp_setvar2 = it_respcondition2.find('setvar')
+				it_resp_setvar2.text = "1"
+				it_res.append(it_respcondition2)
+			case 2:
+				it_respcondition = ET.SubElement(it_res, "respcondition")
+				it_respcondition_var = ET.SubElement(it_respcondition, "conditionvar")
+				it_respcondition_var_vargte = ET.SubElement(it_respcondition_var, "vargte", {"respident":"D2L_Incorrect"})
+				it_respcondition_var_vargte.text = "D2L_Correct"
+				it_resp_setvar = ET.SubElement(it_respcondition, "setvar", {'varname': 'que_score', 'action': 'Set'})
+				it_resp_setvar.text = "0"
+
+				it_respcondition2 = ET.SubElement(it_res, "respcondition")
+				it_respcondition_var2 = ET.SubElement(it_respcondition2, "conditionvar")
+				it_respcondition_var_varlt = ET.SubElement(it_respcondition_var2, "varlt", {"respident":"D2L_Incorrect"})
+				it_respcondition_var_vargte.text = "D2L_Correct"
+				it_resp_setvar2 = ET.SubElement(it_respcondition2, "setvar", {'varname': 'que_score', 'action': 'Set'})
+				it_resp_setvar2.text = "D2L_Correct"
+				it_resp_setvar3 = ET.SubElement(it_respcondition2, "setvar", {'varname': 'que_score', 'action': 'Subtract'})
+				it_resp_setvar3.text = "D2L_Incorrect"
+
+
+
+		print("\n\n\n\n\n\n\n",ET.tostring(it, encoding='unicode'))
 
 
 		#Add General feedback

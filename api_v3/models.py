@@ -97,6 +97,13 @@ class QuestionLibrary(models.Model):
         verbose_name_plural = "question libraries"
 
 
+    def get_root_section(self):
+        return Section.objects.filter(question_library=self.id, is_main_content=True).first()
+
+    def get_sections(self):
+        return Section.objects.filter(question_library=self.id).order_by('order')
+
+
 # Prevents illegal characters for the filename
 
     def filter_main_title(self):
@@ -169,9 +176,9 @@ class QuestionLibrary(models.Model):
             # parsed_questions_result = Question.objects.filter(question_library=self)
             print("______________________________1______________________________")
             
-            parsed_questions_result = Question.objects.filter(question_library=self)
-
-            parsed_xml = XmlWriter(self, parsed_questions_result)
+            parsed_questions_result = QuestionLibrary.objects.filter(id=self.id).first()
+            print("YES")
+            parsed_xml = XmlWriter( parsed_questions_result)
 
             print("______________________________2______________________________")
             manifest_entity = ManifestEntity()
@@ -312,7 +319,7 @@ class Section(models.Model):
     question_library = models.ForeignKey(QuestionLibrary,
                                          related_name='sections',
                                          on_delete=models.CASCADE)
-    is_main_content = models.BooleanField(blank=True, null=True)
+    is_main_content = models.BooleanField(blank=True, null=True, default=False)
     order = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     validated = models.BooleanField(blank=True, null=True, default=False)
     finished_processing = models.BooleanField(blank=True,
@@ -330,6 +337,8 @@ class Section(models.Model):
     def __str__(self):
         return str(self.id)
     
+    def get_questions(self):
+        return Question.objects.filter(section=self.id).order_by('id')
         
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
@@ -372,6 +381,22 @@ class Question(models.Model):
     def get_matching(self):
         return Matching.objects.filter(question=self.id).first()
 
+    def get_question_type(self):
+        if self.get_multiple_choice():
+            return 'MC'
+        elif self.get_true_false():
+            return 'TF'
+        elif self.get_multiple_select():
+            return 'MS'
+        elif self.get_fibs():
+            return 'FIB'
+        elif self.get_orderings():
+            return 'ORD'
+        elif self.get_written_response():
+            return 'WR'
+        elif self.get_matching():
+            return 'MAT'
+        
 
 class MultipleChoice(models.Model):
     id = models.AutoField(primary_key=True)
@@ -383,7 +408,7 @@ class MultipleChoice(models.Model):
         return str(self.id)
     
     def get_multiple_choice_answers(self):
-        return MultipleChoice.objects.filter(multiple_choice=self.id).order_by('id')
+        return MultipleChoiceAnswer.objects.filter(multiple_choice=self.id).order_by('id')
 
 
 class MultipleChoiceAnswer(models.Model):
@@ -474,13 +499,17 @@ class Ordering(models.Model):
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
-    grading_type = models.PositiveSmallIntegerField(blank=True, null=True)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
 
     def __str__(self):
         return str(self.id)
 
     def get_matching_choices(self):
             return MatchingChoice.objects.filter(matching=self.id).order_by('id')
+
+    def get_unique_matching_answers(self):
+        matching_answers = MatchingAnswer.objects.filter(matching_choice__matching__id = self.id).order_by('answer_text').values_list('answer_text', flat=True).distinct()
+        return matching_answers
 
 
 class MatchingChoice(models.Model):
@@ -491,8 +520,9 @@ class MatchingChoice(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def get_matching_answers(self):
-            return MatchingAnswer.objects.filter(matching_choice=self.id).order_by('id')
+    def has_matching_answer(self, text_value):
+        matching_answers = MatchingAnswer.objects.filter(matching_choice=self.id, answer_text=text_value).order_by('answer_text').values_list('answer_text', flat=True)
+        return len(matching_answers)>0
 
 class MatchingAnswer(models.Model):
     id = models.AutoField(primary_key=True)

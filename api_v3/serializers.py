@@ -195,7 +195,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'text', 'point', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response']
+        fields = ['title', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response']
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -203,7 +203,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Section
-        fields = ['title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
+        fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
 
 
 class QuestionErrorSerializer(serializers.ModelSerializer):
