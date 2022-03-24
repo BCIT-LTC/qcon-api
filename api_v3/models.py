@@ -27,7 +27,7 @@ from rest_framework.authtoken.models import Token
 from enum import Enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 # Create your models here.
@@ -349,7 +349,7 @@ class Question(models.Model):
     title = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     points = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True,default=0)
-    difficulty = models.PositiveSmallIntegerField(blank=True, null=True)
+    difficulty = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1),MaxValueValidator(5)], default=1)
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
@@ -402,7 +402,7 @@ class MultipleChoice(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='multiplechoices', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
     
     def __str__(self):
         return str(self.id)
@@ -429,7 +429,7 @@ class TrueFalse(models.Model):
     true_feedback = models.TextField(blank=True, null=True)
     false_weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
     false_feedback = models.TextField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
     
     def __str__(self):
         return str(self.id)
@@ -452,9 +452,9 @@ class MultipleSelect(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='multipleselects', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True, null=True)
-    style = models.PositiveSmallIntegerField(blank=True, null=True)
-    grading_type = models.PositiveSmallIntegerField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1),MaxValueValidator(6)], default=4)
+    style = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1),MaxValueValidator(3)], default=2)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=2)
     
     def __str__(self):
         return str(self.id)
@@ -499,7 +499,7 @@ class Ordering(models.Model):
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
-    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
 
     def __str__(self):
         return str(self.id)
