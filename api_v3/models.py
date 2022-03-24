@@ -173,34 +173,20 @@ class QuestionLibrary(models.Model):
     def create_xml_files(self):
 
         try:
-            # parsed_questions_result = Question.objects.filter(question_library=self)
-            print("______________________________1______________________________")
-            
-            parsed_questions_result = QuestionLibrary.objects.filter(id=self.id).first()
-            print("YES")
-            parsed_xml = XmlWriter( parsed_questions_result)
-
-            print("______________________________2______________________________")
+            ql_obj = QuestionLibrary.objects.filter(id=self.id).first()
+            parsed_xml = XmlWriter(ql_obj)
             manifest_entity = ManifestEntity()
-            print("______________________________3______________________________")
             manifest_resource_entity = ManifestResourceEntity(
                 'res_question_library', 'webcontent', 'd2lquestionlibrary',
                 'questiondb.xml', 'Question Library')
-            print("______________________________4______________________________")
             manifest_entity.add_resource(manifest_resource_entity)
-            print("______________________________5______________________________")
             manifest = parsed_xml.create_manifest(manifest_entity, self.folder_path)
-            print("______________________________6______________________________")
             parsed_imsmanifest = ET.tostring(manifest.getroot(),
                                              encoding='utf-8',
                                              xml_declaration=True).decode()
-            print("______________________________7______________________________")
             parsed_imsmanifest = parseString(parsed_imsmanifest)
-            print("______________________________8______________________________")
             parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
-            print("______________________________9______________________________")
             self.imsmanifest_string = parsed_imsmanifest
-            print("______________________________10______________________________")
             self.save()
 
             logger.info("[" + str(self.id) + "] " +

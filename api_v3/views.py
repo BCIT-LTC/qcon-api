@@ -230,14 +230,17 @@ class JsonToScorm(APIView):
             
             if (ql_instance.total_question_errors + ql_instance.total_document_errors == 0):
                 ql_instance.create_xml_files()
-                # ql_instance.zip_files()
+                ql_instance.zip_files()
 
-                # file_response = FileResponse(instance.zip_file)
-                # file_response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
-                # logger.info("[" + str(instance.id) + "] " +">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                file_response = FileResponse(ql_instance.zip_file)
+                file_response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
+
+                logger.info("[" + str(ql_instance.id) + "] " +">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+
                 ql_instance.cleanup()
-                # return file_response
-                return Response(ql_serializer.data, status=201)
+
+                return file_response
+                
             else:
                 #Serializer to query only the records that contain errors
 
