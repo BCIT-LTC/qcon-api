@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 from .models import Section, Question
 
 
-def create_section_name():
+def create_main_title():
     pass
 
 

@@ -1,4 +1,4 @@
-FROM python:3.9 AS qcon-api-base
+FROM python:3.10 AS qcon-api-base
 
 ENV ARCH amd64
 ENV PANDOC_VERSION 2.16.1
@@ -77,7 +77,7 @@ RUN set -ex; \
     jar cvfe splitter.jar splitter  *.class ./antlr.jar;
 
 ####################################################### RELEASE
-FROM python:3.9-alpine AS release  
+FROM python:3.10-alpine AS release  
 LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
