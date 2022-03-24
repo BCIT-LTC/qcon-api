@@ -363,23 +363,23 @@ class Question(models.Model):
     def get_true_false(self):
         return TrueFalse.objects.filter(question=self.id).first()
 
-    def get_multiple_select(self):
-        return MultipleSelect.objects.filter(question=self.id).first()
-
     def get_fibs(self):
         return Fib.objects.filter(question=self.id).order_by('order')
 
     def get_fib_answers(self):
         return Fib.objects.filter(question=self.id, type='fibanswer').order_by('id')
 
+    def get_multiple_select(self):
+        return MultipleSelect.objects.filter(question=self.id).first()
+
+    def get_matching(self):
+        return Matching.objects.filter(question=self.id).first()
+
     def get_orderings(self):
         return Ordering.objects.filter(question=self.id).order_by('order')
 
     def get_written_response(self):
         return WrittenResponse.objects.filter(question=self.id).first()
-
-    def get_matching(self):
-        return Matching.objects.filter(question=self.id).first()
 
     def get_question_type(self):
         if self.get_multiple_choice():
@@ -474,28 +474,6 @@ class MultipleSelectAnswer(models.Model):
         return str(self.id)
 
 
-class WrittenResponse(models.Model):
-    id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='writtenresponses', on_delete=models.CASCADE)
-    enable_student_editor = models.BooleanField(blank=True, null=True)
-    initial_text = models.TextField(blank=True, null=True)
-    answer_key = models.TextField(blank=True, null=True)
-    enable_attachments = models.BooleanField(blank=True, null=True)
-
-    def __str__(self):
-        return str(self.id)
-
-class Ordering(models.Model):
-    id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='orderings', on_delete=models.CASCADE)
-    text = models.TextField(blank=True, null=True)
-    order = models.PositiveSmallIntegerField(blank=True, null=True)
-    ord_feedback = models.TextField(blank=True, null=True)
-    
-    def __str__(self):
-        return str(self.id)
-
-
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
@@ -531,6 +509,30 @@ class MatchingAnswer(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+class Ordering(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='orderings', on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
+    ord_feedback = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return str(self.id)
+
+
+class WrittenResponse(models.Model):
+    id = models.AutoField(primary_key=True)
+    question = models.ForeignKey(Question, related_name='writtenresponses', on_delete=models.CASCADE)
+    enable_student_editor = models.BooleanField(blank=True, null=True)
+    initial_text = models.TextField(blank=True, null=True)
+    answer_key = models.TextField(blank=True, null=True)
+    enable_attachments = models.BooleanField(blank=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
+
 
 class ErrorType(models.Model):
     error_type = models.CharField(max_length=7, primary_key=True)
