@@ -24,11 +24,16 @@ from django.core.files.base import ContentFile
 # from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
+from asgiref.sync import async_to_sync
+from asgiref.sync import sync_to_async
+
 from enum import Enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 # Create your models here.
 
@@ -40,6 +45,7 @@ def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     # print('{0}/{1}'.format(instance.id, file_name))
     return '{0}/{1}'.format(instance.id, file_name)
+
 
 # TODO format_media_path for custom media folder
 
@@ -53,6 +59,8 @@ class QuestionLibrary(models.Model):
     temp_file = models.FileField(upload_to=format_file_path,
                                  blank=True,
                                  null=True)
+    is_busy_processing = models.BooleanField(default=False, blank=True)
+    session_id = models.TextField(blank=True, null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     image_path = models.FilePathField(path=None,
                                       match=None,
@@ -96,12 +104,13 @@ class QuestionLibrary(models.Model):
     class Meta:
         verbose_name_plural = "question libraries"
 
-
     def get_root_section(self):
-        return Section.objects.filter(question_library=self.id, is_main_content=True).first()
+        return Section.objects.filter(question_library=self.id,
+                                      is_main_content=True).first()
 
     def get_sections(self):
-        return Section.objects.filter(question_library=self.id).order_by('order')
+        return Section.objects.filter(
+            question_library=self.id).order_by('order')
 
 
 # Prevents illegal characters for the filename
@@ -139,18 +148,18 @@ class QuestionLibrary(models.Model):
                 format='docx+empty_paragraphs',
                 to='html+empty_paragraphs',
                 extra_args=[
-                    '--no-highlight',
-                    '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
+                    '--no-highlight', '--self-contained',
+                    '--markdown-headings=atx', '--preserve-tabs',
                     '--wrap=preserve', '--indent=false'
                 ])
-                
+
             pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
                 'gfm',
                 format='html+empty_paragraphs',
                 extra_args=[
-                    '--no-highlight',
-                    '--self-contained', '--markdown-headings=atx', '--preserve-tabs',
+                    '--no-highlight', '--self-contained',
+                    '--markdown-headings=atx', '--preserve-tabs',
                     '--wrap=preserve', '--indent=false'
                     '--lua-filter=' + mdblockquotePath,
                     '--lua-filter=' + emptyparaPath,
@@ -159,7 +168,7 @@ class QuestionLibrary(models.Model):
 
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,
                                                   name="pandoc_output.md")
-            
+
             self.pandoc_output = "\n" + pandoc_html_to_md
 
             self.save()
@@ -180,7 +189,8 @@ class QuestionLibrary(models.Model):
                 'res_question_library', 'webcontent', 'd2lquestionlibrary',
                 'questiondb.xml', 'Question Library')
             manifest_entity.add_resource(manifest_resource_entity)
-            manifest = parsed_xml.create_manifest(manifest_entity, self.folder_path)
+            manifest = parsed_xml.create_manifest(manifest_entity,
+                                                  self.folder_path)
             parsed_imsmanifest = ET.tostring(manifest.getroot(),
                                              encoding='utf-8',
                                              xml_declaration=True).decode()
@@ -191,7 +201,6 @@ class QuestionLibrary(models.Model):
 
             logger.info("[" + str(self.id) + "] " +
                         "imsmanifest String Created")
-
 
         except Exception as e:
             logger.error("[" + str(self.id) + "] " +
@@ -223,7 +232,6 @@ class QuestionLibrary(models.Model):
             logger.info("[" + str(self.id) + "] " +
                         "QuestionDB String Created")
 
-
         except Exception as e:
             logger.error("[" + str(self.id) + "] " +
                          "QuestionDB String Failed")
@@ -237,14 +245,11 @@ class QuestionLibrary(models.Model):
             self.questiondb_file = questiondb_file
             # question_library.checkpoint = 5;
             self.save()
-            logger.info("[" + str(self.id) + "] " +
-                        "XML files Created")
+            logger.info("[" + str(self.id) + "] " + "XML files Created")
             # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
 
-
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "XML files Failed")
+            logger.error("[" + str(self.id) + "] " + "XML files Failed")
             self.error = "XML files Failed"
             self.save()
 
@@ -252,8 +257,8 @@ class QuestionLibrary(models.Model):
 
         try:
             with ZipFile(
-                    self.folder_path + "/" + self.filtered_main_title +
-                    '.zip', 'w') as myzip:
+                    self.folder_path + "/" + self.filtered_main_title + '.zip',
+                    'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
                 for root, dirs, files in walk(self.image_path):
@@ -262,15 +267,13 @@ class QuestionLibrary(models.Model):
                             path.join(root, filename), '/assessment-assets/' +
                             self.filtered_main_title + '/' + filename)
 
-            self.zip_file.name = str(self.id) + "/" + self.filtered_main_title + '.zip'
+            self.zip_file.name = str(
+                self.id) + "/" + self.filtered_main_title + '.zip'
             self.save()
-            logger.info("[" + str(self.id) + "] " +
-                        "ZIP file Created")
-
+            logger.info("[" + str(self.id) + "] " + "ZIP file Created")
 
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "ZIP file Failed")
+            logger.error("[" + str(self.id) + "] " + "ZIP file Failed")
 
             self.error = "ZIP file Failed"
             self.save()
@@ -278,11 +281,11 @@ class QuestionLibrary(models.Model):
     def create_zip_file_package(self):
         try:
             with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
-                myzip.write(self.zip_file.path, self.filtered_main_title + '.zip')
+                myzip.write(self.zip_file.path,
+                            self.filtered_main_title + '.zip')
                 myzip.write(self.json_file.path, 'result.json')
 
-            self.output_zip_file.name = str(
-                self.id) + "/" + 'package.zip'
+            self.output_zip_file.name = str(self.id) + "/" + 'package.zip'
             self.save()
             logger.info("[" + str(self.id) + "] " +
                         "ZIP file with JSON package Created")
@@ -312,34 +315,50 @@ class Section(models.Model):
                                               null=True,
                                               default=False)
     raw_content = models.TextField(blank=True, null=True)
-    questions_processed = models.DecimalField(max_digits=3, decimal_places=0, null=True)
-    questions_expected = models.DecimalField(max_digits=3, decimal_places=0, null=True)
+    questions_processed = models.DecimalField(max_digits=3,
+                                              decimal_places=0,
+                                              null=True)
+    questions_expected = models.DecimalField(max_digits=3,
+                                             decimal_places=0,
+                                             null=True)
     title = models.TextField(blank=True, null=True)
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     is_text_displayed = models.BooleanField(blank=True, null=True)
     shuffle = models.BooleanField(blank=True, null=True)
-    
+
     def __str__(self):
         return str(self.id)
-    
+
     def get_questions(self):
         return Question.objects.filter(section=self.id).order_by('id')
-        
+
+
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
-    section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
+    section = models.ForeignKey(Section,
+                                related_name='questions',
+                                on_delete=models.CASCADE)
     number_provided = models.TextField(blank=True, null=True)
     raw_header = models.TextField(blank=True, null=True)
     raw_content = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
-    points = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True,default=0)
-    difficulty = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1),MaxValueValidator(5)], default=1)
+    points = models.DecimalField(unique=False,
+                                 max_digits=8,
+                                 decimal_places=4,
+                                 null=True,
+                                 default=0)
+    difficulty = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(5)],
+        default=1)
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
-    
+
     def __str__(self):
         return str(self.text)
 
@@ -353,7 +372,8 @@ class Question(models.Model):
         return Fib.objects.filter(question=self.id).order_by('order')
 
     def get_fib_answers(self):
-        return Fib.objects.filter(question=self.id, type='fibanswer').order_by('id')
+        return Fib.objects.filter(question=self.id,
+                                  type='fibanswer').order_by('id')
 
     def get_multiple_select(self):
         return MultipleSelect.objects.filter(question=self.id).first()
@@ -382,76 +402,120 @@ class Question(models.Model):
             return 'WR'
         elif self.get_matching():
             return 'MAT'
-        
+
 
 class MultipleChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='multiplechoices', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question,
+                                 related_name='multiplechoices',
+                                 on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
-    
+    enumeration = models.PositiveSmallIntegerField(blank=True,
+                                                   null=True,
+                                                   default=4)
+
     def __str__(self):
         return str(self.id)
-    
+
     def get_multiple_choice_answers(self):
-        return MultipleChoiceAnswer.objects.filter(multiple_choice=self.id).order_by('id')
+        return MultipleChoiceAnswer.objects.filter(
+            multiple_choice=self.id).order_by('id')
 
 
 class MultipleChoiceAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiplechoiceanswers', on_delete=models.CASCADE)
+    multiple_choice = models.ForeignKey(MultipleChoice,
+                                        related_name='multiplechoiceanswers',
+                                        on_delete=models.CASCADE)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
-    weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
-    
+    weight = models.DecimalField(unique=False,
+                                 max_digits=8,
+                                 decimal_places=4,
+                                 null=True)
+
     def __str__(self):
         return str(self.id)
 
 
 class TrueFalse(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='truefalse', on_delete=models.CASCADE)
-    true_weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
+    question = models.ForeignKey(Question,
+                                 related_name='truefalse',
+                                 on_delete=models.CASCADE)
+    true_weight = models.DecimalField(unique=False,
+                                      max_digits=8,
+                                      decimal_places=4,
+                                      null=True)
     true_feedback = models.TextField(blank=True, null=True)
-    false_weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
+    false_weight = models.DecimalField(unique=False,
+                                       max_digits=8,
+                                       decimal_places=4,
+                                       null=True)
     false_feedback = models.TextField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
-    
+    enumeration = models.PositiveSmallIntegerField(blank=True,
+                                                   null=True,
+                                                   default=4)
+
     def __str__(self):
         return str(self.id)
 
 
 class Fib(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='fibs', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question,
+                                 related_name='fibs',
+                                 on_delete=models.CASCADE)
     type = models.CharField(max_length=11, null=False)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
-    size = models.DecimalField(unique=False,max_digits=3,decimal_places=0,null=True)
-    weight = models.DecimalField(unique=False,max_digits=8,decimal_places=4,null=True)
-    
+    size = models.DecimalField(unique=False,
+                               max_digits=3,
+                               decimal_places=0,
+                               null=True)
+    weight = models.DecimalField(unique=False,
+                                 max_digits=8,
+                                 decimal_places=4,
+                                 null=True)
+
     def __str__(self):
         return str(self.id)
 
 
 class MultipleSelect(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='multipleselects', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question,
+                                 related_name='multipleselects',
+                                 on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1),MaxValueValidator(6)], default=4)
-    style = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1),MaxValueValidator(3)], default=2)
-    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=2)
-    
+    enumeration = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(6)],
+        default=4)
+    style = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(3)],
+        default=2)
+    grading_type = models.PositiveSmallIntegerField(
+        blank=True, null=True, validators=[MaxValueValidator(3)], default=2)
+
     def __str__(self):
         return str(self.id)
 
     def get_multiple_select_answers(self):
-        return MultipleSelectAnswer.objects.filter(multiple_select=self.id).order_by('id')
+        return MultipleSelectAnswer.objects.filter(
+            multiple_select=self.id).order_by('id')
 
 
 class MultipleSelectAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    multiple_select = models.ForeignKey(MultipleSelect, related_name='multipleselectanswers', on_delete=models.CASCADE)
+    multiple_select = models.ForeignKey(MultipleSelect,
+                                        related_name='multipleselectanswers',
+                                        on_delete=models.CASCADE)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
@@ -462,35 +526,49 @@ class MultipleSelectAnswer(models.Model):
 
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
-    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
+    question = models.ForeignKey(Question,
+                                 related_name='matchings',
+                                 on_delete=models.CASCADE)
+    grading_type = models.PositiveSmallIntegerField(
+        blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
 
     def __str__(self):
         return str(self.id)
 
     def get_matching_choices(self):
-            return MatchingChoice.objects.filter(matching=self.id).order_by('id')
+        return MatchingChoice.objects.filter(matching=self.id).order_by('id')
 
     def get_unique_matching_answers(self):
-        matching_answers = MatchingAnswer.objects.filter(matching_choice__matching__id = self.id).order_by('answer_text').values_list('answer_text', flat=True).distinct()
+        matching_answers = MatchingAnswer.objects.filter(
+            matching_choice__matching__id=self.id).order_by(
+                'answer_text').values_list('answer_text',
+                                           flat=True).distinct()
         return matching_answers
 
 
 class MatchingChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    matching = models.ForeignKey(Matching, related_name='matchingchoices', on_delete=models.CASCADE)
+    matching = models.ForeignKey(Matching,
+                                 related_name='matchingchoices',
+                                 on_delete=models.CASCADE)
     choice_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
 
     def has_matching_answer(self, text_value):
-        matching_answers = MatchingAnswer.objects.filter(matching_choice=self.id, answer_text=text_value).order_by('answer_text').values_list('answer_text', flat=True)
-        return len(matching_answers)>0
+        matching_answers = MatchingAnswer.objects.filter(
+            matching_choice=self.id,
+            answer_text=text_value).order_by('answer_text').values_list(
+                'answer_text', flat=True)
+        return len(matching_answers) > 0
+
 
 class MatchingAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    matching_choice = models.ForeignKey(MatchingChoice, related_name='matchinganswers', on_delete=models.CASCADE)
+    matching_choice = models.ForeignKey(MatchingChoice,
+                                        related_name='matchinganswers',
+                                        on_delete=models.CASCADE)
     answer_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -499,18 +577,22 @@ class MatchingAnswer(models.Model):
 
 class Ordering(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='orderings', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question,
+                                 related_name='orderings',
+                                 on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     ord_feedback = models.TextField(blank=True, null=True)
-    
+
     def __str__(self):
         return str(self.id)
 
 
 class WrittenResponse(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='writtenresponses', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question,
+                                 related_name='writtenresponses',
+                                 on_delete=models.CASCADE)
     enable_student_editor = models.BooleanField(blank=True, null=True)
     initial_text = models.TextField(blank=True, null=True)
     answer_key = models.TextField(blank=True, null=True)
@@ -526,6 +608,7 @@ class ErrorType(models.Model):
 
     def __str__(self):
         return str(self.error_type)
+
 
 class QuestionErrorType(str, Enum):  # A subclass of Enum
     MC1 = "MC1"
@@ -549,6 +632,7 @@ class QuestionErrorType(str, Enum):  # A subclass of Enum
     HEADER3 = "HEADER3"
     END1 = "END1"
 
+
 class QuestionError(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question,
@@ -556,18 +640,20 @@ class QuestionError(models.Model):
                                  on_delete=models.CASCADE)
     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
     error_type = models.TextField(max_length=50,
-                                 choices=[(tag, tag.value)
-                                          for tag in QuestionErrorType
-                                          ])  # Choices is a list of Tuple)
+                                  choices=[(tag, tag.value)
+                                           for tag in QuestionErrorType
+                                           ])  # Choices is a list of Tuple)
     message = models.TextField(max_length=50)
     action = models.TextField(max_length=50)
 
     def __str__(self):
         return str(self.id)
 
+
 class DocumentErrorType(str, Enum):  # A subclass of Enum
     SPLITTER1 = "SPLITTER1"
     SPLITTER2 = "SPLITTER2"
+
 
 class DocumentError(models.Model):
     id = models.AutoField(primary_key=True)
@@ -576,9 +662,9 @@ class DocumentError(models.Model):
                                  on_delete=models.CASCADE)
     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
     error_type = models.TextField(max_length=50,
-                                 choices=[(tag, tag.value)
-                                          for tag in DocumentErrorType
-                                          ])  # Choices is a list of Tuple)
+                                  choices=[(tag, tag.value)
+                                           for tag in DocumentErrorType
+                                           ])  # Choices is a list of Tuple)
     message = models.TextField(max_length=50)
     action = models.TextField(max_length=50)
 
@@ -607,6 +693,70 @@ def delete_files(sender, instance, **kwargs):
     logger.info("[" + str(instance) + "] " +
                 "Questionlibrary and Files Deleted")
 
+
+# @receiver(post_save, sender=QuestionLibrary, dispatch_uid="start_process")
+# def start_process(sender, instance, **kwargs):
+#     print("post_save ")
+
+#     if (instance.is_busy_processing):
+#         print("process busy ")
+#         return
+#     if (instance.session_id == None):
+#         print("session_id not set ")
+#         return
+#     if (instance.id == None):
+#         print("instance id not set ")
+#         return
+
+#     print("starting process ")
+#     instance.is_busy_processing = True
+#     instance.save()
+
+#     from channels.layers import get_channel_layer
+#     channel_layer = get_channel_layer()
+
+#     import time
+#     testvar = "message1"
+#     time.sleep(5)
+#     print("000000")
+
+    # async_to_sync(channel_layer.group_send)(instance.session_id, {
+    #     'type': 'send_message',
+    #     "message": testvar
+    # })
+    # testfunc(instance)
+    # print("test1")
+    # time.sleep(5)
+    # print("11111")
+    # testvar = "message2"
+    # async_to_sync(channel_layer.group_send)(instance.session_id, {
+    #     'type': 'send_message',
+    #     "message": testvar
+    # })
+    # print("test2")
+    # testvar = "message3"
+    # time.sleep(5)
+    # print("22222")
+
+    # async_to_sync(channel_layer.group_send)(instance.session_id, {
+    #     'type': 'send_message',
+    #     "message": testvar
+    # })
+
+    # print("test3")
+
+    # print(instance.temp_file)
+    # if(created):
+    #     print(created)
+    #     instance.save()
+
+def testfunc(instance):
+    from channels.layers import get_channel_layer
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(instance.session_id, {
+        'type': 'send_message',
+        "message": "within func"
+    })
 
 class CustomToken1(Token):
     """
