@@ -12,6 +12,8 @@ from .models import Section, Question
 def create_main_title():
     pass
 
+class FormatterError(Exception):
+    pass
 
 # This is to split end_answers and body and trim the unused data at the top
 def run_formatter(questionlibrary):
@@ -27,7 +29,7 @@ def run_formatter(questionlibrary):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        pass
+        raise FormatterError("Not valid")
 
     try:
         if root[0].tag == "body":
@@ -36,10 +38,10 @@ def run_formatter(questionlibrary):
             pass
         else:
             logger.error("Body not found")
-            pass
+            raise FormatterError("Body not found")
     except:
         logger.error("Body not found")
-        pass
+        raise FormatterError("Body not found")
 
     try:
         if root[1].tag == "end_answers":
@@ -52,6 +54,7 @@ def run_formatter(questionlibrary):
         # logger.warning("Answer section not found")
         pass
 
+    return True
 
 # This is to split sections into separate objects
 def run_sectioner(questionlibrary):
@@ -73,6 +76,8 @@ def run_sectioner(questionlibrary):
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
         pass
+
+    
 
     for section in root:
 
@@ -98,7 +103,8 @@ def run_sectioner(questionlibrary):
             sectionobject.is_main_content = False
 
         sectionobject.save()
-    pass
+
+
 
 def run_splitter(questionlibrary):
 

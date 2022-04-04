@@ -24,9 +24,6 @@ from django.core.files.base import ContentFile
 # from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
-from asgiref.sync import async_to_sync
-from asgiref.sync import sync_to_async
-
 from enum import Enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -696,68 +693,7 @@ def delete_files(sender, instance, **kwargs):
 
 # @receiver(post_save, sender=QuestionLibrary, dispatch_uid="start_process")
 # def start_process(sender, instance, **kwargs):
-#     print("post_save ")
-
-#     if (instance.is_busy_processing):
-#         print("process busy ")
-#         return
-#     if (instance.session_id == None):
-#         print("session_id not set ")
-#         return
-#     if (instance.id == None):
-#         print("instance id not set ")
-#         return
-
-#     print("starting process ")
-#     instance.is_busy_processing = True
-#     instance.save()
-
-#     from channels.layers import get_channel_layer
-#     channel_layer = get_channel_layer()
-
-#     import time
-#     testvar = "message1"
-#     time.sleep(5)
-#     print("000000")
-
-    # async_to_sync(channel_layer.group_send)(instance.session_id, {
-    #     'type': 'send_message',
-    #     "message": testvar
-    # })
-    # testfunc(instance)
-    # print("test1")
-    # time.sleep(5)
-    # print("11111")
-    # testvar = "message2"
-    # async_to_sync(channel_layer.group_send)(instance.session_id, {
-    #     'type': 'send_message',
-    #     "message": testvar
-    # })
-    # print("test2")
-    # testvar = "message3"
-    # time.sleep(5)
-    # print("22222")
-
-    # async_to_sync(channel_layer.group_send)(instance.session_id, {
-    #     'type': 'send_message',
-    #     "message": testvar
-    # })
-
-    # print("test3")
-
-    # print(instance.temp_file)
-    # if(created):
-    #     print(created)
     #     instance.save()
-
-def testfunc(instance):
-    from channels.layers import get_channel_layer
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(instance.session_id, {
-        'type': 'send_message',
-        "message": "within func"
-    })
-
 class CustomToken1(Token):
     """
     The extended authorization token model to support tokens generated from external sources
