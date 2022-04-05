@@ -49,65 +49,39 @@ def format_file_path(instance, file_name):
 
 class QuestionLibrary(models.Model):
     id = models.AutoField(primary_key=True)
-    folder_path = models.FilePathField(path="/code",
-                                       match=None,
-                                       recursive=False,
-                                       max_length=None)
-    temp_file = models.FileField(upload_to=format_file_path,
-                                 blank=True,
-                                 null=True)
+    folder_path = models.FilePathField(path="/code", match=None, recursive=False, max_length=None)
+    temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     is_busy_processing = models.BooleanField(default=False, blank=True)
     session_id = models.TextField(blank=True, null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
-    image_path = models.FilePathField(path=None,
-                                      match=None,
-                                      recursive=False,
-                                      max_length=None)
+    image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     main_title = models.TextField(blank=True, null=True)
     filtered_main_title = models.TextField(blank=True, null=True)
     end_answers = models.TextField(blank=True, null=True)
     formatter_error = models.TextField(blank=True, null=True)
     formatter_output = models.TextField(blank=True, null=True)
-    pandoc_output_file = models.FileField(upload_to=format_file_path,
-                                          blank=True,
-                                          null=True)
+    pandoc_output_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     pandoc_output = models.TextField(blank=True, null=True)
     sectioner_output = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
-    imsmanifest_file = models.FileField(upload_to=format_file_path,
-                                        blank=True,
-                                        null=True)
+    imsmanifest_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     questiondb_string = models.TextField(blank=True, null=True)
-    questiondb_file = models.FileField(upload_to=format_file_path,
-                                       blank=True,
-                                       null=True)
-    zip_file = models.FileField(upload_to=format_file_path,
-                                blank=True,
-                                null=True)
+    questiondb_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
+    zip_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     json_data = models.JSONField(null=True, blank=True, default=dict)
-    output_zip_file = models.FileField(upload_to=format_file_path,
-                                       blank=True,
-                                       null=True)
+    output_zip_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    total_question_errors = models.DecimalField(max_digits=6,
-                                                decimal_places=0,
-                                                blank=True,
-                                                null=True)
-    total_document_errors = models.DecimalField(max_digits=6,
-                                                decimal_places=0,
-                                                blank=True,
-                                                null=True)
+    total_question_errors = models.DecimalField(max_digits=6, decimal_places=0, blank=True, null=True)
+    total_document_errors = models.DecimalField(max_digits=6, decimal_places=0, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "question libraries"
 
     def get_root_section(self):
-        return Section.objects.filter(question_library=self.id,
-                                      is_main_content=True).first()
+        return Section.objects.filter(question_library=self.id, is_main_content=True).first()
 
     def get_sections(self):
-        return Section.objects.filter(
-            question_library=self.id).order_by('order')
+        return Section.objects.filter(question_library=self.id).order_by('order')
 
 
 # Prevents illegal characters for the filename
@@ -119,14 +93,10 @@ class QuestionLibrary(models.Model):
         filtered_main_title = filtered_main_title.replace(' ', '-')
 
         # If the file name is illegal Windows string, replace with "Converted-Exam"
-        filtered_main_title = filtered_main_title.replace(
-            '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam',
-            re.IGNORECASE)
+        filtered_main_title = filtered_main_title.replace('^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam', re.IGNORECASE)
 
         # Limit the filename to 30 characters
-        filtered_main_title = (
-            filtered_main_title[:50]
-        ) if len(filtered_main_title) > 50 else filtered_main_title
+        filtered_main_title = (filtered_main_title[:50]) if len(filtered_main_title) > 50 else filtered_main_title
 
         self.filtered_main_title = filtered_main_title
 
@@ -140,31 +110,19 @@ class QuestionLibrary(models.Model):
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
             listsPath = "./api_v3/pandoc-filters/lists.lua"
-            pandoc_word_to_html = pypandoc.convert_file(
-                self.temp_file.path,
-                format='docx+empty_paragraphs',
-                to='html+empty_paragraphs',
-                extra_args=[
-                    '--no-highlight', '--self-contained',
-                    '--markdown-headings=atx', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false'
-                ])
+            pandoc_word_to_html = pypandoc.convert_file(self.temp_file.path,
+                                                        format='docx+empty_paragraphs',
+                                                        to='html+empty_paragraphs',
+                                                        extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false'])
 
             pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
-                'gfm',
+                'markdown',
                 format='html+empty_paragraphs',
-                extra_args=[
-                    '--no-highlight', '--self-contained',
-                    '--markdown-headings=atx', '--preserve-tabs',
-                    '--wrap=preserve', '--indent=false'
-                    '--lua-filter=' + mdblockquotePath,
-                    '--lua-filter=' + emptyparaPath,
-                    '--lua-filter=' + listsPath
-                ])
+                extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false'
+                            '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath, '--lua-filter=' + listsPath])
 
-            self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md,
-                                                  name="pandoc_output.md")
+            self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
 
             self.pandoc_output = "\n" + pandoc_html_to_md
 
@@ -182,63 +140,48 @@ class QuestionLibrary(models.Model):
             ql_obj = QuestionLibrary.objects.filter(id=self.id).first()
             parsed_xml = XmlWriter(ql_obj)
             manifest_entity = ManifestEntity()
-            manifest_resource_entity = ManifestResourceEntity(
-                'res_question_library', 'webcontent', 'd2lquestionlibrary',
-                'questiondb.xml', 'Question Library')
+            manifest_resource_entity = ManifestResourceEntity('res_question_library', 'webcontent', 'd2lquestionlibrary', 'questiondb.xml', 'Question Library')
             manifest_entity.add_resource(manifest_resource_entity)
-            manifest = parsed_xml.create_manifest(manifest_entity,
-                                                  self.folder_path)
-            parsed_imsmanifest = ET.tostring(manifest.getroot(),
-                                             encoding='utf-8',
-                                             xml_declaration=True).decode()
+            manifest = parsed_xml.create_manifest(manifest_entity, self.folder_path)
+            parsed_imsmanifest = ET.tostring(manifest.getroot(), encoding='utf-8', xml_declaration=True).decode()
             parsed_imsmanifest = parseString(parsed_imsmanifest)
             parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
             self.imsmanifest_string = parsed_imsmanifest
             self.save()
 
-            logger.info("[" + str(self.id) + "] " +
-                        "imsmanifest String Created")
+            logger.info("[" + str(self.id) + "] " + "imsmanifest String Created")
 
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "imsmanifest String Failed")
+            logger.error("[" + str(self.id) + "] " + "imsmanifest String Failed")
 
             self.error = "imsmanifest String Failed"
             self.save()
 
         try:
             questiondb_string = parsed_xml.questiondb_string
-            img_elements = re.findall(r"\<img.*?\>", questiondb_string,
-                                      re.MULTILINE)
+            img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
             for idx, img in enumerate(img_elements):
                 element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
-                new_img = '<img src="{0}" alt="{1}" />'.format(
-                    'assessment-assets/' + self.filtered_main_title + '/' +
-                    basename(element[0]), basename(element[0]))
-                questiondb_string = questiondb_string.replace(
-                    img_elements[idx], new_img)
+                new_img = '<img src="{0}" alt="{1}" />'.format('assessment-assets/' + self.filtered_main_title + '/' + basename(element[0]), basename(element[0]))
+                questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
 
             self.questiondb_string = questiondb_string
             self.save()
 
-            imsmanifest_file = ContentFile(self.imsmanifest_string,
-                                           name="imsmanifest.xml")
+            imsmanifest_file = ContentFile(self.imsmanifest_string, name="imsmanifest.xml")
             self.imsmanifest_file = imsmanifest_file
             self.save()
-            logger.info("[" + str(self.id) + "] " +
-                        "QuestionDB String Created")
+            logger.info("[" + str(self.id) + "] " + "QuestionDB String Created")
 
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "QuestionDB String Failed")
+            logger.error("[" + str(self.id) + "] " + "QuestionDB String Failed")
 
             self.error = "QuestionDB String Failed"
             self.save()
 
         try:
-            questiondb_file = ContentFile(self.questiondb_string,
-                                          name="questiondb.xml")
+            questiondb_file = ContentFile(self.questiondb_string, name="questiondb.xml")
             self.questiondb_file = questiondb_file
             # question_library.checkpoint = 5;
             self.save()
@@ -253,19 +196,14 @@ class QuestionLibrary(models.Model):
     def zip_files(self):
 
         try:
-            with ZipFile(
-                    self.folder_path + "/" + self.filtered_main_title + '.zip',
-                    'w') as myzip:
+            with ZipFile(self.folder_path + "/" + self.filtered_main_title + '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
                 for root, dirs, files in walk(self.image_path):
                     for filename in files:
-                        myzip.write(
-                            path.join(root, filename), '/assessment-assets/' +
-                            self.filtered_main_title + '/' + filename)
+                        myzip.write(path.join(root, filename), '/assessment-assets/' + self.filtered_main_title + '/' + filename)
 
-            self.zip_file.name = str(
-                self.id) + "/" + self.filtered_main_title + '.zip'
+            self.zip_file.name = str(self.id) + "/" + self.filtered_main_title + '.zip'
             self.save()
             logger.info("[" + str(self.id) + "] " + "ZIP file Created")
 
@@ -278,17 +216,14 @@ class QuestionLibrary(models.Model):
     def create_zip_file_package(self):
         try:
             with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
-                myzip.write(self.zip_file.path,
-                            self.filtered_main_title + '.zip')
+                myzip.write(self.zip_file.path, self.filtered_main_title + '.zip')
                 myzip.write(self.json_file.path, 'result.json')
 
             self.output_zip_file.name = str(self.id) + "/" + 'package.zip'
             self.save()
-            logger.info("[" + str(self.id) + "] " +
-                        "ZIP file with JSON package Created")
+            logger.info("[" + str(self.id) + "] " + "ZIP file with JSON package Created")
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " +
-                         "ZIP file with JSON package Failed")
+            logger.error("[" + str(self.id) + "] " + "ZIP file with JSON package Failed")
             self.error = "ZIP file Failed"
             self.save()
 
@@ -302,22 +237,14 @@ class QuestionLibrary(models.Model):
 
 class Section(models.Model):
     id = models.AutoField(primary_key=True)
-    question_library = models.ForeignKey(QuestionLibrary,
-                                         related_name='sections',
-                                         on_delete=models.CASCADE)
+    question_library = models.ForeignKey(QuestionLibrary, related_name='sections', on_delete=models.CASCADE)
     is_main_content = models.BooleanField(blank=True, null=True, default=False)
     order = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     validated = models.BooleanField(blank=True, null=True, default=False)
-    finished_processing = models.BooleanField(blank=True,
-                                              null=True,
-                                              default=False)
+    finished_processing = models.BooleanField(blank=True, null=True, default=False)
     raw_content = models.TextField(blank=True, null=True)
-    questions_processed = models.DecimalField(max_digits=3,
-                                              decimal_places=0,
-                                              null=True)
-    questions_expected = models.DecimalField(max_digits=3,
-                                             decimal_places=0,
-                                             null=True)
+    questions_processed = models.DecimalField(max_digits=3, decimal_places=0, null=True)
+    questions_expected = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     title = models.TextField(blank=True, null=True)
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
@@ -333,25 +260,14 @@ class Section(models.Model):
 
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
-    section = models.ForeignKey(Section,
-                                related_name='questions',
-                                on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
     number_provided = models.TextField(blank=True, null=True)
     raw_header = models.TextField(blank=True, null=True)
     raw_content = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
-    points = models.DecimalField(unique=False,
-                                 max_digits=8,
-                                 decimal_places=4,
-                                 null=True,
-                                 default=0)
-    difficulty = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(5)],
-        default=1)
+    points = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True, default=0)
+    difficulty = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)], default=1)
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
@@ -369,8 +285,7 @@ class Question(models.Model):
         return Fib.objects.filter(question=self.id).order_by('order')
 
     def get_fib_answers(self):
-        return Fib.objects.filter(question=self.id,
-                                  type='fibanswer').order_by('id')
+        return Fib.objects.filter(question=self.id, type='fibanswer').order_by('id')
 
     def get_multiple_select(self):
         return MultipleSelect.objects.filter(question=self.id).first()
@@ -403,33 +318,23 @@ class Question(models.Model):
 
 class MultipleChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='multiplechoices',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='multiplechoices', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True,
-                                                   null=True,
-                                                   default=4)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
 
     def __str__(self):
         return str(self.id)
 
     def get_multiple_choice_answers(self):
-        return MultipleChoiceAnswer.objects.filter(
-            multiple_choice=self.id).order_by('id')
+        return MultipleChoiceAnswer.objects.filter(multiple_choice=self.id).order_by('id')
 
 
 class MultipleChoiceAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    multiple_choice = models.ForeignKey(MultipleChoice,
-                                        related_name='multiplechoiceanswers',
-                                        on_delete=models.CASCADE)
+    multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiplechoiceanswers', on_delete=models.CASCADE)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
-    weight = models.DecimalField(unique=False,
-                                 max_digits=8,
-                                 decimal_places=4,
-                                 null=True)
+    weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -437,22 +342,12 @@ class MultipleChoiceAnswer(models.Model):
 
 class TrueFalse(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='truefalse',
-                                 on_delete=models.CASCADE)
-    true_weight = models.DecimalField(unique=False,
-                                      max_digits=8,
-                                      decimal_places=4,
-                                      null=True)
+    question = models.ForeignKey(Question, related_name='truefalse', on_delete=models.CASCADE)
+    true_weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
     true_feedback = models.TextField(blank=True, null=True)
-    false_weight = models.DecimalField(unique=False,
-                                       max_digits=8,
-                                       decimal_places=4,
-                                       null=True)
+    false_weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
     false_feedback = models.TextField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(blank=True,
-                                                   null=True,
-                                                   default=4)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
 
     def __str__(self):
         return str(self.id)
@@ -460,20 +355,12 @@ class TrueFalse(models.Model):
 
 class Fib(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='fibs',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='fibs', on_delete=models.CASCADE)
     type = models.CharField(max_length=11, null=False)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
-    size = models.DecimalField(unique=False,
-                               max_digits=3,
-                               decimal_places=0,
-                               null=True)
-    weight = models.DecimalField(unique=False,
-                                 max_digits=8,
-                                 decimal_places=4,
-                                 null=True)
+    size = models.DecimalField(unique=False, max_digits=3, decimal_places=0, null=True)
+    weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -481,38 +368,22 @@ class Fib(models.Model):
 
 class MultipleSelect(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='multipleselects',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='multipleselects', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
-    enumeration = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(6)],
-        default=4)
-    style = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(3)],
-        default=2)
-    grading_type = models.PositiveSmallIntegerField(
-        blank=True, null=True, validators=[MaxValueValidator(3)], default=2)
+    enumeration = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(6)], default=4)
+    style = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(3)], default=2)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=2)
 
     def __str__(self):
         return str(self.id)
 
     def get_multiple_select_answers(self):
-        return MultipleSelectAnswer.objects.filter(
-            multiple_select=self.id).order_by('id')
+        return MultipleSelectAnswer.objects.filter(multiple_select=self.id).order_by('id')
 
 
 class MultipleSelectAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    multiple_select = models.ForeignKey(MultipleSelect,
-                                        related_name='multipleselectanswers',
-                                        on_delete=models.CASCADE)
+    multiple_select = models.ForeignKey(MultipleSelect, related_name='multipleselectanswers', on_delete=models.CASCADE)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
@@ -523,11 +394,8 @@ class MultipleSelectAnswer(models.Model):
 
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='matchings',
-                                 on_delete=models.CASCADE)
-    grading_type = models.PositiveSmallIntegerField(
-        blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
+    question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
+    grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
 
     def __str__(self):
         return str(self.id)
@@ -536,36 +404,26 @@ class Matching(models.Model):
         return MatchingChoice.objects.filter(matching=self.id).order_by('id')
 
     def get_unique_matching_answers(self):
-        matching_answers = MatchingAnswer.objects.filter(
-            matching_choice__matching__id=self.id).order_by(
-                'answer_text').values_list('answer_text',
-                                           flat=True).distinct()
+        matching_answers = MatchingAnswer.objects.filter(matching_choice__matching__id=self.id).order_by('answer_text').values_list('answer_text', flat=True).distinct()
         return matching_answers
 
 
 class MatchingChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    matching = models.ForeignKey(Matching,
-                                 related_name='matchingchoices',
-                                 on_delete=models.CASCADE)
+    matching = models.ForeignKey(Matching, related_name='matchingchoices', on_delete=models.CASCADE)
     choice_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
 
     def has_matching_answer(self, text_value):
-        matching_answers = MatchingAnswer.objects.filter(
-            matching_choice=self.id,
-            answer_text=text_value).order_by('answer_text').values_list(
-                'answer_text', flat=True)
+        matching_answers = MatchingAnswer.objects.filter(matching_choice=self.id, answer_text=text_value).order_by('answer_text').values_list('answer_text', flat=True)
         return len(matching_answers) > 0
 
 
 class MatchingAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    matching_choice = models.ForeignKey(MatchingChoice,
-                                        related_name='matchinganswers',
-                                        on_delete=models.CASCADE)
+    matching_choice = models.ForeignKey(MatchingChoice, related_name='matchinganswers', on_delete=models.CASCADE)
     answer_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -574,9 +432,7 @@ class MatchingAnswer(models.Model):
 
 class Ordering(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='orderings',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='orderings', on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     ord_feedback = models.TextField(blank=True, null=True)
@@ -587,9 +443,7 @@ class Ordering(models.Model):
 
 class WrittenResponse(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='writtenresponses',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='writtenresponses', on_delete=models.CASCADE)
     enable_student_editor = models.BooleanField(blank=True, null=True)
     initial_text = models.TextField(blank=True, null=True)
     answer_key = models.TextField(blank=True, null=True)
@@ -632,14 +486,9 @@ class QuestionErrorType(str, Enum):  # A subclass of Enum
 
 class QuestionError(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question,
-                                 related_name='questionerrors',
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='questionerrors', on_delete=models.CASCADE)
     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
-    error_type = models.TextField(max_length=50,
-                                  choices=[(tag, tag.value)
-                                           for tag in QuestionErrorType
-                                           ])  # Choices is a list of Tuple)
+    error_type = models.TextField(max_length=50, choices=[(tag, tag.value) for tag in QuestionErrorType])  # Choices is a list of Tuple)
     message = models.TextField(max_length=50)
     action = models.TextField(max_length=50)
 
@@ -654,14 +503,9 @@ class DocumentErrorType(str, Enum):  # A subclass of Enum
 
 class DocumentError(models.Model):
     id = models.AutoField(primary_key=True)
-    document = models.ForeignKey(QuestionLibrary,
-                                 related_name='documenterrors',
-                                 on_delete=models.CASCADE)
+    document = models.ForeignKey(QuestionLibrary, related_name='documenterrors', on_delete=models.CASCADE)
     # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
-    error_type = models.TextField(max_length=50,
-                                  choices=[(tag, tag.value)
-                                           for tag in DocumentErrorType
-                                           ])  # Choices is a list of Tuple)
+    error_type = models.TextField(max_length=50, choices=[(tag, tag.value) for tag in DocumentErrorType])  # Choices is a list of Tuple)
     message = models.TextField(max_length=50)
     action = models.TextField(max_length=50)
 
@@ -673,8 +517,7 @@ class DocumentError(models.Model):
 def delete_files(sender, instance, **kwargs):
     if path.exists(settings.MEDIA_ROOT + str(instance)):
         try:
-            for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance),
-                                          topdown=False):
+            for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance), topdown=False):
                 for name in files:
                     remove(path.join(root, name))
                 for name in dirs:
@@ -687,17 +530,17 @@ def delete_files(sender, instance, **kwargs):
         except OSError as e:
             print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
 
-    logger.info("[" + str(instance) + "] " +
-                "Questionlibrary and Files Deleted")
+    logger.info("[" + str(instance) + "] " + "Questionlibrary and Files Deleted")
 
 
 # @receiver(post_save, sender=QuestionLibrary, dispatch_uid="start_process")
 # def start_process(sender, instance, **kwargs):
-    #     instance.save()
+#     instance.save()
 class CustomToken1(Token):
     """
     The extended authorization token model to support tokens generated from external sources
     """
+
     def save(self, *args, **kwargs):
         # print(self.user)
         # print(self.key)
@@ -712,17 +555,8 @@ class CustomToken1(Token):
 
 
 class StatusResponse:
-    def __init__(self,
-                 name,
-                 cluster_name,
-                 version_number,
-                 build_env,
-                 build_hash,
-                 build_short_sha,
-                 build_date,
-                 app_description,
-                 app_tagline,
-                 created=None):
+
+    def __init__(self, name, cluster_name, version_number, build_env, build_hash, build_short_sha, build_date, app_description, app_tagline, created=None):
         self.name = name
         self.app_description = app_description
         self.version_number = version_number

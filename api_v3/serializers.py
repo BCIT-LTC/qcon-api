@@ -22,27 +22,23 @@ def count_errors(questionlibrary):
     num_question_errors = 0
     for q in question_list:
         q_errorlist = QuestionError.objects.filter(question=q)
-        num_question_errors += q_errorlist.count()    
+        num_question_errors += q_errorlist.count()
     questionlibrary.total_question_errors = num_question_errors
     questionlibrary.save()
 
+
 class WordToJsonSerializer(serializers.Serializer):
 
-    temp_file = serializers.FileField(validators=[validate_docx_file],
-                                      max_length=100,
-                                      allow_empty_file=False,
-                                      use_url=True)
+    temp_file = serializers.FileField(validators=[validate_docx_file], max_length=100, allow_empty_file=False, use_url=True)
 
     randomize = serializers.BooleanField(default=False)
-    
+
     def create(self, validated_data):
         newconversion = QuestionLibrary.objects.create()
-        newconversion.temp_file = validated_data.get('temp_file',
-                                                     validated_data)
-        
-        newconversion.randomize_answer = validated_data.get(
-            'randomize', validated_data)
-        
+        newconversion.temp_file = validated_data.get('temp_file', validated_data)
+
+        newconversion.randomize_answer = validated_data.get('randomize', validated_data)
+
         newconversion.main_title = newconversion.temp_file.name.split(".")[0]
         newconversion.filter_main_title()
         newconversion.folder_path = settings.MEDIA_ROOT + \
@@ -56,8 +52,7 @@ class WordToJsonSerializer(serializers.Serializer):
         return newconversion
 
     def update(self, instance, validated_data):
-        instance.temp_file = validated_data.get('temp_file',
-                                                instance.temp_file)
+        instance.temp_file = validated_data.get('temp_file', instance.temp_file)
         instance.save()
         return instance
 
@@ -68,7 +63,7 @@ class JsonToScormSerializer(serializers.Serializer):
     def create(self, validated_data):
         newconversion = QuestionLibrary.objects.create()
         newconversion.json_data = validated_data.get('json_data', validated_data)
-        
+
         newconversion.folder_path = settings.MEDIA_ROOT + str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
@@ -77,9 +72,7 @@ class JsonToScormSerializer(serializers.Serializer):
         import logging
         logger = logging.getLogger(__name__)
 
-        logger.info(
-            "[" + str(newconversion.id) + "] " +
-            "<<<<<<<<<<Transaction Started<<<<<<<<<<")
+        logger.info("[" + str(newconversion.id) + "] " + "<<<<<<<<<<Transaction Started<<<<<<<<<<")
         # ===========  1  ==================
         # newconversion.create_pandocstring()
         # ===========  2  ==================
@@ -103,6 +96,7 @@ class JsonToScormSerializer(serializers.Serializer):
     #     instance.save()
     #     return instance
 
+
 class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -110,9 +104,8 @@ class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
         fields = ['answer', 'answer_feedback', 'weight']
 
 
-
 class MultipleChoiceSerializer(serializers.ModelSerializer):
-    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True,allow_null=True)
+    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
 
     class Meta:
         model = MultipleChoice
@@ -148,7 +141,7 @@ class MultipleSelectAnswerSerializer(serializers.ModelSerializer):
 
 
 class MultipleSelectSerializer(serializers.ModelSerializer):
-    multiple_select_answers = MultipleSelectAnswerSerializer(many=True,allow_null=True)
+    multiple_select_answers = MultipleSelectAnswerSerializer(many=True, allow_null=True)
 
     class Meta:
         model = MultipleSelect
@@ -161,15 +154,17 @@ class MatchingAnswersSerializer(serializers.ModelSerializer):
         model = MatchingAnswer
         fields = ['answer_text']
 
+
 class MatchingChoiceSerializer(serializers.ModelSerializer):
-    matching_answers = MatchingAnswersSerializer(many=True,allow_null=True)
+    matching_answers = MatchingAnswersSerializer(many=True, allow_null=True)
 
     class Meta:
         model = MatchingChoice
         fields = ['choice_text', 'matching_answers']
 
+
 class MatchingSerializer(serializers.ModelSerializer):
-    matching_choices = MatchingChoiceSerializer(many=True,allow_null=True)
+    matching_choices = MatchingChoiceSerializer(many=True, allow_null=True)
 
     class Meta:
         model = Matching
@@ -194,32 +189,34 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response']
+        fields = ['title', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'raw_content']
 
 
 class SectionSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True,allow_null=True)
+    questions = QuestionSerializer(many=True, allow_null=True)
 
     class Meta:
         model = Section
         fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
+
 
 class JsonResponseSerializer(serializers.ModelSerializer):
     sections = SectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = QuestionLibrary
-        fields = [
-            'main_title', 'sections'
-        ]
+        fields = ['main_title', 'sections']
+
 
 class QuestionErrorSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = QuestionError
         fields = ['error_type', 'message', 'action']
 
 
 class DocumentErrorSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = QuestionError
         fields = ['error_type', 'message', 'action']
@@ -227,18 +224,17 @@ class DocumentErrorSerializer(serializers.ModelSerializer):
 
 class QuestionErrorSummarySerializer(serializers.ModelSerializer):
     question_errors = QuestionErrorSerializer(many=True, read_only=True)
-   
+
     class Meta:
         model = Question
-        fields = [
-            'prefix', 'question_errors'
-        ]
+        fields = ['prefix', 'question_errors']
+
 
 class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
     document_errors = DocumentErrorSerializer(many=True, read_only=True)
     questions = serializers.SerializerMethodField('get_questions')
 
-    def get_questions(self, questionlibrary):        
+    def get_questions(self, questionlibrary):
         question_list = Question.objects.filter(question_library=questionlibrary)
         filtered_question_list_ids = []
         for q in question_list:
@@ -248,21 +244,18 @@ class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
         filtered_question_list_queryset = question_list.filter(id__in=filtered_question_list_ids)
         serializer = QuestionErrorSummarySerializer(instance=filtered_question_list_queryset, many=True, read_only=True)
         return serializer.data
+
     class Meta:
         model = QuestionLibrary
-        fields = [
-            'main_title', 'total_question_errors',
-            'total_document_errors', 'document_errors', 'questions'
-        ]
+        fields = ['main_title', 'total_question_errors', 'total_document_errors', 'document_errors', 'questions']
+
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True,allow_null=True)
+    sections = SectionSerializer(many=True, allow_null=True)
 
     class Meta:
         model = QuestionLibrary
-        fields = [
-            'main_title', 'formatter_output', 'sectioner_output', 'sections'
-        ]
+        fields = ['main_title', 'formatter_output', 'sectioner_output', 'sections']
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections')
@@ -290,17 +283,14 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
 
                         for mc_answers in mc_answers_data:
                             mc_answers_instance = MultipleChoiceAnswer.objects.create(multiple_choice=mc_instance, **mc_answers)
-                
-                
+
                 if tf_data:
                     for true_false in tf_data:
                         tf_instance = TrueFalse.objects.create(question=question_instance, **true_false)
 
-
                 if fib_data:
                     for fib_item in fib_data:
                         fib_item_instance = Fib.objects.create(question=question_instance, **fib_item)
-
 
                 if ms_data:
                     for multiple_select in ms_data:
@@ -310,11 +300,10 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
                         for ms_answers in ms_answers_data:
                             ms_answers_instance = MultipleSelectAnswer.objects.create(multiple_select=ms_instance, **ms_answers)
 
-
                 if mat_data:
                     for matching in mat_data:
                         mat_choices_data = matching.pop('matching_choices')
-                        
+
                         matching_instance = Matching.objects.create(question=question_instance, **matching)
 
                         for mat_choice_item in mat_choices_data:
@@ -324,16 +313,14 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
                             for mat_answer_item in mat_answers_data:
                                 mat_answer_item_instance = MatchingAnswer.objects.create(matching_choice=mat_choice_item_instance, **mat_answer_item)
 
-
                 if ord_data:
                     for ord_item in ord_data:
                         ord_item_instance = Ordering.objects.create(question=question_instance, **ord_item)
 
-
                 if wr_data:
                     for written_response in wr_data:
                         wr_instance = WrittenResponse.objects.create(question=question_instance, **written_response)
-                
+
         return question_library_instance
 
 
@@ -342,12 +329,10 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
 #         model = QuestionError
 #         fields = ['message', 'action', 'errortype']
 
-
 # class DocumentErrorSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = QuestionError
 #         fields = ['message', 'action', 'errortype']
-
 
 
 class StatusResponseSerializer(serializers.Serializer):
