@@ -280,3 +280,9 @@ SPECTACULAR_SETTINGS = {
         "displayOperationId": True
     }
 }
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
