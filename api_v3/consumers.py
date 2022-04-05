@@ -11,7 +11,9 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process import run_formatter, run_sectioner
+from .process import run_formatter, run_sectioner, run_splitter
+from .serializers import JsonResponseSerializer
+
 
 class TextConsumer(JsonWebsocketConsumer):
 
@@ -33,6 +35,9 @@ class TextConsumer(JsonWebsocketConsumer):
     def receive_json(self, content, **kwargs):
         new_questionlibrary = None
 
+###########################################
+        # Save the file
+###########################################
         try:
             new_questionlibrary = self.save_file(content)
         except FileValidationError as e:
@@ -40,10 +45,14 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(
                 text_data=json.dumps({
                     'hostname': socket.gethostname(),
-                    'data': "",
-                    'status': "Error: Not a valid .docx File"
+                    'status': "Error: Not a valid .docx File",
+                    'data': ""
                 }))
             return
+
+###########################################
+        # create_pandocstring
+###########################################
 
         try:
             new_questionlibrary.create_pandocstring()
@@ -52,16 +61,20 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(
                 text_data=json.dumps({
                     'hostname': socket.gethostname(),
-                    'data': "",
-                    'status': "Error: Not a valid .docx File"
+                    'status': "Error: Not a valid .docx File",
+                    'data': ""
                 }))
             return
         else:
             self.send(text_data=json.dumps({
                 'hostname': socket.gethostname(),
-                'data': "",
-                'status': "The file is valid"
+                'status': "The file is valid",
+                'data': ""
             }))
+
+###########################################
+        # run_formatter
+###########################################
 
         try:
             run_formatter(new_questionlibrary)
@@ -70,18 +83,21 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(
                 {
                     'hostname': socket.gethostname(),
-                    'data': "",
                     'status':
-                    "Error: No contents found in the body of the file"
+                    "Error: No contents found in the body of the file",
+                    'data': ""
                 }))
             return
         else:
             self.send(text_data=json.dumps({
                 'hostname': socket.gethostname(),
-                'data': "",
-                'status': "Content Body detected"
+                'status': "Content Body detected",
+                'data': ""
             }))
 
+###########################################
+        # run_sectioner
+###########################################
 
         try:
             run_sectioner(new_questionlibrary)
@@ -90,20 +106,47 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(
                 {
                     'hostname': socket.gethostname(),
-                    'data': "",
-                    'status': "Error: Sections can not be identified"
+                    'status': "Error: Sections can not be identified",
+                    'data': ""
                 }))
             return
         else:
             self.send(text_data=json.dumps({
                 'hostname': socket.gethostname(),
-                'data': "",
-                'status': "sectioner complete"
+                'status': "sectioner complete",
+                'data': ""
+            }))
+
+###########################################
+        # run_splitter
+###########################################
+
+        try:
+            run_splitter(new_questionlibrary)
+        except SplitterError as e:
+            logger.error("SplitterError: " + str(e))
+            self.send(text_data=json.dumps(
+                {
+                    'hostname': socket.gethostname(),
+                    'status': "Error: Splitter failed",
+                    'data': ""
+                }))
+            return
+        else:
+            self.send(text_data=json.dumps({
+                'hostname': socket.gethostname(),
+                'status': "splitter complete",
+                'data': ""
             }))
 
 
-        print("check if this prints")
-        print(new_questionlibrary)
+        serialized_ql = JsonResponseSerializer(new_questionlibrary)
+
+        self.send(text_data=json.dumps({
+            'hostname': socket.gethostname(),
+            'status': "test",
+            'data': serialized_ql.data
+        }))
 
         # import time
 
@@ -154,4 +197,7 @@ class FormatterError(Exception):
 
 
 class SectionerError(Exception):
+    pass
+
+class SplitterError(Exception):
     pass

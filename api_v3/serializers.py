@@ -26,7 +26,6 @@ def count_errors(questionlibrary):
     questionlibrary.total_question_errors = num_question_errors
     questionlibrary.save()
 
-
 class WordToJsonSerializer(serializers.Serializer):
 
     temp_file = serializers.FileField(validators=[validate_docx_file],
@@ -205,6 +204,14 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
 
+class JsonResponseSerializer(serializers.ModelSerializer):
+    sections = SectionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QuestionLibrary
+        fields = [
+            'main_title', 'sections'
+        ]
 
 class QuestionErrorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -250,13 +257,11 @@ class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
     sections = SectionSerializer(many=True,allow_null=True)
-    # documenterrors = DocumentErrorSerializer(many=True, read_only=True)
 
     class Meta:
         model = QuestionLibrary
         fields = [
-            'main_title', 'randomize_answer', 'total_question_errors',
-            'total_document_errors', 'sections'
+            'main_title', 'formatter_output', 'sectioner_output', 'sections'
         ]
 
     def create(self, validated_data):
