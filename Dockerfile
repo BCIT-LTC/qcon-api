@@ -76,6 +76,18 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe splitter.jar splitter  *.class ./antlr.jar;
 
+# # BUILD QUESTIONPARSER
+# WORKDIR /usr/src/questionparser
+# COPY /api_v3/questionparser/questionparser.g4 ./
+# COPY /api_v3/questionparser/questionparser.java ./
+
+# RUN set -ex; \
+#     cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
+#     export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
+#     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" questionparser.g4 -visitor -no-listener; \
+#     javac *.java; \
+#     jar cvfe questionparser.jar questionparser  *.class ./antlr.jar;
+
 ####################################################### RELEASE
 FROM python:3.10-alpine AS release  
 LABEL maintainer courseproduction@bcit.ca
