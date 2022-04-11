@@ -35,60 +35,9 @@ public class questionparser {
 
    public static class questionparserVisitor extends
          questionparserBaseVisitor<Void> {
-      public Void visitquestionparser(questionparserParser.questionparserContext ctx) {
+      public Void visitQuestionparser(questionparserParser.QuestionparserContext ctx) {
 
-         int numberofquestions = ctx.questions().size();
 
-         // CHECK IF FIRST QUESTION WAS FOUND
-         try {
-            Element question = document.createElement("question");
-            question.setAttribute("id", Integer.toString(0));
-
-            Element content = document.createElement("content");
-            content.appendChild(document.createTextNode(ctx.first_question().getText()));
-            question.appendChild(content);
-            root.appendChild(question);
-
-         } catch (Exception e) {
-         }
-
-         for (int i = 0; i < numberofquestions; i++) {
-            Element question = document.createElement("question");
-            question.setAttribute("id", Integer.toString(i + 1));
-
-            // CHECK IF QUESTION HEADER EXISTS
-            try {
-               Element questionheader = document.createElement("question_header");
-               questionheader.appendChild(document.createTextNode(ctx.questions().get(i).question_header().getText()));
-               question.appendChild(questionheader);
-
-            } catch (Exception e) {
-            }
-
-            // GET QUESTION NUMBER
-
-            try {
-               Element question_start = document.createElement("question_start");
-               question_start
-                     .appendChild(document.createTextNode(ctx.questions().get(i).START_OF_QUESTION().getText()));
-               question.appendChild(question_start);
-
-            } catch (Exception e) {
-            }
-
-            // GET QUESTION CONTENT
-
-            try {
-               Element content = document.createElement("content");
-               content
-                     .appendChild(document.createTextNode(ctx.questions().get(i).content().getText()));
-               question.appendChild(content);
-
-            } catch (Exception e) {
-            }
-
-            root.appendChild(question);
-         }
 
          return null;
       }
