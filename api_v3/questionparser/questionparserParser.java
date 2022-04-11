@@ -19,13 +19,13 @@ public class questionparserParser extends Parser {
 		START_OL=1, END_OL=2, NUMLIST_PREFIX=3, LETTERLIST_PREFIX=4, FIB_START=5, 
 		FIB_END=6, CORRECT_ANSWER=7, ALL_CHARACTER=8;
 	public static final int
-		RULE_questionparser = 0, RULE_question_wrapper = 1, RULE_question = 2, 
-		RULE_fib_part = 3, RULE_answers = 4, RULE_answer_part = 5, RULE_correct_answer_part = 6, 
-		RULE_trailing_content = 7;
+		RULE_questionparser = 0, RULE_question_wrapper = 1, RULE_fib_question = 2, 
+		RULE_question = 3, RULE_fib_part = 4, RULE_answers = 5, RULE_answer_part = 6, 
+		RULE_correct_answer_part = 7, RULE_trailing_content = 8;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"questionparser", "question_wrapper", "question", "fib_part", "answers", 
-			"answer_part", "correct_answer_part", "trailing_content"
+			"questionparser", "question_wrapper", "fib_question", "question", "fib_part", 
+			"answers", "answer_part", "correct_answer_part", "trailing_content"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -121,21 +121,21 @@ public class questionparserParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(16);
-			question_wrapper();
 			setState(18);
+			question_wrapper();
+			setState(20);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << START_OL) | (1L << LETTERLIST_PREFIX) | (1L << CORRECT_ANSWER))) != 0)) {
 				{
-				setState(17);
+				setState(19);
 				answers();
 				}
 			}
 
-			setState(20);
+			setState(22);
 			trailing_content();
-			setState(21);
+			setState(23);
 			match(EOF);
 			}
 		}
@@ -154,6 +154,9 @@ public class questionparserParser extends Parser {
 		public TerminalNode NUMLIST_PREFIX() { return getToken(questionparserParser.NUMLIST_PREFIX, 0); }
 		public QuestionContext question() {
 			return getRuleContext(QuestionContext.class,0);
+		}
+		public Fib_questionContext fib_question() {
+			return getRuleContext(Fib_questionContext.class,0);
 		}
 		public TerminalNode START_OL() { return getToken(questionparserParser.START_OL, 0); }
 		public TerminalNode END_OL() { return getToken(questionparserParser.END_OL, 0); }
@@ -175,26 +178,40 @@ public class questionparserParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(24);
+			setState(26);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==START_OL) {
 				{
-				setState(23);
+				setState(25);
 				match(START_OL);
 				}
 			}
 
-			setState(26);
+			setState(28);
 			match(NUMLIST_PREFIX);
-			setState(27);
-			question();
-			setState(29);
+			setState(31);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
 			case 1:
 				{
-				setState(28);
+				setState(29);
+				question();
+				}
+				break;
+			case 2:
+				{
+				setState(30);
+				fib_question();
+				}
+				break;
+			}
+			setState(34);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
+			case 1:
+				{
+				setState(33);
 				match(END_OL);
 				}
 				break;
@@ -212,13 +229,79 @@ public class questionparserParser extends Parser {
 		return _localctx;
 	}
 
+	public static class Fib_questionContext extends ParserRuleContext {
+		public List<Fib_partContext> fib_part() {
+			return getRuleContexts(Fib_partContext.class);
+		}
+		public Fib_partContext fib_part(int i) {
+			return getRuleContext(Fib_partContext.class,i);
+		}
+		public List<TerminalNode> ALL_CHARACTER() { return getTokens(questionparserParser.ALL_CHARACTER); }
+		public TerminalNode ALL_CHARACTER(int i) {
+			return getToken(questionparserParser.ALL_CHARACTER, i);
+		}
+		public Fib_questionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_fib_question; }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof questionparserVisitor ) return ((questionparserVisitor<? extends T>)visitor).visitFib_question(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final Fib_questionContext fib_question() throws RecognitionException {
+		Fib_questionContext _localctx = new Fib_questionContext(_ctx, getState());
+		enterRule(_localctx, 4, RULE_fib_question);
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(40);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					setState(38);
+					_errHandler.sync(this);
+					switch (_input.LA(1)) {
+					case FIB_START:
+						{
+						setState(36);
+						fib_part();
+						}
+						break;
+					case ALL_CHARACTER:
+						{
+						setState(37);
+						match(ALL_CHARACTER);
+						}
+						break;
+					default:
+						throw new NoViableAltException(this);
+					}
+					} 
+				}
+				setState(42);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
 	public static class QuestionContext extends ParserRuleContext {
-		public Fib_partContext fib_part() {
-			return getRuleContext(Fib_partContext.class,0);
-		}
-		public QuestionContext question() {
-			return getRuleContext(QuestionContext.class,0);
-		}
 		public List<TerminalNode> ALL_CHARACTER() { return getTokens(questionparserParser.ALL_CHARACTER); }
 		public TerminalNode ALL_CHARACTER(int i) {
 			return getToken(questionparserParser.ALL_CHARACTER, i);
@@ -236,126 +319,27 @@ public class questionparserParser extends Parser {
 
 	public final QuestionContext question() throws RecognitionException {
 		QuestionContext _localctx = new QuestionContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_question);
-		int _la;
+		enterRule(_localctx, 6, RULE_question);
 		try {
 			int _alt;
-			setState(69);
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(46);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
-			case 1:
-				enterOuterAlt(_localctx, 1);
-				{
-				setState(31);
-				fib_part();
-				setState(35);
-				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-					if ( _alt==1 ) {
-						{
-						{
-						setState(32);
-						match(ALL_CHARACTER);
-						}
-						} 
-					}
-					setState(37);
-					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
-				}
-				setState(38);
-				question();
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(43);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==ALL_CHARACTER) {
+			_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
 					{
 					{
-					setState(40);
+					setState(43);
 					match(ALL_CHARACTER);
 					}
-					}
-					setState(45);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
+					} 
 				}
-				setState(46);
-				fib_part();
-				setState(47);
-				question();
-				}
-				break;
-			case 3:
-				enterOuterAlt(_localctx, 3);
-				{
-				setState(52);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==ALL_CHARACTER) {
-					{
-					{
-					setState(49);
-					match(ALL_CHARACTER);
-					}
-					}
-					setState(54);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-				}
-				setState(55);
-				fib_part();
-				}
-				break;
-			case 4:
-				enterOuterAlt(_localctx, 4);
-				{
-				setState(56);
-				fib_part();
-				setState(60);
+				setState(48);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-					if ( _alt==1 ) {
-						{
-						{
-						setState(57);
-						match(ALL_CHARACTER);
-						}
-						} 
-					}
-					setState(62);
-					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
-				}
-				}
-				break;
-			case 5:
-				enterOuterAlt(_localctx, 5);
-				{
-				setState(66);
-				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-					if ( _alt==1 ) {
-						{
-						{
-						setState(63);
-						match(ALL_CHARACTER);
-						}
-						} 
-					}
-					setState(68);
-					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
-				}
-				}
-				break;
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -389,28 +373,28 @@ public class questionparserParser extends Parser {
 
 	public final Fib_partContext fib_part() throws RecognitionException {
 		Fib_partContext _localctx = new Fib_partContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_fib_part);
+		enterRule(_localctx, 8, RULE_fib_part);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(71);
+			setState(49);
 			match(FIB_START);
-			setState(75);
+			setState(53);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==ALL_CHARACTER) {
 				{
 				{
-				setState(72);
+				setState(50);
 				match(ALL_CHARACTER);
 				}
 				}
-				setState(77);
+				setState(55);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(78);
+			setState(56);
 			match(FIB_END);
 			}
 		}
@@ -453,38 +437,38 @@ public class questionparserParser extends Parser {
 
 	public final AnswersContext answers() throws RecognitionException {
 		AnswersContext _localctx = new AnswersContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_answers);
+		enterRule(_localctx, 10, RULE_answers);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(81);
+			setState(59);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==START_OL) {
 				{
-				setState(80);
+				setState(58);
 				match(START_OL);
 				}
 			}
 
-			setState(85); 
+			setState(63); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
-				setState(85);
+				setState(63);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case LETTERLIST_PREFIX:
 					{
-					setState(83);
+					setState(61);
 					answer_part();
 					}
 					break;
 				case CORRECT_ANSWER:
 					{
-					setState(84);
+					setState(62);
 					correct_answer_part();
 					}
 					break;
@@ -492,16 +476,16 @@ public class questionparserParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				}
-				setState(87); 
+				setState(65); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==LETTERLIST_PREFIX || _la==CORRECT_ANSWER );
-			setState(90);
+			setState(68);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,11,_ctx) ) {
 			case 1:
 				{
-				setState(89);
+				setState(67);
 				match(END_OL);
 				}
 				break;
@@ -538,28 +522,28 @@ public class questionparserParser extends Parser {
 
 	public final Answer_partContext answer_part() throws RecognitionException {
 		Answer_partContext _localctx = new Answer_partContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_answer_part);
+		enterRule(_localctx, 12, RULE_answer_part);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(92);
+			setState(70);
 			match(LETTERLIST_PREFIX);
-			setState(96);
+			setState(74);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,14,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(93);
+					setState(71);
 					match(ALL_CHARACTER);
 					}
 					} 
 				}
-				setState(98);
+				setState(76);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,14,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			}
 			}
 		}
@@ -593,28 +577,28 @@ public class questionparserParser extends Parser {
 
 	public final Correct_answer_partContext correct_answer_part() throws RecognitionException {
 		Correct_answer_partContext _localctx = new Correct_answer_partContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_correct_answer_part);
+		enterRule(_localctx, 14, RULE_correct_answer_part);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(99);
+			setState(77);
 			match(CORRECT_ANSWER);
-			setState(103);
+			setState(81);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,13,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(100);
+					setState(78);
 					match(ALL_CHARACTER);
 					}
 					} 
 				}
-				setState(105);
+				setState(83);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,13,_ctx);
 			}
 			}
 		}
@@ -651,18 +635,18 @@ public class questionparserParser extends Parser {
 
 	public final Trailing_contentContext trailing_content() throws RecognitionException {
 		Trailing_contentContext _localctx = new Trailing_contentContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_trailing_content);
+		enterRule(_localctx, 16, RULE_trailing_content);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(109);
+			setState(87);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==END_OL || _la==ALL_CHARACTER) {
 				{
 				{
-				setState(106);
+				setState(84);
 				_la = _input.LA(1);
 				if ( !(_la==END_OL || _la==ALL_CHARACTER) ) {
 				_errHandler.recoverInline(this);
@@ -674,7 +658,7 @@ public class questionparserParser extends Parser {
 				}
 				}
 				}
-				setState(111);
+				setState(89);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -692,35 +676,30 @@ public class questionparserParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\ns\4\2\t\2\4\3\t"+
-		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\3\2\3\2\5\2\25\n\2"+
-		"\3\2\3\2\3\2\3\3\5\3\33\n\3\3\3\3\3\3\3\5\3 \n\3\3\4\3\4\7\4$\n\4\f\4"+
-		"\16\4\'\13\4\3\4\3\4\3\4\7\4,\n\4\f\4\16\4/\13\4\3\4\3\4\3\4\3\4\7\4\65"+
-		"\n\4\f\4\16\48\13\4\3\4\3\4\3\4\7\4=\n\4\f\4\16\4@\13\4\3\4\7\4C\n\4\f"+
-		"\4\16\4F\13\4\5\4H\n\4\3\5\3\5\7\5L\n\5\f\5\16\5O\13\5\3\5\3\5\3\6\5\6"+
-		"T\n\6\3\6\3\6\6\6X\n\6\r\6\16\6Y\3\6\5\6]\n\6\3\7\3\7\7\7a\n\7\f\7\16"+
-		"\7d\13\7\3\b\3\b\7\bh\n\b\f\b\16\bk\13\b\3\t\7\tn\n\t\f\t\16\tq\13\t\3"+
-		"\t\2\2\n\2\4\6\b\n\f\16\20\2\3\4\2\4\4\n\n\2~\2\22\3\2\2\2\4\32\3\2\2"+
-		"\2\6G\3\2\2\2\bI\3\2\2\2\nS\3\2\2\2\f^\3\2\2\2\16e\3\2\2\2\20o\3\2\2\2"+
-		"\22\24\5\4\3\2\23\25\5\n\6\2\24\23\3\2\2\2\24\25\3\2\2\2\25\26\3\2\2\2"+
-		"\26\27\5\20\t\2\27\30\7\2\2\3\30\3\3\2\2\2\31\33\7\3\2\2\32\31\3\2\2\2"+
-		"\32\33\3\2\2\2\33\34\3\2\2\2\34\35\7\5\2\2\35\37\5\6\4\2\36 \7\4\2\2\37"+
-		"\36\3\2\2\2\37 \3\2\2\2 \5\3\2\2\2!%\5\b\5\2\"$\7\n\2\2#\"\3\2\2\2$\'"+
-		"\3\2\2\2%#\3\2\2\2%&\3\2\2\2&(\3\2\2\2\'%\3\2\2\2()\5\6\4\2)H\3\2\2\2"+
-		"*,\7\n\2\2+*\3\2\2\2,/\3\2\2\2-+\3\2\2\2-.\3\2\2\2.\60\3\2\2\2/-\3\2\2"+
-		"\2\60\61\5\b\5\2\61\62\5\6\4\2\62H\3\2\2\2\63\65\7\n\2\2\64\63\3\2\2\2"+
-		"\658\3\2\2\2\66\64\3\2\2\2\66\67\3\2\2\2\679\3\2\2\28\66\3\2\2\29H\5\b"+
-		"\5\2:>\5\b\5\2;=\7\n\2\2<;\3\2\2\2=@\3\2\2\2><\3\2\2\2>?\3\2\2\2?H\3\2"+
-		"\2\2@>\3\2\2\2AC\7\n\2\2BA\3\2\2\2CF\3\2\2\2DB\3\2\2\2DE\3\2\2\2EH\3\2"+
-		"\2\2FD\3\2\2\2G!\3\2\2\2G-\3\2\2\2G\66\3\2\2\2G:\3\2\2\2GD\3\2\2\2H\7"+
-		"\3\2\2\2IM\7\7\2\2JL\7\n\2\2KJ\3\2\2\2LO\3\2\2\2MK\3\2\2\2MN\3\2\2\2N"+
-		"P\3\2\2\2OM\3\2\2\2PQ\7\b\2\2Q\t\3\2\2\2RT\7\3\2\2SR\3\2\2\2ST\3\2\2\2"+
-		"TW\3\2\2\2UX\5\f\7\2VX\5\16\b\2WU\3\2\2\2WV\3\2\2\2XY\3\2\2\2YW\3\2\2"+
-		"\2YZ\3\2\2\2Z\\\3\2\2\2[]\7\4\2\2\\[\3\2\2\2\\]\3\2\2\2]\13\3\2\2\2^b"+
-		"\7\6\2\2_a\7\n\2\2`_\3\2\2\2ad\3\2\2\2b`\3\2\2\2bc\3\2\2\2c\r\3\2\2\2"+
-		"db\3\2\2\2ei\7\t\2\2fh\7\n\2\2gf\3\2\2\2hk\3\2\2\2ig\3\2\2\2ij\3\2\2\2"+
-		"j\17\3\2\2\2ki\3\2\2\2ln\t\2\2\2ml\3\2\2\2nq\3\2\2\2om\3\2\2\2op\3\2\2"+
-		"\2p\21\3\2\2\2qo\3\2\2\2\23\24\32\37%-\66>DGMSWY\\bio";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\n]\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\3\2\3\2\5\2"+
+		"\27\n\2\3\2\3\2\3\2\3\3\5\3\35\n\3\3\3\3\3\3\3\5\3\"\n\3\3\3\5\3%\n\3"+
+		"\3\4\3\4\7\4)\n\4\f\4\16\4,\13\4\3\5\7\5/\n\5\f\5\16\5\62\13\5\3\6\3\6"+
+		"\7\6\66\n\6\f\6\16\69\13\6\3\6\3\6\3\7\5\7>\n\7\3\7\3\7\6\7B\n\7\r\7\16"+
+		"\7C\3\7\5\7G\n\7\3\b\3\b\7\bK\n\b\f\b\16\bN\13\b\3\t\3\t\7\tR\n\t\f\t"+
+		"\16\tU\13\t\3\n\7\nX\n\n\f\n\16\n[\13\n\3\n\2\2\13\2\4\6\b\n\f\16\20\22"+
+		"\2\3\4\2\4\4\n\n\2b\2\24\3\2\2\2\4\34\3\2\2\2\6*\3\2\2\2\b\60\3\2\2\2"+
+		"\n\63\3\2\2\2\f=\3\2\2\2\16H\3\2\2\2\20O\3\2\2\2\22Y\3\2\2\2\24\26\5\4"+
+		"\3\2\25\27\5\f\7\2\26\25\3\2\2\2\26\27\3\2\2\2\27\30\3\2\2\2\30\31\5\22"+
+		"\n\2\31\32\7\2\2\3\32\3\3\2\2\2\33\35\7\3\2\2\34\33\3\2\2\2\34\35\3\2"+
+		"\2\2\35\36\3\2\2\2\36!\7\5\2\2\37\"\5\b\5\2 \"\5\6\4\2!\37\3\2\2\2! \3"+
+		"\2\2\2\"$\3\2\2\2#%\7\4\2\2$#\3\2\2\2$%\3\2\2\2%\5\3\2\2\2&)\5\n\6\2\'"+
+		")\7\n\2\2(&\3\2\2\2(\'\3\2\2\2),\3\2\2\2*(\3\2\2\2*+\3\2\2\2+\7\3\2\2"+
+		"\2,*\3\2\2\2-/\7\n\2\2.-\3\2\2\2/\62\3\2\2\2\60.\3\2\2\2\60\61\3\2\2\2"+
+		"\61\t\3\2\2\2\62\60\3\2\2\2\63\67\7\7\2\2\64\66\7\n\2\2\65\64\3\2\2\2"+
+		"\669\3\2\2\2\67\65\3\2\2\2\678\3\2\2\28:\3\2\2\29\67\3\2\2\2:;\7\b\2\2"+
+		";\13\3\2\2\2<>\7\3\2\2=<\3\2\2\2=>\3\2\2\2>A\3\2\2\2?B\5\16\b\2@B\5\20"+
+		"\t\2A?\3\2\2\2A@\3\2\2\2BC\3\2\2\2CA\3\2\2\2CD\3\2\2\2DF\3\2\2\2EG\7\4"+
+		"\2\2FE\3\2\2\2FG\3\2\2\2G\r\3\2\2\2HL\7\6\2\2IK\7\n\2\2JI\3\2\2\2KN\3"+
+		"\2\2\2LJ\3\2\2\2LM\3\2\2\2M\17\3\2\2\2NL\3\2\2\2OS\7\t\2\2PR\7\n\2\2Q"+
+		"P\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2T\21\3\2\2\2US\3\2\2\2VX\t\2\2"+
+		"\2WV\3\2\2\2X[\3\2\2\2YW\3\2\2\2YZ\3\2\2\2Z\23\3\2\2\2[Y\3\2\2\2\21\26"+
+		"\34!$(*\60\67=ACFLSY";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

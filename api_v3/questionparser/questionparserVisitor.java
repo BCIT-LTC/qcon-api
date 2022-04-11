@@ -22,6 +22,12 @@ public interface questionparserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitQuestion_wrapper(questionparserParser.Question_wrapperContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link questionparserParser#fib_question}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFib_question(questionparserParser.Fib_questionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link questionparserParser#question}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -6,13 +6,11 @@ grammar questionparser;
 
 questionparser: question_wrapper answers? trailing_content EOF;
 
-question_wrapper: START_OL? NUMLIST_PREFIX question END_OL?;
+question_wrapper: START_OL? NUMLIST_PREFIX (question|fib_question) END_OL?;
 
-question: fib_part ALL_CHARACTER* question
-        | ALL_CHARACTER* fib_part question
-        | ALL_CHARACTER* fib_part
-        | fib_part ALL_CHARACTER*
-        | ALL_CHARACTER*;
+fib_question: (fib_part|ALL_CHARACTER)*;
+
+question: ALL_CHARACTER*;
 
 fib_part: FIB_START ALL_CHARACTER* FIB_END;
 answers: START_OL? (answer_part|correct_answer_part)+ END_OL?;
