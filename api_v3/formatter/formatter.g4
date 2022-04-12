@@ -13,10 +13,13 @@ sectioninfo:
 	| (HEADING_1 | HEADING_2) (ALL_CHARACTER+);
 
 body:
-	body START_NUMBER_ONE (ALL_CHARACTER+)
-	| START_NUMBER_ONE (ALL_CHARACTER+) body
-    | START_NUMBER_ONE (ALL_CHARACTER+)
-    | (HEADING_1 | HEADING_2) (ALL_CHARACTER+) body;
+	body question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ | question_header_parameter*)
+	| question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) body
+    | question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*)
+    | (HEADING_1 | HEADING_2) (ALL_CHARACTER+ question_header_parameter*) body;
+
+question_header_parameter:
+	TITLE ALL_CHARACTER+ | POINTS ALL_CHARACTER+ | TYPE ALL_CHARACTER+ | RANDOMIZE ALL_CHARACTER+;
 
 end_answers: END_ANSWER_BLOCK ALL_CHARACTER+ START_NUMBER_ONE ALL_CHARACTER+;
 
@@ -30,12 +33,26 @@ fragment DOT: '.';
 fragment COLON: ':';
 fragment WHITESPACE: ' ' | '\t';
 fragment DELIMITER: BACKSLASH? (DOT | CLOSING_PARENTHESIS);
-fragment A: 'A' | 'a';
-fragment N: 'N' | 'n';
-fragment S: 'S' | 's';
-fragment W: 'W' | 'w';
-fragment E: 'E' | 'e';
-fragment R: 'R' | 'r';
+fragment A:   'A' | 'a';
+fragment B:   'B' | 'b';
+fragment C:   'C' | 'c';
+fragment D:   'D' | 'd';
+fragment E:   'E' | 'e';
+fragment F:   'F' | 'f';
+fragment I:   'I' | 'i';
+fragment K:   'K' | 'k';
+fragment L:   'L' | 'l';
+fragment M:   'M' | 'm';
+fragment N:   'N' | 'n';
+fragment O:   'O' | 'o';
+fragment P:   'P' | 'p';
+fragment R:   'R' | 'r';
+fragment S:   'S' | 's';
+fragment T:   'T' | 't';
+fragment U:   'U' | 'u';
+fragment W:   'W' | 'w';
+fragment Y:   'Y' | 'y';  
+fragment Z:   'Z' | 'z';  
 
 fragment ANSWER: A N S W E R (S)?;
 
@@ -48,5 +65,10 @@ START_NUMBER_ONE: NEWLINE '1' WHITESPACE* DELIMITER;
 
 END_ANSWER_BLOCK:
 	NEWLINE WHITESPACE* ANSWER WHITESPACE* COLON WHITESPACE*;
+
+TITLE:  NEWLINE WHITESPACE* WHITESPACE* T I T L E S? WHITESPACE*;
+POINTS:   NEWLINE WHITESPACE* WHITESPACE* P O I N T S? WHITESPACE*;
+TYPE:   NEWLINE WHITESPACE* WHITESPACE* T Y P E S? WHITESPACE*;
+RANDOMIZE:   NEWLINE WHITESPACE* WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE*;
 
 ALL_CHARACTER: .;
