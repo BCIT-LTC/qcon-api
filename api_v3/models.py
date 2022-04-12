@@ -7,8 +7,6 @@ from django.db import models
 
 import pypandoc
 
-from api_v3.parser.QuestionParserMain import question_parser
-
 from api_v3.scorm.XmlWriter import XmlWriter
 from api_v3.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
