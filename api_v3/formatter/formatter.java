@@ -93,9 +93,23 @@ public class formatter {
 
    public static void main(String args[]) {
 
-      String pandocContent = readinput();
+      String Content = null;
 
-      formatterLexer formatterLexer = new formatterLexer(CharStreams.fromString(pandocContent));
+      if (args.length == 0) {
+         Content = readinput();
+      } else {
+         try {
+            Path fileName = Paths.get(args[0]);
+            Content = Files.readString(fileName);
+         } catch (IOException e) {
+            System.out.println("splitter error reading file:" + args[0]);
+            e.printStackTrace();
+         }
+      }
+
+      // String pandocContent = readinput();
+
+      formatterLexer formatterLexer = new formatterLexer(CharStreams.fromString(Content));
       CommonTokenStream tokens = new CommonTokenStream(formatterLexer);
       formatterParser parser = new formatterParser(tokens);
 
