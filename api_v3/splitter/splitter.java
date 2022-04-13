@@ -44,9 +44,35 @@ public class splitter {
             Element question = document.createElement("question");
             question.setAttribute("id", Integer.toString(0));
 
-            Element content = document.createElement("content");
-            content.appendChild(document.createTextNode(ctx.first_question().getText()));
-            question.appendChild(content);
+            // CHECK IF QUESTION HEADER EXISTS FOR FIRST QUESTION
+            try {
+               Element questionheader = document.createElement("question_header");
+               questionheader.appendChild(document.createTextNode(ctx.first_question().question_header().getText()));
+               question.appendChild(questionheader);
+
+            } catch (Exception e) {
+            }
+
+            // GET FIRST QUESTION NUMBER
+
+            try {
+               Element question_start = document.createElement("question_start");
+               question_start.appendChild(document.createTextNode(ctx.first_question().START_OF_QUESTION_ONE().getText()));
+               question.appendChild(question_start);
+
+            } catch (Exception e) {
+            }
+
+            // GET FIRST QUESTION CONTENT
+            try {
+               Element content = document.createElement("content");
+               content.appendChild(document.createTextNode(ctx.first_question().content().getText()));
+               question.appendChild(content);
+
+            } catch (Exception e) {
+            }
+
+
             root.appendChild(question);
 
          } catch (Exception e) {
@@ -69,8 +95,7 @@ public class splitter {
 
             try {
                Element question_start = document.createElement("question_start");
-               question_start
-                     .appendChild(document.createTextNode(ctx.questions().get(i).START_OF_QUESTION().getText()));
+               question_start.appendChild(document.createTextNode(ctx.questions().get(i).START_OF_QUESTION_NOT_ONE().getText()));
                question.appendChild(question_start);
 
             } catch (Exception e) {
@@ -80,8 +105,7 @@ public class splitter {
 
             try {
                Element content = document.createElement("content");
-               content
-                     .appendChild(document.createTextNode(ctx.questions().get(i).content().getText()));
+               content.appendChild(document.createTextNode(ctx.questions().get(i).content().getText()));
                question.appendChild(content);
 
             } catch (Exception e) {
