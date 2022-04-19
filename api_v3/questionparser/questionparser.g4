@@ -8,7 +8,7 @@ questionparser: question_wrapper answers? trailing_content EOF;
 
 question_wrapper: (question | fib_question);
 
-question: ALL_CHARACTER*;
+question: content;
 
 fib_question: (fib_part | ALL_CHARACTER+)*;
 
@@ -67,8 +67,8 @@ fragment STAR_BEFORE_DOT:
 fragment STAR_BEFORE_LETTER:
 	NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 
-START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->' NEWLINE) -> skip;
-END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->' NEWLINE) -> skip;
+START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->' ) -> skip;
+END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->' ) -> skip;
 
 // NUMLIST_PREFIX:
 // 	NEWLINE WHITESPACE* NUMBER WHITESPACE* DELIMITER WHITESPACE*;
