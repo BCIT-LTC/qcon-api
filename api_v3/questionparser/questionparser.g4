@@ -6,20 +6,21 @@ grammar questionparser;
 
 questionparser: question_wrapper answers? trailing_content EOF;
 
-question_wrapper: other_question | fib_question;
+question_wrapper: (question | fib_question);
 
-other_question: ALL_CHARACTER*;
+question: ALL_CHARACTER*;
 
-fib_question: (fib_part | ALL_CHARACTER)*;
+fib_question: (fib_part | ALL_CHARACTER+)*;
 
 fib_part: FIB_START ALL_CHARACTER* FIB_END;
 answers:
 	START_OL? ((answer_part | correct_answer_part)+ | wr_answer) END_OL?;
-answer_part: LETTERLIST_PREFIX ALL_CHARACTER*;
-correct_answer_part: CORRECT_ANSWER ALL_CHARACTER*;
+answer_part: LETTERLIST_PREFIX content;
+correct_answer_part: CORRECT_ANSWER content;
 
-wr_answer: CORRECT_ANSWER_FOR_WR ALL_CHARACTER*;
+wr_answer: CORRECT_ANSWER_FOR_WR content;
 
+content: ALL_CHARACTER*;
 trailing_content: ALL_CHARACTER*;
 
 // ================================ TOKENS
