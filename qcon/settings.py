@@ -29,13 +29,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Defaults in `.secrets`
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'd8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+SECRET_KEY = 'd8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
+# SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.getenv('DEBUG', False) == 'True'
-ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
+DEBUG = False
+ADMIN_ENABLED = False
 
 ALLOWED_HOSTS = ['*']
 
