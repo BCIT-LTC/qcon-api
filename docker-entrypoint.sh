@@ -5,7 +5,7 @@ set -e
 # TODO: still needs work to confirm production-ready
 export $(grep -v '^#' .secrets | xargs)
 
-# set environment variables
+# set environment variables (retrieve from .env and set as shell variables)
 set -a
 source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
 set +a
