@@ -1,20 +1,13 @@
 # Qcon-api
 
 [![pipeline status](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/badges/master/pipeline.svg)](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/-/commits/master)
-[![Gitter](https://badges.gitter.im/BCIT-LTC/qcon.svg)](https://gitter.im/BCIT-LTC/qcon?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-<!--[![Docker Pulls]()-->
 
 Qcon-api is a question conversion processor that enables accurate text conversion from Word into an LMS import package.
-
-## Latest Release
-
-* Latest - v2.0.3-alpha - `bcitltc/qcon-api:latest` - Read the full [release notes]().
-* Stable - v2.0.0 - `bcitltc/qcon-api:stable` - Read the full [release notes]().
 
 ## Quick Start
 
 ```bash
-docker run -p 8000:8000 bcitltc/qcon-api
+docker run -p 8000:8000 registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
 ```
 
 Open your browser to **<https://localhost:8000>**
