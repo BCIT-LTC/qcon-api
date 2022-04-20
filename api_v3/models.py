@@ -20,7 +20,7 @@ from os.path import basename
 from django.core.files.base import ContentFile
 
 # from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
+# from rest_framework.authtoken.models import Token
 
 from enum import Enum
 from django.conf import settings
@@ -534,22 +534,22 @@ def delete_files(sender, instance, **kwargs):
 # @receiver(post_save, sender=QuestionLibrary, dispatch_uid="start_process")
 # def start_process(sender, instance, **kwargs):
 #     instance.save()
-class CustomToken1(Token):
-    """
-    The extended authorization token model to support tokens generated from external sources
-    """
+# class CustomToken1(Token):
+#     """
+#     The extended authorization token model to support tokens generated from external sources
+#     """
 
-    def save(self, *args, **kwargs):
-        # print(self.user)
-        # print(self.key)
-        if not self.key:
-            self.key = self.generate_key()
-        return super().save(*args, **kwargs)
+#     def save(self, *args, **kwargs):
+#         # print(self.user)
+#         # print(self.key)
+#         if not self.key:
+#             self.key = self.generate_key()
+#         return super().save(*args, **kwargs)
 
-    @classmethod
-    def generate_key(cls):
-        return binascii.hexlify(os.urandom(20)).decode()
-        # return '1111111111111111111111111111111111111111'
+#     @classmethod
+#     def generate_key(cls):
+#         return binascii.hexlify(os.urandom(20)).decode()
+#         # return '1111111111111111111111111111111111111111'
 
 
 class StatusResponse:
