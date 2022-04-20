@@ -1,12 +1,5 @@
 ####################################################### BASE
-FROM python:3.10 AS qcon-api-base
-
-ENV ARCH amd64
-ENV PANDOC_VERSION 2.16.1
-ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
-ENV PATH="/opt/venv/bin:/base:$PATH"
-
-
+FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/pandoc-base AS qcon-api-base
 
 # Set to project name
 WORKDIR /qcon-api
@@ -14,19 +7,6 @@ WORKDIR /qcon-api
 COPY requirements.txt ./
 
 RUN set -ex; \
-        apt-get update; \
-        apt-get install -y --no-install-recommends \
-            build-essential \
-            gcc \
-            wget \
-        ; \
-        wget -O pandoc.deb \
-            "$GET_PANDOC_URL/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$ARCH.deb"; \
-        dpkg -i pandoc.deb; \
-        rm -Rf pandoc.deb; \
-        \
-        apt-get autoremove --purge; \
-        apt-get -y clean; \
         \
         python -m venv /opt/venv; \
         \
