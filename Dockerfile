@@ -61,7 +61,6 @@ RUN set -ex; \
     jar cvfe formatter.jar formatter  *.class ./antlr.jar;
 
 
-
 # BUILD SECTIONER
 WORKDIR /usr/src/sectioner
 COPY /api_v3/sectioner/sectioner.g4 ./
