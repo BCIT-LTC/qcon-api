@@ -10,12 +10,13 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import FileResponse, JsonResponse
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.parsers import FileUploadParser
 
 from django.core.files.base import ContentFile
+from django.conf import settings
 # from os import makedirs, path, walk
 
 from .models import QuestionError, QuestionLibrary
@@ -23,7 +24,8 @@ from .models import Question
 from .models import Transaction
 
 # from django_q.tasks import async_task
-
+import base64
+import os
 import logging
 logger = logging.getLogger(__name__)
 # WordToJsonZip_Logger = logging.getLogger('api_v2.views.WordToJsonZip')
@@ -77,15 +79,17 @@ class WordToZip(APIView):
             if (instance.total_question_errors +
                     instance.total_document_errors == 0):
                 theresponse = FileResponse(instance.zip_file)
-                theresponse['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                theresponse[
+                    'Content-Disposition'] = 'attachment; filename="' + filename + '"'
                 logger.info("[" + str(instance.transaction) + "] " +
-                    ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                            ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
                 instance.cleanup()
                 return theresponse
             else:
                 #Serializer to query only the records that contain errors
 
-                serialized_data = QuestionLibraryErrorSummarySerializer(instance)
+                serialized_data = QuestionLibraryErrorSummarySerializer(
+                    instance)
 
                 logger.info(
                     "[" + str(instance.transaction) + "] " +
@@ -139,10 +143,23 @@ class WordToJsonZip(APIView):
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
             import json
-            # print(json.dumps(question_library_serializer.data, indent=4))
-            jsonfile = ContentFile(str(
-                json.dumps(question_library_serializer.data, indent=4)),
-                                   name="output.json")
+            json_string = str(json.dumps(question_library_serializer.data, indent=4))
+
+            # Replace images src inside json file with base64
+            if os.path.exists(question_library.image_path):
+                for image_name in os.listdir(question_library.image_path):
+                    image_path = os.path.join(question_library.image_path, image_name)
+                
+                    try:
+                        with open(image_path, "rb") as image_file:
+                            base64_image = base64.b64encode(image_file.read())
+                            base64_image = "data:image/jpeg;base64," + base64_image.decode()
+                            img_relative_path = os.path.join('assessment-assets', question_library.filtered_section_name, image_name)
+                            json_string = json_string.replace(img_relative_path, base64_image)
+                    except OSError:
+                        logger.error("Can't' find image in: " + image_path)
+
+            jsonfile = ContentFile(json_string, name="output.json")
             instance.json_file = jsonfile
             instance.save()
             if instance.total_document_errors == 0:
@@ -150,21 +167,23 @@ class WordToJsonZip(APIView):
 
                 filename = instance.output_zip_file.name.split("/")[1]
                 file_response = FileResponse(instance.output_zip_file)
-                file_response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-                
-                logger.info(
-                    "[" + str(instance.transaction) + "] " +
-                    ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+                file_response[
+                    'Content-Disposition'] = 'attachment; filename="' + filename + '"'
+
+                logger.info("[" + str(instance.transaction) + "] " +
+                            ">>>>>>>>>>Transaction Finished>>>>>>>>>>")
                 instance.cleanup()
                 return file_response
             else:
-                #Query only the records that contain errors   
-                serialized_data = QuestionLibraryErrorSummarySerializer(instance)
+                #Query only the records that contain errors
+                serialized_data = QuestionLibraryErrorSummarySerializer(
+                    instance)
                 theresponse = JsonResponse(serialized_data.data, status=400)
 
                 logger.info(
                     "[" + str(instance.transaction) + "] " +
-                    ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>")
+                    ">>>>>>>>>>Transaction Finished with document error>>>>>>>>>>"
+                )
                 instance.cleanup()
                 return theresponse
 
@@ -201,23 +220,41 @@ class WordToJson(APIView):
                 transaction=instance.transaction.id)
             question_library_serializer = QuestionLibrarySerializer(
                 question_library)
-            
+
             instance.cleanup()
             return JsonResponse(question_library_serializer.data, status=200)
 
             # return JsonResponse(response, status=201)
         return JsonResponse(serializer.errors, status=400)
 
+
+class RootPath(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, format=None):
+        from .models import StatusResponse
+        from .serializers import StatusResponseSerializer
+
+        status = StatusResponse(version_number=settings.GIT_TAG)
+        serializer = StatusResponseSerializer(status)
+
+        return JsonResponse(serializer.data,
+                            json_dumps_params={'indent': 2},
+                            status=200)
+
 from django.shortcuts import redirect
+
 
 def view_404(request, exception=None):
     return redirect('/')
+
 
 def redirect_view(request, namespace, name, slug, actualurl):
     print(slug)
     print(actualurl)
     return redirect('/' + actualurl)
     # return None
+
 
 def redirect_root(request, namespace, name, slug):
     print(slug)

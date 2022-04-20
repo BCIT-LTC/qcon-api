@@ -3,8 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.urls import include, path, re_path
-from django.conf.urls import url
 from . import views
+from django.conf import settings
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -13,17 +13,10 @@ urlpatterns = [
     path('wordjson', views.WordToJson.as_view(), name='WordToJson'),
     path('wordjsonzip', views.WordToJsonZip.as_view(), name='WordToJsonZip'),
 
-    # OPENAPI
-    # PATTERNS
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    # UI:
-    path('',
-         SpectacularSwaggerView.as_view(url_name='schema'),
-         name='swagger-ui'),
     # path('api/doc2/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # path('<str:namespace>/<str:name>/review/<slug:slug>', views.redirect_root),
     # path('<str:namespace>/<str:name>/review/<slug:slug>/<str:actualurl>', views.redirect_view)
     # path('<str:namespace>/<str:name>/review/<slug:slug>/', include([
     #     path('<str:actualurl>', views.redirect_view)
-    # ]))    
+    # ]))
 ]

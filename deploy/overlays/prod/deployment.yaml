@@ -1,8 +1,0 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: qcon-api
-  labels:
-    app: qcon-api
-spec:
-  replicas: 3

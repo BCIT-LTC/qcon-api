@@ -1,14 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
-# set env vars
-source .env
-export $(cut -d = -f 1 .env)
-# rm .env
-# TODO: unset vars for running container
+# set secrets
+# TODO: still needs work to confirm production-ready
+export $(grep -v '^#' .secrets | xargs)
+
+# set environment variables (retrieve from .env and set as shell variables)
+set -a
+source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
+set +a
+
 
 >&2 echo "make Database migrations"
-python manage.py makemigrations api_v2
+python manage.py makemigrations api_v2 api_v3
 echo "-------------------------------------------------------------------------------------------\n"
 
 >&2 echo "Run Database migrations"

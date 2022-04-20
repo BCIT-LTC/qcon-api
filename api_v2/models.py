@@ -516,3 +516,8 @@ class CustomToken(Token):
     def generate_key(cls):
         return binascii.hexlify(os.urandom(20)).decode()
         # return '1111111111111111111111111111111111111111'
+
+
+class StatusResponse:
+    def __init__(self, version_number, created=None):
+        self.version_number = version_number

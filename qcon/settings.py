@@ -17,21 +17,25 @@ import os
 import sys
 from pathlib import Path
 
+# Defaults in `.env`
+#### --- (added by DEV pipeline)
+GIT_TAG = os.getenv('GIT_TAG', 'dev')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+# Defaults in `.secrets`
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'd8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+SECRET_KEY = 'd8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
+# SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.getenv('DEBUG', False) == 'True'
-ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
-
+DEBUG = False
+ADMIN_ENABLED = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -41,6 +45,7 @@ CSRF_COOKIE_HTTPONLY = True
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +62,8 @@ INSTALLED_APPS = [
 
     # Local Apps
     # 'api_v2.apps.ApiV2Config'
-    'api_v2'
+    'api_v2',
+    'api_v3'
 ]
 
 MIDDLEWARE = [
@@ -88,7 +94,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'qcon.wsgi.application'
+# WSGI_APPLICATION = 'qcon.wsgi.application'
+
+# Channels
+ASGI_APPLICATION = 'qcon.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -211,6 +220,11 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'api_v3': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
         }
     },
 }
@@ -257,5 +271,11 @@ SPECTACULAR_SETTINGS = {
         "deepLinking": True,
         "persistAuthorization": True,
         "displayOperationId": True
+    }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }

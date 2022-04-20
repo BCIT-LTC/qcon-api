@@ -271,3 +271,7 @@ class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
             'section_name', 'total_question_errors',
             'total_document_errors', 'documenterrors', 'questions'
         ]
+
+
+class StatusResponseSerializer(serializers.Serializer):
+    version_number = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
