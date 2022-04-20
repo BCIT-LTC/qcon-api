@@ -1,17 +1,6 @@
 ####################################################### BASE
 FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/pandoc-base AS qcon-api-base
 
-# Set to project name
-WORKDIR /qcon-api
-
-COPY requirements.txt ./
-
-RUN set -ex; \
-        \
-        python -m venv /opt/venv; \
-        \
-        pip install --upgrade pip; \
-        pip install -r requirements.txt; 
 
 
 
@@ -92,8 +81,7 @@ WORKDIR /code
 
 RUN apk --update add \
         nginx \
-        openjdk17 \
-        bash; \
+        openjdk17; \
     chmod -R 755 /var/lib/nginx;
 
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
@@ -101,6 +89,7 @@ COPY .env ./
 COPY .secrets .
 COPY manage.py supervisord.conf ./
 COPY docker-entrypoint.sh /usr/local/bin
+
 COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
 
