@@ -5,19 +5,11 @@ set -e
 # TODO: still needs work to confirm production-ready
 export $(grep -v '^#' .secrets | xargs)
 
-# set environment variables
+# set environment variables (retrieve from .env and set as shell variables)
 set -a
 source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
 set +a
 
-if [ -d "/etc/podinfo" ] 
-then
-    echo "/etc/podinfo exists... Setting CLUSTER_NAME and BUILD_ENV"
-    export CLUSTER_NAME=$(cat /etc/podinfo/cluster_name)
-    export BUILD_ENV=$(cat /etc/podinfo/build_env)
-else
-    echo "/etc/podinfo does not exist... Assuming local cluster."
-fi
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2 api_v3

@@ -1,212 +1,158 @@
-# LTC GitLab CI/CD Pipeline
-
-# Requirements:
-#   - Dockerfile:
-#       - workflow is based on container pattern
-#   - 3-branch workflow:
-#       - main (default)
-#       - feature branches (based on merge request names)
-#           - semantic-release automatically increments version based on commit message prefix (feat, fix, patch)
-#       - release branch
-#   - Project token initialization:
-#       - secure project communication by running the `auth-init.sh` script
-#   - Copy and update the following files/folders:
-#       - `deploy` folder: update kubernetes manifiests accordingly
-#       - `docker-compose`: local development
-#       - `.gitlab-ci.yml`: ci/cd pipeline
-#       - update the variables below to match your app
-
-
-variables:                  # other global variables are set in GitLab Admin: https://issues.ltc.bcit.ca/admin/application_settings/ci_cd
-  CLUSTER_NAME: "dev-cp"    # options: dev-cp, dev-vsm
-  PROD_NAMESPACE: "qcon"    # combine apps into one namespace if following microservice pattern; otherwise, set to ""
+# Default LTC GitLab CI/CD Source Project Pipeline
 #
+## Requirements
+#   - this file, with "CLUSTER_NAME" set (bottom of script)
+#   - `Dockerfile` in project root
+#   - (optional) deployment package
 #
-#
-############### Edit below here at your peril! ###############
-#
-#
-#
-  VAULT_AUTH_ROLE: "dependabot-$CI_PROJECT_NAME"    # Standard policies: [default, jwt, read-tokens, read-apps, read-ssl-certificates]
-  GIT_FETCH_EXTRA_FLAGS: "--tags"
-  PIPELINE_DEBUG: "true"
-
-image: bitnami/kubectl
-
-
-include:
-  - local: 'deploy/scripts/.build-image.yml'
-  - local: 'deploy/scripts/.semantic-release.yml'
-  - local: 'deploy/scripts/.utilities.yml'
-
+## General Pipeline Steps
+#   1. Gather info
+#   2. Build Image
+#   3. Deploy to a cluster
+#     - main branch deploys to staging/production; other branches deploy to a dev cluster for review
 
 stages:
-  - gather_info
-  - analyze_for_tagging
-  - build
-  - test
-  - deploy
+  - get info
+  - publish
   - cleanup
 
 
-get_build_envs:
-  stage: gather_info
-  extends: .set_build_envs
+## Project initialization
+#   - a project access token is required, and created on the first run. If the pipeline fails,
+#     please wait 5 minutes and re-try after a token has been created.
+project init:
+  stage: get info
+  extends:
+    - .project_init
 
 
-build_for_review:                     # Build image with Kaniko
-  stage: build
-  variables:
-    BUILD_ENV: dev
+## Determine if there are existing git tags or a new tag is required
+get info:
+  stage: get info
+  extends:
+    - .get_info
+
+
+## Build image and push to project registry
+build image:
+  stage: publish
   extends:
     - .build_image
-    - .feature_branch_rules
+    - .build_image_rules
 
 
-deploy_review:                        # Deploy feature branch image to a dev cluster
-  stage: deploy
+## Deploy feat/fix branch package to dev cluster for review
+#   - must have a deployment package with a `dev` overlay
+deploy review:
+  stage: publish
+  variables:
+    TARGET_ENV: dev
+
   extends:
-    - .feature_branch_rules
-  variables:
-    BUILD_ENV: dev
-  script:
-    - !reference [.set_deploy_envs, script]           # set cluster env
-    - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.patch_deployment, script]          # add annotations about build to deployment
-    - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
-    - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths
-    - !reference [.verify_kustomization, script]      # validate kustomization
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                         # apply kustomized deployment
-  environment:
-    name: $CLUSTER_NAME/review/$CI_COMMIT_REF_SLUG
-    url: http://$CI_PROJECT_NAME.$CLUSTER_NAME.$DEV_HOST/$CI_COMMIT_REF_SLUG
-    kubernetes:
-      namespace: $CI_COMMIT_REF_SLUG
-    on_stop: stop_review
-    auto_stop_in: 1 week
-  # after_script:
-  #   - echo "Unset ENV variables after app deployment complete using kubectl set env [REPLICASET_NAME]"
-# TODO: Remove the environment variable ENV from container 'c1' in all deployment configs
-# kubectl set env deployments --all --containers="c1" ENV-
+    - .deploy_review
+    - .deploy_review_rules
 
 
-build_latest:                         # Build image with Kaniko
-  stage: build
+## Deploy staging/production packages
+#   - must have a deployment package with `staging` and `production` overlays
+#   - triggers pipelines in "Deployments/{projectName}" project
+deploy to staging:
+  stage: publish
   variables:
-    BUILD_ENV: staging
+    TARGET_ENV: staging
+
   extends:
-    - .build_image
-    - .main_branch_rules
+    - .deploy
+    - .deploy_staging_rules
 
-
-deploy_latest:                        # Deploy `latest` image to staging cluster
-  stage: deploy
-  extends: 
-    - .main_branch_rules
-  variables:
-    BUILD_ENV: staging
-  secrets:
-    TLS_CRT:
-      vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
-      file: false
-    TLS_KEY:
-      vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
-      file: false
-  script:
-    - !reference [.set_deploy_envs, script]                   # set cluster env
-    - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.patch_deployment, script]        # add annotations about build to deployment
-    - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
-    - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.create_tls_secret, script]         # create TLS secret
-    - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths
-    - !reference [.verify_kustomization, script]      # validate kustomization
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                         # apply kustomized deployment
   environment:
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
-    kubernetes:
-      namespace: $PROD_NAMESPACE      # update to '$CI_PROJECT_NAME' if projects are independent
+
+  tags:
+    - staging
 
 
-semver_tag:                           # Creates a semantic-version tag that is applied to the release branch
-  stage: analyze_for_tagging
-  extends: 
-    - .semver_tag_rules
-    - .semantic_release
-  secrets:
-    GITLAB_TOKEN:
-      vault: dependabot-$CI_PROJECT_NAME/token@tokens
-      file: false
-  script:
-    - "semantic-release \
-        --branches release \
-        --repository-url $CI_PROJECT_URL \
-        --plugins '@semantic-release/commit-analyzer, \
-          @semantic-release/release-notes-generator, \
-          @semantic-release/gitlab'"
-
-
-build_stable:                         # Build image with Kaniko
-  stage: build
+deploy to production:
+  stage: publish
   variables:
-    BUILD_ENV: prod
+    TARGET_ENV: production
+
   extends:
-    - .build_image
-    - .release_branch_rules
+    - .deploy
+    - .deploy_prod_rules
 
-
-deploy_production:                    # Deploy `stable` image to production cluster
-  stage: deploy
-  extends: 
-    - .release_branch_rules
-  variables:
-    BUILD_ENV: prod
-  secrets:
-    TLS_CRT:
-      vault: ssl-certificates/star-dev-ltc-bcit-ca-bundle.crt.base64@ltc-infrastructure
-      file: false
-    TLS_KEY:
-      vault: ssl-certificates/star-dev-ltc-bcit-ca.key.base64@ltc-infrastructure
-      file: false
-  script:
-    - !reference [.set_deploy_envs, script]                   # set cluster env
-    - !reference [.replace_namespace, script]         # add namespace annotations to ensure it's in the default Rancher project
-    - !reference [.patch_deployment, script]        # add annotations about build to deployment
-    - !reference [.kustomize_image, script]           # patch deployment to pull latest commit image
-    - !reference [.add_common_annotations, script]    # link deployment to GitLab Environment/Operations dashboards
-    - !reference [.create_tls_secret, script]         # create TLS secret
-    - !reference [.patch_ingress, script]             # replace ingress with rewrite-targets, sub-paths
-    - !reference [.verify_kustomization, script]      # validate kustomization
-    - "kubectl kustomize deploy/overlays/$BUILD_ENV \
-        | kubectl apply -f -"                         # apply kustomized deployment
   environment:
     name: production
-    url: https://$PROD_HOST/$CI_PROJECT_NAME
-    kubernetes:
-      namespace: $PROD_NAMESPACE      # update to '$CI_PROJECT_NAME' if projects are independent
+    url: https://${PROD_HOST}/${CI_PROJECT_NAME}
 
-
-stop_review:                          # Stop review environment
-  stage: cleanup
-  extends: .feature_branch_rules
-  script:
-    - |
-      kubectl delete ns $CI_COMMIT_REF_SLUG
-      echo -e " \
-        \n########################################### \
-        \n  $CI_COMMIT_REF_SLUG environment stopped  \
-        \n###########################################"
-  environment:
-    name: $CLUSTER_NAME/review/$CI_COMMIT_REF_SLUG
-    kubernetes:
-      namespace: $CI_COMMIT_REF_SLUG
-    action: stop
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
-      when: manual
   tags:
-    - $CLUSTER_NAME
+    - production
+
+
+## Removes dev cluster review (and all assets in the review branch namespace)
+stop review:
+  stage: cleanup
+
+  extends:
+    - .undeploy_review
+    - .undeploy_review_rules
+
+
+#
+#
+#
+## ---------- Pipeline configuration ----------
+#
+#
+#
+variables:                      # other global variables are set in GitLab Admin
+  CLUSTER_NAME: "dev-cp"        # options: dev-cp, dev-vsm
+  # GENERIC_DEPLOYMENT: "true"
+  #
+  #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
+  #     to exist in the "Deployments" GitLab group. Create a deployment package following the
+  #     guide in "Deployments/CI Config".
+  #
+  #   - see https://infrastructure-documentation.dev.ltc.bcit.ca/ for additional info.
+  #
+  # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
+  DEPLOY_PKG_PROJECT_ID: "405"
+#
+# Other possible values
+  # COMMON_NAMESPACE: ""      # combine apps into one namespace
+#
+#
+#
+## ---------- It's generally bad to change anything below here ----------
+#
+#
+#
+## Other common pipeline variables
+  PIPELINE_DEBUG: "true"
+
+## Include common scripts
+include:
+  - project: 'deployments/ci-config'
+    file: 
+      - 'project-init.yml'
+      - 'get-info.yml'
+      - 'build.yml'
+      - 'deploy.yml'
+      - '.deploy-hydrate.yml'
+      - '.vault.yml'
+      - '.rules.yml'
+
+## Specify which runner should pick up pipeline jobs
+default:
+  tags:
+    - ${CLUSTER_NAME}
+
+## Configure merge request pipelines
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH || $CI_COMMIT_TAG'

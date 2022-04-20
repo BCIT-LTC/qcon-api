@@ -16,9 +16,11 @@ import os
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
-import api_v3.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qcon.settings')
+
+django_asgi_app=get_asgi_application()
+import api_v3.routing
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
