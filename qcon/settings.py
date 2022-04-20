@@ -20,13 +20,6 @@ from pathlib import Path
 # Defaults in `.env`
 #### --- (added by DEV pipeline)
 GIT_TAG = os.getenv('GIT_TAG', 'dev')
-BUILD_HASH = os.getenv('BUILD_HASH', '')
-BUILD_SHORT_SHA = os.getenv('BUILD_SHORT_SHA', '')
-BUILD_DATE = os.getenv('BUILD_DATE', '')
-CLUSTER_NAME = os.getenv('CLUSTER_NAME', '')
-BUILD_ENV = os.getenv('BUILD_ENV', '')
-APP_DESCRIPTION = os.getenv('APP_DESCRIPTION', '')
-APP_TAGLINE = os.getenv('APP_TAGLINE', '')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -265,8 +265,7 @@ class RootPath(APIView):
         from .models import StatusResponse
         from .serializers import StatusResponseSerializer
 
-        status = StatusResponse(name='qcon-api',
-                                version_number=settings.GIT_TAG)
+        status = StatusResponse(version_number=settings.GIT_TAG)
         serializer = StatusResponseSerializer(status)
 
         return JsonResponse(serializer.data,
