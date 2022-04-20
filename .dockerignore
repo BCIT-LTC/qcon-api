@@ -10,9 +10,7 @@ temp
 **/.gitignore
 **/.vscode
 **/coverage
-**/.env
 README.md
 docker-compose.yml
 **/.DS_Store
-**/venv
 **/env
