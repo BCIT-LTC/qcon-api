@@ -108,7 +108,7 @@ stop review:
 #
 variables:                      # other global variables are set in GitLab Admin
   CLUSTER_NAME: "dev-cp"        # options: dev-cp, dev-vsm
-  GENERIC_DEPLOYMENT: "true"
+  # GENERIC_DEPLOYMENT: "true"
   #
   #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
   #     to exist in the "Deployments" GitLab group. Create a deployment package following the
@@ -116,8 +116,8 @@ variables:                      # other global variables are set in GitLab Admin
   #
   #   - see https://infrastructure-documentation.dev.ltc.bcit.ca/ for additional info.
   #
-  DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
-  # DEPLOY_PKG_PROJECT_ID: ""
+  # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
+  DEPLOY_PKG_PROJECT_ID: "405"
 #
 # Other possible values
   # COMMON_NAMESPACE: ""      # combine apps into one namespace
