@@ -1,9 +1,12 @@
+####################################################### BASE
 FROM python:3.10 AS qcon-api-base
 
 ENV ARCH amd64
 ENV PANDOC_VERSION 2.16.1
 ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
 ENV PATH="/opt/venv/bin:/base:$PATH"
+
+
 
 # Set to project name
 WORKDIR /qcon-api
@@ -29,6 +32,9 @@ RUN set -ex; \
         \
         pip install --upgrade pip; \
         pip install -r requirements.txt; 
+
+
+
 ####################################################### ANTLR BUILD
 FROM openjdk:17-jdk AS antlr-builder
 ENV GET_ANTLR_URL https://www.antlr.org/download
@@ -39,6 +45,8 @@ WORKDIR /usr/local/lib
 RUN set -ex; \
         curl -O \
             "$GET_ANTLR_URL/antlr-$ANTLR_VERSION-complete.jar";
+
+
 
 # BUILD FORMATTER
 WORKDIR /usr/src/formatter
@@ -52,6 +60,8 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe formatter.jar formatter  *.class ./antlr.jar;
 
+
+
 # BUILD SECTIONER
 WORKDIR /usr/src/sectioner
 COPY /api_v3/sectioner/sectioner.g4 ./
@@ -63,6 +73,8 @@ RUN set -ex; \
     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" sectioner.g4 -visitor -no-listener; \
     javac *.java; \
     jar cvfe sectioner.jar sectioner  *.class ./antlr.jar;
+
+
 
 # BUILD SPLITTER
 WORKDIR /usr/src/splitter
@@ -87,6 +99,8 @@ RUN set -ex; \
 #     java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" questionparser.g4 -visitor -no-listener; \
 #     javac *.java; \
 #     jar cvfe questionparser.jar questionparser  *.class ./antlr.jar;
+
+
 
 ####################################################### RELEASE
 FROM python:3.10-alpine AS release  
