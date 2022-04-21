@@ -171,11 +171,34 @@ def run_parser(questionlibrary):
 
         for question in questions:
 
-            print(question)
+            parse_question(question)
 
     pass
 
 def parse_question(question):
+
+
+    os.chdir('/questionparser/jarfile')
+    result = subprocess.run(
+        'java -cp questionparser.jar:* questionparser',
+        shell=True,
+        input=question.raw_content.encode("utf-8"),
+        capture_output=True)
+    os.chdir('/code')
+
+    print(result.stdout.decode("utf-8"))
+    # questionlibrary.sectioner_output = result.stdout.decode("utf-8")
+    # questionlibrary.save()
+
+    # root = None
+    # try:
+    #     root = ET.fromstring(result.stdout.decode("utf-8"))
+    # except:
+    #     pass
+
+
+
+
 
     pass
 
