@@ -1,0 +1,43 @@
+
+# The title
+
+<!-- NewLine -->
+
+Type: MC
+
+<!-- START OF OL -->
+
+1.  *Amplitude* is a measure of:
+
+    <!-- START OF OL -->
+    a.  Resistance
+
+    b.  Current
+
+    c.  Impedance
+
+    d.  \*Voltage
+
+    <!-- END OF OL -->
+
+<!-- END OF OL -->
+
+<!-- NewLine -->
+
+Type: E
+
+Title: number 2
+
+<!-- START OF OL -->
+
+2.  This is a WR type of question
+
+<!-- END OF OL -->
+
+Correct answer: This is the answer
+
+<!-- NewLine -->
+
+Answers:
+
+1.a

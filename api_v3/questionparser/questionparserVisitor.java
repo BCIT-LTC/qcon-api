@@ -22,17 +22,17 @@ public interface questionparserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitQuestion_wrapper(questionparserParser.Question_wrapperContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link questionparserParser#fib_question}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFib_question(questionparserParser.Fib_questionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link questionparserParser#question}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitQuestion(questionparserParser.QuestionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link questionparserParser#fib_question}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFib_question(questionparserParser.Fib_questionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link questionparserParser#fib_part}.
 	 * @param ctx the parse tree
@@ -57,6 +57,18 @@ public interface questionparserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCorrect_answer_part(questionparserParser.Correct_answer_partContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link questionparserParser#wr_answer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWr_answer(questionparserParser.Wr_answerContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link questionparserParser#content}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitContent(questionparserParser.ContentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link questionparserParser#trailing_content}.
 	 * @param ctx the parse tree

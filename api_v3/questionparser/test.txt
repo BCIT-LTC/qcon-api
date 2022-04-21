@@ -1,0 +1,16 @@
+
+*Amplitude* is a measure of:
+
+    <!-- START OF OL -->
+    a.  Resistance
+
+    b.  Current
+
+    c.  Impedance
+
+    d.  \*Voltage
+
+    <!-- END OF OL -->
+
+<!-- END OF OL -->
+

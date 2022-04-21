@@ -162,9 +162,22 @@ def split_questions(sectionobject):
 
 
 # This function will most likely writes directly to model. Might need to move to model instead
-def run_parser():
+def run_parser(questionlibrary):
+
+    sections = Section.objects.filter(question_library=questionlibrary)
+
+    for section in sections:
+        questions = Question.objects.filter(section=section)
+
+        for question in questions:
+
+            print(question)
+
     pass
 
+def parse_question(question):
+
+    pass
 
 def process(questionlibrary):
 

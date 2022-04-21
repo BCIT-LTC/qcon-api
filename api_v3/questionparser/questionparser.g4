@@ -10,7 +10,14 @@ question_wrapper: (question | fib_question);
 
 question: content;
 
-fib_question: (fib_part | ALL_CHARACTER+)*;
+fib_question: (fib_part content)* | (content fib_part)* | (fib_part)*;
+
+// fib_question: ((fib_part content) fib_question)
+// 			| ((content fib_part) fib_question)
+// 			| (fib_part  content)
+// 			| (content fib_part)
+// 			| fib_part
+// 			| content;
 
 fib_part: FIB_START ALL_CHARACTER* FIB_END;
 answers:
@@ -67,11 +74,10 @@ fragment STAR_BEFORE_DOT:
 fragment STAR_BEFORE_LETTER:
 	NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 
-START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->' ) -> skip;
-END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->' ) -> skip;
+START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->') -> skip;
+END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->') -> skip;
 
-// NUMLIST_PREFIX:
-// 	NEWLINE WHITESPACE* NUMBER WHITESPACE* DELIMITER WHITESPACE*;
+// NUMLIST_PREFIX: NEWLINE WHITESPACE* NUMBER WHITESPACE* DELIMITER WHITESPACE*;
 LETTERLIST_PREFIX:
 	NEWLINE WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 
