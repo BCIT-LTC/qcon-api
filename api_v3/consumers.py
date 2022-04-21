@@ -11,7 +11,7 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process import run_formatter, run_sectioner, run_splitter
+from .process import run_formatter, run_sectioner, run_splitter, run_parser
 from .serializers import JsonResponseSerializer
 
 
@@ -139,6 +139,36 @@ class TextConsumer(JsonWebsocketConsumer):
                 'data': ""
             }))
 
+###########################################
+        # run_parser
+###########################################
+
+
+        try:
+            run_parser(new_questionlibrary)
+        except ParserError as e:
+            logger.error("ParserError: " + str(e))
+            self.send(text_data=json.dumps(
+                {
+                    'hostname': socket.gethostname(),
+                    'status': "Error: Parser failed",
+                    'data': ""
+                }))
+            return
+        else:
+            self.send(text_data=json.dumps({
+                'hostname': socket.gethostname(),
+                'status': "parser complete",
+                'data': ""
+            }))
+
+
+
+
+
+###########################################
+        # serialize and send response
+###########################################
 
         serialized_ql = JsonResponseSerializer(new_questionlibrary)
 
@@ -200,4 +230,7 @@ class SectionerError(Exception):
     pass
 
 class SplitterError(Exception):
+    pass
+
+class ParserError(Exception):
     pass
