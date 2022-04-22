@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import logging
 import subprocess
 import sys
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +135,6 @@ def split_questions(sectionobject):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        print("eroorororos")
         pass
 
     for question in root:
@@ -144,17 +144,32 @@ def split_questions(sectionobject):
 
         questionobject.save()
 
-        questionheader = question.find('question_header')
-        if questionheader is not None:
-            questionobject.raw_header = questionheader.text
+        questiontype = question.find('type')
+        if questiontype is not None:
+            questionobject.questiontype = questiontype.text.strip()
+
+        title = question.find('title')
+        if questiontype is not None:
+            questionobject.title = title.text.strip()  
+
+        # randomize = question.find('randomize')
+        # if questiontype is not None:
+        #     questionobject.title = randomize.text    
+
+        points = question.find('points')
+        filterpoint = re.search("\d+((.|,)\d+)?", points.text)
+        if questiontype is not None:
+            questionobject.points = float(filterpoint.group()) 
+
 
         content = question.find('content')
         if content is not None:
             questionobject.raw_content = content.text
 
         question_start = question.find('question_start')
+        filter_question_number = re.search("\d+", question_start.text)
         if question_start is not None:
-            questionobject.number_provided = question_start.text
+            questionobject.number_provided = filter_question_number.group()
 
         questionobject.save()
     pass
@@ -186,7 +201,7 @@ def parse_question(question):
         capture_output=True)
     os.chdir('/code')
 
-    print(result.stdout.decode("utf-8"))
+    # print(result.stdout.decode("utf-8"))
     # questionlibrary.sectioner_output = result.stdout.decode("utf-8")
     # questionlibrary.save()
 

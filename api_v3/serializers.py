@@ -189,7 +189,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content']
+        fields = ['title', 'questiontype', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content']
 
 
 class SectionSerializer(serializers.ModelSerializer):
