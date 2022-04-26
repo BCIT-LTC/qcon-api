@@ -35,12 +35,46 @@ public class questionparser {
 
    public static class questionparserVisitor extends
          questionparserBaseVisitor<Void> {
-      public Void visitQuestionparser(questionparserParser.QuestionparserContext ctx) {
 
-
-
+      public Void visitQuestion(questionparserParser.QuestionContext ctx) {
+         Element question = document.createElement("question");
+         question.appendChild(document.createTextNode(ctx.getText()));
+         root.appendChild(question);
          return null;
       }
+
+      public Void visitFib_question(questionparserParser.Fib_questionContext ctx) {
+         Element fib_question = document.createElement("fib_question");
+         fib_question.appendChild(document.createTextNode(ctx.getText()));
+         root.appendChild(fib_question);
+         return null;
+      }
+
+      public Void visitAnswer_part(questionparserParser.Answer_partContext ctx) {
+
+         Element answer = document.createElement("answer");
+         answer.appendChild(document.createTextNode(ctx.content().getText()));
+         root.appendChild(answer);
+         return null;
+      }
+
+      public Void visitCorrect_answer_part(questionparserParser.Correct_answer_partContext ctx) {
+         // System.out.println("Answersss");
+
+         Element correct_answer = document.createElement("correct_answer");
+         correct_answer.appendChild(document.createTextNode(ctx.content().getText()));
+         root.appendChild(correct_answer);
+         return null;
+      }
+
+      public Void visitWr_answer(questionparserParser.Wr_answerContext ctx) {
+         
+         Element wr_answer = document.createElement("wr_answer");
+         wr_answer.appendChild(document.createTextNode(ctx.content().getText()));
+         root.appendChild(wr_answer);
+         return null;
+      }
+
    }
 
    public static void serializeDocument(Document document, OutputStream os) {

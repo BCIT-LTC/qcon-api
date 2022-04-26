@@ -6,20 +6,28 @@ grammar questionparser;
 
 questionparser: question_wrapper answers? trailing_content EOF;
 
-question_wrapper: other_question | fib_question;
+question_wrapper: (question | fib_question);
 
-other_question: ALL_CHARACTER*;
+question: content;
 
-fib_question: (fib_part | ALL_CHARACTER)*;
+fib_question: (fib_part content)* | (content fib_part)* | (fib_part)*;
+
+// fib_question: ((fib_part content) fib_question)
+// 			| ((content fib_part) fib_question)
+// 			| (fib_part  content)
+// 			| (content fib_part)
+// 			| fib_part
+// 			| content;
 
 fib_part: FIB_START ALL_CHARACTER* FIB_END;
 answers:
 	START_OL? ((answer_part | correct_answer_part)+ | wr_answer) END_OL?;
-answer_part: LETTERLIST_PREFIX ALL_CHARACTER*;
-correct_answer_part: CORRECT_ANSWER ALL_CHARACTER*;
+answer_part: LETTERLIST_PREFIX content;
+correct_answer_part: CORRECT_ANSWER content;
 
-wr_answer: CORRECT_ANSWER_FOR_WR ALL_CHARACTER*;
+wr_answer: CORRECT_ANSWER_FOR_WR content;
 
+content: ALL_CHARACTER*;
 trailing_content: ALL_CHARACTER*;
 
 // ================================ TOKENS
@@ -66,11 +74,10 @@ fragment STAR_BEFORE_DOT:
 fragment STAR_BEFORE_LETTER:
 	NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 
-START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->' NEWLINE) -> skip;
-END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->' NEWLINE) -> skip;
+START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->') -> skip;
+END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->') -> skip;
 
-// NUMLIST_PREFIX:
-// 	NEWLINE WHITESPACE* NUMBER WHITESPACE* DELIMITER WHITESPACE*;
+// NUMLIST_PREFIX: NEWLINE WHITESPACE* NUMBER WHITESPACE* DELIMITER WHITESPACE*;
 LETTERLIST_PREFIX:
 	NEWLINE WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 

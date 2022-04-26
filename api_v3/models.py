@@ -263,6 +263,7 @@ class Question(models.Model):
     raw_header = models.TextField(blank=True, null=True)
     raw_content = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
+    questiontype = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
     points = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True, default=0)
     difficulty = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)], default=1)
