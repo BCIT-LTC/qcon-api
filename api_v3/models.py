@@ -118,7 +118,7 @@ class QuestionLibrary(models.Model):
                 'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
                 format='html+empty_paragraphs',
                 extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false'
-                            '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath, '--lua-filter=' + listsPath])
+                            '--lua-filter=' + listsPath, '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
 
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
 

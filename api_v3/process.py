@@ -149,7 +149,7 @@ def split_questions(sectionobject):
             questionobject.questiontype = questiontype.text.strip()
 
         title = question.find('title')
-        if questiontype is not None:
+        if title is not None:
             questionobject.title = title.text.strip()  
 
         # randomize = question.find('randomize')
@@ -157,8 +157,8 @@ def split_questions(sectionobject):
         #     questionobject.title = randomize.text    
 
         points = question.find('points')
-        filterpoint = re.search("\d+((.|,)\d+)?", points.text)
-        if questiontype is not None:
+        if points is not None:
+            filterpoint = re.search("\d+((.|,)\d+)?", points.text)
             questionobject.points = float(filterpoint.group()) 
 
 
@@ -167,8 +167,8 @@ def split_questions(sectionobject):
             questionobject.raw_content = content.text
 
         question_start = question.find('question_start')
-        filter_question_number = re.search("\d+", question_start.text)
         if question_start is not None:
+            filter_question_number = re.search("\d+", question_start.text)
             questionobject.number_provided = filter_question_number.group()
 
         questionobject.save()
