@@ -206,16 +206,25 @@ class TextConsumer(JsonWebsocketConsumer):
 
     def save_file(self, content):
         format, fixeddata = content.get('file').split(';base64,')
-        if format == 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-            received_file = ContentFile(base64.b64decode(fixeddata),
-                                        name=content.get('filename'))
-            newfile = QuestionLibrary.objects.create()
-            newfile.temp_file = received_file
-            newfile.session_id = self.sessionid
-            newfile.save()
-            return newfile
-        else:
-            raise FileValidationError("not a valid *.docx file")
+        print(format)
+        received_file = ContentFile(base64.b64decode(fixeddata),
+                                    name=content.get('filename'))
+        newfile = QuestionLibrary.objects.create()
+        newfile.temp_file = received_file
+        newfile.session_id = self.sessionid
+        newfile.save()
+        return newfile
+
+        # if format == 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        #     received_file = ContentFile(base64.b64decode(fixeddata),
+        #                                 name=content.get('filename'))
+        #     newfile = QuestionLibrary.objects.create()
+        #     newfile.temp_file = received_file
+        #     newfile.session_id = self.sessionid
+        #     newfile.save()
+        #     return newfile
+        # else:
+        #     raise FileValidationError("not a valid *.docx file")
 
 
 class FileValidationError(Exception):
