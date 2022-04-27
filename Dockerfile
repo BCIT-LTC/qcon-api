@@ -1,5 +1,5 @@
 ####################################################### BASE
-FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/pandoc-base AS qcon-api-base
+FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
 
 
 
