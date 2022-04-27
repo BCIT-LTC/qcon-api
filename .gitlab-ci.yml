@@ -9,13 +9,14 @@
 #   1. Gather info
 #   2. Build Image
 #   3. Deploy to a cluster
-#     - main branch deploys to staging/production; other branches deploy to a dev cluster for review
+#     - main branch deploys to staging/production
+#     - other branches deploy to a dev cluster for review
 
 stages:
-  - get info
-  - publish
-  - cleanup
-
+- get info
+- test
+- publish
+- cleanup
 
 ## Project initialization
 #   - a project access token is required, and created on the first run. If the pipeline fails,
@@ -23,23 +24,20 @@ stages:
 project init:
   stage: get info
   extends:
-    - .project_init
-
+  - ".project_init"
 
 ## Determine if there are existing git tags or a new tag is required
 get info:
   stage: get info
   extends:
-    - .get_info
-
+  - ".get_info"
 
 ## Build image and push to project registry
 build image:
   stage: publish
   extends:
-    - .build_image
-    - .build_image_rules
-
+  - ".build_image"
+  - ".build_image_rules"
 
 ## Deploy feat/fix branch package to dev cluster for review
 #   - must have a deployment package with a `dev` overlay
@@ -47,11 +45,9 @@ deploy review:
   stage: publish
   variables:
     TARGET_ENV: dev
-
   extends:
-    - .deploy_review
-    - .deploy_review_rules
-
+  - ".deploy_review"
+  - ".deploy_review_rules"
 
 ## Deploy staging/production packages
 #   - must have a deployment package with `staging` and `production` overlays
@@ -60,44 +56,33 @@ deploy to staging:
   stage: publish
   variables:
     TARGET_ENV: staging
-
   extends:
-    - .deploy
-    - .deploy_staging_rules
-
+  - ".deploy"
+  - ".deploy_staging_rules"
   environment:
     name: staging
     url: https://$STAGING_HOST/$CI_PROJECT_NAME
-
   tags:
-    - staging
-
-
+  - staging
 deploy to production:
   stage: publish
   variables:
     TARGET_ENV: production
-
   extends:
-    - .deploy
-    - .deploy_prod_rules
-
+  - ".deploy"
+  - ".deploy_prod_rules"
   environment:
     name: production
     url: https://${PROD_HOST}/${CI_PROJECT_NAME}
-
   tags:
-    - production
-
+  - production
 
 ## Removes dev cluster review (and all assets in the review branch namespace)
 stop review:
   stage: cleanup
-
   extends:
-    - .undeploy_review
-    - .undeploy_review_rules
-
+  - ".undeploy_review"
+  - ".undeploy_review_rules"
 
 #
 #
@@ -106,8 +91,8 @@ stop review:
 #
 #
 #
-variables:                      # other global variables are set in GitLab Admin
-  CLUSTER_NAME: "dev-cp"        # options: dev-cp, dev-vsm
+variables:                          # other global variables are set in GitLab Admin
+  CLUSTER_NAME: dev-cp              # options: dev-cp, dev-vsm
   # GENERIC_DEPLOYMENT: "true"
   #
   #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
@@ -117,7 +102,7 @@ variables:                      # other global variables are set in GitLab Admin
   #   - see https://infrastructure-documentation.dev.ltc.bcit.ca/ for additional info.
   #
   # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
-  DEPLOY_PKG_PROJECT_ID: "405"
+  DEPLOY_PKG_PROJECT_ID: '405'
 #
 # Other possible values
   # COMMON_NAMESPACE: ""      # combine apps into one namespace
@@ -129,30 +114,36 @@ variables:                      # other global variables are set in GitLab Admin
 #
 #
 ## Other common pipeline variables
-  PIPELINE_DEBUG: "true"
+  # PIPELINE_DEBUG: 'true'
 
 ## Include common scripts
 include:
-  - project: 'deployments/ci-config'
-    file: 
-      - 'project-init.yml'
-      - 'get-info.yml'
-      - 'build.yml'
-      - 'deploy.yml'
-      - '.deploy-hydrate.yml'
-      - '.vault.yml'
-      - '.rules.yml'
+- project: deployments/ci-config
+  file:
+  - project-init.yml
+  - get-info.yml
+  - build.yml
+  - deploy.yml
+  - ".deploy-hydrate.yml"
+  - ".vault.yml"
+  - ".rules.yml"
+- template: Jobs/SAST.gitlab-ci.yml
+- template: Jobs/Secret-Detection.gitlab-ci.yml
 
 ## Specify which runner should pick up pipeline jobs
 default:
   tags:
-    - ${CLUSTER_NAME}
+  - "${CLUSTER_NAME}"
+
+## Configure security scanning
+sast:
+  stage: test
 
 ## Configure merge request pipelines
 workflow:
   rules:
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH || $CI_COMMIT_TAG'
+  - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
+    when: never
+  - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+    when: never
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH || $CI_COMMIT_TAG

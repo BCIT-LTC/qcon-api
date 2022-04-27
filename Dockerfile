@@ -1,37 +1,6 @@
 ####################################################### BASE
-FROM python:3.10 AS qcon-api-base
+FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
 
-ENV ARCH amd64
-ENV PANDOC_VERSION 2.16.1
-ENV GET_PANDOC_URL https://github.com/jgm/pandoc/releases/download
-ENV PATH="/opt/venv/bin:/base:$PATH"
-
-
-
-# Set to project name
-WORKDIR /qcon-api
-
-COPY requirements.txt ./
-
-RUN set -ex; \
-        apt-get update; \
-        apt-get install -y --no-install-recommends \
-            build-essential \
-            gcc \
-            wget \
-        ; \
-        wget -O pandoc.deb \
-            "$GET_PANDOC_URL/$PANDOC_VERSION/pandoc-$PANDOC_VERSION-1-$ARCH.deb"; \
-        dpkg -i pandoc.deb; \
-        rm -Rf pandoc.deb; \
-        \
-        apt-get autoremove --purge; \
-        apt-get -y clean; \
-        \
-        python -m venv /opt/venv; \
-        \
-        pip install --upgrade pip; \
-        pip install -r requirements.txt; 
 
 
 
@@ -112,15 +81,16 @@ WORKDIR /code
 
 RUN apk --update add \
         nginx \
-        openjdk17 \
-        bash; \
-    chmod -R 755 /var/lib/nginx;
+        openjdk17; \
+    chmod -R 755 /var/lib/nginx; \
+    mkdir -p /run/daphne;
 
 COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY .env ./
-COPY .secrets .
+COPY .secrets ./
 COPY manage.py supervisord.conf ./
 COPY docker-entrypoint.sh /usr/local/bin
+
 COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
 COPY --from=qcon-api-base /root/.cache /root/.cache
 COPY --from=qcon-api-base /opt/venv /opt/venv
@@ -133,8 +103,6 @@ COPY --from=antlr-builder /usr/src/questionparser /questionparser/jarfile
 COPY qcon qcon
 COPY api_v2 api_v2
 COPY api_v3 api_v3
-
-RUN mkdir -p /run/daphne
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

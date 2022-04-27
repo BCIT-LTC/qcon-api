@@ -29,13 +29,13 @@ Qcon-api can be deployed as a single docker container or as a scalable Kubernete
 
 ## Support, Discussion, and Community
 
-If you need any help with Qcon-api, please join us on the [BCITLTC/Qcon](https://gitter.im/BCIT-LTC/qcon) Gitter channel or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+If you need any help with Qcon-api, please fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
 Please submit any **Qcon-api** bugs, issues, and feature requests to [bcit-ltc/qcon](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
 ## License
 
-Copyright (c) 2008-2020 [BCIT LTC](https://bcit.ca/ltc)
+Copyright (c) 2008-2022 [BCIT LTC](https://bcit.ca/ltc)
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
