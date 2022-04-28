@@ -12,7 +12,6 @@
 #     - main branch deploys to staging/production
 #     - other branches deploy to a dev cluster for review
 
-
 stages:
 - get info
 - test
