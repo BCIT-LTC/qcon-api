@@ -209,23 +209,16 @@ def parse_question(question):
     except:
         pass
 
-    # check if Type is given
-    if question.questiontype is not None: 
+    if question.questiontype == 'MS':
         # MS is required 
-        if question.questiontype == 'MS':
-
-            # COUNT total number of answers and correct_answer. it should be >= 2
-            # answer = root.find('answer')
-
-            pass
-        else:
-            # all other types try autodetect and compare if the given type is correct. if not then notify user 
-            
-            pass
-    
+        # COUNT total number of answers and correct_answer. it should be >= 2
+        # answer = root.find('answer')
+        
+        pass
     else:
- 
-        # Autodetect 
+    # all other types try autodetect and compare if the given type is correct. if not then notify user 
+
+       # Autodetect 
         print("detecting question")
         # look for FIB question
         fib_question = root.find('fib_question')
@@ -282,7 +275,9 @@ def parse_question(question):
                             mc_correct_answerobject.answer = correct_answer_item.text
                             mc_correct_answerobject.weight = 100
                             mc_correct_answerobject.save()
-                        
+
+                        # TODO: Check if the user given type is similar to detected type:
+
                         question.questiontype = 'MC'
                         mc_object.save()
                         question.save()
