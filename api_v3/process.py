@@ -283,7 +283,9 @@ def parse_question(question):
                             mc_correct_answerobject.weight = 100
                             mc_correct_answerobject.save()
                         
+                        question.questiontype = 'MC'
                         mc_object.save()
+                        question.save()
 
                 elif len(correct_answer) > 1:
                         # =========================  MS confirmed =======================
