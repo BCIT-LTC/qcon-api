@@ -206,7 +206,6 @@ class TextConsumer(JsonWebsocketConsumer):
 
     def save_file(self, content):
         format, fixeddata = content.get('file').split(';base64,')
-        print(format)
         received_file = ContentFile(base64.b64decode(fixeddata),
                                     name=content.get('filename'))
         newfile = QuestionLibrary.objects.create()

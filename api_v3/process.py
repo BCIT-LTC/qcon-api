@@ -129,8 +129,6 @@ def split_questions(sectionobject):
     os.chdir('/code')
 
     # print(result.stdout.decode("utf-8"))
-    # questionlibrary.sectioner_output = result.stdout.decode("utf-8")
-    # questionlibrary.save()
 
     root = None
     try:
@@ -195,7 +193,6 @@ def run_parser(questionlibrary):
 
 def parse_question(question):
 
-
     os.chdir('/questionparser/jarfile')
     result = subprocess.run(
         'java -cp questionparser.jar:* questionparser',
@@ -204,9 +201,7 @@ def parse_question(question):
         capture_output=True)
     os.chdir('/code')
 
-    print(result.stdout.decode("utf-8"))
-    # questionlibrary.sectioner_output = result.stdout.decode("utf-8")
-    # questionlibrary.save()
+    # print(result.stdout.decode("utf-8"))
 
     root = None
     try:
@@ -231,7 +226,7 @@ def parse_question(question):
     else:
  
         # Autodetect 
-        print("autodetect")
+        print("detecting question")
         # look for FIB question
         fib_question = root.find('fib_question')
         if fib_question is not None:
@@ -241,8 +236,6 @@ def parse_question(question):
         # look for regular question
         regular_question = root.find('question')
         if regular_question is not None:
-            print("regular question found")
-            print
             question.text = regular_question.text
             question.save()
 
@@ -310,7 +303,8 @@ def parse_question(question):
                             ms_correct_answerobject.answer = correct_answer_item.text
                             ms_answerobject.is_correct = True
                             ms_correct_answerobject.save()
-
+                        
+                        ms_object.save()
             else:
                 # answer list not included
                 # This is most likely an essay type question. check if "correct_answer" token is present

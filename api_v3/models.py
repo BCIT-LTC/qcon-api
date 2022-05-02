@@ -317,7 +317,7 @@ class Question(models.Model):
 
 class MultipleChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='multiplechoices', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='multiple_choice', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
 
@@ -330,7 +330,7 @@ class MultipleChoice(models.Model):
 
 class MultipleChoiceAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiplechoiceanswers', on_delete=models.CASCADE)
+    multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiple_choice_answers', on_delete=models.CASCADE)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
