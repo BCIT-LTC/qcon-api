@@ -280,7 +280,7 @@ def parse_question(question):
                         for correct_answer_item in correct_answer:
                             mc_correct_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
                             mc_correct_answerobject.answer = correct_answer_item.text
-                            mc_answerobject.weight = 100
+                            mc_correct_answerobject.weight = 100
                             mc_correct_answerobject.save()
                         
                         mc_object.save()
