@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from rest_framework import serializers
-from .models import DocumentError, Matching, MatchingAnswer, MatchingChoice, Ordering, QuestionError, QuestionLibrary, Section, Question, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, WrittenResponse
+from .models import Matching, MatchingAnswer, MatchingChoice, Ordering, QuestionLibrary, Section, Question, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, WrittenResponse
 from django.conf import settings
 
 
