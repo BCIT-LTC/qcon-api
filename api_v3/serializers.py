@@ -207,49 +207,6 @@ class JsonResponseSerializer(serializers.ModelSerializer):
         model = QuestionLibrary
         fields = ['main_title', 'sections']
 
-
-class QuestionErrorSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = QuestionError
-        fields = ['error_type', 'message', 'action']
-
-
-class DocumentErrorSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = QuestionError
-        fields = ['error_type', 'message', 'action']
-
-
-class QuestionErrorSummarySerializer(serializers.ModelSerializer):
-    question_errors = QuestionErrorSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Question
-        fields = ['prefix', 'question_errors']
-
-
-class QuestionLibraryErrorSummarySerializer(serializers.ModelSerializer):
-    document_errors = DocumentErrorSerializer(many=True, read_only=True)
-    questions = serializers.SerializerMethodField('get_questions')
-
-    def get_questions(self, questionlibrary):
-        question_list = Question.objects.filter(question_library=questionlibrary)
-        filtered_question_list_ids = []
-        for q in question_list:
-            q_errorlist = QuestionError.objects.filter(question=q)
-            if q_errorlist.count() > 0:
-                filtered_question_list_ids.append(q.id)
-        filtered_question_list_queryset = question_list.filter(id__in=filtered_question_list_ids)
-        serializer = QuestionErrorSummarySerializer(instance=filtered_question_list_queryset, many=True, read_only=True)
-        return serializer.data
-
-    class Meta:
-        model = QuestionLibrary
-        fields = ['main_title', 'total_question_errors', 'total_document_errors', 'document_errors', 'questions']
-
-
 class QuestionLibrarySerializer(serializers.ModelSerializer):
     sections = SectionSerializer(many=True, allow_null=True)
 
@@ -322,18 +279,6 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
                         wr_instance = WrittenResponse.objects.create(question=question_instance, **written_response)
 
         return question_library_instance
-
-
-# class QuestionErrorSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = QuestionError
-#         fields = ['message', 'action', 'errortype']
-
-# class DocumentErrorSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = QuestionError
-#         fields = ['message', 'action', 'errortype']
-
 
 class StatusResponseSerializer(serializers.Serializer):
     version_number = serializers.CharField(max_length=None, min_length=None, allow_blank=True, trim_whitespace=True)
