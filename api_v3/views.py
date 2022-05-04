@@ -6,7 +6,7 @@ import json
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
-from .serializers import JsonToScormSerializer, QuestionLibraryErrorSummarySerializer, QuestionLibrarySerializer, WordToJsonSerializer
+from .serializers import JsonToScormSerializer, QuestionLibrarySerializer, WordToJsonSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -251,7 +251,7 @@ class JsonToScorm(APIView):
                     "[" + str(ql_instance.id) + "] " +
                     ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
 
-                json_response = JsonResponse(serialized_data.data, status=201)
+                json_response = JsonResponse("", status=201)
                 ql_instance.cleanup()
                 return json_response
 
