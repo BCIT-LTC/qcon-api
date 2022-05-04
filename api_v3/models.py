@@ -451,67 +451,6 @@ class WrittenResponse(models.Model):
     def __str__(self):
         return str(self.id)
 
-
-class ErrorType(models.Model):
-    error_type = models.CharField(max_length=7, primary_key=True)
-    link = models.TextField(max_length=12, null=False)
-
-    def __str__(self):
-        return str(self.error_type)
-
-
-class QuestionErrorType(str, Enum):  # A subclass of Enum
-    MC1 = "MC1"
-    TF1 = "TF1"
-    TF2 = "TF2"
-    TF3 = "TF3"
-    TF4 = "TF4"
-    MS1 = "MS1"
-    MT1 = "MT1"
-    MT2 = "MT2"
-    MT3 = "MT3"
-    ORD1 = "ORD1"
-    ORD2 = "ORD2"
-    ORD3 = "ORD3"
-    FIB1 = "FIB1"
-    FIB2 = "FIB2"
-    WR1 = "WR1"
-    WR2 = "WR2"
-    HEADER1 = "HEADER1"
-    HEADER2 = "HEADER2"
-    HEADER3 = "HEADER3"
-    END1 = "END1"
-
-
-class QuestionError(models.Model):
-    id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='questionerrors', on_delete=models.CASCADE)
-    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
-    error_type = models.TextField(max_length=50, choices=[(tag, tag.value) for tag in QuestionErrorType])  # Choices is a list of Tuple)
-    message = models.TextField(max_length=50)
-    action = models.TextField(max_length=50)
-
-    def __str__(self):
-        return str(self.id)
-
-
-class DocumentErrorType(str, Enum):  # A subclass of Enum
-    SPLITTER1 = "SPLITTER1"
-    SPLITTER2 = "SPLITTER2"
-
-
-class DocumentError(models.Model):
-    id = models.AutoField(primary_key=True)
-    document = models.ForeignKey(QuestionLibrary, related_name='documenterrors', on_delete=models.CASCADE)
-    # errortype = models.ForeignKey(ErrorType, related_name='errortypes', on_delete=models.CASCADE)
-    error_type = models.TextField(max_length=50, choices=[(tag, tag.value) for tag in DocumentErrorType])  # Choices is a list of Tuple)
-    message = models.TextField(max_length=50)
-    action = models.TextField(max_length=50)
-
-    def __str__(self):
-        return str(self.id)
-
-
 @receiver(post_delete, sender=QuestionLibrary, dispatch_uid="delete_files")
 def delete_files(sender, instance, **kwargs):
     if path.exists(settings.MEDIA_ROOT + str(instance)):
