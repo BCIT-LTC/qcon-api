@@ -2,8 +2,8 @@
 set -e
 
 # set secrets from Vault init container or from dev configmap
-if [[ -f "/vault/secrets/config" ]]; then $(cat /vault/secrets/config >> .env) && $(echo -e "\ncat .env\n");
-export $(grep -v '^#' .env | xargs -d '\n'); fi
+if [[ -f "/vault/secrets/config" ]]; then echo -e "$(cat /vault/secrets/config)" >> .env && echo -e "$(cat .env)";
+export $(grep -v '^#' .env | xargs -0); fi
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2 api_v3
