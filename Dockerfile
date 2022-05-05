@@ -1,11 +1,12 @@
-####################################################### BASE
+# Dockerfile
+
+## Base
 FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
 
 
-
-
-####################################################### ANTLR BUILD
+## ANLR Builder
 FROM openjdk:17-jdk AS antlr-builder
+
 ENV GET_ANTLR_URL https://www.antlr.org/download
 ENV ANTLR_VERSION 4.9.3
 
@@ -15,10 +16,9 @@ RUN set -ex; \
         curl -O \
             "$GET_ANTLR_URL/antlr-$ANTLR_VERSION-complete.jar";
 
-
-
-# BUILD FORMATTER
+### Build Formatter
 WORKDIR /usr/src/formatter
+
 COPY /api_v3/formatter/formatter.g4 ./
 COPY /api_v3/formatter/formatter.java ./
 
@@ -29,9 +29,9 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe formatter.jar formatter  *.class ./antlr.jar;
 
-
-# BUILD SECTIONER
+### Build Sectioner
 WORKDIR /usr/src/sectioner
+
 COPY /api_v3/sectioner/sectioner.g4 ./
 COPY /api_v3/sectioner/sectioner.java ./
 
@@ -42,10 +42,9 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe sectioner.jar sectioner  *.class ./antlr.jar;
 
-
-
-# BUILD SPLITTER
+### Build Splitter
 WORKDIR /usr/src/splitter
+
 COPY /api_v3/splitter/splitter.g4 ./
 COPY /api_v3/splitter/splitter.java ./
 
@@ -56,8 +55,9 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe splitter.jar splitter  *.class ./antlr.jar;
 
-# # BUILD QUESTIONPARSER
+### Build Questionparser
 WORKDIR /usr/src/questionparser
+
 COPY /api_v3/questionparser/questionparser.g4 ./
 COPY /api_v3/questionparser/questionparser.java ./
 
@@ -69,9 +69,9 @@ RUN set -ex; \
     jar cvfe questionparser.jar questionparser  *.class ./antlr.jar;
 
 
+## Release
+FROM python:3.10-alpine AS release
 
-####################################################### RELEASE
-FROM python:3.10-alpine AS release  
 LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
@@ -80,14 +80,10 @@ ENV PATH /code:/opt/venv/bin:$PATH
 WORKDIR /code
 
 RUN apk --update add \
-        nginx \
         openjdk17; \
-    chmod -R 755 /var/lib/nginx; \
     mkdir -p /run/daphne;
 
-COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY .env ./
-COPY .secrets ./
 COPY manage.py supervisord.conf ./
 COPY docker-entrypoint.sh /usr/local/bin
 
@@ -106,5 +102,5 @@ COPY api_v3 api_v3
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-EXPOSE 8000
+EXPOSE 8001
 CMD ["supervisord", "-c", "supervisord.conf", "-n"]

@@ -1,15 +1,9 @@
 #!/usr/bin/env sh
 set -e
 
-# set secrets
-# TODO: still needs work to confirm production-ready
-export $(grep -v '^#' .secrets | xargs)
-
-# set environment variables (retrieve from .env and set as shell variables)
-set -a
-source <(cat .env | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g")
-set +a
-
+# set secrets from Vault init container or from dev configmap
+if [[ -f "/vault/secrets/config" ]]; then echo -e "$(cat /vault/secrets/config)" >> .env && echo -e "$(cat .env)";
+export $(grep -v '^#' .env | xargs -0); fi
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2 api_v3
@@ -39,9 +33,6 @@ echo "from api_v2.models import CustomToken; \
         print('API Token: ' + str(CustomToken.objects.get(user=theuser)))" \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
-
->&2 echo "Starting Nginx"
-nginx
 
 >&2 echo "Starting Supervisor"
 exec "$@"
