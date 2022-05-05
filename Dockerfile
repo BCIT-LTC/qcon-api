@@ -69,7 +69,7 @@ RUN set -ex; \
     jar cvfe questionparser.jar questionparser  *.class ./antlr.jar;
 
 
-# Release
+## Release
 FROM python:3.10-alpine AS release
 
 LABEL maintainer courseproduction@bcit.ca
