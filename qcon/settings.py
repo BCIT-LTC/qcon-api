@@ -16,10 +16,16 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Defaults in `.env`
-#### --- (added by DEV pipeline)
-GIT_TAG = os.getenv('GIT_TAG', 'dev')
+load_dotenv()
+
+API_HOST = os.getenv('API_HOST')
+API_PORT = os.getenv('API_PORT')
+API_KEY = os.environ.get('API_KEY')
+GIT_TAG = os.getenv('GIT_TAG')
+IMAGE_TAG = os.getenv('IMAGE_TAG')
+IMAGE_TITLE = os.getenv('IMAGE_TITLE')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,8 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Defaults in `.secrets`
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'd8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
-# SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 

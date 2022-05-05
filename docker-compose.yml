@@ -1,12 +1,19 @@
-version: "3"
+version: "3.8"
 
 services:
   app:
     build: .
-    command: python manage.py runserver 0.0.0.0:8001
+    command: python manage.py runserver 0.0.0.0:8000
     image: qcon-api
     environment:
-      - DEBUG=True
+      - 'DEBUG=True'
+      - 'API_HOST=api.local'
+      - 'API_PORT=8000'
+      - 'API_KEY=2222222222222222222222222222222222222222'
+      - 'DJANGO_SECRET_KEY=d8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
+      - 'GIT_TAG=0.0.1'
+      - 'IMAGE_TAG=0.0.1'
+      - 'IMAGE_TITLE=qcon-api'
     restart: always
     volumes:
       - .:/code

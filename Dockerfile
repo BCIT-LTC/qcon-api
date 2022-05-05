@@ -71,7 +71,8 @@ RUN set -ex; \
 
 
 ####################################################### RELEASE
-FROM python:3.10-alpine AS release  
+FROM python:3.10-alpine AS release
+
 LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
@@ -80,14 +81,10 @@ ENV PATH /code:/opt/venv/bin:$PATH
 WORKDIR /code
 
 RUN apk --update add \
-        nginx \
         openjdk17; \
-    chmod -R 755 /var/lib/nginx; \
     mkdir -p /run/daphne;
 
-COPY /nginx/nginx.conf /etc/nginx/nginx.conf
 COPY .env ./
-COPY .secrets ./
 COPY manage.py supervisord.conf ./
 COPY docker-entrypoint.sh /usr/local/bin
 
@@ -106,5 +103,5 @@ COPY api_v3 api_v3
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-EXPOSE 8000
+EXPOSE 8001
 CMD ["supervisord", "-c", "supervisord.conf", "-n"]
