@@ -10,7 +10,7 @@ Qcon-api is a question conversion processor that enables accurate text conversio
 docker run -p 8000:8000 registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
 ```
 
-Open your browser to **<https://localhost:8000>**
+Open your browser to **[https://localhost:8000](https://localhost:8000)**
 
 ## Using Qcon-api
 
