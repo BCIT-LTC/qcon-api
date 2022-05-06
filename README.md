@@ -1,7 +1,5 @@
 # Qcon-api
 
-[![pipeline status](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/badges/master/pipeline.svg)](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-api/-/commits/master)
-
 Qcon-api is a question conversion processor that enables accurate text conversion from Word into an LMS import package.
 
 ## Quick Start
@@ -10,28 +8,30 @@ Qcon-api is a question conversion processor that enables accurate text conversio
 docker run -p 8000:8000 registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
 ```
 
-Open your browser to **[https://localhost:8000](https://localhost:8000)**
+Open your browser to [http://localhost:8000](http://localhost:8000).
 
 ## Using Qcon-api
 
-See the Qcon-api [usage and examples](docs/usage-examples.md) page for basic information about how to format documents and retrieve packaged files. For full documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS, see the [Qcon User Guide](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+See the Qcon-api [usage and examples](https://qcon-user-guide.dev.ltc.bcit.ca) page for basic information about how to format documents and retrieve packaged files. For full documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS, see the [Qcon User Guide](https://qcon-user-guide.dev.ltc.bcit.ca).
 
 ## Developer Guide
 
-See [getting started](docs/getting-started.md).
+```bash
+docker compose up --build
+```
 
-## Installation
+## Installing Qcon-api
 
-Qcon-api can be deployed as a single docker container or as a scalable Kubernetes cluster workload. Please refer to the following guides for each setup:
+Qcon-api can be deployed as a single docker container or as a scalable Kubernetes cluster workload. See the [deployment package](https://issues.ltc.bcit.ca/deployments/) and the following guides for each setup:
 
 * [docker container](docs/docker.md) - ideal for development
 * [Kubernetes workload](docs/kubernetes.md) - scalable production deployment
 
 ## Support, Discussion, and Community
 
-If you need any help with Qcon-api, please fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+If you need any help with Qcon-api, please see the [user guide](https://qcon-user-guide.dev.ltc.bcit.ca) or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
-Please submit any **Qcon-api** bugs, issues, and feature requests to [bcit-ltc/qcon](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+Please submit any **Qcon-api** bugs, issues, and feature requests to...[courseproduction@bcit.ca](mailto:courseproduction@bcit.ca) or [bcit-ltc/qcon](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
 ## License
 
