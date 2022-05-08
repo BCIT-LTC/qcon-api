@@ -97,13 +97,13 @@ public class splitter {
 
             // GET FIRST QUESTION NUMBER
 
-            try {
-               Element question_start = document.createElement("question_start");
-               question_start.appendChild(document.createTextNode("1"));
-               question.appendChild(question_start);
+            // try {
+            //    Element question_start = document.createElement("question_start");
+            //    question_start.appendChild(document.createTextNode(ctx.first_question().content().getText()));
+            //    question.appendChild(question_start);
 
-            } catch (Exception e) {
-            }
+            // } catch (Exception e) {
+            // }
 
             // GET FIRST QUESTION CONTENT
             try {
@@ -177,19 +177,19 @@ public class splitter {
             // GET QUESTION NUMBER FOR OTHER QUESTIONS
             // System.out.println("Hello world!");
 
-            try {
-               Element question_start = document.createElement("question_start");
-               question_start.appendChild(document.createTextNode(ctx.questions().get(i).QUESTION().getText()));
-               question.appendChild(question_start);
+            // try {
+            //    Element question_start = document.createElement("question_start");
+            //    question_start.appendChild(document.createTextNode(ctx.questions().get(i).QUESTION().getText()));
+            //    question.appendChild(question_start);
 
-            } catch (Exception e) {
-            }
+            // } catch (Exception e) {
+            // }
 
             // GET QUESTION CONTENT FOR OTHER QUESTIONS
 
             try {
                Element content = document.createElement("content");
-               content.appendChild(document.createTextNode(ctx.questions().get(i).content().getText()));
+               content.appendChild(document.createTextNode(ctx.questions().get(i).getText()));
                question.appendChild(content);
 
             } catch (Exception e) {

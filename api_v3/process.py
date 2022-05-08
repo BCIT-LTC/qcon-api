@@ -164,10 +164,10 @@ def split_questions(sectionobject):
         if content is not None:
             questionobject.raw_content = content.text
 
-        question_start = question.find('question_start')
-        if question_start is not None:
-            filter_question_number = re.search("\d+", question_start.text)
-            questionobject.number_provided = filter_question_number.group()
+        # question_start = question.find('question_start')
+        # if question_start is not None:
+        #     filter_question_number = re.search("\d+", question_start.text)
+        #     questionobject.number_provided = filter_question_number.group()
 
         questionobject.save()
     pass
