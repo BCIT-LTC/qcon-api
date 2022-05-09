@@ -4,31 +4,40 @@
 
 grammar questionparser;
 
-questionparser: question_wrapper answers? trailing_content EOF;
+questionparser: unused_content? question_header? question_wrapper answers wr_answer? EOF;
 
-question_wrapper: (question | fib_question);
+unused_content: (ALL_CHARACTER+) ;
 
-question: content;
+question_header: question_header_part+;
+
+question_header_part: 
+		TITLE content
+	|	POINTS content
+	|	TYPE content
+	|	RANDOMIZE content;
+
+question_wrapper: (NUMLIST_PREFIX_ONE|NUMLIST_PREFIX_NOT_ONE) (question | fib_question);
+
+question: feedback? question_part feedback?;
+
+question_part: content NUMLIST_PREFIX_ONE question_part
+	| content NUMLIST_PREFIX_NOT_ONE question_part
+	| content NUMLIST_PREFIX_NOT_ONE
+	| content NUMLIST_PREFIX_ONE 
+	| content;
 
 fib_question: (fib_part content)* | (content fib_part)* | (fib_part)*;
-
-// fib_question: ((fib_part content) fib_question)
-// 			| ((content fib_part) fib_question)
-// 			| (fib_part  content)
-// 			| (content fib_part)
-// 			| fib_part
-// 			| content;
-
 fib_part: FIB_START ALL_CHARACTER* FIB_END;
-answers:
-	START_OL? ((answer_part | correct_answer_part)+ | wr_answer) END_OL?;
-answer_part: LETTERLIST_PREFIX content;
-correct_answer_part: CORRECT_ANSWER content;
 
+feedback: FEEDBACK content;
+
+answers:
+	 ((answer_part | correct_answer_part)+);
+answer_part: LETTERLIST_PREFIX feedback? content feedback?;
+correct_answer_part: CORRECT_ANSWER feedback? content feedback?;
 wr_answer: CORRECT_ANSWER_FOR_WR content;
 
 content: ALL_CHARACTER*;
-trailing_content: ALL_CHARACTER*;
 
 // ================================ TOKENS
 fragment DIGIT: [0-9];
@@ -66,6 +75,15 @@ fragment Y: 'Y' | 'y';
 fragment Z: 'Z' | 'z';
 fragment OPEN_BRACKET: '\\[';
 fragment CLOSE_BRACKET: '\\]';
+fragment AT: '@';
+
+fragment EXCLUDE_1: [2-9];
+fragment INCLUDE_1: '1';
+fragment ZERO: '0';
+fragment NEWLINE_ADDED: '<!-- NewLine -->' NEWLINE;
+fragment EXCLUDE_ONE: EXCLUDE_1 | (INCLUDE_1 (ZERO|INCLUDE_1|EXCLUDE_1)+ ) | (EXCLUDE_1 (ZERO|INCLUDE_1|EXCLUDE_1)+);
+fragment NUMLIST_EXCLUDE_1_PREFIX: NEWLINE WHITESPACE* DOUBLE_ASTERISK? EXCLUDE_ONE WHITESPACE* DELIMITER WHITESPACE*;
+fragment NUMLIST_INCLUDE_1_PREFIX: NEWLINE WHITESPACE* DOUBLE_ASTERISK? INCLUDE_1 WHITESPACE* DELIMITER WHITESPACE*;
 
 fragment STAR_AFTER_DOT:
 	NEWLINE WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE* ANSWER_MARKER WHITESPACE*;
@@ -74,13 +92,23 @@ fragment STAR_BEFORE_DOT:
 fragment STAR_BEFORE_LETTER:
 	NEWLINE WHITESPACE* ANSWER_MARKER WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 
-START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->') -> skip;
-END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->') -> skip;
+fragment TITLE_KEYWORD:  NEWLINE WHITESPACE* T I T L E S? WHITESPACE* COLON;
+fragment POINTS_KEYWORD:   NEWLINE WHITESPACE* P O I N T S? WHITESPACE* COLON;
+fragment TYPE_KEYWORD:   NEWLINE WHITESPACE* T Y P E S? WHITESPACE* COLON;
+fragment RANDOMIZE_KEYWORD:   NEWLINE WHITESPACE* R A N D O M (I Z E)? (S | D)? WHITESPACE* COLON;
 
-// NUMLIST_PREFIX: NEWLINE WHITESPACE* NUMBER WHITESPACE* DELIMITER WHITESPACE*;
+TITLE: TITLE_KEYWORD ;
+POINTS: POINTS_KEYWORD ;
+TYPE: TYPE_KEYWORD ;
+RANDOMIZE: RANDOMIZE_KEYWORD ;
+
+NUMLIST_PREFIX_ONE: NUMLIST_INCLUDE_1_PREFIX;
+NUMLIST_PREFIX_NOT_ONE: NUMLIST_EXCLUDE_1_PREFIX;
+
 LETTERLIST_PREFIX:
 	NEWLINE WHITESPACE* LETTER WHITESPACE* DELIMITER WHITESPACE*;
 
+FEEDBACK: NEWLINE WHITESPACE* AT WHITESPACE*;
 FIB_START: OPEN_BRACKET WHITESPACE*;
 FIB_END: WHITESPACE* CLOSE_BRACKET;
 
@@ -94,4 +122,3 @@ CORRECT_ANSWER_FOR_WR:
 	NEWLINE WHITESPACE* C O R R E C T WHITESPACE* A N S W E R WHITESPACE* COLON WHITESPACE*;
 
 ALL_CHARACTER: .;
-
