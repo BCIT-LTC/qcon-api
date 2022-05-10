@@ -16,7 +16,7 @@ See [Qcon usage and examples](https://qcon-user-guide.dev.ltc.bcit.ca) for basic
 
 ## Developer Guide
 
-See [developing.md](developing.md) for information about the technology stack.
+See [developing.md](docs/developing.md) for information about the technology stack.
 
 ```bash
 docker compose up --build
@@ -24,10 +24,7 @@ docker compose up --build
 
 ## Installing `qcon-api`
 
-`qcon-api` can be deployed as a single docker container or as a scalable Kubernetes cluster workload. See the [deployment package](https://issues.ltc.bcit.ca/deployments/) and the following guides for each setup:
-
-* [docker container](https://issues.ltc.bcit.ca/deployments/) - ideal for development
-* [Kubernetes workload](https://issues.ltc.bcit.ca/deployments/) - scalable production deployment
+`qcon-api` can be deployed as a single docker container or as a scalable Kubernetes cluster workload. See the [deployment package](docs/deployments.md) for each setup.
 
 ## Support, Discussion, and Community
 
