@@ -22,7 +22,7 @@ See [developing.md](docs/developing.md) for information about the technology sta
 docker compose up --build
 ```
 
-## Installing `qcon-api`
+## Deploying `qcon-api`
 
 `qcon-api` can be deployed as a single docker container or as a scalable Kubernetes cluster workload. See the [deployment package](docs/deployments.md) for each setup.
 
