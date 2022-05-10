@@ -16,6 +16,8 @@ See [Qcon usage and examples](https://qcon-user-guide.dev.ltc.bcit.ca) for basic
 
 ## Developer Guide
 
+See [developing.md](developing.md) for information about the technology stack.
+
 ```bash
 docker compose up --build
 ```
