@@ -26,7 +26,7 @@ docker compose up --build
 
 `qcon-api` can be deployed as a single docker container or as a scalable Kubernetes cluster workload. See the [deployment package](docs/deployments.md) for each setup.
 
-## Support, Discussion, and Community
+## Support
 
 If you need any help with `qcon`, please see the [qcon user guide](https://qcon-user-guide.dev.ltc.bcit.ca) or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
