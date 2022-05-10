@@ -12,7 +12,7 @@ Open your browser to [http://localhost:8000](http://localhost:8000).
 
 ## Using `qcon-api`
 
-See [Qcon usage and examples](https://qcon-user-guide.dev.ltc.bcit.ca) for basic information about how to format documents and retrieve packaged files. For full documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS, see the [Qcon User Guide](https://qcon-user-guide.dev.ltc.bcit.ca).
+See [Qcon Usage and Examples](https://qcon-user-guide.dev.ltc.bcit.ca) for basic information about how to format documents and retrieve packaged files. For full documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS, see the [Qcon User Guide](https://qcon-user-guide.dev.ltc.bcit.ca).
 
 ## Developer Guide
 
@@ -28,7 +28,7 @@ docker compose up --build
 
 ## Support
 
-If you need any help with `qcon`, please see the [qcon user guide](https://qcon-user-guide.dev.ltc.bcit.ca) or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+If you need any help with `qcon`, please see the [Qcon User Guide](https://qcon-user-guide.dev.ltc.bcit.ca) or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
 Please submit any `qcon-api` bugs, issues, and feature requests to...[courseproduction@bcit.ca](mailto:courseproduction@bcit.ca) or [bcit-ltc/qcon](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
