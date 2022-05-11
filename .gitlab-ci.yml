@@ -105,6 +105,10 @@ variables:                          # other global variables are set in GitLab A
 #
 # Other possible values
   COMMON_NAMESPACE: "qcon"      # combine apps into one namespace
+  #
+  # Normally apps are deployed to their own namespace for dev reviews
+  # This override deploys the app to the common namespace for dev reviews
+  # DEV_COMMON_NAMESPACE_OVERRIDE: "true"
 #
 #
 #
