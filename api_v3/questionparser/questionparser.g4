@@ -26,17 +26,16 @@ question_part: content NUMLIST_PREFIX_ONE question_part
 	| content NUMLIST_PREFIX_ONE 
 	| content;
 
-fib_question: (fib_part content)* | (content fib_part)* | (fib_part)*;
+fib_question: ((fib_part content)* | (content fib_part)* | (fib_part)*) feedback?;
 fib_part: FIB_START ALL_CHARACTER* FIB_END;
 
-feedback: FEEDBACK content;
-
-answers:
-	 ((answer_part | correct_answer_part)+);
+answers: (answer_part | correct_answer_part)+;
 answer_part: LETTERLIST_PREFIX feedback? content feedback?;
 correct_answer_part: CORRECT_ANSWER feedback? content feedback?;
 wr_answer: CORRECT_ANSWER_FOR_WR content;
 
+
+feedback: FEEDBACK content;
 content: ALL_CHARACTER*;
 
 // ================================ TOKENS

@@ -262,6 +262,7 @@ class Question(models.Model):
     number_provided = models.TextField(blank=True, null=True)
     raw_header = models.TextField(blank=True, null=True)
     raw_content = models.TextField(blank=True, null=True)
+    parser_output_xml = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     questiontype = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
