@@ -201,6 +201,10 @@ def parse_question(question):
     os.chdir('/code')
 
     # print(result.stdout.decode("utf-8"))
+    question.parser_output_xml = result.stdout.decode("utf-8")
+    question.save()
+    
+    '''
 
     root = None
     try:
@@ -306,12 +310,7 @@ def parse_question(question):
                 # This is most likely an essay type question. check if "correct_answer" token is present
                 pass
 
-
-
-
-
-
-
+    '''
 
 
 
