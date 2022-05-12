@@ -16,8 +16,6 @@ services:
       - 'GIT_TAG=0.0.1'
       - 'IMAGE_TAG=0.0.1'
       - 'IMAGE_TITLE=qcon-api'
-      - 'ADMIN_USERNAME=admin'
-      - 'ADMIN_PASSWORD=admin'
     restart: always
     volumes:
       - .:/code
