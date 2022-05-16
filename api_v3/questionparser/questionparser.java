@@ -194,6 +194,17 @@ public class questionparser {
          }
          return null;
       }
+
+      public Void visitHint(questionparserParser.HintContext ctx){
+         try{       
+            Element hint = document.createElement("hint");
+            hint.appendChild(document.createTextNode(ctx.content().getText()));   
+            root.appendChild(hint);
+         } catch (Exception e) {
+         }
+         return null;
+      }
+
    }
 
    public static void serializeDocument(Document document, OutputStream os) {
