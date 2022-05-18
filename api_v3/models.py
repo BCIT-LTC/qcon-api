@@ -232,6 +232,10 @@ class QuestionLibrary(models.Model):
     def __str__(self):
         return str(self.id)
 
+class Image(models.Model):
+    id = models.AutoField(primary_key=True)
+    question_library = models.ForeignKey(QuestionLibrary, related_name='images', on_delete=models.CASCADE)
+    image = models.TextField(blank=True, null=True)
 
 class Section(models.Model):
     id = models.AutoField(primary_key=True)

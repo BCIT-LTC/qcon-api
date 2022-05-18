@@ -11,7 +11,7 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process import run_formatter, run_sectioner, run_splitter, run_parser
+from .process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser
 from .serializers import JsonResponseSerializer
 
 
@@ -73,8 +73,29 @@ class TextConsumer(JsonWebsocketConsumer):
             }))
 
 ###########################################
-        # run_formatter
+        # Extract Images
 ###########################################
+
+        number_of_images = 0;
+        try:
+            number_of_images = extract_images(new_questionlibrary)
+        except ImageExtractError as e:
+            self.send(text_data=json.dumps({
+                'hostname': socket.gethostname(),
+                'status': "Images extraction failed",
+                'data': ""
+            }))
+        else:
+            self.send(text_data=json.dumps({
+            'hostname': socket.gethostname(),
+            'status': "Images extracted: "+ str(number_of_images),
+            'data': ""
+            }))
+
+
+##########################################
+        # run_formatter
+##########################################
 
         try:
             run_formatter(new_questionlibrary)
@@ -95,9 +116,9 @@ class TextConsumer(JsonWebsocketConsumer):
                 'data': ""
             }))
 
-###########################################
+##########################################
         # run_sectioner
-###########################################
+##########################################
 
         try:
             run_sectioner(new_questionlibrary)
@@ -117,9 +138,9 @@ class TextConsumer(JsonWebsocketConsumer):
                 'data': ""
             }))
 
-###########################################
+##########################################
         # run_splitter
-###########################################
+##########################################
 
         try:
             run_splitter(new_questionlibrary)
@@ -143,7 +164,6 @@ class TextConsumer(JsonWebsocketConsumer):
         # run_parser
 ###########################################
 
-
         try:
             run_parser(new_questionlibrary)
         except ParserError as e:
@@ -161,10 +181,6 @@ class TextConsumer(JsonWebsocketConsumer):
                 'status': "parser complete",
                 'data': ""
             }))
-
-
-
-
 
 ###########################################
         # serialize and send response
@@ -225,6 +241,8 @@ class TextConsumer(JsonWebsocketConsumer):
         # else:
         #     raise FileValidationError("not a valid *.docx file")
 
+class ImageExtractError(Exception):
+    pass
 
 class FileValidationError(Exception):
     pass

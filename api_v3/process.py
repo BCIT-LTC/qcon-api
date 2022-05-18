@@ -8,7 +8,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer
+from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Image
 
 
 def create_main_title():
@@ -17,6 +17,24 @@ def create_main_title():
 class FormatterError(Exception):
     pass
 
+def extract_images(questionlibrary):
+    x = re.findall(r"<img src=.*/>", questionlibrary.pandoc_output)
+
+    for image in x:
+        image_object = Image.objects.create(question_library=questionlibrary)
+        image_object.save()
+        image_object.image = image
+        image_object.save()
+
+    model_images = Image.objects.filter(question_library=questionlibrary)
+
+    for modelimage in model_images:
+        val = re.escape(modelimage.image)          
+        x = re.sub(val, "<<<<"+ str(modelimage.id) +">>>>" , questionlibrary.pandoc_output)
+        questionlibrary.pandoc_output = x
+        questionlibrary.save()
+
+    return len(model_images)  
 # This is to split end_answers and body and trim the unused data at the top
 def run_formatter(questionlibrary):
 
@@ -203,7 +221,7 @@ def parse_question(question):
     # print(result.stdout.decode("utf-8"))
     question.parser_output_xml = result.stdout.decode("utf-8")
     question.save()
-    
+
     '''
 
     root = None
