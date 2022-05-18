@@ -7,7 +7,9 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Fib, Matching, MatchingAnswer, MatchingChoice, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Ordering, Question, QuestionLibrary, Section, TrueFalse, WrittenResponse
+from .models import Fib, Matching, MatchingAnswer, MatchingChoice, \
+MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, \
+Ordering, Question, QuestionLibrary, Section, TrueFalse, WrittenResponse, Image
 
 admin.site.register(QuestionLibrary)
 admin.site.register(Section)
@@ -23,3 +25,4 @@ admin.site.register(Ordering)
 admin.site.register(Matching)
 admin.site.register(MatchingChoice)
 admin.site.register(MatchingAnswer)
+admin.site.register(Image)
