@@ -222,13 +222,32 @@ def parse_question(question):
     question.parser_output_xml = result.stdout.decode("utf-8")
     question.save()
 
-    '''
 
     root = None
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
         pass
+
+
+    questiontype = root.find('type')
+    if questiontype is not None:
+        question.questiontype = questiontype.text.strip()
+
+    title = root.find('title')
+    if title is not None:
+        question.title = title.text.strip()  
+
+    points = root.find('points')
+    if points is not None:
+        filterpoint = re.search("\d+((.|,)\d+)?", points.text)
+        question.points = float(filterpoint.group()) 
+
+    question_number = root.find('question_number')
+    if question_number is not None:
+        filter_question_number = re.search("\d+", question_number.text)
+        question.number_provided = filter_question_number.group()
+
 
     if question.questiontype == 'MS':
         # MS is required 
@@ -253,15 +272,19 @@ def parse_question(question):
             question.text = regular_question.text
             question.save()
 
-            answer = root.findall('answer')
-            correct_answer = root.findall('correct_answer')
-            
-            # Check if answers are included
-            if (len(answer) + len(correct_answer)) > 0:
-                # Only one correct answer provided?
-                if len(correct_answer) == 1:                    
-                    # 2 options provided?
-                    if len(answer) == 1:
+            answers = root.findall("answer")            
+            answers_count = 0
+            correct_answers_count = 0
+            for answer in answers:
+                if answer.attrib['correct'] == 'true':
+                    correct_answers_count+=1
+                if answer.attrib['correct'] == 'false':
+                    answers_count+=1
+                
+            # # Check if answers are included
+            if len(answers) > 0:
+                if correct_answers_count == 1:    
+                    if answers_count == 1:
                         # TODO: UPDATE GRAMMAR TO CATCH TRUE AND FALSE TOKENS
                         # Are the options each true and false?
 
@@ -277,25 +300,21 @@ def parse_question(question):
                                 pass         
                                 # =========================  TF confirmed =======================
 
-                    if len(answer) > 1:
+                    if answers_count > 1:
                         # =========================  MC confirmed =======================
-                        
                         mc_object = MultipleChoice.objects.create(question=question)
                         mc_object.save()
                         # grab all answers
 
-                        for answer_item in answer:
+                        for answer_item in answers:
                             mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
-                            mc_answerobject.answer = answer_item.text
-                            mc_answerobject.weight = 0
+                            mc_answerobject.answer = answer_item.find('content').text
+                            mc_answerobject.index = (answer_item.find('index').text).strip()
+                            if answer_item.attrib['correct'] == 'true':
+                                mc_answerobject.weight = 100
+                            if answer_item.attrib['correct'] == 'false':
+                                mc_answerobject.weight = 0
                             mc_answerobject.save()
-
-                        # grab the correct answer
-                        for correct_answer_item in correct_answer:
-                            mc_correct_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
-                            mc_correct_answerobject.answer = correct_answer_item.text
-                            mc_correct_answerobject.weight = 100
-                            mc_correct_answerobject.save()
 
                         # TODO: Check if the user given type is similar to detected type:
 
@@ -303,36 +322,30 @@ def parse_question(question):
                         mc_object.save()
                         question.save()
 
-                elif len(correct_answer) > 1:
-                        # =========================  MS confirmed =======================
-                        ms_object = MultipleSelect.objects.create(question=question)
-                        ms_object.save()
-                        # grab all answers
+                elif correct_answers_count > 1:
+                    # =========================  MS confirmed =======================
+                    ms_object = MultipleSelect.objects.create(question=question)
+                    ms_object.save()
+                    # grab all answers
 
-                        for answer_item in answer:
-                            ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
-                            ms_answerobject.answer = answer_item.text
-                            ms_answerobject.is_correct = False
-                            ms_answerobject.save()
-
-                        # grab the correct answer
-                        for correct_answer_item in correct_answer:
-                            ms_correct_answerobject = MultipleSelectAnswer.objects.create(multiple_choice=ms_object)
-                            ms_correct_answerobject.answer = correct_answer_item.text
+                    for answer_item in answers:
+                        ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
+                        ms_answerobject.answer = answer_item.find('content').text
+                        ms_answerobject.index = (answer_item.find('index').text).strip()
+                        if answer_item.attrib['correct'] == 'true':
                             ms_answerobject.is_correct = True
-                            ms_correct_answerobject.save()
-                        
-                        ms_object.save()
+                        if answer_item.attrib['correct'] == 'false':
+                            ms_answerobject.is_correct = False
+
+                        ms_answerobject.save()
+                    
+                    question.questiontype = 'MS'
+                    ms_object.save()
+                    question.save()
             else:
                 # answer list not included
                 # This is most likely an essay type question. check if "correct_answer" token is present
                 pass
-
-    '''
-
-
-
-
 
     pass
 

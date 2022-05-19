@@ -101,7 +101,7 @@ class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MultipleChoiceAnswer
-        fields = ['answer', 'answer_feedback', 'weight']
+        fields = ['index', 'answer', 'answer_feedback', 'weight']
 
 
 class MultipleChoiceSerializer(serializers.ModelSerializer):
