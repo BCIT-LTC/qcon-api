@@ -194,31 +194,6 @@ class TextConsumer(JsonWebsocketConsumer):
             'data': serialized_ql.data
         }))
 
-        # import time
-
-        # print("sending msg 1")
-        # self.send(text_data=json.dumps({
-        #     'hostname': socket.gethostname(),
-        #     'data': "message 1",
-        #     'status': "not done"
-        # }))
-
-        # time.sleep(3)
-        # print("sending msg 2")
-        # self.send(text_data=json.dumps({
-        #     'hostname': socket.gethostname(),
-        #     'data': "message 2",
-        #     'status': "not done"
-        # }))
-
-        # time.sleep(3)
-        # print("sending msg 3")
-
-        # self.send(text_data=json.dumps({
-        #     'hostname': socket.gethostname(),
-        #     'data': "message 3",
-        #     'status': "not done"
-        # }))
 
     def save_file(self, content):
         format, fixeddata = content.get('file').split(';base64,')

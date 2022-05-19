@@ -336,6 +336,7 @@ class MultipleChoice(models.Model):
 class MultipleChoiceAnswer(models.Model):
     id = models.AutoField(primary_key=True)
     multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiple_choice_answers', on_delete=models.CASCADE)
+    index = models.TextField(blank=True, null=True)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
@@ -372,7 +373,7 @@ class Fib(models.Model):
 
 class MultipleSelect(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='multipleselects', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='multiple_select', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(6)], default=4)
     style = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(3)], default=2)
@@ -387,7 +388,8 @@ class MultipleSelect(models.Model):
 
 class MultipleSelectAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    multiple_select = models.ForeignKey(MultipleSelect, related_name='multipleselectanswers', on_delete=models.CASCADE)
+    multiple_select = models.ForeignKey(MultipleSelect, related_name='multiple_select_answers', on_delete=models.CASCADE)
+    index = models.TextField(blank=True, null=True)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
