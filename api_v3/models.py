@@ -438,7 +438,7 @@ class MatchingAnswer(models.Model):
 
 class Ordering(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='orderings', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='ordering', on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     ord_feedback = models.TextField(blank=True, null=True)

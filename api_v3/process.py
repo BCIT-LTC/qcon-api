@@ -8,7 +8,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Image
+from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Ordering, Image
 
 
 def create_main_title():
@@ -341,6 +341,25 @@ def parse_question(question):
                     
                     question.questiontype = 'MS'
                     ms_object.save()
+                    question.save()
+
+                elif correct_answers_count == 0:
+                    # =========================  ORD confirmed =======================
+
+                    iterator = 0
+                    for answer in answers:
+                    #     print(answer.find('index').text.strip())
+                        ord_object = Ordering.objects.create(question=question)
+                        ord_object.order = iterator
+                        iterator += 1
+                        ord_object.text = answer.find('content').text.strip()
+                        try:
+                            ord_object.ord_feedback = answer.find('feedback').text.strip()
+                        except:
+                            pass
+                        ord_object.save()
+                    
+                    question.questiontype = 'ORD'
                     question.save()
             else:
                 # answer list not included

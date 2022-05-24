@@ -140,7 +140,7 @@ public class questionparser {
                ctx.feedback().get(0).getText();
                String answerfeedback = "";
                for (int i = 0; i < ctx.feedback().size(); i++) {
-                  answerfeedback = ctx.feedback().get(i).getText();
+                  answerfeedback = ctx.feedback().get(i).content().getText();
                }
                Element feedback = document.createElement("feedback");
                feedback.appendChild(document.createTextNode(answerfeedback));
@@ -169,7 +169,7 @@ public class questionparser {
                ctx.feedback().get(0).getText();
                String answerfeedback = "";
                for (int i = 0; i < ctx.feedback().size(); i++) {
-                  answerfeedback = ctx.feedback().get(i).getText();
+                  answerfeedback = ctx.feedback().get(i).content().getText();
                }
                Element feedback = document.createElement("feedback");
                feedback.appendChild(document.createTextNode(answerfeedback));
