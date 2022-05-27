@@ -247,6 +247,7 @@ class Section(models.Model):
     raw_content = models.TextField(blank=True, null=True)
     questions_processed = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     questions_expected = models.DecimalField(max_digits=3, decimal_places=0, null=True)
+    processing_time = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     title = models.TextField(blank=True, null=True)
     is_title_displayed = models.BooleanField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
@@ -347,12 +348,13 @@ class MultipleChoiceAnswer(models.Model):
 
 class TrueFalse(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='truefalse', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='true_false', on_delete=models.CASCADE)
     true_weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
     true_feedback = models.TextField(blank=True, null=True)
     false_weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
     false_feedback = models.TextField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
+    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)

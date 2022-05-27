@@ -8,7 +8,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Ordering, Image
+from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Ordering, TrueFalse, Image
 
 
 def create_main_title():
@@ -161,31 +161,9 @@ def split_questions(sectionobject):
 
         questionobject.save()
 
-        # questiontype = question.find('type')
-        # if questiontype is not None:
-        #     questionobject.questiontype = questiontype.text.strip()
-
-        # title = question.find('title')
-        # if title is not None:
-        #     questionobject.title = title.text.strip()  
-
-        # randomize = question.find('randomize')
-        # if questiontype is not None:
-        #     questionobject.title = randomize.text    
-
-        # points = question.find('points')
-        # if points is not None:
-        #     filterpoint = re.search("\d+((.|,)\d+)?", points.text)
-        #     questionobject.points = float(filterpoint.group()) 
-
         content = question.find('content')
         if content is not None:
             questionobject.raw_content = content.text
-
-        # question_start = question.find('question_start')
-        # if question_start is not None:
-        #     filter_question_number = re.search("\d+", question_start.text)
-        #     questionobject.number_provided = filter_question_number.group()
 
         questionobject.save()
     pass
@@ -200,12 +178,22 @@ def run_parser(questionlibrary):
     for section in sections:
         questions = Question.objects.filter(section=section)
 
+        section.questions_expected = len(questions) - 1
+        import time
+        start = time.time()
+        count = 0
         for question in questions:
             # discard empty question
             if question.raw_content is None:
                 question.delete()
             else:
                 parse_question(question)
+            print("question : " + str(count))
+            count += 1
+        end = time.time()
+        section.processing_time = end - start
+        section.save()
+        print(end - start)
     pass
 
 def parse_question(question):
@@ -250,7 +238,7 @@ def parse_question(question):
 
 
     if question.questiontype == 'MS':
-        # MS is required 
+        # TODO MS is required 
         # COUNT total number of answers and correct_answer. it should be >= 2
         # answer = root.find('answer')
         
@@ -259,48 +247,71 @@ def parse_question(question):
     # all other types try autodetect and compare if the given type is correct. if not then notify user 
 
        # Autodetect 
-        print("detecting question")
         # look for FIB question
         fib_question = root.find('fib_question')
         if fib_question is not None:
             print("fib question found")
             # TODO CREATE FIB INSTANCE
 
-        # look for regular question
+        # look for other NON FIB question
         regular_question = root.find('question')
         if regular_question is not None:
             question.text = regular_question.text
             question.save()
 
             answers = root.findall("answer")            
-            answers_count = 0
-            correct_answers_count = 0
+            marked_answers_count = 0
+            unmarked_answers_count = 0
             for answer in answers:
                 if answer.attrib['correct'] == 'true':
-                    correct_answers_count+=1
+                    marked_answers_count+=1
                 if answer.attrib['correct'] == 'false':
-                    answers_count+=1
+                    unmarked_answers_count+=1
                 
-            # # Check if answers are included
+            # Check if answers are included
             if len(answers) > 0:
-                if correct_answers_count == 1:    
-                    if answers_count == 1:
-                        # TODO: UPDATE GRAMMAR TO CATCH TRUE AND FALSE TOKENS
-                        # Are the options each true and false?
+                if marked_answers_count == 1:    
+                    if unmarked_answers_count == 1:
+                        # check if both false and true keyword are found
+                        tf_object = TrueFalse.objects.create(question=question)
 
-                        true_unmarked_answer_element = answer[0].find('true_answer')
-                        false_unmarked_answer_element = answer[0].find('false_answer')
-                        true_marked_answer_element = correct_answer[0].find('true_answer')
-                        false_marked_answer_element = correct_answer[0].find('false_answer')
-                        total_unmarked_TF = len(true_unmarked_answer_element) + len(false_unmarked_answer_element)
-                        total_marked_TF = len(true_marked_answer_element) + len(false_marked_answer_element)
+                        KeywordTrueFound = False
+                        KeywordFalseFound = False
 
-                        if total_unmarked_TF == 1:
-                            if total_marked_TF == 1:
-                                pass         
-                                # =========================  TF confirmed =======================
+                        for answer in answers:
+                            if answer.find('content').text.strip().lower() == 'true' :
+                                KeywordTrueFound = True
+                                try:
+                                    tf_object.true_feedback = answer.find('feedback').text.strip()
+                                except:
+                                    pass
+                                if answer.attrib['correct'] == 'true':
+                                    tf_object.true_weight = 100
 
-                    if answers_count > 1:
+                            if answer.find('content').text.strip().lower() == 'false' :
+                                KeywordFalseFound = True
+                                try:
+                                    tf_object.false_feedback = answer.find('feedback').text.strip()
+                                except:
+                                    pass
+                                if answer.attrib['correct'] == 'true':
+                                    tf_object.false_weight = 100
+                        
+                        if KeywordTrueFound == True and KeywordFalseFound == True :
+                        # =========================  TF confirmed =======================
+                        # TF confirmed here so the TF object is saved to db
+                            print("TF COnfirmed")
+                            tf_object.error = ""
+                            tf_object.save()
+                            question.questiontype = 'TF'
+                            question.save()
+                        else:
+                        # One or More Keywords "true" or "false" not found. fallback to MC 
+
+                        # TODO CREATE MC type
+                            pass
+
+                    if unmarked_answers_count > 1:
                         # =========================  MC confirmed =======================
                         mc_object = MultipleChoice.objects.create(question=question)
                         mc_object.save()
@@ -322,7 +333,7 @@ def parse_question(question):
                         mc_object.save()
                         question.save()
 
-                elif correct_answers_count > 1:
+                elif marked_answers_count > 1:
                     # =========================  MS confirmed =======================
                     ms_object = MultipleSelect.objects.create(question=question)
                     ms_object.save()
@@ -343,7 +354,7 @@ def parse_question(question):
                     ms_object.save()
                     question.save()
 
-                elif correct_answers_count == 0:
+                elif marked_answers_count == 0:
                     # =========================  ORD confirmed =======================
 
                     iterator = 0
