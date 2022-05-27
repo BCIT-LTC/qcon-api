@@ -190,7 +190,7 @@ class TextConsumer(JsonWebsocketConsumer):
 
         self.send(text_data=json.dumps({
             'hostname': socket.gethostname(),
-            'status': "test",
+            'status': "done",
             'data': serialized_ql.data
         }))
 
