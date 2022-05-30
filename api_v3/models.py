@@ -402,8 +402,9 @@ class MultipleSelectAnswer(models.Model):
 
 class Matching(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='matchings', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='matching', on_delete=models.CASCADE)
     grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
+    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -418,8 +419,9 @@ class Matching(models.Model):
 
 class MatchingChoice(models.Model):
     id = models.AutoField(primary_key=True)
-    matching = models.ForeignKey(Matching, related_name='matchingchoices', on_delete=models.CASCADE)
+    matching = models.ForeignKey(Matching, related_name='matching_choices', on_delete=models.CASCADE)
     choice_text = models.TextField(blank=True, null=True)
+    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -431,8 +433,9 @@ class MatchingChoice(models.Model):
 
 class MatchingAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    matching_choice = models.ForeignKey(MatchingChoice, related_name='matchinganswers', on_delete=models.CASCADE)
+    matching_choice = models.ForeignKey(MatchingChoice, related_name='matching_answers', on_delete=models.CASCADE)
     answer_text = models.TextField(blank=True, null=True)
+    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)

@@ -152,7 +152,7 @@ class MatchingAnswersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MatchingAnswer
-        fields = ['answer_text']
+        fields = ['answer_text', 'error']
 
 
 class MatchingChoiceSerializer(serializers.ModelSerializer):
@@ -160,7 +160,7 @@ class MatchingChoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MatchingChoice
-        fields = ['choice_text', 'matching_answers']
+        fields = ['choice_text', 'matching_answers', 'error']
 
 
 class MatchingSerializer(serializers.ModelSerializer):
@@ -168,7 +168,7 @@ class MatchingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Matching
-        fields = ['grading_type', 'matching_choices']
+        fields = ['grading_type', 'matching_choices', 'error']
 
 
 class WrittenResponseSerializer(serializers.ModelSerializer):
