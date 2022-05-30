@@ -8,7 +8,8 @@ import re
 
 logger = logging.getLogger(__name__)
 
-from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, Ordering, TrueFalse, Image
+from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, \
+MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image
 
 
 def create_main_title():
@@ -262,14 +263,56 @@ def parse_question(question):
             answers = root.findall("answer")            
             marked_answers_count = 0
             unmarked_answers_count = 0
+            matching_answers_count = 0
             for answer in answers:
                 if answer.attrib['correct'] == 'true':
                     marked_answers_count+=1
                 if answer.attrib['correct'] == 'false':
                     unmarked_answers_count+=1
-                
+
+                matchanswers = re.search(r"(.*)=(.*)", answer.find('content').text)
+
+                if matchanswers is not None:
+                    matching_answers_count += 1        
+
             # Check if answers are included
             if len(answers) > 0:
+
+                if matching_answers_count > 0 :
+                    # =========================  MAT confirmed =======================
+                    
+                    mat_object = Matching.objects.create(question=question)        
+
+                    for answer in answers:
+                        answercontent  = answer.find('content').text
+                        choice_answer_groups_regex = re.search(r"(.*)=(.*)", answercontent)
+
+                        mat_choice = MatchingChoice.objects.create(matching=mat_object)                        
+                        mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
+
+                        if choice_answer_groups_regex is not None:
+                           
+                            mat_choice.choice_text = choice_answer_groups_regex.group(1)
+                            mat_answer.answer_text = choice_answer_groups_regex.group(2)
+
+                            if mat_choice.choice_text.strip() == "":
+                                mat_choice.error = "matching choice missing"
+                                mat_object.error = "one or more matching or answer choices missing"
+                            if mat_answer.answer_text.strip() == "":
+                                mat_answer.error = "matching answer missing"
+                                mat_object.error = "one or more matching or answer choices missing"
+
+                        else:
+                            mat_choice.error = "matching choice missing"
+                            mat_answer.error = "matching answer missing"
+                            mat_object.error = "one or more matching or answer choices missing"
+
+                        mat_choice.save()
+                        mat_answer.save()
+                    mat_object.save()
+                    return
+
+
                 if marked_answers_count == 1:    
                     if unmarked_answers_count == 1:
                         # check if both false and true keyword are found
