@@ -68,6 +68,18 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe questionparser.jar questionparser  *.class ./antlr.jar;
 
+### Build Endanswers
+WORKDIR /usr/src/endanswers
+
+COPY /api_v3/endanswers/endanswers.g4 ./
+COPY /api_v3/endanswers/endanswers.java ./
+
+RUN set -ex; \
+    cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
+    export CLASSPATH=".:/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar"; \
+    java -jar "/usr/local/lib/antlr-$ANTLR_VERSION-complete.jar" endanswers.g4 -visitor -no-listener; \
+    javac *.java; \
+    jar cvfe endanswers.jar endanswers  *.class ./antlr.jar;
 
 ## Release
 FROM python:3.10-alpine AS release
@@ -95,6 +107,7 @@ COPY --from=antlr-builder /usr/src/formatter /formatter/jarfile
 COPY --from=antlr-builder /usr/src/sectioner /sectioner/jarfile
 COPY --from=antlr-builder /usr/src/splitter /splitter/jarfile
 COPY --from=antlr-builder /usr/src/questionparser /questionparser/jarfile
+COPY --from=antlr-builder /usr/src/endanswers /endanswers/jarfile
 
 COPY qcon qcon
 COPY api_v2 api_v2

@@ -9,7 +9,7 @@ from django.contrib import admin
 
 from .models import Fib, Matching, MatchingAnswer, MatchingChoice, \
 MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer, \
-Ordering, Question, QuestionLibrary, Section, TrueFalse, WrittenResponse, Image
+Ordering, Question, QuestionLibrary, Section, TrueFalse, WrittenResponse, Image, EndAnswer
 
 admin.site.register(QuestionLibrary)
 admin.site.register(Section)
@@ -26,3 +26,4 @@ admin.site.register(Matching)
 admin.site.register(MatchingChoice)
 admin.site.register(MatchingAnswer)
 admin.site.register(Image)
+admin.site.register(EndAnswer)

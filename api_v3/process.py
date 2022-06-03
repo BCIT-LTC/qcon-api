@@ -9,7 +9,7 @@ import re
 logger = logging.getLogger(__name__)
 
 from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, \
-MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image
+MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image, EndAnswer
 
 
 def create_main_title():
@@ -20,6 +20,9 @@ class FormatterError(Exception):
 
 def extract_images(questionlibrary):
     x = re.findall(r"<img src=.*/>", questionlibrary.pandoc_output)
+
+    if len(x) == 0:
+        return 0
 
     for image in x:
         image_object = Image.objects.create(question_library=questionlibrary)
@@ -66,7 +69,7 @@ def run_formatter(questionlibrary):
 
     try:
         if root[1].tag == "end_answers":
-            questionlibrary.end_answers = root[1].text
+            questionlibrary.end_answers_raw = root[1].text
             questionlibrary.save()
         else:
             # logger.warning("Answer Section not found")
@@ -170,6 +173,42 @@ def split_questions(sectionobject):
     pass
 
 
+def get_endanswers(questionlibrary):
+
+    if questionlibrary.end_answers_raw == None:
+        return 0
+
+    os.chdir('/endanswers/jarfile')
+    result = subprocess.run(
+        'java -cp endanswers.jar:* endanswers',
+        shell=True,
+        input=questionlibrary.end_answers_raw.encode("utf-8"),
+        capture_output=True)
+    os.chdir('/code')
+
+    root = None
+    try:
+        root = ET.fromstring(result.stdout.decode("utf-8"))
+    except:
+        pass
+
+    answers = root.findall("answer")   
+    endanswers_found = 0
+    if answers is not None:
+        for answer in answers:
+            endanswer = EndAnswer.objects.create(question_library=questionlibrary)      
+
+            content = answer.find('content').text
+            index  = answer.find('index').text
+            indexdigit = re.search(r'\d+', index)
+
+            endanswer.index = indexdigit.group(0)
+            endanswer.answer = content
+            endanswers_found += 1
+            endanswer.save()
+
+    questionlibrary.save()
+    return endanswers_found
 
 # This function will most likely writes directly to model. Might need to move to model instead
 def run_parser(questionlibrary):
@@ -210,7 +249,6 @@ def parse_question(question):
     # print(result.stdout.decode("utf-8"))
     question.parser_output_xml = result.stdout.decode("utf-8")
     question.save()
-
 
     root = None
     try:
@@ -310,6 +348,8 @@ def parse_question(question):
                         mat_choice.save()
                         mat_answer.save()
                     mat_object.save()
+                    question.questiontype = 'MAT'
+                    question.save()
                     return
 
 
