@@ -11,7 +11,7 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser
+from .process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser, get_endanswers
 from .serializers import JsonResponseSerializer
 
 
@@ -92,7 +92,6 @@ class TextConsumer(JsonWebsocketConsumer):
             'data': ""
             }))
 
-
 ##########################################
         # run_formatter
 ##########################################
@@ -159,6 +158,26 @@ class TextConsumer(JsonWebsocketConsumer):
                 'status': "splitter complete",
                 'data': ""
             }))
+
+###########################################
+        # Grab end answers
+###########################################
+
+        try:
+            endanswers_found = get_endanswers(new_questionlibrary)
+        except ImageExtractError as e:
+            self.send(text_data=json.dumps({
+                'hostname': socket.gethostname(),
+                'status': "endanswers not found",
+                'data': ""
+            }))
+        else:
+            self.send(text_data=json.dumps({
+            'hostname': socket.gethostname(),
+            'status': "End answers found: " + str(endanswers_found),
+            'data': ""
+            }))
+
 
 ###########################################
         # run_parser

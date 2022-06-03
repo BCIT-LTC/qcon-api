@@ -55,7 +55,7 @@ class QuestionLibrary(models.Model):
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     main_title = models.TextField(blank=True, null=True)
     filtered_main_title = models.TextField(blank=True, null=True)
-    end_answers = models.TextField(blank=True, null=True)
+    end_answers_raw = models.TextField(blank=True, null=True)
     formatter_error = models.TextField(blank=True, null=True)
     formatter_output = models.TextField(blank=True, null=True)
     pandoc_output_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
@@ -237,6 +237,11 @@ class Image(models.Model):
     question_library = models.ForeignKey(QuestionLibrary, related_name='images', on_delete=models.CASCADE)
     image = models.TextField(blank=True, null=True)
 
+class EndAnswer(models.Model):
+    id = models.AutoField(primary_key=True)
+    question_library = models.ForeignKey(QuestionLibrary, related_name='endanswers', on_delete=models.CASCADE)
+    index = models.TextField(blank=True, null=True)
+    answer = models.TextField(blank=True, null=True)
 class Section(models.Model):
     id = models.AutoField(primary_key=True)
     question_library = models.ForeignKey(QuestionLibrary, related_name='sections', on_delete=models.CASCADE)
