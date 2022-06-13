@@ -17,7 +17,9 @@ from .serializers import JsonResponseSerializer
 
 class TextConsumer(JsonWebsocketConsumer):
 
-    uploadedfile = None
+    images_count = 0
+    questions_count = 0
+    endanswer_count = 0
 
     def connect(self):
         print("connected")
@@ -42,14 +44,11 @@ class TextConsumer(JsonWebsocketConsumer):
             new_questionlibrary = self.save_file(content)
         except FileValidationError as e:
             logger.error("FileValidationError: " + str(e))
-            self.send(
-                text_data=json.dumps({
-                    'hostname': socket.gethostname(),
-                    'status': "Error: Not a valid .docx File",
-                    'data': ""
-                }))
+            self.send(text_data=json.dumps(self.sendformat("Error", "Not a valid .docx File", "")))
+            # close connection
+            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
-
+        
 ###########################################
         # create_pandocstring
 ###########################################
@@ -59,38 +58,23 @@ class TextConsumer(JsonWebsocketConsumer):
         except FileValidationError as e:
             logger.error("FileValidationError: " + str(e))
             self.send(
-                text_data=json.dumps({
-                    'hostname': socket.gethostname(),
-                    'status': "Error: Not a valid .docx File",
-                    'data': ""
-                }))
+                text_data=json.dumps(self.sendformat("Error", "File unreadable", "")))
+            # close connection
+            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "The file is valid",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "The file is valid", "")))
 
 ###########################################
         # Extract Images
 ###########################################
 
-        number_of_images = 0;
         try:
-            number_of_images = extract_images(new_questionlibrary)
+            self.images_count = extract_images(new_questionlibrary)
         except ImageExtractError as e:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "Images extraction failed",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Warn", "Images extraction failed", "")))
         else:
-            self.send(text_data=json.dumps({
-            'hostname': socket.gethostname(),
-            'status': "Images extracted: "+ str(number_of_images),
-            'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Images found", "")))
 
 ##########################################
         # run_formatter
@@ -98,22 +82,14 @@ class TextConsumer(JsonWebsocketConsumer):
 
         try:
             run_formatter(new_questionlibrary)
-        except FormatterError as e:
-            logger.error("FormatterError: " + str(e))
-            self.send(text_data=json.dumps(
-                {
-                    'hostname': socket.gethostname(),
-                    'status':
-                    "Error: No contents found in the body of the file",
-                    'data': ""
-                }))
+        except:
+            logger.error("FormatterError")
+            self.send(text_data=json.dumps(self.sendformat("Error", "No contents found in the body of the file", "")))
+            # close connection
+            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "Content Body detected",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Content Body detected", "")))
 
 ##########################################
         # run_sectioner
@@ -123,61 +99,38 @@ class TextConsumer(JsonWebsocketConsumer):
             run_sectioner(new_questionlibrary)
         except SectionerError as e:
             logger.error("SectionerError: " + str(e))
-            self.send(text_data=json.dumps(
-                {
-                    'hostname': socket.gethostname(),
-                    'status': "Error: Sections can not be identified",
-                    'data': ""
-                }))
+            self.send(text_data=json.dumps(self.sendformat("Error", "Sections can not be identified", "")))
+            # close connection
+            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))            
             return
         else:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "sectioner complete",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Sectioner complete", "")))
 
 ##########################################
         # run_splitter
 ##########################################
 
         try:
-            run_splitter(new_questionlibrary)
+            self.questions_count = run_splitter(new_questionlibrary)
         except SplitterError as e:
             logger.error("SplitterError: " + str(e))
-            self.send(text_data=json.dumps(
-                {
-                    'hostname': socket.gethostname(),
-                    'status': "Error: Splitter failed",
-                    'data': ""
-                }))
+            self.send(text_data=json.dumps(self.sendformat("Error", "Splitter failed", "")))
+            # close connection
+            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "splitter complete",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Splitter complete", "")))
 
 ###########################################
         # Grab end answers
 ###########################################
 
         try:
-            endanswers_found = get_endanswers(new_questionlibrary)
+            self.endanswer_count = get_endanswers(new_questionlibrary)
         except ImageExtractError as e:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "endanswers not found",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Endanswers not found", "")))
         else:
-            self.send(text_data=json.dumps({
-            'hostname': socket.gethostname(),
-            'status': "End answers found: " + str(endanswers_found),
-            'data': ""
-            }))
-
+            self.send(text_data=json.dumps(self.sendformat("Busy", "End answers found", "")))
 
 ###########################################
         # run_parser
@@ -187,32 +140,42 @@ class TextConsumer(JsonWebsocketConsumer):
             run_parser(new_questionlibrary)
         except ParserError as e:
             logger.error("ParserError: " + str(e))
-            self.send(text_data=json.dumps(
-                {
-                    'hostname': socket.gethostname(),
-                    'status': "Error: Parser failed",
-                    'data': ""
-                }))
+            self.send(text_data=json.dumps(self.sendformat("Error", "Parser failed", "")))
+                # close connection
+            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps({
-                'hostname': socket.gethostname(),
-                'status': "parser complete",
-                'data': ""
-            }))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Parser complete", "")))
+
+###########################################
+        # Add Images back
+###########################################
+
+
+    # TODO
+    # need to query and iterate all question and add images
+
 
 ###########################################
         # serialize and send response
 ###########################################
 
         serialized_ql = JsonResponseSerializer(new_questionlibrary)
+        self.send(text_data=json.dumps(self.sendformat("Done", "", serialized_ql.data)))
+######################### Close Connection
+        self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
 
-        self.send(text_data=json.dumps({
-            'hostname': socket.gethostname(),
-            'status': "done",
-            'data': serialized_ql.data
-        }))
+    def sendformat(self, status, statustext, data):
 
+        return {
+                'hostname': socket.gethostname(),
+                'status': status,
+                'statustext': statustext,
+                'images_count': str(self.images_count),
+                'questions_count': str(self.questions_count),
+                'endanswer_count': str(self.endanswer_count),
+                'data': data
+            }
 
     def save_file(self, content):
         format, fixeddata = content.get('file').split(';base64,')

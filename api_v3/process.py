@@ -78,8 +78,6 @@ def run_formatter(questionlibrary):
         # logger.warning("Answer section not found")
         pass
 
-    return True
-
 # This is to split sections into separate objects
 def run_sectioner(questionlibrary):
 
@@ -99,10 +97,9 @@ def run_sectioner(questionlibrary):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        pass
+        return
 
     
-
     for section in root:
 
         sectionobject = Section.objects.create(
@@ -134,11 +131,11 @@ def run_splitter(questionlibrary):
 
     sections = Section.objects.filter(question_library=questionlibrary)
 
+    questions_count = 0
     for section in sections:
-        split_questions(section)
+        questions_count += split_questions(section)
 
-    pass
-
+    return questions_count
 
 def split_questions(sectionobject):
 
@@ -150,13 +147,11 @@ def split_questions(sectionobject):
         capture_output=True)
     os.chdir('/code')
 
-    # print(result.stdout.decode("utf-8"))
-
     root = None
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        pass
+        return 0
 
     for question in root:
 
@@ -170,8 +165,8 @@ def split_questions(sectionobject):
             questionobject.raw_content = content.text
 
         questionobject.save()
-    pass
-
+    
+    return len(root)
 
 def get_endanswers(questionlibrary):
 
@@ -234,7 +229,7 @@ def run_parser(questionlibrary):
         section.processing_time = end - start
         section.save()
         print(end - start)
-    pass
+    
 
 def parse_question(question):
 
