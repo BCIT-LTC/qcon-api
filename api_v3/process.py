@@ -133,7 +133,12 @@ def run_splitter(questionlibrary):
 
     questions_count = 0
     for section in sections:
-        questions_count += split_questions(section)
+        questions_count_section = split_questions(section)
+        questions_count += questions_count_section
+
+        # remove empty sections
+        if questions_count_section == 0:        
+            section.delete()
 
     return questions_count
 
@@ -153,6 +158,7 @@ def split_questions(sectionobject):
     except:
         return 0
 
+    questions_found = 0
     for question in root:
 
         questionobject = Question.objects.create(
@@ -162,11 +168,12 @@ def split_questions(sectionobject):
 
         content = question.find('content')
         if content is not None:
-            questionobject.raw_content = content.text
-
+            # Filter out empty questions
+            if len(content.text) > 1:
+                questions_found += 1
+                questionobject.raw_content = content.text
         questionobject.save()
-    
-    return len(root)
+    return questions_found
 
 def get_endanswers(questionlibrary):
 
@@ -223,8 +230,8 @@ def run_parser(questionlibrary):
                 question.delete()
             else:
                 parse_question(question)
-            print("question : " + str(count))
             count += 1
+            print("question : " + str(count))
         end = time.time()
         section.processing_time = end - start
         section.save()
