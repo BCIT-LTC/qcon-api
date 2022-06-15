@@ -4,14 +4,15 @@ from channels.db import database_sync_to_async
 from django.core.files.base import ContentFile
 import base64
 
-from .models import QuestionLibrary
+from .models import Question, QuestionLibrary, Image, MultipleChoiceAnswer, TrueFalse, MultipleSelectAnswer, MatchingAnswer, MatchingChoice, WrittenResponse
 import socket
+import re
 
 import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser, get_endanswers
+from .process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser, get_endanswers, Ordering
 from .serializers import JsonResponseSerializer
 
 
@@ -151,11 +152,60 @@ class TextConsumer(JsonWebsocketConsumer):
         # Add Images back
 ###########################################
 
+        # select all questions for this QL
+        all_questions = Question.objects.filter(section__question_library=new_questionlibrary)
+        # select all images for this QL
+        all_images = Image.objects.filter(question_library=new_questionlibrary)
 
-    # TODO
-    # need to query and iterate all question and add images
+        for image in all_images:
+            for question in all_questions:
+                substring = "<<<<" + str(image.id) + ">>>>"
+                question.text = re.sub(substring, image.image, question.text)
+                question.save()
 
-
+                #Check MC
+                MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)   
+                for answer in MC_answer_objects:                
+                    answer.answer = re.sub(substring, image.image, answer.answer)
+                    answer.save()
+                #Check TF
+                TF_object = TrueFalse.objects.filter(question=question)
+                for tf in TF_object:
+                    tf.true_feedback = re.sub(substring, image.image, tf.true_feedback)
+                    tf.save()
+                #Check MS
+                MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)   
+                for answer in MS_answer_objects:                
+                    answer.answer = re.sub(substring, image.image, answer.answer)
+                    answer.save()
+                #Check ORD
+                ORD_objects = Ordering.objects.filter(question=question) 
+                for ordering in ORD_objects:    
+                    if ordering.text is not None:            
+                        ordering.text = re.sub(substring, image.image, ordering.text)
+                    if ordering.ord_feedback is not None:
+                        ordering.ord_feedback = re.sub(substring, image.image, ordering.ord_feedback)
+                    ordering.save()
+                #Check MAT answer
+                MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
+                for mat_answer in MAT_answer_objects:
+                    if mat_answer.answer_text is not None:            
+                        mat_answer.answer_text = re.sub(substring, image.image, mat_answer.answer_text)
+                    mat_answer.save()
+                #Check MAT choice
+                MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
+                for mat_choice in MAT_choice_objects:
+                    if mat_choice.choice_text is not None:            
+                        mat_choice.choice_text = re.sub(substring, image.image, mat_choice.choice_text)
+                    mat_choice.save()
+                #Check WR
+                WR_objects = WrittenResponse.objects.filter(question=question)
+                for wr in WR_objects:
+                    if wr.initial_text is not None:        
+                        wr.initial_text = re.sub(substring, image.image, wr.initial_text)
+                    if wr.answer_key is not None:  
+                        wr.answer_key = re.sub(substring, image.image, wr.answer_key)
+                    wr.save()
 ###########################################
         # serialize and send response
 ###########################################
