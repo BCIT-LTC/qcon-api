@@ -14,6 +14,8 @@ from django.http import FileResponse, JsonResponse
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import JSONParser
+
 
 from django.core.files.base import ContentFile
 from django.conf import settings
@@ -198,7 +200,7 @@ class WordToJson(APIView):
 
 
 class JsonToScorm(APIView):
-    parser_classes = [MultiPartParser]
+    parser_classes = [JSONParser]
     permission_classes = [AllowAny]
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = JsonToScormSerializer
@@ -217,7 +219,7 @@ class JsonToScorm(APIView):
     )
     def post(self, request, format=None):
 
-        json_data = json.loads(request.data['json_data'])
+        json_data = request.data
         ql_serializer = QuestionLibrarySerializer(data=json_data['data'])
         if ql_serializer.is_valid():
             ql_instance = ql_serializer.save()
