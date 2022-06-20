@@ -84,7 +84,8 @@ class XmlWriter:
             ident = str(ident_prefix + index)
             question_ident = "QUES_" + ident
             item_el = ET.Element("item", {"ident": "OBJ_" + ident, "label": question_ident, "d2l_2p0:page": "1", "title": question.title})
-            question_type = question.get_question_type()
+            # question_type = question.get_question_type()
+            question_type = question.questiontype
             match question_type:
                 case "MC":
                     self.generate_multiple_choice(item_el, question_ident, question)
@@ -299,25 +300,25 @@ class XmlWriter:
             mattext.text = answer_text[tf_index]
 
             # Reprocessing -> Respcondition
-            it_res_con = ET.SubElement(it_res, "respcondition", {"title": "Response Condition" + str(tf_index + 1)})
+            it_res_con = ET.SubElement(it_res, "respcondition", {"title": "Response Condition" + str(tf_index)})
             it_res_con_var = ET.SubElement(it_res_con, "conditionvar")
             it_res_con_var_equal = ET.SubElement(it_res_con_var, "varequal", {"respident": question_lid})
-            it_res_con_var_equal.text = question_ident_answer + str(tf_index + 1)
+            it_res_con_var_equal.text = question_ident_answer + str(tf_index)
             it_res_set_var = ET.SubElement(it_res_con, "setvar", {"action": "Set"})
 
             if tf_index == 0:
                 current_weight = true_false.true_weight
-                current_feedback = true_false.false_feedback
+                current_feedback = true_false.true_feedback
             else:
                 current_weight = true_false.false_weight
                 current_feedback = true_false.false_feedback
 
             it_res_set_var.text = str(current_weight) if current_weight else "0.0000"
-            it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {"feedbacktype": "Response", "linkrefid": question_ident_feedback + str(tf_index + 1)})
+            it_res_dis = ET.SubElement(it_res_con, "displayfeedback", {"feedbacktype": "Response", "linkrefid": question_ident_feedback + str(tf_index)})
 
             # Add Answer specific feedback
             if current_feedback:
-                self.generate_feedback(it, question_ident_feedback + str(tf_index + 1), current_feedback)
+                self.generate_feedback(it, question_ident_feedback + str(tf_index), current_feedback)
             tf_index += 1
 
 

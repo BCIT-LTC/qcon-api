@@ -16,6 +16,7 @@ from zipfile import *
 from os import makedirs, path, walk, rmdir, remove
 
 import re
+import base64
 from os.path import basename
 from django.core.files.base import ContentFile
 
@@ -161,7 +162,24 @@ class QuestionLibrary(models.Model):
 
             for idx, img in enumerate(img_elements):
                 element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
-                new_img = '<img src="{0}" alt="{1}" />'.format('assessment-assets/' + self.filtered_main_title + '/' + basename(element[0]), basename(element[0]))
+                base64_img = img.split(';base64,')
+                img_ext = base64_img[0].split("/")[1]
+                img_string = base64_img[1]
+                image_data = base64.b64decode(img_string)
+
+                new_image_name = "image_" + str(idx+1) + "." + img_ext
+                img_path = ql_obj.image_path + new_image_name
+
+                if not path.exists(ql_obj.image_path):
+                    makedirs(ql_obj.image_path)
+
+                try:
+                    with open(img_path, "wb") as fh:
+                        fh.write(image_data)
+                except IOError as e:
+                    print("Cannot proccess image with error:", e)
+
+                new_img = '<img src="{0}" alt="{1}" />'.format('assessment-assets/' + self.filtered_main_title + '/' + new_image_name, new_image_name)
                 questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
 
             self.questiondb_string = questiondb_string
@@ -242,6 +260,7 @@ class EndAnswer(models.Model):
     question_library = models.ForeignKey(QuestionLibrary, related_name='endanswers', on_delete=models.CASCADE)
     index = models.TextField(blank=True, null=True)
     answer = models.TextField(blank=True, null=True)
+
 class Section(models.Model):
     id = models.AutoField(primary_key=True)
     question_library = models.ForeignKey(QuestionLibrary, related_name='sections', on_delete=models.CASCADE)
@@ -276,7 +295,7 @@ class Question(models.Model):
     title = models.TextField(blank=True, null=True)
     questiontype = models.TextField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
-    points = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True, default=0)
+    points = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True, default=1)
     difficulty = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(5)], default=1)
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
