@@ -231,11 +231,11 @@ class QuestionLibrary(models.Model):
 
     def create_zip_file_package(self):
         try:
-            with ZipFile(self.folder_path + "/" + 'package.zip', 'w') as myzip:
+            with ZipFile(self.folder_path + "/" + self.filtered_main_title, 'w') as myzip:
                 myzip.write(self.zip_file.path, self.filtered_main_title + '.zip')
                 myzip.write(self.json_file.path, 'result.json')
 
-            self.output_zip_file.name = str(self.id) + "/" + 'package.zip'
+            self.output_zip_file.name = str(self.id) + "/" + self.filtered_main_title
             self.save()
             logger.info("[" + str(self.id) + "] " + "ZIP file with JSON package Created")
         except Exception as e:
