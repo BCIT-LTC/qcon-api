@@ -218,7 +218,7 @@ class JsonToScorm(APIView):
     def post(self, request, format=None):
 
         json_data = json.loads(request.data['json_data'])
-        ql_serializer = QuestionLibrarySerializer(data=json_data)
+        ql_serializer = QuestionLibrarySerializer(data=json_data['data'])
         if ql_serializer.is_valid():
             ql_instance = ql_serializer.save()
             ql_instance.filter_main_title()
@@ -227,34 +227,32 @@ class JsonToScorm(APIView):
             ql_instance.create_directory()
             ql_instance.save()
             file_name = ql_instance.filtered_main_title
-            
-            if (ql_instance.total_question_errors + ql_instance.total_document_errors == 0):
-                ql_instance.create_xml_files()
-                ql_instance.zip_files()
+            # if (ql_instance.total_question_errors + ql_instance.total_document_errors == 0):
+            ql_instance.create_xml_files()
+            ql_instance.zip_files()
+            file_response = FileResponse(ql_instance.zip_file)
+            file_response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
 
-                file_response = FileResponse(ql_instance.zip_file)
-                file_response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
+            logger.info("[" + str(ql_instance.id) + "] " +">>>>>>>>>>Transaction Finished>>>>>>>>>>")
 
-                logger.info("[" + str(ql_instance.id) + "] " +">>>>>>>>>>Transaction Finished>>>>>>>>>>")
+            ql_instance.cleanup()
 
-                ql_instance.cleanup()
-
-                return file_response
+            return file_response
                 
-            else:
-                #Serializer to query only the records that contain errors
+        #     else:
+        #         #Serializer to query only the records that contain errors
 
-                serialized_data = QuestionLibraryErrorSummarySerializer(
-                    ql_instance)
+        #         serialized_data = QuestionLibraryErrorSummarySerializer(
+        #             ql_instance)
 
-                logger.info(
-                    "[" + str(ql_instance.id) + "] " +
-                    ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
+        #         logger.info(
+        #             "[" + str(ql_instance.id) + "] " +
+        #             ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
 
-                json_response = JsonResponse("", status=201)
-                ql_instance.cleanup()
-                return json_response
-
+        #         json_response = JsonResponse("", status=201)
+        #         ql_instance.cleanup()
+        #         return json_response
+        print("NOT VALID")
         return JsonResponse(ql_serializer.errors, status=400)
 
 

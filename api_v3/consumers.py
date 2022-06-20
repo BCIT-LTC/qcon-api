@@ -234,6 +234,7 @@ class TextConsumer(JsonWebsocketConsumer):
         newfile = QuestionLibrary.objects.create()
         newfile.temp_file = received_file
         newfile.session_id = self.sessionid
+        newfile.main_title = content.get('filename').split(".")[0]
         newfile.save()
         return newfile
 

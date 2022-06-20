@@ -5,6 +5,7 @@ import logging
 import subprocess
 import sys
 import re
+import pypandoc
 
 logger = logging.getLogger(__name__)
 
@@ -111,12 +112,15 @@ def run_sectioner(questionlibrary):
 
         sectiontitle = section.find('title')
         if sectiontitle is not None:
-            sectionobject.title = sectiontitle.text
+            section_title_text = markdown_to_plain(sectiontitle.text)
+            section_title_text = section_title_text.replace('\n', ' ')
+            sectionobject.title = trim_text(section_title_text)
 
         maincontent = section.find('maincontent')
         if maincontent is not None:
             sectionobject.raw_content = maincontent.text
             sectionobject.is_main_content = True
+            sectionobject.title = questionlibrary.main_title
 
         sectioncontent = section.find('sectioncontent')
         if sectioncontent is not None:
@@ -169,7 +173,7 @@ def split_questions(sectionobject):
         content = question.find('content')
         if content is not None:
             # Filter out empty questions
-            if len(content.text) > 1:
+            if len(trim_text(content.text)) > 0:
                 questions_found += 1
                 questionobject.raw_content = content.text
         questionobject.save()
@@ -214,28 +218,37 @@ def get_endanswers(questionlibrary):
 
 # This function will most likely writes directly to model. Might need to move to model instead
 def run_parser(questionlibrary):
-
+    import time
     sections = Section.objects.filter(question_library=questionlibrary)
-
+    question_count = 0
+    section_count = 0
+    start_time = time.time()
     for section in sections:
         questions = Question.objects.filter(section=section)
+        if section.is_main_content:
+            print("\nRoot section:")
+        else:
+            section_count += 1
+            print("\nSection", section_count, ":", section.title )
 
         section.questions_expected = len(questions) - 1
-        import time
-        start = time.time()
-        count = 0
+        section_start_time = time.time()
+        section_question_count = 0
         for question in questions:
             # discard empty question
             if question.raw_content is None:
                 question.delete()
             else:
                 parse_question(question)
-            count += 1
-            print("question : " + str(count))
-        end = time.time()
-        section.processing_time = end - start
+            section_question_count += 1
+            print("    question : " + str(question_count + section_question_count))
+        question_count += section_question_count
+        section_end_time = time.time()
+        section.processing_time = section_end_time - section_start_time
         section.save()
-        print(end - start)
+        print("  Section total questions :", section_question_count)
+        print("  Section processing time :", section.processing_time)
+    print("\nProccessing Time Total :", time.time() - start_time)
     
 
 def parse_question(question):
@@ -261,11 +274,13 @@ def parse_question(question):
 
     questiontype = root.find('type')
     if questiontype is not None:
-        question.questiontype = questiontype.text.strip()
+        question.questiontype = trim_text(questiontype.text)
 
     title = root.find('title')
     if title is not None:
-        question.title = title.text.strip()  
+        title_text = markdown_to_plain(title.text)
+        title_text = title_text.replace('\n', ' ')
+        question.title = trim_text(title_text)
 
     points = root.find('points')
     if points is not None:
@@ -291,13 +306,29 @@ def parse_question(question):
         # look for FIB question
         fib_question = root.find('fib_question')
         if fib_question is not None:
+            
+            fib_title = re.sub(r"<<<<\d+>>>>", "[IMG]", fib_question.text)
+            fib_title = markdown_to_plain(fib_title)
+            fib_title = re.sub(r'\[.+?\]', '__________', fib_title)
+            fib_title = fib_title.replace('\n', ' ')
+            fib_title = trim_text(fib_title)
+            print(fib_title[0:127])
+            # fib_question.title = fib_title[0:127]
+            # fib_question.save()
             print("fib question found")
             # TODO CREATE FIB INSTANCE
 
         # look for other NON FIB question
         regular_question = root.find('question')
         if regular_question is not None:
-            question.text = regular_question.text
+            question.text = trim_text(regular_question.text)
+
+            if question.title is None:
+                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", regular_question.text)
+                title_text = markdown_to_plain(title_text)
+                title_text = title_text.replace('\n', ' ')
+                title_text = trim_text(title_text)
+                question.title = title_text[0:127]
             question.save()
 
             answers = root.findall("answer")            
@@ -324,7 +355,7 @@ def parse_question(question):
                     mat_object = Matching.objects.create(question=question)        
 
                     for answer in answers:
-                        answercontent  = answer.find('content').text
+                        answercontent  = trim_text(answer.find('content').text)
                         choice_answer_groups_regex = re.search(r"(.*)=(.*)", answercontent)
 
                         mat_choice = MatchingChoice.objects.create(matching=mat_object)                        
@@ -364,19 +395,21 @@ def parse_question(question):
                         KeywordFalseFound = False
 
                         for answer in answers:
-                            if answer.find('content').text.strip().lower() == 'true' :
+                            answer_text = markdown_to_plain(answer.find('content').text.lower())
+                            answer_text = trim_text(answer_text)
+                            if answer_text == 'true' :
                                 KeywordTrueFound = True
                                 try:
-                                    tf_object.true_feedback = answer.find('feedback').text.strip()
+                                    tf_object.true_feedback = trim_text(answer.find('feedback').text)
                                 except:
                                     pass
                                 if answer.attrib['correct'] == 'true':
                                     tf_object.true_weight = 100
 
-                            if answer.find('content').text.strip().lower() == 'false' :
+                            if answer_text == 'false' :
                                 KeywordFalseFound = True
                                 try:
-                                    tf_object.false_feedback = answer.find('feedback').text.strip()
+                                    tf_object.false_feedback = trim_text(answer.find('feedback').text)
                                 except:
                                     pass
                                 if answer.attrib['correct'] == 'true':
@@ -404,8 +437,8 @@ def parse_question(question):
 
                         for answer_item in answers:
                             mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
-                            mc_answerobject.answer = answer_item.find('content').text
-                            mc_answerobject.index = (answer_item.find('index').text).strip()
+                            mc_answerobject.answer = trim_text(answer_item.find('content').text)
+                            mc_answerobject.index = trim_text(answer_item.find('index').text)
                             if answer_item.attrib['correct'] == 'true':
                                 mc_answerobject.weight = 100
                             if answer_item.attrib['correct'] == 'false':
@@ -426,8 +459,8 @@ def parse_question(question):
 
                     for answer_item in answers:
                         ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
-                        ms_answerobject.answer = answer_item.find('content').text
-                        ms_answerobject.index = (answer_item.find('index').text).strip()
+                        ms_answerobject.answer = trim_text(answer_item.find('content').text)
+                        ms_answerobject.index = trim_text(answer_item.find('index').text)
                         if answer_item.attrib['correct'] == 'true':
                             ms_answerobject.is_correct = True
                         if answer_item.attrib['correct'] == 'false':
@@ -439,18 +472,18 @@ def parse_question(question):
                     ms_object.save()
                     question.save()
 
-                elif marked_answers_count == 0:
+                elif marked_answers_count == 0 and unmarked_answers_count > 1:
                     # =========================  ORD confirmed =======================
 
-                    iterator = 0
+                    iterator = 1
                     for answer in answers:
                     #     print(answer.find('index').text.strip())
                         ord_object = Ordering.objects.create(question=question)
                         ord_object.order = iterator
                         iterator += 1
-                        ord_object.text = answer.find('content').text.strip()
+                        ord_object.text = trim_text(answer.find('content').text)
                         try:
-                            ord_object.ord_feedback = answer.find('feedback').text.strip()
+                            ord_object.ord_feedback = trim_text(answer.find('feedback').text)
                         except:
                             pass
                         ord_object.save()
@@ -463,6 +496,17 @@ def parse_question(question):
                 pass
 
     pass
+
+def trim_text(txt):
+    text = txt.strip()
+    text = text.strip("<!-- -->")
+    text = text.strip("\n")
+    text = re.sub(' +', ' ', text)
+    return text
+
+def markdown_to_plain(text):
+    plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
+    return plain_text
 
 def process(questionlibrary):
 
