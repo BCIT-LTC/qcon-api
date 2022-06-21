@@ -478,7 +478,7 @@ class Ordering(models.Model):
 
 class WrittenResponse(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, related_name='writtenresponses', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name='written_response', on_delete=models.CASCADE)
     enable_student_editor = models.BooleanField(blank=True, null=True)
     initial_text = models.TextField(blank=True, null=True)
     answer_key = models.TextField(blank=True, null=True)

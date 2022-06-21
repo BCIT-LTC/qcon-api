@@ -10,7 +10,7 @@ import pypandoc
 logger = logging.getLogger(__name__)
 
 from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, \
-MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image, EndAnswer
+MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image, WrittenResponse, EndAnswer
 
 
 def create_main_title():
@@ -472,25 +472,38 @@ def parse_question(question):
                     ms_object.save()
                     question.save()
 
-                elif marked_answers_count == 0 and unmarked_answers_count > 1:
-                    # =========================  ORD confirmed =======================
-
-                    iterator = 1
-                    for answer in answers:
-                    #     print(answer.find('index').text.strip())
-                        ord_object = Ordering.objects.create(question=question)
-                        ord_object.order = iterator
-                        iterator += 1
-                        ord_object.text = trim_text(answer.find('content').text)
-                        try:
-                            ord_object.ord_feedback = trim_text(answer.find('feedback').text)
-                        except:
-                            pass
-                        ord_object.save()
+                elif marked_answers_count == 0:
                     
-                    question.questiontype = 'ORD'
-                    question.save()
-            else:
+                    if unmarked_answers_count > 1:
+                    # =========================  ORD confirmed =======================
+                        iterator = 1
+                        for answer in answers:
+                        #     print(answer.find('index').text.strip())
+                            ord_object = Ordering.objects.create(question=question)
+                            ord_object.order = iterator
+                            iterator += 1
+                            ord_object.text = trim_text(answer.find('content').text)
+                            try:
+                                ord_object.ord_feedback = trim_text(answer.find('feedback').text)
+                            except:
+                                pass
+                            ord_object.save()
+                    
+                        question.questiontype = 'ORD'
+                        question.save()
+                    elif unmarked_answers_count == 1:
+                    # =========================  WR confirmed =======================
+                        wr_object = WrittenResponse.objects.create(question=question)
+                        for answer in answers:
+                            try:
+                                wr_object.answer_key = trim_text(answer.find('content').text)
+                            except:
+                                pass
+                        wr_object.save()
+                        question.questiontype = 'WR'
+                        question.save()
+
+            elif len(answers) == 0:
                 # answer list not included
                 # This is most likely an essay type question. check if "correct_answer" token is present
                 pass
