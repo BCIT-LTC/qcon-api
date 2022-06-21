@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+
 set -e
 
 # set secrets from Vault init container or from dev configmap
