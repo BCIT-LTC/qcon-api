@@ -27,7 +27,8 @@ from api_v2 import views
 urlpatterns = [
     # # path('admin/', admin.site.urls),
     path('', include('api_v2.urls')),
-    path('v2/', include('api_v2.urls'))
+    path('v2/', include('api_v2.urls')),
+    path('v3/', include('api_v3.urls'))
 ]
 
 if settings.DEBUG:
