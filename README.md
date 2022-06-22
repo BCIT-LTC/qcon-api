@@ -12,7 +12,7 @@ Open your browser to [http://localhost:8000](http://localhost:8000).
 
 ## Using `qcon-api`
 
-See [Qcon Usage and Examples](https://qcon-user-guide.dev.ltc.bcit.ca) for basic information about how to format documents and retrieve packaged files. For full documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS, see the [Qcon User Guide](https://qcon-user-guide.dev.ltc.bcit.ca).
+See [Qcon Usage and Examples](https://qcon-user-guide.dev.ltc.bcit.ca) for documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS.
 
 ## Developer Guide
 
