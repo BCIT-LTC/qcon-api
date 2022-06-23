@@ -81,6 +81,7 @@ RUN set -ex; \
     javac *.java; \
     jar cvfe endanswers.jar endanswers  *.class ./antlr.jar;
 
+
 ## Release
 FROM python:3.10-alpine AS release
 
