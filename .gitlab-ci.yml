@@ -2,7 +2,7 @@
 #
 ## Requirements
 #   - this file, with "CLUSTER_NAME" set (bottom of script)
-#   - `Dockerfile` in project root
+#   - a working `Dockerfile` in this project's root
 #   - (optional) deployment package
 #
 ## General Pipeline Steps
@@ -18,7 +18,7 @@ stages:
 - cleanup
 
 ## Project initialization
-#   - a project access token is required, and created on the first run. If the pipeline fails,
+#   - a project access token is required and created on the first run. If the pipeline fails,
 #     please wait 5 minutes and re-try after a token has been created.
 project init:
   stage: get info
@@ -39,7 +39,7 @@ build image:
   - ".build_image_rules"
 
 ## Deploy feat/fix branch package to dev cluster for review
-#   - must have a deployment package with a `dev` overlay
+#   - uses a deployment package with a `dev` overlay (generic-dev is used if one hasn't been initialized)
 deploy review:
   stage: publish
   variables:
@@ -50,7 +50,7 @@ deploy review:
 
 ## Deploy staging/production packages
 #   - must have a deployment package with `staging` and `production` overlays
-#   - triggers pipelines in "Deployments/{projectName}" project
+#   - triggers pipelines in GitLab "Deployments/{projectName}" project
 deploy to staging:
   stage: publish
   variables:
@@ -84,21 +84,15 @@ stop review:
   - ".undeploy_review_rules"
 
 #
-#
-#
 ## ---------- Pipeline configuration ----------
-#
-#
 #
 variables:                          # other global variables are set in GitLab Admin
   CLUSTER_NAME: dev-cp              # options: dev-cp, dev-vsm
   # GENERIC_DEPLOYMENT: "true"
   #
   #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
-  #     to exist in the "Deployments" GitLab group. Create a deployment package following the
-  #     guide in "Deployments/CI Config".
-  #
-  #   - see https://infrastructure-documentation.dev.ltc.bcit.ca/ for additional info.
+  #     to exist in the Gitlab "Deployments" group. Create a deployment package following the
+  #     guide in [Deployments/CI Config](https://infrastructure-documentation.dev.ltc.bcit.ca/).
   #
   # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
   DEPLOY_PKG_PROJECT_ID: '405'
@@ -109,16 +103,11 @@ variables:                          # other global variables are set in GitLab A
   # Normally apps are deployed to their own namespace for dev reviews
   # This override deploys the app to the common namespace for dev reviews
   # DEV_COMMON_NAMESPACE_OVERRIDE: "true"
-#
-#
+  #
+  PIPELINE_DEBUG: 'true'
 #
 ## ---------- It's generally bad to change anything below here ----------
 #
-#
-#
-## Other common pipeline variables
-  PIPELINE_DEBUG: 'true'
-
 ## Include common scripts
 include:
 - project: deployments/ci-config
