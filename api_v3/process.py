@@ -512,7 +512,7 @@ def parse_question(question):
 
 def trim_text(txt):
     text = txt.strip()
-    text = text.strip("<!-- -->")
+    text = re.sub('<!-- -->', '', text)
     text = text.strip("\n")
     text = re.sub(' +', ' ', text)
     return text
