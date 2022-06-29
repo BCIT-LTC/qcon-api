@@ -4,7 +4,9 @@ from channels.db import database_sync_to_async
 from django.core.files.base import ContentFile
 import base64
 
-from .models import Question, QuestionLibrary, Image, MultipleChoiceAnswer, TrueFalse, MultipleSelectAnswer, MatchingAnswer, MatchingChoice, WrittenResponse
+from .models import Question, Section, QuestionLibrary, \
+    Image, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, \
+        Matching, MatchingAnswer, MatchingChoice, Ordering, WrittenResponse
 import socket
 import re
 
@@ -21,6 +23,7 @@ class TextConsumer(JsonWebsocketConsumer):
     images_count = 0
     questions_count = 0
     endanswer_count = 0
+    question_error_count = 0
 
     def connect(self):
         print("connected")
@@ -207,11 +210,99 @@ class TextConsumer(JsonWebsocketConsumer):
                         wr.answer_key = re.sub(substring, image.image, wr.answer_key)
                     wr.save()
 ###########################################
+        # count all question level errors
+###########################################
+
+        sections = Section.objects.filter(question_library=new_questionlibrary)
+        for section in sections:
+            questions = Question.objects.filter(section=section)
+            for question in questions:
+                if question.error is not None:
+                    self.question_error_count += 1
+
+                ###### MC ERROR COUNT
+                mc = MultipleChoice.objects.filter(question=question)
+                try:
+                    if mc.error is not None:
+                        self.question_error_count += 1
+
+                    mcas = mc.get_multiple_choice_answers()
+                    if mca is not None:
+                        for mca in mcas:
+                            if mca.error is not None:
+                                self.question_error_count += 1
+                except:
+                    pass
+                
+                ###### TF ERROR COUNT
+                try:
+                    tf = TrueFalse.objects.filter(question=question)
+                    if tf.error is not None:
+                        self.question_error_count += 1
+                except:
+                    pass
+
+                ###### FIB ERROR COUNT
+                try:
+                    fib = Fib.objects.filter(question=question)
+                    if fib.error is not None:
+                        self.question_error_count += 1
+                except:
+                    pass
+                ###### MS ERROR COUNT
+                try:
+                    ms = MultipleSelect.objects.filter(question=question)
+                    if ms.error is not None:
+                        self.question_error_count += 1
+
+                    msas = ms.get_multiple_select_answers()
+                    if msas is not None:
+                        for msa in msas:
+                            if msa.error is not None:
+                                self.question_error_count += 1    
+                except:
+                    pass
+                ###### MAT ERROR COUNT
+                try:
+                    mat = Matching.objects.filter(question=question)
+                    if mat is not None:
+                        self.question_error_count += 1
+                    
+                    mat_choices = mat.get_matching_choices()
+                    if mat_choices is not None:
+                        for mat_choice in mat_choices:
+                            if mat_choice.error is not None:
+                                self.question_error_count += 1    
+
+                    mat_answers = mat.get_unique_matching_answers()
+                    if mat_answers is not None:
+                        for mat_answer in mat_answers:
+                            if mat_answer.error is not None:
+                                self.question_error_count += 1    
+                except:
+                    pass
+                ###### ORD ERROR COUNT
+                try:
+                    ord = Ordering.objects.filter(question=question)
+                    if ord.error is not None:
+                        self.question_error_count += 1    
+                except:
+                    pass
+                ###### WR ERROR COUNT
+                try:
+                    wr = WrittenResponse.objects.filter(question=question)
+                    if wr.error is not None:
+                        self.question_error_count += 1  
+                except:
+                    pass
+
+###########################################
         # serialize and send response
 ###########################################
 
         serialized_ql = JsonResponseSerializer(new_questionlibrary)
         self.send(text_data=json.dumps(self.sendformat("Done", "", serialized_ql.data)))
+
 ######################### Close Connection
         self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
 
@@ -224,6 +315,7 @@ class TextConsumer(JsonWebsocketConsumer):
                 'images_count': str(self.images_count),
                 'questions_count': str(self.questions_count),
                 'endanswer_count': str(self.endanswer_count),
+                'question_error_count': str(self.question_error_count),
                 'data': data
             }
 
@@ -238,6 +330,8 @@ class TextConsumer(JsonWebsocketConsumer):
         newfile.save()
         return newfile
 
+    def count_question_errors(self, questionlibrary):
+        pass
         # if format == 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         #     received_file = ContentFile(base64.b64decode(fixeddata),
         #                                 name=content.get('filename'))

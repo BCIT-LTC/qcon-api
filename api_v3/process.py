@@ -418,7 +418,6 @@ def parse_question(question):
                         if KeywordTrueFound == True and KeywordFalseFound == True :
                         # =========================  TF confirmed =======================
                         # TF confirmed here so the TF object is saved to db
-                            print("TF COnfirmed")
                             tf_object.error = ""
                             tf_object.save()
                             question.questiontype = 'TF'
