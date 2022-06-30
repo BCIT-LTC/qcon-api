@@ -162,7 +162,7 @@ class TextConsumer(JsonWebsocketConsumer):
 
         for image in all_images:
             for question in all_questions:
-                substring = "<<<<" + str(image.id) + ">>>>"
+                substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
                 question.text = re.sub(substring, image.image, question.text)
                 question.save()
 
