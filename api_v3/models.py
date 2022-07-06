@@ -161,12 +161,11 @@ class QuestionLibrary(models.Model):
             img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
             for idx, img in enumerate(img_elements):
-                element = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
-                base64_img = img.split(';base64,')
-                img_ext = base64_img[0].split("/")[1]
+                img_src = re.findall(r"src=\"(.*?)\"", img, re.MULTILINE)
+                base64_img = img_src[0].split(';base64,')
                 img_string = base64_img[1]
+                img_ext = base64_img[0].split("/")[1]
                 image_data = base64.b64decode(img_string)
-
                 new_image_name = "image_" + str(idx+1) + "." + img_ext
                 img_path = ql_obj.image_path + new_image_name
 
