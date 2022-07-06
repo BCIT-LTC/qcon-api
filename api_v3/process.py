@@ -435,8 +435,28 @@ def parse_question(question):
                         else:
                         # One or More Keywords "true" or "false" not found. fallback to MC 
 
-                        # TODO CREATE MC type
-                            pass
+                            # ========================= 2 option MC confirmed =======================
+                            mc_object = MultipleChoice.objects.create(question=question)
+                            mc_object.save()
+                            # grab all answers
+
+                            for answer_item in answers:
+                                mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
+                                mc_answerobject.index = trim_md_to_plain(trim_text(answer_item.find('index').text)).strip("*.) \n")
+                                mc_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
+                                
+                                if(answer_item.find('feedback') is not None):
+                                    mc_answerobject.answer_feedback = trim_md_to_html(answer_item.find('feedback').text)
+
+                                if answer_item.attrib['correct'] == 'true':
+                                    mc_answerobject.weight = 100
+                                if answer_item.attrib['correct'] == 'false':
+                                    mc_answerobject.weight = 0
+                                mc_answerobject.save()
+
+                            question.questiontype = 'MC'
+                            mc_object.save()
+                            question.save()
 
                     if unmarked_answers_count > 1:
                         # =========================  MC confirmed =======================
@@ -457,8 +477,6 @@ def parse_question(question):
                             if answer_item.attrib['correct'] == 'false':
                                 mc_answerobject.weight = 0
                             mc_answerobject.save()
-
-                        # TODO: Check if the user given type is similar to detected type:
 
                         question.questiontype = 'MC'
                         mc_object.save()
