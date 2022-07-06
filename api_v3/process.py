@@ -240,7 +240,7 @@ def run_parser(questionlibrary):
             if question.raw_content is None:
                 question.delete()
             else:
-                parse_question(question)
+                parse_question(questionlibrary, question)
             section_question_count += 1
             print("    question : " + str(question_count + section_question_count))
         question_count += section_question_count
@@ -252,7 +252,7 @@ def run_parser(questionlibrary):
     print("\nProccessing Time Total :", time.time() - start_time)
     
 
-def parse_question(question):
+def parse_question(questionlibrary, question):
 
     os.chdir('/questionparser/jarfile')
     result = subprocess.run(
@@ -454,6 +454,9 @@ def parse_question(question):
                                     mc_answerobject.weight = 0
                                 mc_answerobject.save()
 
+                            if questionlibrary.randomize_answer == True:
+                                mc_object.randomize = True
+
                             question.questiontype = 'MC'
                             mc_object.save()
                             question.save()
@@ -477,6 +480,9 @@ def parse_question(question):
                             if answer_item.attrib['correct'] == 'false':
                                 mc_answerobject.weight = 0
                             mc_answerobject.save()
+
+                        if questionlibrary.randomize_answer == True:
+                            mc_object.randomize = True
 
                         question.questiontype = 'MC'
                         mc_object.save()
@@ -502,6 +508,9 @@ def parse_question(question):
 
                         ms_answerobject.save()
                     
+                    if questionlibrary.randomize_answer == True:
+                            ms_object.randomize = True
+
                     question.questiontype = 'MS'
                     ms_object.save()
                     question.save()
