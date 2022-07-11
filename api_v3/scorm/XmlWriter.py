@@ -518,7 +518,7 @@ class XmlWriter:
             it_respcondition = ET.SubElement(it_temp, "respcondition")
             it_respcondition_conditionvar = ET.SubElement(it_respcondition, "conditionvar")
             it_respcondition_varequal = ET.SubElement(it_respcondition_conditionvar, "varequal")
-            it_respcondition_varequal.text = matching_answer_text
+            it_respcondition_varequal.text = matching_answer_index
             it_respcondition_setvar = ET.SubElement(it_respcondition, "setvar", {"action": "Add"})
             it_respcondition_setvar.text = "1"
 
@@ -542,8 +542,9 @@ class XmlWriter:
                 varequal = conditionvar.find("varequal")
                 varequal.set("respident", matching_choice_index)
                 setvar = respcondition.find("setvar")
-                is_correct = matching_choice.has_matching_answer(varequal.text)
-                if is_correct:
+                answer_mattext = it_pre_flow.find("response_grp[@respident='" + matching_choice_index + "'].//response_label[@ident='" + varequal.text + "'].//mattext")
+                is_correct = matching_choice.has_matching_answer(answer_mattext[0].text)
+                if is_correct is True:
                     setvar.set("varname", "D2L_Correct")
                 else:
                     setvar.set("varname", "D2L_Incorrect")

@@ -356,33 +356,49 @@ def parse_question(questionlibrary, question):
                 if matching_answers_count > 0 :
                     # =========================  MAT confirmed =======================
                     
-                    mat_object = Matching.objects.create(question=question)        
+                    mat_object = Matching.objects.create(question=question)
+                    mat_object.save()
 
                     for answer in answers:
                         answercontent  = trim_text(answer.find('content').text)
                         choice_answer_groups_regex = re.search(r"(.*)=(.*)", answercontent)
 
-                        mat_choice = MatchingChoice.objects.create(matching=mat_object)                        
-                        mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
 
                         if choice_answer_groups_regex is not None:
                            
-                            mat_choice_text = choice_answer_groups_regex.group(1)
-                            mat_answer_text = choice_answer_groups_regex.group(2)
+                            mat_choice_text = choice_answer_groups_regex.group(1).strip()
+                            mat_choice_text = markdown_to_html(mat_choice_text)
 
-                            if mat_choice_text.strip() == "":
+                            mat_answer_text = choice_answer_groups_regex.group(2).strip()
+                            mat_answer_text = markdown_to_html(mat_answer_text)
+
+                            if mat_choice_text == "":
                                 mat_choice.error = "matching choice missing"
                                 mat_object.error = "one or more matching or answer choices missing"
                             else:
-                                mat_choice.choice_text = markdown_to_html(mat_choice_text)
+                                if mat_object.get_matching_choice_by_text(mat_choice_text):
+                                    mat_choice = mat_object.get_matching_choice_by_text(mat_choice_text)
+                                else:
+                                    mat_choice = MatchingChoice.objects.create(matching=mat_object)
+                                    mat_choice.choice_text = mat_choice_text
+                                    mat_choice.save()
 
-                            if mat_answer_text.strip() == "":
+                            if mat_choice.has_matching_answer(mat_answer_text):
+                                # duplicate matching_answer
+                                pass
+                            else:
+                                mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
+
+                            if mat_answer_text == "":
                                 mat_answer.error = "matching answer missing"
                                 mat_object.error = "one or more matching or answer choices missing"
                             else:
-                                mat_answer.answer_text = markdown_to_html(mat_answer_text)
+
+                                mat_answer.answer_text = mat_answer_text
 
                         else:
+                            mat_choice = MatchingChoice.objects.create(matching=mat_object)                        
+                            mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
                             mat_choice.error = "matching choice missing"
                             mat_answer.error = "matching answer missing"
                             mat_object.error = "one or more matching or answer choices missing"
