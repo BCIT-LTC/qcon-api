@@ -548,17 +548,26 @@ def parse_question(questionlibrary, question):
 
             elif len(answers) == 0:
                 # answer list not included
-                # This is most likely an essay type question. check if "correct_answer" token is present
-                pass
+                # This is most likely an essay type question. check if "correct_answer" token is present                
+                wr_answer = root.find("wr_answer")   
+                if wr_answer is not None:
+                    # =========================  WR confirmed with correct answer keyword=======================
+                    wr_object = WrittenResponse.objects.create(question=question)
+                    try:
+                        wr_object.answer_key = trim_md_to_html(wr_answer.find('content').text)
+                    except:
+                        pass
 
-    pass
+                    wr_object.save()
+                    question.questiontype = 'WR'
+                    question.save()
+
 
 def trim_text(txt):
     text = txt.strip()
     text = re.sub('<!-- -->', '', text)
     text = re.sub('<!-- NewLine -->', '\n', text)
     text = text.strip("\n")
-    text = re.sub(' +', ' ', text)
     return text
 
 def markdown_to_plain(text):
@@ -589,12 +598,3 @@ def trim_md_to_html(text):
     text_content = markdown_to_html(text_content)
     text_content = text_content.strip('\n')
     return text_content
-
-def process(questionlibrary):
-
-    # ======================
-    run_formatter(questionlibrary)
-    run_sectioner(questionlibrary)
-    run_splitter(questionlibrary)
-
-    pass

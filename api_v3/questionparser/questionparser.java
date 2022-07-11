@@ -36,7 +36,7 @@ public class questionparser {
    public static class questionparserVisitor extends
          questionparserBaseVisitor<Void> {
 
-      public Void visitQuestion_header_part(questionparserParser.Question_header_partContext ctx){
+      public Void visitQuestion_header_part(questionparserParser.Question_header_partContext ctx) {
          // Read Title if present
          try {
             ctx.TITLE().getText();
@@ -64,7 +64,7 @@ public class questionparser {
          return null;
       }
 
-      public Void visitQuestion_wrapper(questionparserParser.Question_wrapperContext ctx){
+      public Void visitQuestion_wrapper(questionparserParser.Question_wrapperContext ctx) {
          // Check QUESTION NUMBER for first question
          try {
             // System.out.println(ctx.NUMLIST_PREFIX_ONE().getText());
@@ -105,7 +105,7 @@ public class questionparser {
             root.appendChild(question_feedback);
          } catch (Exception e) {
          }
-         
+
          // Check FIB content with optional feedback
          try {
             // System.out.println(ctx.question().getText());
@@ -124,19 +124,19 @@ public class questionparser {
          return null;
       }
 
-      public Void visitAnswer_part(questionparserParser.Answer_partContext ctx){
-         try{
+      public Void visitAnswer_part(questionparserParser.Answer_partContext ctx) {
+         try {
             Element index = document.createElement("index");
             index.appendChild(document.createTextNode(ctx.LETTERLIST_PREFIX().getText()));
-            
+
             Element content = document.createElement("content");
             content.appendChild(document.createTextNode(ctx.content().getText()));
-            
+
             Element answer = document.createElement("answer");
             answer.appendChild(index);
             answer.appendChild(content);
             answer.setAttribute("correct", "false");
-            try{
+            try {
                ctx.feedback().get(0).getText();
                String answerfeedback = "";
                for (int i = 0; i < ctx.feedback().size(); i++) {
@@ -153,19 +153,19 @@ public class questionparser {
          return null;
       }
 
-      public Void visitCorrect_answer_part(questionparserParser.Correct_answer_partContext ctx){
-         try{
+      public Void visitCorrect_answer_part(questionparserParser.Correct_answer_partContext ctx) {
+         try {
             Element index = document.createElement("index");
             index.appendChild(document.createTextNode(ctx.CORRECT_ANSWER().getText()));
-            
+
             Element content = document.createElement("content");
             content.appendChild(document.createTextNode(ctx.content().getText()));
-            
+
             Element answer = document.createElement("answer");
             answer.appendChild(index);
             answer.appendChild(content);
             answer.setAttribute("correct", "true");
-            try{
+            try {
                ctx.feedback().get(0).getText();
                String answerfeedback = "";
                for (int i = 0; i < ctx.feedback().size(); i++) {
@@ -182,23 +182,27 @@ public class questionparser {
          return null;
       }
 
-      public Void visitWr_answer(questionparserParser.Wr_answerContext ctx){
-         try{       
+      public Void visitWr_answer(questionparserParser.Wr_answerContext ctx) {
+         try {
             Element content = document.createElement("content");
-            content.appendChild(document.createTextNode(ctx.content().getText()));
-            
+            String wr_answer_text = ctx.content().getText();            
+            try {
+               wr_answer_text += ctx.answers().getText();
+            } catch (Exception e) {
+            }
+            content.appendChild(document.createTextNode(wr_answer_text));
             Element wr_answer = document.createElement("wr_answer");
-            wr_answer.appendChild(content);            
+            wr_answer.appendChild(content);
             root.appendChild(wr_answer);
          } catch (Exception e) {
          }
          return null;
       }
 
-      public Void visitHint(questionparserParser.HintContext ctx){
-         try{       
+      public Void visitHint(questionparserParser.HintContext ctx) {
+         try {
             Element hint = document.createElement("hint");
-            hint.appendChild(document.createTextNode(ctx.content().getText()));   
+            hint.appendChild(document.createTextNode(ctx.content().getText()));
             root.appendChild(hint);
          } catch (Exception e) {
          }
