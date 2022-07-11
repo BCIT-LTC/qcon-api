@@ -4,7 +4,7 @@
 
 grammar questionparser;
 
-questionparser: unused_content? question_header? question_wrapper hint? answers wr_answer? EOF;
+questionparser: unused_content? question_header? question_wrapper hint? answers? wr_answer? EOF;
 
 unused_content: (ALL_CHARACTER+) ;
 
@@ -32,7 +32,7 @@ fib_part: FIB_START ALL_CHARACTER* FIB_END;
 answers: (answer_part | correct_answer_part)+;
 answer_part: LETTERLIST_PREFIX feedback? content feedback?;
 correct_answer_part: CORRECT_ANSWER feedback? content feedback?;
-wr_answer: CORRECT_ANSWER_FOR_WR content;
+wr_answer: CORRECT_ANSWER_FOR_WR content answers?;
 
 hint: HINT content;
 
@@ -121,6 +121,6 @@ CORRECT_ANSWER: (
 	);
 
 CORRECT_ANSWER_FOR_WR:
-	NEWLINE WHITESPACE* C O R R E C T WHITESPACE* A N S W E R WHITESPACE* COLON WHITESPACE*;
+	NEWLINE WHITESPACE* C O R R E C T WHITESPACE* A N S W E R S? WHITESPACE* COLON WHITESPACE*;
 
 ALL_CHARACTER: .;
