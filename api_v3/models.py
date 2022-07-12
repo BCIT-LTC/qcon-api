@@ -441,6 +441,9 @@ class Matching(models.Model):
     def get_matching_choices(self):
         return MatchingChoice.objects.filter(matching=self.id).order_by('id')
 
+    def get_matching_choice_by_text(self, choice_text):
+        return MatchingChoice.objects.filter(matching=self.id, choice_text=choice_text).order_by('id').first()
+
     def get_unique_matching_answers(self):
         matching_answers = MatchingAnswer.objects.filter(matching_choice__matching__id=self.id).order_by('answer_text').values_list('answer_text', flat=True).distinct()
         return matching_answers
