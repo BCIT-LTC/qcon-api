@@ -353,7 +353,7 @@ def parse_question(questionlibrary, question):
             # Check if answers are included
             if len(answers) > 0:
 
-                if matching_answers_count > 0 :
+                if matching_answers_count == len(answers) :
                     # =========================  MAT confirmed =======================
                     
                     mat_object = Matching.objects.create(question=question)
@@ -597,8 +597,10 @@ def markdown_to_html(text):
             
     if len(soup_text_math) > 0:
         for span_math in soup_text_math:
-            math_text = re.sub(r"\\(?=[^a-zA-Z\(\)\d\s:])", "", span_math.string)
-            mathml_text = pypandoc.convert_text(math_text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_single_backslash", to="html", extra_args=['--mathml', '--ascii']).removeprefix('<p>').removesuffix('</p>')
+            # print(span_math)
+            # math_text = re.sub(r"\\(?=[^a-zA-Z\(\)\d\s:])", "", span_math.string)
+            mathml_text = pypandoc.convert_text(span_math, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_single_backslash", to="html", extra_args=['--mathml', '--ascii']).removeprefix('<p>').removesuffix('</p>')
+            # print("\n", mathml_text)
             soup_math = BeautifulSoup(mathml_text, "html.parser")
             span_math.string = ''
             span_math.append(soup_math)
