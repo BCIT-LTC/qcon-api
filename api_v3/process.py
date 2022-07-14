@@ -272,7 +272,6 @@ def parse_question(questionlibrary, question):
     except:
         pass
 
-
     questiontype = root.find('type')
     if questiontype is not None:
         question.questiontype = trim_text(questiontype.text)
@@ -286,7 +285,7 @@ def parse_question(questionlibrary, question):
     points = root.find('points')
     if points is not None:
         filterpoint = re.search("\d+((.|,)\d+)?", points.text)
-        question.points = float(filterpoint.group()) 
+        question.points = float(filterpoint.group())
 
     question_number = root.find('question_number')
     if question_number is not None:
@@ -298,15 +297,15 @@ def parse_question(questionlibrary, question):
         question.feedback = trim_md_to_html(question_feedback.text)
 
     if question.questiontype == 'MS':
-        # TODO MS is required 
+        # TODO MS is required
         # COUNT total number of answers and correct_answer. it should be >= 2
         # answer = root.find('answer')
-        
+
         pass
     else:
-    # all other types try autodetect and compare if the given type is correct. if not then notify user 
+    # all other types try autodetect and compare if the given type is correct. if not then notify user
 
-       # Autodetect 
+       # Autodetect
         # look for FIB question
         fib_question = root.find('fib_question')
         if fib_question is not None:
@@ -335,41 +334,51 @@ def parse_question(questionlibrary, question):
                 question.title = title_text[0:127]
             question.save()
 
-            answers = root.findall("answer")            
+            answers = root.findall("answer")
             marked_answers_count = 0
             unmarked_answers_count = 0
             matching_answers_count = 0
             for answer in answers:
                 if answer.attrib['correct'] == 'true':
-                    marked_answers_count+=1
+                    marked_answers_count += 1
                 if answer.attrib['correct'] == 'false':
-                    unmarked_answers_count+=1
+                    unmarked_answers_count += 1
 
                 matchanswers = re.search(r"(.*)=(.*)", answer.find('content').text)
 
                 if matchanswers is not None:
-                    matching_answers_count += 1        
+                    matching_answers_count += 1
 
             # Check if answers are included
             if len(answers) > 0:
 
-                if matching_answers_count == len(answers) :
+                if matching_answers_count == len(answers) and matching_answers_count > 1 :
                     # =========================  MAT confirmed =======================
-                    
+
                     mat_object = Matching.objects.create(question=question)
                     mat_object.save()
 
                     for answer in answers:
-                        answercontent  = trim_text(answer.find('content').text)
-                        choice_answer_groups_regex = re.search(r"(.*)=(.*)", answercontent)
-
+                        answercontent = trim_text(answer.find('content').text)
+                        regpattern = r"((.+)\\?`\s*=\s*\\?`(.+))|((.+)==(.+))|((.+)=(.+))"
+                        choice_answer_groups_regex = re.search(regpattern, answercontent)
 
                         if choice_answer_groups_regex is not None:
-                           
-                            mat_choice_text = choice_answer_groups_regex.group(1).strip()
+                            group_num = []
+                            if choice_answer_groups_regex.group(1):
+                                group_num.extend([2, 3])
+                            elif choice_answer_groups_regex.group(4):
+                                group_num.extend([5, 6])
+                            elif choice_answer_groups_regex.group(7):
+                                group_num.extend([8, 9])
+                            else:
+                                # This should be impossible as we made sure the answer would have an `=`
+                                print("No match in MAT answer")
+
+                            mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
                             mat_choice_text = markdown_to_html(mat_choice_text)
 
-                            mat_answer_text = choice_answer_groups_regex.group(2).strip()
+                            mat_answer_text = choice_answer_groups_regex.group(group_num[1]).strip()
                             mat_answer_text = markdown_to_html(mat_answer_text)
 
                             if mat_choice_text == "":
@@ -397,7 +406,7 @@ def parse_question(questionlibrary, question):
                                 mat_answer.answer_text = mat_answer_text
 
                         else:
-                            mat_choice = MatchingChoice.objects.create(matching=mat_object)                        
+                            mat_choice = MatchingChoice.objects.create(matching=mat_object)
                             mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
                             mat_choice.error = "matching choice missing"
                             mat_answer.error = "matching answer missing"
@@ -411,8 +420,7 @@ def parse_question(questionlibrary, question):
                     question.save()
                     return
 
-
-                if marked_answers_count == 1:    
+                if marked_answers_count == 1:
                     if unmarked_answers_count == 1:
                         # check if both false and true keyword are found
                         tf_object = TrueFalse.objects.create(question=question)
@@ -423,7 +431,7 @@ def parse_question(questionlibrary, question):
                         for answer in answers:
                             answer_text = markdown_to_plain(answer.find('content').text.lower())
                             answer_text = trim_text(answer_text)
-                            if answer_text == 'true' :
+                            if answer_text == 'true':
                                 KeywordTrueFound = True
                                 try:
                                     tf_object.true_feedback = trim_md_to_html(answer.find('feedback').text)
@@ -432,7 +440,7 @@ def parse_question(questionlibrary, question):
                                 if answer.attrib['correct'] == 'true':
                                     tf_object.true_weight = 100
 
-                            if answer_text == 'false' :
+                            if answer_text == 'false':
                                 KeywordFalseFound = True
                                 try:
                                     tf_object.false_feedback = trim_md_to_html(answer.find('feedback').text)
@@ -440,8 +448,8 @@ def parse_question(questionlibrary, question):
                                     pass
                                 if answer.attrib['correct'] == 'true':
                                     tf_object.false_weight = 100
-                        
-                        if KeywordTrueFound == True and KeywordFalseFound == True :
+
+                        if KeywordTrueFound == True and KeywordFalseFound == True:
                         # =========================  TF confirmed =======================
                         # TF confirmed here so the TF object is saved to db
                             tf_object.error = ""
@@ -449,7 +457,7 @@ def parse_question(questionlibrary, question):
                             question.questiontype = 'TF'
                             question.save()
                         else:
-                        # One or More Keywords "true" or "false" not found. fallback to MC 
+                        # One or More Keywords "true" or "false" not found. fallback to MC
 
                             # ========================= 2 option MC confirmed =======================
                             mc_object = MultipleChoice.objects.create(question=question)
@@ -460,7 +468,7 @@ def parse_question(questionlibrary, question):
                                 mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
                                 mc_answerobject.index = trim_md_to_plain(trim_text(answer_item.find('index').text)).strip("*.) \n")
                                 mc_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
-                                
+
                                 if(answer_item.find('feedback') is not None):
                                     mc_answerobject.answer_feedback = trim_md_to_html(answer_item.find('feedback').text)
 
@@ -487,7 +495,7 @@ def parse_question(questionlibrary, question):
                             mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
                             mc_answerobject.index = trim_md_to_plain(trim_text(answer_item.find('index').text)).strip("*.) \n")
                             mc_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
-                            
+
                             if(answer_item.find('feedback') is not None):
                                 mc_answerobject.answer_feedback = trim_md_to_html(answer_item.find('feedback').text)
 
@@ -514,7 +522,7 @@ def parse_question(questionlibrary, question):
                         ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
                         ms_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
                         ms_answerobject.index = trim_md_to_plain(answer_item.find('index').text).strip("*.) \n")
-                        
+
                         if(answer_item.find('feedback') is not None):
                             ms_answerobject.answer_feedback = trim_md_to_html(answer_item.find('feedback').text)
                         if answer_item.attrib['correct'] == 'true':
@@ -523,16 +531,16 @@ def parse_question(questionlibrary, question):
                             ms_answerobject.is_correct = False
 
                         ms_answerobject.save()
-                    
+
                     if questionlibrary.randomize_answer == True:
-                            ms_object.randomize = True
+                        ms_object.randomize = True
 
                     question.questiontype = 'MS'
                     ms_object.save()
                     question.save()
 
                 elif marked_answers_count == 0:
-                    
+
                     if unmarked_answers_count > 1:
                     # =========================  ORD confirmed =======================
                         iterator = 1
@@ -542,12 +550,12 @@ def parse_question(questionlibrary, question):
                             ord_object.order = iterator
                             iterator += 1
                             ord_object.text = trim_md_to_html(answer.find('content').text)
-                            
+
                             if(answer.find('feedback') is not None):
                                 ord_object.ord_feedback = trim_md_to_html(answer.find('feedback').text)
 
                             ord_object.save()
-                    
+
                         question.questiontype = 'ORD'
                         question.save()
                     elif unmarked_answers_count == 1:
@@ -564,8 +572,8 @@ def parse_question(questionlibrary, question):
 
             elif len(answers) == 0:
                 # answer list not included
-                # This is most likely an essay type question. check if "correct_answer" token is present                
-                wr_answer = root.find("wr_answer")   
+                # This is most likely an essay type question. check if "correct_answer" token is present
+                wr_answer = root.find("wr_answer")
                 if wr_answer is not None:
                     # =========================  WR confirmed with correct answer keyword=======================
                     wr_object = WrittenResponse.objects.create(question=question)
@@ -592,19 +600,20 @@ def markdown_to_plain(text):
 
 def markdown_to_html(text):
     html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
-    soup_text = BeautifulSoup(html_text, "html.parser")
-    soup_text_math = soup_text.find_all("span", {"class": "math"})
+    # html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
+    # soup_text = BeautifulSoup(html_text, "html.parser")
+    # soup_text_math = soup_text.find_all("span", {"class": "math"})
             
-    if len(soup_text_math) > 0:
-        for span_math in soup_text_math:
-            # print(span_math)
-            # math_text = re.sub(r"\\(?=[^a-zA-Z\(\)\d\s:])", "", span_math.string)
-            mathml_text = pypandoc.convert_text(span_math, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_single_backslash", to="html", extra_args=['--mathml', '--ascii']).removeprefix('<p>').removesuffix('</p>')
-            # print("\n", mathml_text)
-            soup_math = BeautifulSoup(mathml_text, "html.parser")
-            span_math.string = ''
-            span_math.append(soup_math)
-    return str(soup_text)
+    # if len(soup_text_math) > 0:
+    #     for span_math in soup_text_math:
+    #         # print(span_math)
+    #         # math_text = re.sub(r"\\(?=[^a-zA-Z\(\)\d\s:])", "", span_math.string)
+    #         mathml_text = pypandoc.convert_text(span_math, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_single_backslash", to="html", extra_args=['--mathml', '--ascii']).removeprefix('<p>').removesuffix('</p>')
+    #         # print("\n", mathml_text)
+    #         soup_math = BeautifulSoup(mathml_text, "html.parser")
+    #         span_math.string = ''
+    #         span_math.append(soup_math)
+    return str(html_text)
 
 def trim_md_to_plain(text):
     text_content = trim_text(text)
