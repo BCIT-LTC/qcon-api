@@ -111,14 +111,17 @@ class QuestionLibrary(models.Model):
             listsPath = "./api_v3/pandoc-filters/lists.lua"
             pandoc_word_to_html = pypandoc.convert_file(self.temp_file.path,
                                                         format='docx+empty_paragraphs',
-                                                        to='html+empty_paragraphs',
-                                                        extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false'])
+                                                        to='html+empty_paragraphs+tex_math_single_backslash',
+                                                        extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml',
+                                                        '--ascii'])
+            pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
+            pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
 
             pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
-                'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum',
+                'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
                 format='html+empty_paragraphs',
-                extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false'
+                extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
                             '--lua-filter=' + listsPath, '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
 
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
