@@ -307,29 +307,12 @@ def parse_question(questionlibrary, question):
     else:
     # all other types try autodetect and compare if the given type is correct. if not then notify user
 
-       # Autodetect
-        # look for FIB question
-        fib_question = root.find('fib_question')
-        if fib_question is not None:
-            
-            fib_title = re.sub(r"<<<<\d+>>>>", "[IMG]", fib_question.text)
-            fib_title = markdown_to_plain(fib_title)
-            fib_title = re.sub(r'\[.+?\]', '__________', fib_title)
-            fib_title = fib_title.replace('\n', ' ')
-            fib_title = trim_text(fib_title)
-            print(fib_title[0:127])
-            # fib_question.title = fib_title[0:127]
-            # fib_question.save()
-            print("fib question found")
-            # TODO CREATE FIB INSTANCE
-
-        # look for other NON FIB question
-        regular_question = root.find('question')
-        if regular_question is not None:
-            question.text = trim_md_to_html(regular_question.text)
+        question_from_xml = root.find('question')
+        if question_from_xml is not None:
+            question.text = trim_md_to_html(question_from_xml.text)
 
             if question.title is None:
-                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", regular_question.text)
+                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", question_from_xml.text)
                 title_text = markdown_to_plain(title_text)
                 title_text = title_text.replace('\n', ' ')
                 title_text = trim_text(title_text)
@@ -574,8 +557,8 @@ def parse_question(questionlibrary, question):
 
             elif len(answers) == 0:
                 # answer list not included
-                # This is most likely an essay type question. check if "correct_answer" token is present
-                wr_answer = root.find("wr_answer")
+                # This is most likely an essay type question or FIB. check if "correct_answer" token is present                
+                wr_answer = root.find("wr_answer")   
                 if wr_answer is not None:
                     # =========================  WR confirmed with correct answer keyword=======================
                     wr_object = WrittenResponse.objects.create(question=question)
@@ -587,6 +570,9 @@ def parse_question(questionlibrary, question):
                     wr_object.save()
                     question.questiontype = 'WR'
                     question.save()
+                
+                # TODO check FIB here 
+                # if check_fib:
 
 
 def trim_text(txt):
