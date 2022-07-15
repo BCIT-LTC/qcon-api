@@ -22,6 +22,7 @@ class TextConsumer(JsonWebsocketConsumer):
 
     images_count = 0
     questions_count = 0
+    section_count = 0
     endanswer_count = 0
     question_error_count = 0
 
@@ -78,7 +79,7 @@ class TextConsumer(JsonWebsocketConsumer):
         except ImageExtractError as e:
             self.send(text_data=json.dumps(self.sendformat("Warn", "Images extraction failed", "")))
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Images found", "")))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Image found: " + str(self.images_count), "")))
 
 ##########################################
         # run_formatter
@@ -100,7 +101,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ##########################################
 
         try:
-            run_sectioner(new_questionlibrary)
+            self.section_count = run_sectioner(new_questionlibrary)
         except SectionerError as e:
             logger.error("SectionerError: " + str(e))
             self.send(text_data=json.dumps(self.sendformat("Error", "Sections can not be identified", "")))
@@ -108,7 +109,7 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(self.sendformat("Close", "", "")))            
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Sectioner complete", "")))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Section found: " + str(self.section_count), "")))
 
 ##########################################
         # run_splitter
@@ -123,7 +124,7 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Splitter complete", "")))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Question found: " + str(self.questions_count), "")))
 
 ###########################################
         # Grab end answers
@@ -134,7 +135,8 @@ class TextConsumer(JsonWebsocketConsumer):
         except ImageExtractError as e:
             self.send(text_data=json.dumps(self.sendformat("Busy", "Endanswers not found", "")))
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "End answers found", "")))
+            if self.endanswer_count > 0:
+                self.send(text_data=json.dumps(self.sendformat("Busy", "End answers found", "")))
 
 ###########################################
         # run_parser
@@ -149,7 +151,7 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Parser complete", "")))
+            self.send(text_data=json.dumps(self.sendformat("Busy", "Parsing complete", "")))
 
 ###########################################
         # Add Images back
@@ -315,6 +317,7 @@ class TextConsumer(JsonWebsocketConsumer):
                 'status': status,
                 'statustext': statustext,
                 'images_count': str(self.images_count),
+                'section_count': str(self.section_count),
                 'questions_count': str(self.questions_count),
                 'endanswer_count': str(self.endanswer_count),
                 'question_error_count': str(self.question_error_count),
