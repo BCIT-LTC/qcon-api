@@ -106,21 +106,6 @@ public class questionparser {
          } catch (Exception e) {
          }
 
-         // Check FIB content with optional feedback
-         try {
-            // System.out.println(ctx.question().getText());
-            ctx.fib_question().getText();
-            Element fib_question = document.createElement("fib_question");
-            fib_question.appendChild(document.createTextNode(ctx.fib_question().getText()));
-            root.appendChild(fib_question);
-
-            ctx.fib_question().feedback().getText();
-            Element fib_question_feedback = document.createElement("question_feedback");
-            fib_question_feedback.appendChild(document.createTextNode(ctx.fib_question().feedback().getText()));
-            root.appendChild(fib_question_feedback);
-         } catch (Exception e) {
-         }
-
          return null;
       }
 

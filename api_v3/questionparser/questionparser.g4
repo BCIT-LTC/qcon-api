@@ -16,7 +16,7 @@ question_header_part:
 	|	TYPE content
 	|	RANDOMIZE content;
 
-question_wrapper: (NUMLIST_PREFIX_ONE|NUMLIST_PREFIX_NOT_ONE) (question | fib_question);
+question_wrapper: (NUMLIST_PREFIX_ONE|NUMLIST_PREFIX_NOT_ONE) (question);
 
 question: feedback? question_part feedback?;
 
@@ -25,9 +25,6 @@ question_part: content NUMLIST_PREFIX_ONE question_part
 	| content NUMLIST_PREFIX_NOT_ONE
 	| content NUMLIST_PREFIX_ONE 
 	| content;
-
-fib_question: ((fib_part content)* | (content fib_part)* | (fib_part)*) feedback?;
-fib_part: FIB_START ALL_CHARACTER* FIB_END;
 
 answers: (answer_part | correct_answer_part)+;
 answer_part: LETTERLIST_PREFIX feedback? content feedback?;
@@ -111,8 +108,6 @@ LETTERLIST_PREFIX:
 
 FEEDBACK: NEWLINE WHITESPACE* (ASTERISK|DOUBLE_ASTERISK)? AT F E E D B A C K COLON? WHITESPACE*;
 HINT: NEWLINE WHITESPACE* (ASTERISK|DOUBLE_ASTERISK)? AT H I N T COLON? WHITESPACE*;
-FIB_START: OPEN_BRACKET WHITESPACE*;
-FIB_END: WHITESPACE* CLOSE_BRACKET;
 
 CORRECT_ANSWER: (
 		STAR_AFTER_DELIMITER
