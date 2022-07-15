@@ -101,7 +101,7 @@ def run_sectioner(questionlibrary):
     except:
         return
 
-    
+    subsection_count = 0
     for section in root:
 
         sectionobject = Section.objects.create(
@@ -127,8 +127,10 @@ def run_sectioner(questionlibrary):
         if sectioncontent is not None:
             sectionobject.raw_content = sectioncontent.text
             sectionobject.is_main_content = False
+            sub_section += 1
 
         sectionobject.save()
+    return subsection_count
 
 
 
