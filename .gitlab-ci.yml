@@ -3,7 +3,7 @@
 ## Requirements
 #   - this file, with "CLUSTER_NAME" set (bottom of script)
 #   - a working `Dockerfile` in this project's root
-#   - (optional) deployment package
+#   - a deployment package for cluster deployment (see docs)
 #
 ## General Pipeline Steps
 #   1. Gather info
