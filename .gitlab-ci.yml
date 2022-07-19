@@ -114,6 +114,9 @@ default:
   tags:
     - "${CLUSTER_NAME}"
 
+cache:
+  key: $CI_COMMIT_REF_SLUG
+
 ## Configure security scanning
 sast:
   stage: test
