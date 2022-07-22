@@ -4,7 +4,7 @@ set -e
 
 # set secrets from Vault init container or from dev configmap
 if [[ -f "/vault/secrets/config" ]]; then echo -e "$(cat /vault/secrets/config)" >> .env && echo -e "$(cat .env)";
-export $(grep -v '^#' .env | xargs -0); fi
+export $(grep -v '^#' .env | xargs); fi
 
 
 echo -e "$(cat .env)"
