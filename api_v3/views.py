@@ -201,8 +201,8 @@ class WordToJson(APIView):
 
 class JsonToScorm(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [AllowAny]
-    # authentication_classes = [TokenAuthenticationWithBearer]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = JsonToScormSerializer
 
     @extend_schema(
