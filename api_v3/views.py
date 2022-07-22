@@ -202,7 +202,7 @@ class WordToJson(APIView):
 class JsonToScorm(APIView):
     parser_classes = [JSONParser]
     permission_classes = [AllowAny]
-    authentication_classes = [TokenAuthenticationWithBearer]
+    # authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = JsonToScormSerializer
 
     @extend_schema(
@@ -254,9 +254,8 @@ class JsonToScorm(APIView):
         #         json_response = JsonResponse("", status=201)
         #         ql_instance.cleanup()
         #         return json_response
-        print("NOT VALID")
-        return JsonResponse(ql_serializer.errors, status=400)
-
+        # print("NOT VALID")
+        return JsonResponse({"hostname": settings.GIT_TAG, "serializer_errors": ql_serializer.errors}, status=400)
 
 class RootPath(APIView):
     permission_classes = [AllowAny]
