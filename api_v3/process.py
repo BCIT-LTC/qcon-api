@@ -570,9 +570,58 @@ def parse_question(questionlibrary, question):
                     wr_object.save()
                     question.questiontype = 'WR'
                     question.save()
+
+
+
+                print(question_from_xml.text)
+                answer_at_start = False
+                x = re.search(r"\\\[(.*?)\\\]", question_from_xml.text)
+
+                if x is None:
+                    # =========================  FIB not confirmed =======================
+                    # TODO: FIB ERROR
+                    return
+
+                # =========================  FIB confirmed=======================
+
+                if x.start() == 0:
+                    answer_at_start = True
                 
-                # TODO check FIB here 
-                # if check_fib:
+                list_of_answers = re.findall(r"\\\[(.*?)\\\]", question_from_xml.text)
+                replaced_answers = re.sub(r"\\\[(.*?)\\\]", "_______", question_from_xml.text)
+
+                print("replaced answers :")
+                print(replaced_answers)
+                list_of_text = replaced_answers.split("_______")
+                if answer_at_start:
+                    list_of_text.pop(0)
+                print(list_of_text)
+                print("--------")
+                print(list_of_answers)
+
+                # TODO: populate FIB models below
+                fib_list = []
+
+                while len(list_of_text) + len(list_of_answers) > 0:
+                    if answer_at_start:
+                        try:
+                            fib_list.append(list_of_answers.pop(0))
+                        except:
+                            pass
+                    
+                        try:
+                            fib_list.append(list_of_text.pop(0))
+                        except:
+                            pass
+                    else:
+                        try:
+                            fib_list.append(list_of_text.pop(0))
+                        except:
+                            pass
+                        try:
+                            fib_list.append(list_of_answers.pop(0))
+                        except:
+                            pass
 
 
 def trim_text(txt):
