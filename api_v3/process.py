@@ -11,7 +11,8 @@ from bs4 import BeautifulSoup
 logger = logging.getLogger(__name__)
 
 from .models import Section, Question, MultipleChoice, MultipleChoiceAnswer, MultipleSelect, \
-MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image, WrittenResponse, EndAnswer
+MultipleSelectAnswer, Ordering, TrueFalse, Matching, MatchingAnswer, MatchingChoice, Image, \
+WrittenResponse, EndAnswer, Fib
 
 
 def create_main_title():
@@ -571,9 +572,6 @@ def parse_question(questionlibrary, question):
                     question.questiontype = 'WR'
                     question.save()
 
-
-
-                print(question_from_xml.text)
                 answer_at_start = False
                 x = re.search(r"\\\[(.*?)\\\]", question_from_xml.text)
 
@@ -590,39 +588,74 @@ def parse_question(questionlibrary, question):
                 list_of_answers = re.findall(r"\\\[(.*?)\\\]", question_from_xml.text)
                 replaced_answers = re.sub(r"\\\[(.*?)\\\]", "_______", question_from_xml.text)
 
-                print("replaced answers :")
-                print(replaced_answers)
                 list_of_text = replaced_answers.split("_______")
                 if answer_at_start:
                     list_of_text.pop(0)
-                print(list_of_text)
-                print("--------")
-                print(list_of_answers)
 
                 # TODO: populate FIB models below
-                fib_list = []
 
+                order = 1
                 while len(list_of_text) + len(list_of_answers) > 0:
+
                     if answer_at_start:
                         try:
-                            fib_list.append(list_of_answers.pop(0))
+                            # fib_list.append(list_of_answers.pop(0))
+                            answer_found = list_of_answers.pop(0)
+                            fib_object = Fib.objects.create(question=question)
+                            fib_object.order = order
+                            fib_object.text = answer_found
+                            fib_object.type = "fibanswer"
+                            fib_object.size = None
+                            fib_object.weight = None
+                            order += 1
+                            fib_object.save()
                         except:
                             pass
                     
                         try:
-                            fib_list.append(list_of_text.pop(0))
+                            # fib_list.append(list_of_text.pop(0))
+                            text_found = list_of_text.pop(0)
+                            fib_object = Fib.objects.create(question=question)
+                            fib_object.order = order
+                            fib_object.text = text_found
+                            fib_object.type = "fibquestion"
+                            fib_object.size = None
+                            fib_object.weight = None
+                            order += 1
+                            fib_object.save()
                         except:
                             pass
                     else:
                         try:
-                            fib_list.append(list_of_text.pop(0))
-                        except:
-                            pass
-                        try:
-                            fib_list.append(list_of_answers.pop(0))
+                            # fib_list.append(list_of_answers.pop(0))
+                            answer_found = list_of_answers.pop(0)
+                            fib_object = Fib.objects.create(question=question)
+                            fib_object.order = order
+                            fib_object.text = answer_found
+                            fib_object.type = "fibanswer"
+                            fib_object.size = None
+                            fib_object.weight = None
+                            order += 1
+                            fib_object.save()
                         except:
                             pass
 
+                        try:
+                            # fib_list.append(list_of_text.pop(0))
+                            text_found = list_of_text.pop(0)
+                            fib_object = Fib.objects.create(question=question)
+                            fib_object.order = order
+                            fib_object.text = text_found
+                            fib_object.type = "fibquestion"
+                            fib_object.size = None
+                            fib_object.weight = None
+                            order += 1
+                            fib_object.save()
+                        except:
+                            pass
+
+                question.questiontype = 'FIB'
+                question.save()
 
 def trim_text(txt):
     text = txt.strip()
