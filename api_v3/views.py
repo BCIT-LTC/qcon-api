@@ -70,7 +70,7 @@ class WordToJson(APIView):
             # question_library = instance
 
             # ==============  start the process  ========
-            from .process import process
+            from .process.process import process
             process(instance)
 
             # question_library_serializer = QuestionLibrarySerializer(question_library)

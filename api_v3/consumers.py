@@ -14,8 +14,9 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser, get_endanswers, Ordering
+from .process.process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser, get_endanswers, Ordering
 from .serializers import JsonResponseSerializer
+from .process.process import Process
 
 
 class TextConsumer(JsonWebsocketConsumer):
@@ -73,6 +74,8 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         # Extract Images
 ###########################################
+        # p = Process(new_questionlibrary)
+        # p.extract_images
 
         try:
             self.images_count = extract_images(new_questionlibrary)
