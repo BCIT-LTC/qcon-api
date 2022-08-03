@@ -1,31 +1,19 @@
 import json
 from channels.generic.websocket import JsonWebsocketConsumer
-from channels.db import database_sync_to_async
 from django.core.files.base import ContentFile
 import base64
 
 from .models import Question, Section, QuestionLibrary, \
     Image, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, \
         Matching, MatchingAnswer, MatchingChoice, Ordering, WrittenResponse
-import socket
 import re
-
-import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .process.process import extract_images, run_formatter, run_sectioner, run_splitter, run_parser, get_endanswers, Ordering
 from .serializers import JsonResponseSerializer
 from .process.process import Process
 
-
 class TextConsumer(JsonWebsocketConsumer):
-
-    images_count = 0
-    questions_count = 0
-    section_count = 0
-    endanswer_count = 0
-    question_error_count = 0
 
     def connect(self):
         print("connected")
@@ -42,17 +30,17 @@ class TextConsumer(JsonWebsocketConsumer):
 
     def receive_json(self, content, **kwargs):
         new_questionlibrary = None
-
+        p = Process(new_questionlibrary)
 ###########################################
         # Save the file
 ###########################################
         try:
-            new_questionlibrary = self.save_file(content)
+            p.questionlibrary = self.save_file(content)
         except FileValidationError as e:
             logger.error("FileValidationError: " + str(e))
-            self.send(text_data=json.dumps(self.sendformat("Error", "Not a valid .docx File", "")))
+            self.send(text_data=json.dumps(p.sendformat("Error", "Not a valid .docx File", "")))
             # close connection
-            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
+            self.send(text_data=json.dumps(p.sendformat("Close", "", "")))
             return
         
 ###########################################
@@ -60,110 +48,106 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
 
         try:
-            new_questionlibrary.create_pandocstring()
+            p.questionlibrary.create_pandocstring()
         except FileValidationError as e:
             logger.error("FileValidationError: " + str(e))
             self.send(
-                text_data=json.dumps(self.sendformat("Error", "File unreadable", "")))
+                text_data=json.dumps(p.sendformat("Error", "File unreadable", "")))
             # close connection
-            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
+            self.send(text_data=json.dumps(p.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "The file is valid", "")))
+            self.send(text_data=json.dumps(p.sendformat("Busy", "The file is valid", "")))
 
 ###########################################
         # Extract Images
 ###########################################
-        # p = Process(new_questionlibrary)
-        # p.extract_images
 
         try:
-            self.images_count = extract_images(new_questionlibrary)
+            p.extract_images()
         except ImageExtractError as e:
-            self.send(text_data=json.dumps(self.sendformat("Warn", "Images extraction failed", "")))
+            self.send(text_data=json.dumps(p.sendformat("Warn", "Images extraction failed", "")))
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Image found: " + str(self.images_count), "")))
-
+            self.send(text_data=json.dumps(p.sendformat("Busy", "Image found: " + str(p.images_extracted), "")))
 ##########################################
         # run_formatter
 ##########################################
 
         try:
-            run_formatter(new_questionlibrary)
+            p.run_formatter()
         except:
             logger.error("FormatterError")
-            self.send(text_data=json.dumps(self.sendformat("Error", "No contents found in the body of the file", "")))
+            self.send(text_data=json.dumps(p.sendformat("Error", "No contents found in the body of the file", "")))
             # close connection
-            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
+            self.send(text_data=json.dumps(p.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Content Body detected", "")))
+            self.send(text_data=json.dumps(p.sendformat("Busy", "Content Body detected", "")))
 
 ##########################################
         # run_sectioner
 ##########################################
 
         try:
-            self.section_count = run_sectioner(new_questionlibrary)
+            p.run_sectioner()
         except SectionerError as e:
             logger.error("SectionerError: " + str(e))
-            self.send(text_data=json.dumps(self.sendformat("Error", "Sections can not be identified", "")))
+            self.send(text_data=json.dumps(p.sendformat("Error", "Sections can not be identified", "")))
             # close connection
-            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))            
+            self.send(text_data=json.dumps(p.sendformat("Close", "", "")))         
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Section found: " + str(self.section_count), "")))
-
+            self.send(text_data=json.dumps(p.sendformat("Busy", "Section found: " + str(p.subsection_count), "")))
 ##########################################
         # run_splitter
 ##########################################
 
         try:
-            self.questions_count = run_splitter(new_questionlibrary)
+            p.run_splitter()
         except SplitterError as e:
             logger.error("SplitterError: " + str(e))
-            self.send(text_data=json.dumps(self.sendformat("Error", "Splitter failed", "")))
+            self.send(text_data=json.dumps(p.sendformat("Error", "Splitter failed", "")))
             # close connection
-            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
+            self.send(text_data=json.dumps(p.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Question found: " + str(self.questions_count), "")))
-
+            self.send(text_data=json.dumps(p.sendformat("Busy", "Question found: " + str(p.questions_expected), "")))
 ###########################################
         # Grab end answers
 ###########################################
 
         try:
-            self.endanswer_count = get_endanswers(new_questionlibrary)
+            p.get_endanswers()
         except ImageExtractError as e:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Endanswers not found", "")))
+            self.send(text_data=json.dumps(p.sendformat("Busy", "Endanswers not found", "")))
         else:
-            if self.endanswer_count > 0:
-                self.send(text_data=json.dumps(self.sendformat("Busy", "End answers found", "")))
+            if p.endanswers_count > 0:
+                self.send(text_data=json.dumps(p.sendformat("Busy", "End answers found", "")))
 
 ###########################################
         # run_parser
 ###########################################
 
         try:
-            run_parser(new_questionlibrary)
+            p.run_parser()
+            # run_parser(new_questionlibrary)
         except ParserError as e:
             logger.error("ParserError: " + str(e))
-            self.send(text_data=json.dumps(self.sendformat("Error", "Parser failed", "")))
+            self.send(text_data=json.dumps(p.sendformat("Error", "Parser failed", "")))
                 # close connection
-            self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
+            self.send(text_data=json.dumps(p.sendformat("Close", "", "")))
             return
         else:
-            self.send(text_data=json.dumps(self.sendformat("Busy", "Parsing complete", "")))
+            self.send(text_data=json.dumps(p.sendformat("Busy", "Parsing complete", "")))
 
 ###########################################
         # Add Images back
 ###########################################
 
         # select all questions for this QL
-        all_questions = Question.objects.filter(section__question_library=new_questionlibrary)
+        all_questions = Question.objects.filter(section__question_library=p.questionlibrary)
         # select all images for this QL
-        all_images = Image.objects.filter(question_library=new_questionlibrary)
+        all_images = Image.objects.filter(question_library=p.questionlibrary)
 
         for image in all_images:
             for question in all_questions:
@@ -220,7 +204,7 @@ class TextConsumer(JsonWebsocketConsumer):
         # count all question level errors
 ###########################################
 
-        sections = Section.objects.filter(question_library=new_questionlibrary)
+        sections = Section.objects.filter(question_library=p.questionlibrary)
         for section in sections:
             questions = Question.objects.filter(section=section)
             for question in questions:
@@ -307,25 +291,11 @@ class TextConsumer(JsonWebsocketConsumer):
         # serialize and send response
 ###########################################
 
-        serialized_ql = JsonResponseSerializer(new_questionlibrary)
-        self.send(text_data=json.dumps(self.sendformat("Done", "", serialized_ql.data)))
+        serialized_ql = JsonResponseSerializer(p.questionlibrary)
+        self.send(text_data=json.dumps(p.sendformat("Done", "", serialized_ql.data)))
 
 ######################### Close Connection
-        self.send(text_data=json.dumps(self.sendformat("Close", "", "")))
-
-    def sendformat(self, status, statustext, data):
-
-        return {
-                'hostname': socket.gethostname(),
-                'status': status,
-                'statustext': statustext,
-                'images_count': str(self.images_count),
-                'section_count': str(self.section_count),
-                'questions_count': str(self.questions_count),
-                'endanswer_count': str(self.endanswer_count),
-                'question_error_count': str(self.question_error_count),
-                'data': data
-            }
+        self.send(text_data=json.dumps(p.sendformat("Close", "", "")))
 
     def save_file(self, content):
         format, fixeddata = content.get('file').split(';base64,')
