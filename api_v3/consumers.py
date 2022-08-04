@@ -167,6 +167,11 @@ class TextConsumer(JsonWebsocketConsumer):
                 for tf in TF_object:
                     tf.true_feedback = re.sub(substring, lambda x: image.image, tf.true_feedback)
                     tf.save()
+                #Check FIB
+                FIB_object = Fib.objects.filter(question=question)
+                for fib_question in FIB_object:
+                    fib_question.text = re.sub(substring, lambda x: image.image, fib_question.text)
+                    fib_question.save()
                 #Check MS
                 MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)   
                 for answer in MS_answer_objects:                
