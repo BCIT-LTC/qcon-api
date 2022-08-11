@@ -69,6 +69,16 @@ public class sectioner {
             } catch (Exception e) {
             }
 
+            // // CHECK FOR OPTIONAL SECTIONTEXT
+
+            try{
+               Element sectiontext = document.createElement("sectiontext");
+               sectiontext.appendChild(document.createTextNode(ctx.section().get(i).sectiontext().getText()));
+               section.appendChild(sectiontext);
+               }
+               catch(Exception e){
+               }
+
             // // CHECK FOR CONTENT
 
             try{
@@ -150,21 +160,19 @@ public class sectioner {
 
    public static void main(String args[]) {
 
-      String Content = readinput();
+      String Content = null;
 
-      // String Content = "";
-      // String inputfile = "file.md";
-
-      // try {
-      //    Path fileName = Paths.get(inputfile);
-      //    Content = Files.readString(fileName);
-      // } catch (IOException e) {
-      //    System.out.println("formatter error reading file:" + inputfile);
-      //    e.printStackTrace();
-      // }
-
-      // System.out.println(Content);
-
+      if (args.length == 0) {
+         Content = readinput();
+      } else {
+         try {
+            Path fileName = Paths.get(args[0]);
+            Content = Files.readString(fileName);
+         } catch (IOException e) {
+            System.out.println("sectioner error reading file:" + args[0]);
+            e.printStackTrace();
+         }
+      }
       sectionerLexer sectionerLexer = new sectionerLexer(CharStreams.fromString(Content));
       CommonTokenStream tokens = new CommonTokenStream(sectionerLexer);
       sectionerParser parser = new sectionerParser(tokens);

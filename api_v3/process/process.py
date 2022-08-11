@@ -53,10 +53,3 @@ class Process:
                 'data': data
             }
 # ++++++++++++++++++++++++++++++++===================================
-
-class FormatterError(Exception):
-
-    def __init__(self, message="Formatter error"):
-        super().__init__(message)
-    def __str__(self):
-        return f'{self.message}'
