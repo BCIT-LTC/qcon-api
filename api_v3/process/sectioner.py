@@ -1,7 +1,7 @@
 import os
 import subprocess
 import xml.etree.ElementTree as ET
-from .process_helper import markdown_to_plain, trim_text
+from .process_helper import markdown_to_plain, trim_text, markdown_to_html
 from ..models import Section
 
 # This is to split sections into separate objects
@@ -47,11 +47,24 @@ def run_sectioner(questionlibrary):
             sectionobject.is_main_content = True
             sectionobject.title = questionlibrary.main_title
 
+        sectiontext = section.find('sectiontext')
+        if sectiontext is not None:
+            section_text = trim_text(sectiontext.text)
+            sectionobject.text = markdown_to_html(section_text)
+            sectionobject.is_main_content = False
+
         sectioncontent = section.find('sectioncontent')
         if sectioncontent is not None:
             sectionobject.raw_content = sectioncontent.text
             sectionobject.is_main_content = False
-            sub_section += 1
+            subsection_count += 1
 
         sectionobject.save()
     return subsection_count
+
+class SectionerError(Exception):
+
+    def __init__(self, message="Sectioner error"):
+        super().__init__(message)
+    def __str__(self):
+        return f'{self.message}'

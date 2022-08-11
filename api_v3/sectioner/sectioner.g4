@@ -8,18 +8,30 @@ sectioner: section+ EOF;
 
 title: HEADING;
 
-section: SECTION_START unused_content? title? sectioncontent SECTION_END | maincontent;
+section:
+	SECTION_START unused_content? title? sectiontext? sectioncontent SECTION_END
+	| maincontent;
 
 unused_content: ALL_CHARACTER+;
 
-sectioncontent: ALL_CHARACTER+;
+sectiontext: ALL_CHARACTER+;
+sectioncontent:
+	QUESTION_PREFIX ALL_CHARACTER+
+	| sectioncontent QUESTION_PREFIX ALL_CHARACTER+;
 
 maincontent: ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment NEWLINE: ('\r'? '\n' | '\r');
 fragment WHITESPACE: ' ' | '\t';
-
+fragment DIGIT: [0-9];
+fragment NUMBER: DIGIT+ (DIGIT+)?;
+fragment CLOSING_PARENTHESIS: ')';
+fragment BACKSLASH: '\\';
+fragment DOT: '.';
+fragment ASTERISK: '*';
+fragment DOUBLE_ASTERISK: '**';
+fragment DELIMITER: BACKSLASH? (DOT | CLOSING_PARENTHESIS);
 fragment S: 'S' | 's';
 fragment E: 'E' | 'e';
 fragment C: 'C' | 'c';
@@ -32,6 +44,9 @@ fragment HASH: '#';
 fragment DOUBLE_HASH: '##';
 
 fragment HEADING_START: (HASH | DOUBLE_HASH) WHITESPACE;
+
+QUESTION_PREFIX:
+	NEWLINE WHITESPACE* DOUBLE_ASTERISK? NUMBER WHITESPACE* DELIMITER WHITESPACE*;
 
 SECTION_START:
 	NEWLINE ((HASH | DOUBLE_HASH)? WHITESPACE)? HASH S E C T I O N WHITESPACE* NEWLINE+;
