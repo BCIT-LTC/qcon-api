@@ -19,7 +19,8 @@ sectioncontent:
 	QUESTION_PREFIX ALL_CHARACTER+
 	| sectioncontent QUESTION_PREFIX ALL_CHARACTER+;
 
-maincontent: ALL_CHARACTER+;
+maincontent: QUESTION_PREFIX ALL_CHARACTER+
+	| sectioncontent QUESTION_PREFIX ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment NEWLINE: ('\r'? '\n' | '\r');
