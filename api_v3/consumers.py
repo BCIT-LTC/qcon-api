@@ -9,6 +9,7 @@ from .models import Question, Section, QuestionLibrary, \
 import re
 import logging
 logger = logging.getLogger(__name__)
+from .logging.contextfilter import QuestionlibraryFilenameFilter
 
 from .serializers import JsonResponseSerializer
 from .process.process import Process
@@ -29,6 +30,7 @@ class TextConsumer(JsonWebsocketConsumer):
         pass
 
     def receive_json(self, content, **kwargs):
+        logging_filter = None
         new_questionlibrary = None
         p = Process(new_questionlibrary)
 ###########################################
@@ -36,6 +38,9 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         try:
             p.questionlibrary = self.save_file(content)
+            logging_filter = QuestionlibraryFilenameFilter(p.questionlibrary)
+            logger.addFilter(logging_filter)
+            logger.info("File Saved")
         except FileValidationError as e:
             logger.error("FileValidationError: " + str(e))
             self.send(text_data=json.dumps(p.sendformat("Error", "Not a valid .docx File", "")))

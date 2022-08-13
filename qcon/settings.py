@@ -190,7 +190,7 @@ LOGGING = {
             'style': '{',
         },
         'custom': {
-            'format': '{levelname} {asctime} {module} {name} {funcName} {message}',
+            'format': '{levelname} {asctime} {file} {name} {funcName} {message}',
             'style': '{',
         },
     },
