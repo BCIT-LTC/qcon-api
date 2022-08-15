@@ -170,8 +170,12 @@ class TextConsumer(JsonWebsocketConsumer):
                 #Check TF
                 TF_object = TrueFalse.objects.filter(question=question)
                 for tf in TF_object:
-                    tf.true_feedback = re.sub(substring, lambda x: image.image, tf.true_feedback)
-                    tf.save()
+                    if tf.true_feedback is not None:
+                        tf.true_feedback = re.sub(substring, lambda x: image.image, tf.true_feedback)
+                        tf.save()
+                    if tf.false_feedback is not None:
+                        tf.false_feedback = re.sub(substring, lambda x: image.image, tf.false_feedback)
+                        tf.save()
                 #Check FIB
                 FIB_object = Fib.objects.filter(question=question)
                 for fib_question in FIB_object:

@@ -2,40 +2,78 @@ from ...models import TrueFalse
 from ..process_helper import trim_text, trim_md_to_html, markdown_to_plain
 
 
-def build_truefalse(question, answers):
+def build_inline_TF(question, answers):
     tf_object = TrueFalse.objects.create(question=question)
-
-    KeywordTrueFound = False
-    KeywordFalseFound = False
+    correctanswer_count = 0
 
     for answer in answers:
-        answer_text = markdown_to_plain(answer.find('content').text.lower())
-        answer_text = trim_text(answer_text)
-        if answer_text == 'true':
-            KeywordTrueFound = True
-            try:
-                tf_object.true_feedback = trim_md_to_html(answer.find('feedback').text)
-            except:
-                pass
-            if answer.attrib['correct'] == 'true':
+        answer_text = answer.find('content').text.lower()
+        answer_feedback = answer.find('feedback')
+        is_correct = answer.attrib['correct']
+
+        if "true" in answer_text:
+            if answer_feedback != None:
+                tf_object.true_feedback = trim_md_to_html(answer_feedback.text)
+
+            if is_correct == 'true':
                 tf_object.true_weight = 100
-
-        if answer_text == 'false':
-            KeywordFalseFound = True
-            try:
-                tf_object.false_feedback = trim_md_to_html(answer.find('feedback').text)
-            except:
-                pass
-            if answer.attrib['correct'] == 'true':
+                correctanswer_count += 1
+        
+        if "false" in answer_text:
+            if answer_feedback != None:
+                tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
+            
+            if is_correct == 'true':
                 tf_object.false_weight = 100
+                correctanswer_count += 1
 
-    if KeywordTrueFound == True and KeywordFalseFound == True:
-    # =========================  TF confirmed =======================
-    # TF confirmed here so the TF object is saved to db
         tf_object.error = ""
+
+        if correctanswer_count == 0:
+            tf_object.error = "No answer selected in True/False question"
+        elif correctanswer_count > 1:
+            tf_object.error = "More than one answer selected in True/False question"
+        
         tf_object.save()
         question.questiontype = 'TF'
         question.save()
-        return True
-    
-    return False
+
+
+def build_endanswer_TF(question, answers, endanswer):
+    tf_object = TrueFalse.objects.create(question=question)
+    correctanswer_count = 0
+
+    endanswer_text = markdown_to_plain(endanswer.answer)
+    endanswer_text = trim_text(endanswer_text).lower()
+
+    for idx, answer in enumerate(answers):
+        answer_text = answer.find('content').text.lower()
+        parsedanswer_index = ord(endanswer_text)-97
+        answer_feedback = answer.find('feedback')
+
+        if "true" in answer_text:
+            if answer_feedback != None:
+                tf_object.true_feedback = trim_md_to_html(answer_feedback.text)
+
+            if idx == parsedanswer_index:
+                tf_object.true_weight = 100
+                correctanswer_count += 1
+        
+        if "false" in answer_text:
+            if answer_feedback != None:
+                tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
+
+            if idx == parsedanswer_index:
+                tf_object.false_weight = 100
+                correctanswer_count += 1
+
+
+        tf_object.error = ""
+        if correctanswer_count == 0:
+            tf_object.error = "No answer selected in True/False question"
+        elif correctanswer_count > 1:
+            tf_object.error = "More than one answer selected in True/False question"
+        
+        tf_object.save()
+        question.questiontype = 'TF'
+        question.save()

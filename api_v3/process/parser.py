@@ -2,23 +2,22 @@ import os
 import subprocess
 import re
 import xml.etree.ElementTree as ET
-from ..models import Section, Question, Matching, MatchingChoice, MatchingAnswer, TrueFalse
-from ..models import MultipleChoice, MultipleChoiceAnswer, MultipleSelect, MultipleSelectAnswer
-from ..models import Ordering, WrittenResponse, Fib
-from .process_helper import trim_text, markdown_to_plain, trim_md_to_html, markdown_to_html, trim_md_to_plain
+from ..models import EndAnswer, Section, Question
+from .process_helper import trim_text, markdown_to_plain, trim_md_to_html
+from .questionbuilder.truefalse import build_inline_TF, build_endanswer_TF
+from .questionbuilder.multiplechoice import build_inline_MC, build_endanswer_MC
+from .questionbuilder.multipleselect import build_inline_MS, build_endanswer_MS
+from .questionbuilder.fib import build_inline_FIB, build_endanswer_FIB
+from .questionbuilder.matching import build_inline_MAT, build_endanswer_MAT
+from .questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
+from .questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
 
-from .questionbuilder.matching import build_matching
-from .questionbuilder.multiplechoice import build_multiplechoice
-from .questionbuilder.truefalse import build_truefalse
-from .questionbuilder.multipleselect import build_multipleselect
-from .questionbuilder.ordering import build_ordering
-from .questionbuilder.writtenresponse import build_writtenresponse_from_answer
-from .questionbuilder.writtenresponse import build_writtenresponse_from_keyword
-from .questionbuilder.fib import build_fib
 
 def run_parser(questionlibrary):
     import time
     sections = Section.objects.filter(question_library=questionlibrary)
+    endanswers = EndAnswer.objects.filter(question_library=questionlibrary)
+    
     question_count = 0
     section_count = 0
     start_time = time.time()
@@ -33,12 +32,16 @@ def run_parser(questionlibrary):
         section.questions_expected = len(questions) - 1
         section_start_time = time.time()
         section_question_count = 0
-        for question in questions:
+        for idx, question in enumerate(questions):
             # discard empty question
             if question.raw_content is None:
                 question.delete()
             else:
-                parse_question(questionlibrary, question)
+                if len(endanswers) != 0:
+                    parse_question(questionlibrary, question, endanswers[idx])
+                else:
+                    parse_question(questionlibrary, question)
+            
             section_question_count += 1
             print("    question : " + str(question_count + section_question_count))
         question_count += section_question_count
@@ -50,7 +53,7 @@ def run_parser(questionlibrary):
     print("\nProccessing Time Total :", time.time() - start_time)
     
 
-def parse_question(questionlibrary, question):
+def parse_question(questionlibrary, question, endanswer=None):
 
     os.chdir('/questionparser/jarfile')
     result = subprocess.run(
@@ -116,64 +119,196 @@ def parse_question(questionlibrary, question):
             question.save()
 
             answers = root.findall("answer")
-            marked_answers_count = 0
-            unmarked_answers_count = 0
-            matching_answers_count = 0
-            for answer in answers:
-                if answer.attrib['correct'] == 'true':
-                    marked_answers_count += 1
-                if answer.attrib['correct'] == 'false':
-                    unmarked_answers_count += 1
+            is_random = questionlibrary.randomize_answer
+            wr_answer = root.find("wr_answer")
 
-                matchanswers = re.search(r"(.*)=(.*)", answer.find('content').text)
-
-                if matchanswers is not None:
-                    matching_answers_count += 1
-
-            # Check if answers are included
-            if len(answers) > 0:
-
-                if matching_answers_count == len(answers) and matching_answers_count > 1 :
-                    # =========================  MAT confirmed =======================
-                    build_matching(question,answers)
-                    return
-
-                if marked_answers_count == 1:
-                    if unmarked_answers_count == 1:
-                        # =========================  check TF =======================
-                        # check if both false and true keyword are found
-                        if build_truefalse(question, answers):
-                            pass
-                        else:
-                        # One or More Keywords "true" or "false" not found. fallback to MC
-                            # ========================= 2 option MC confirmed =======================
-                            build_multiplechoice(question, answers, questionlibrary)
-                            return
-                    if unmarked_answers_count > 1:
-                        # =========================  MC confirmed =======================
-                        build_multiplechoice(question, answers, questionlibrary)
-                        return
-
-                elif marked_answers_count > 1:
-                    # =========================  MS confirmed =======================
-                    build_multipleselect(question, answers, questionlibrary)
-                    return
-
-                elif marked_answers_count == 0:
-                    if unmarked_answers_count > 1:
-                    # =========================  ORD confirmed =======================
-                        build_ordering(question, answers)
-                    elif unmarked_answers_count == 1:
-                    # =========================  WR confirmed =======================
-                        build_writtenresponse_from_answer(question, answers)
-            elif len(answers) == 0:
-                # answer list not included
-                # This is most likely an essay type question or FIB. check if "correct_answer" token is present                
-                wr_answer = root.find("wr_answer")   
-                if wr_answer is not None:
-                    # =========================  WR confirmed with correct answer keyword=======================
-                    build_writtenresponse_from_keyword(question, wr_answer)
-                    return
+            question_type = None
+            
+            if endanswer == None:
+                question_type = check_inline_questiontype(question, answers, wr_answer)
+            else:
+                question_type = check_endanswer_questiontype(question, answers, endanswer)
                 
-                # ========================= check fib =======================
-                build_fib(question, question_from_xml)
+            # print("question_type:", question_type)
+            match question_type:
+                case 'inline_MC':
+                    build_inline_MC(question, answers, is_random)
+                case 'endanswer_MC':
+                    build_endanswer_MC(question, answers, endanswer, is_random)
+                case 'inline_TF':
+                     build_inline_TF(question, answers)
+                case 'endanswer_TF':
+                     build_endanswer_TF(question, answers, endanswer)
+                case 'inline_MS':
+                    build_inline_MS(question, answers, is_random)
+                case 'endanswer_MS':
+                    build_endanswer_MS(question, answers, endanswer, is_random)
+                case 'inline_WR_keyword':
+                    build_inline_WR_with_keyword(question, wr_answer)
+                case 'inline_WR_list':
+                    build_inline_WR_with_list(question, answers)
+                case 'endanswer_WR':
+                    build_endanswer_WR_with_list(question, endanswer, wr_answer)
+                case 'inline_FIB':
+                    build_inline_FIB(question, question_from_xml.text)
+                case 'endanswer_FIB':
+                    build_endanswer_FIB(question, endanswer, question_from_xml.text)
+                case 'inline_MAT':
+                    build_inline_MAT(question, answers)
+                case 'endanswer_MAT':
+                    build_endanswer_MAT(question, endanswer)
+                case 'inline_ORD':
+                    build_inline_ORD(question, answers)
+                case 'endanswer_ORD':
+                    build_endanswer_ORD(question, endanswer)
+                case 'inline_NO_TYPE':
+                    print("inline_NO_TYPE")
+                case 'endanswer_NO_TYPE':
+                    print("endanswer_NO_TYPE")
+    
+
+
+def check_inline_questiontype(question, answers, wr_answer):
+    answers_length = len(answers)
+    marked_answers_count = 0
+    unmarked_answers_count = 0
+    matching_answers_count = 0
+    KeywordTrueFound = False
+    KeywordFalseFound = False
+
+    is_fib = re.search(r"\[(.*?)\]", question.text)
+    
+    if answers_length == 0:
+        if is_fib != None:
+            # ====================  FIB confirmed  ====================
+            return 'inline_FIB'
+        
+        if wr_answer != None:
+            # ====================  WR confirmed  ====================
+            return 'inline_WR_keyword'
+
+    for answer in answers:
+        answer_text = markdown_to_plain(answer.find('content').text.lower())
+        answer_text = trim_text(answer_text)
+        is_correct = answer.attrib['correct']
+
+        if is_correct == 'true':
+            marked_answers_count += 1
+        if is_correct == 'false':
+            unmarked_answers_count += 1
+
+
+        if answer_text == 'true':
+            KeywordTrueFound = True
+
+        if answer_text == 'false':
+            KeywordFalseFound = True
+
+        matching_answers = re.search(r"(.*)=(.*)", answer_text)
+
+        if matching_answers is not None:
+            matching_answers_count += 1
+        
+
+    if answers_length == 2 and KeywordTrueFound == True and KeywordFalseFound == True:
+        # ====================  TF confirmed  ====================
+        return 'inline_TF'
+
+    if marked_answers_count == 1:
+        # ====================  MC confirmed  ====================
+        return 'inline_MC'
+
+    if marked_answers_count > 1:
+        # ====================  MS confirmed  ====================
+        return 'inline_MS'
+
+    if matching_answers_count == answers_length and matching_answers_count > 1 :
+        # ====================  MAT confirmed  ====================
+        return 'inline_MAT'
+
+    if unmarked_answers_count == 1 and answers_length == 1:
+        # ====================  WR confirmed  ====================
+        return 'inline_WR_list'
+
+    if unmarked_answers_count == answers_length:
+        # ====================  ORD confirmed  ====================
+        return 'inline_ORD'
+    
+    return 'inline_NO_TYPE'
+
+
+def check_endanswer_questiontype(question, answers, endanswer):
+    answers_length = len(answers)
+    endanswer_text = markdown_to_plain(endanswer.answer.lower())
+    endanswer_text = trim_text(endanswer_text)
+
+    if answers_length > 0:
+        # possible TF, MC, MS
+        answer_list = list(map(str.strip, endanswer_text.split(',')))
+        answer_key_length = len(answer_list)
+        KeywordTrueFound = False
+        KeywordFalseFound = False
+    
+        for answer in answers:
+            answer_text = markdown_to_plain(answer.find('content').text.lower())
+            answer_text = trim_text(answer_text)
+
+            for choice_answer in answer_list:
+                correctanswer_index =  (ord(choice_answer)-97)
+                
+                if correctanswer_index <= (answers_length-1):
+                    # answer index exist
+                    pass
+                else:
+                    question.error = "Selected answer does NOT exist"
+                    question.save()
+                    return 'endanswer_NO_TYPE'
+
+
+            if answer_text == 'true':
+                KeywordTrueFound = True
+
+            if answer_text == 'false':
+                KeywordFalseFound = True
+        
+        if answers_length == 2 and KeywordTrueFound == True and KeywordFalseFound == True:
+            # ====================  TF confirmed  ====================
+            return 'endanswer_TF'
+            
+        if answer_key_length == 1:
+            # ====================  MC confirmed  ====================
+            return 'endanswer_MC'
+
+        if answer_key_length > 1:
+            # ====================  MS confirmed  ====================
+            return 'endanswer_MS'
+    
+    else:
+        # possible FIB, MAT, ORD, WR
+        matching_answers_count = 0
+        is_fib = re.findall(r"\[(.*?)\]", question.text)
+        answer_list = list(map(str.strip, endanswer_text.split(';')))
+        answer_key_length = len(answer_list)
+        for answer in answer_list:
+            matching_answer = re.search(r"(.*)=(.*)", answer)
+
+            if matching_answer is not None:
+                matching_answers_count += 1
+        
+        if matching_answers_count == answer_key_length and matching_answers_count > 1 :
+            # =========================  MAT confirmed =======================
+            return 'endanswer_MAT'
+            
+        if len(is_fib) == answer_key_length:
+            # =========================  FIB confirmed =======================
+            return 'endanswer_FIB'
+
+        if answer_key_length > 1:
+            # =========================  ORD confirmed =======================
+            return 'endanswer_ORD'
+
+        if answer_key_length == 1:
+            # =========================  WR confirmed =======================
+            return 'endanswer_WR'
+
+    return 'endanswer_NO_TYPE'
