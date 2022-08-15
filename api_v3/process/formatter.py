@@ -18,7 +18,7 @@ def run_formatter(questionlibrary):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        logger.error("File Not valid")
+        FormatterError("File Not valid")
         return
 
 # ==================================== UNUSED CONTENT
@@ -48,9 +48,8 @@ def run_formatter(questionlibrary):
         questionlibrary.formatter_output = sectioninfo_extracted + body.text
         questionlibrary.save()
     else:
-        logger.error("Body not found")
-        raise FormatterError
-        return
+        # logger.error("Body not found")
+        raise FormatterError("Body not found")
 
 # ==================================== END ANSWERS
 
@@ -63,8 +62,8 @@ def run_formatter(questionlibrary):
 
 
 class FormatterError(Exception):
-
     def __init__(self, message="Formatter error"):
+        self.message = message
         super().__init__(message)
     def __str__(self):
         return f'{self.message}'

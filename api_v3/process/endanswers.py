@@ -18,7 +18,7 @@ def get_endanswers(questionlibrary):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        pass
+        raise EndAnswerError("Cannot read endanswers")
     answers = root.findall("answer")   
     endanswers_found = 0
     if answers is not None:
@@ -31,5 +31,13 @@ def get_endanswers(questionlibrary):
             endanswer.answer = content
             endanswers_found += 1
             endanswer.save()
+    else:
+        raise EndAnswerError("No Answers in EndAnswer")
     questionlibrary.save()
     return endanswers_found
+
+class EndAnswerError(Exception):
+    def __init__(self, message="EndAnswer error"):
+        super().__init__(message)
+    def __str__(self):
+        return f'{self.message}'

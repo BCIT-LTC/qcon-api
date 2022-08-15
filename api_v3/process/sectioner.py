@@ -23,43 +23,44 @@ def run_sectioner(questionlibrary):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        return
+        raise SectionerError("Sectioner results empty")
+
+    if len(root) == 0:
+        raise SectionerError("No Sections found")
 
     subsection_count = 0
-    for section in root:
+    try:
+        for section in root:
+            sectionobject = Section.objects.create(
+                question_library=questionlibrary)
+            sectionobject.save()
+            sectionobject.order = section.attrib.get("id")
+            sectiontitle = section.find('title')
+            if sectiontitle is not None:
+                section_title_text = markdown_to_plain(sectiontitle.text)
+                section_title_text = section_title_text.replace('\n', ' ')
+                sectionobject.title = trim_text(section_title_text)
 
-        sectionobject = Section.objects.create(
-            question_library=questionlibrary)
+            maincontent = section.find('maincontent')
+            if maincontent is not None:
+                sectionobject.raw_content = maincontent.text
+                sectionobject.is_main_content = True
+                sectionobject.title = questionlibrary.main_title
 
-        sectionobject.save()
+            sectiontext = section.find('sectiontext')
+            if sectiontext is not None:
+                section_text = trim_text(sectiontext.text)
+                sectionobject.text = markdown_to_html(section_text)
+                sectionobject.is_main_content = False
 
-        sectionobject.order = section.attrib.get("id")
-
-        sectiontitle = section.find('title')
-        if sectiontitle is not None:
-            section_title_text = markdown_to_plain(sectiontitle.text)
-            section_title_text = section_title_text.replace('\n', ' ')
-            sectionobject.title = trim_text(section_title_text)
-
-        maincontent = section.find('maincontent')
-        if maincontent is not None:
-            sectionobject.raw_content = maincontent.text
-            sectionobject.is_main_content = True
-            sectionobject.title = questionlibrary.main_title
-
-        sectiontext = section.find('sectiontext')
-        if sectiontext is not None:
-            section_text = trim_text(sectiontext.text)
-            sectionobject.text = markdown_to_html(section_text)
-            sectionobject.is_main_content = False
-
-        sectioncontent = section.find('sectioncontent')
-        if sectioncontent is not None:
-            sectionobject.raw_content = sectioncontent.text
-            sectionobject.is_main_content = False
-            subsection_count += 1
-
-        sectionobject.save()
+            sectioncontent = section.find('sectioncontent')
+            if sectioncontent is not None:
+                sectionobject.raw_content = sectioncontent.text
+                sectionobject.is_main_content = False
+                subsection_count += 1
+            sectionobject.save()
+    except:
+        raise SectionerError("Error extracting section contents")
     return subsection_count
 
 class SectionerError(Exception):

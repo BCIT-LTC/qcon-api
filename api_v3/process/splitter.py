@@ -28,17 +28,28 @@ def split_questions(sectionobject):
     try:
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        return 0
+        raise SplitterError("Splitter failed")
+
     questions_found = 0
-    for question in root:
-        questionobject = Question.objects.create(
-            section=sectionobject)
-        questionobject.save()
-        content = question.find('content')
-        if content is not None:
-            # Filter out empty questions
-            if len(trim_text(content.text)) > 0:
-                questions_found += 1
-                questionobject.raw_content = content.text
-        questionobject.save()
+    try:    
+        for question in root:
+            questionobject = Question.objects.create(
+                section=sectionobject)
+            questionobject.save()
+            content = question.find('content')
+            if content is not None:
+                # Filter out empty questions
+                if len(trim_text(content.text)) > 0:
+                    questions_found += 1
+                    questionobject.raw_content = content.text
+            questionobject.save()
+    except:
+        raise SplitterError("Splitter failed")
     return questions_found
+
+class SplitterError(Exception):
+
+    def __init__(self, message="Splitter error"):
+        super().__init__(message)
+    def __str__(self):
+        return f'{self.message}'

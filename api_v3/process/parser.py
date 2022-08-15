@@ -13,21 +13,31 @@ from .questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
 from .questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
 
 
+from django.conf import settings
+import logging
+logger = logging.getLogger(__name__)
+from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+
 def run_parser(questionlibrary):
+    loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
+    logger.addFilter(loggingfilter)
     import time
     sections = Section.objects.filter(question_library=questionlibrary)
-    endanswers = EndAnswer.objects.filter(question_library=questionlibrary)
-    
+    if len(sections) == 0:
+        raise ParserError("No sections found for the parser to work on")
+    endanswers = EndAnswer.objects.filter(question_library=questionlibrary)    
     question_count = 0
     section_count = 0
     start_time = time.time()
     for section in sections:
         questions = Question.objects.filter(section=section)
         if section.is_main_content:
-            print("\nRoot section:")
+            if settings.DEBUG:
+                print("\nRoot section:")
         else:
             section_count += 1
-            print("\nSection", section_count, ":", section.title )
+            if settings.DEBUG:
+                print("\nSection", section_count, ":", section.title )
 
         section.questions_expected = len(questions) - 1
         section_start_time = time.time()
@@ -43,15 +53,18 @@ def run_parser(questionlibrary):
                     parse_question(questionlibrary, question)
             
             section_question_count += 1
-            print("    question : " + str(question_count + section_question_count))
+            if settings.DEBUG:
+                print("    question : " + str(question_count + section_question_count))
         question_count += section_question_count
         section_end_time = time.time()
         section.processing_time = section_end_time - section_start_time
         section.save()
-        print("  Section total questions :", section_question_count)
-        print("  Section processing time :", section.processing_time)
-    print("\nProccessing Time Total :", time.time() - start_time)
-    
+        if settings.DEBUG:
+            print("  Section total questions :", section_question_count)
+            print("  Section processing time :", section.processing_time)
+    logger.info(f'Total Processing time for Parser : {time.time() - start_time}')
+    if settings.DEBUG:
+        print("\nProccessing Time Total :", time.time() - start_time)
 
 def parse_question(questionlibrary, question, endanswer=None):
 
@@ -312,3 +325,9 @@ def check_endanswer_questiontype(question, answers, endanswer):
             return 'endanswer_WR'
 
     return 'endanswer_NO_TYPE'
+
+class ParserError(Exception):
+    def __init__(self, message="ParserError error"):
+        super().__init__(message)
+    def __str__(self):
+        return f'{self.message}'
