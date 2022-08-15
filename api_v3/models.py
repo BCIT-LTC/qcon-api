@@ -35,7 +35,7 @@ from django.dispatch import receiver
 
 import logging
 logger = logging.getLogger(__name__)
-
+from .logging.contextfilter import QuestionlibraryFilenameFilter
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -105,6 +105,8 @@ class QuestionLibrary(models.Model):
             makedirs(self.folder_path)
 
     def create_pandocstring(self):
+        loggingfilter = QuestionlibraryFilenameFilter(self)
+        logger.addFilter(loggingfilter)
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
@@ -116,23 +118,18 @@ class QuestionLibrary(models.Model):
                                                         '--ascii'])
             pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
             pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
-
             pandoc_html_to_md = pypandoc.convert_text(
                 pandoc_word_to_html,
                 'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
                 format='html+empty_paragraphs',
                 extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
                             '--lua-filter=' + listsPath, '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
-
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
-
             self.pandoc_output = "\n" + pandoc_html_to_md
-
             self.save()
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " + "Markdown String Failed")
-            self.error = "Markdown String Failed"
-            self.save()
+            logger.error(e)
+            raise MarkDownConversionError(e)
 
     # ImsManifest string create ===================================================================================
 
@@ -545,3 +542,15 @@ class StatusResponse:
 
     def __init__(self, version_number, created=None):
         self.version_number = version_number
+
+
+class MarkDownConversionError(Exception):
+
+    def __init__(self, reason, message="File invalid"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+
