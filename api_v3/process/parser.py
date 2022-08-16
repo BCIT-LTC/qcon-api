@@ -327,7 +327,9 @@ def check_endanswer_questiontype(question, answers, endanswer):
     return 'endanswer_NO_TYPE'
 
 class ParserError(Exception):
-    def __init__(self, message="ParserError error"):
-        super().__init__(message)
+    def __init__(self, reason, message="Parser Error"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
     def __str__(self):
-        return f'{self.message}'
+        return f'{self.message} -> {self.reason}'

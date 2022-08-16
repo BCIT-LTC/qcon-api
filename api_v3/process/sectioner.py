@@ -64,8 +64,9 @@ def run_sectioner(questionlibrary):
     return subsection_count
 
 class SectionerError(Exception):
-
-    def __init__(self, message="Sectioner error"):
-        super().__init__(message)
+    def __init__(self, reason, message="Sectioner Error"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
     def __str__(self):
-        return f'{self.message}'
+        return f'{self.message} -> {self.reason}'

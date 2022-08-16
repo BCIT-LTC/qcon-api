@@ -2,12 +2,16 @@ from ast import Not
 import os
 import xml.etree.ElementTree as ET
 import subprocess
-import logging
-logger = logging.getLogger(__name__)
 import re
 from .process_helper import trim_text
 
+import logging
+logger = logging.getLogger(__name__)
+from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+
 def run_formatter(questionlibrary):
+    loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
+    logger.addFilter(loggingfilter)
     os.chdir('/formatter/jarfile')
     result = subprocess.run('java -cp formatter.jar:* formatter',
                             shell=True,
@@ -48,7 +52,6 @@ def run_formatter(questionlibrary):
         questionlibrary.formatter_output = sectioninfo_extracted + body.text
         questionlibrary.save()
     else:
-        # logger.error("Body not found")
         raise FormatterError("Body not found")
 
 # ==================================== END ANSWERS
@@ -58,12 +61,12 @@ def run_formatter(questionlibrary):
         questionlibrary.end_answers_raw = end_answers.text
         questionlibrary.save()
     else:
-        pass
-
+        logger.warn("No endanswers found")
 
 class FormatterError(Exception):
-    def __init__(self, message="Formatter error"):
+    def __init__(self, reason, message="Formatter Error"):
+        self.reason = reason
         self.message = message
-        super().__init__(message)
+        super().__init__(self.message)
     def __str__(self):
-        return f'{self.message}'
+        return f'{self.message} -> {self.reason}'

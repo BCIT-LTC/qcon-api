@@ -37,7 +37,10 @@ def get_endanswers(questionlibrary):
     return endanswers_found
 
 class EndAnswerError(Exception):
-    def __init__(self, message="EndAnswer error"):
-        super().__init__(message)
+    def __init__(self, reason, message="EndAnswer Error"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+
     def __str__(self):
-        return f'{self.message}'
+        return f'{self.message} -> {self.reason}'

@@ -13,10 +13,10 @@ sectioninfo:
 	| (HEADING_1 | HEADING_2) (ALL_CHARACTER+);
 
 body:
-	body question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ | question_header_parameter*)
-	| question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) body
-    | question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*)
-    | (HEADING_1 | HEADING_2) (ALL_CHARACTER+ question_header_parameter*) body;
+	body sectioninfo? question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ | question_header_parameter*)
+	| question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) sectioninfo? body sectioninfo?
+    | sectioninfo? question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) sectioninfo?
+    | sectioninfo? (HEADING_1 | HEADING_2) (ALL_CHARACTER+ question_header_parameter*) sectioninfo? body sectioninfo?;
 
 question_header_parameter:
 	TITLE ALL_CHARACTER+ | POINTS ALL_CHARACTER+ | TYPE ALL_CHARACTER+ | RANDOMIZE ALL_CHARACTER+;
@@ -62,8 +62,8 @@ fragment DOUBLE_HASH: '##';
 START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->') -> skip;
 END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->') -> skip;
 
-HEADING_1: NEWLINE '#' WHITESPACE;
-HEADING_2: NEWLINE '##' WHITESPACE;
+HEADING_1: NEWLINE (ASTERISK|DOUBLE_ASTERISK)? '#' WHITESPACE;
+HEADING_2: NEWLINE (ASTERISK|DOUBLE_ASTERISK)? '##' WHITESPACE;
 START_NUMBER_ONE: NEWLINE '1' WHITESPACE* DELIMITER;
 
 END_ANSWER_BLOCK:
