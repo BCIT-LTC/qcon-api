@@ -8,7 +8,7 @@ def build_inline_MAT(question, answers):
         
     for answer in answers:
         answercontent = trim_text(answer.find('content').text)
-        regpattern = r"((.+)\\?`\s*=\s*\\?`(.+))|((.+)==(.+))|((.+)=(.+))"
+        regpattern = r"(\\`(.+)\\`\s*=\s*\\`(.+)\\`)|((.+)==(.+))|((.+)=(.+))"
         choice_answer_groups_regex = re.search(regpattern, answercontent)
 
         if choice_answer_groups_regex is not None:
