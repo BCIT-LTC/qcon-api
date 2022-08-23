@@ -5,9 +5,11 @@
 import copy
 from difflib import Match
 import os
+import random
 import shutil
 import datetime
 import re
+import time
 import xml.etree.cElementTree as ET
 from uuid import UUID
 from .xmlcdata import CDATA
@@ -97,10 +99,10 @@ class XmlWriter:
 
 
     def create_questions(self, section_el, question_objs):
-        ident_prefix = int(datetime.date.today().strftime("%y%m%d")) + int(UUID(int=0x12345678123456781234567812345678))
-        index = 1
         for question in question_objs:
-            ident = str(ident_prefix + index)
+            time_ns = str(time.process_time_ns())
+            random_int = str(random.randint(1000000, 9999999))
+            ident = time_ns + random_int
             question_ident = "QUES_" + ident
             item_el = ET.Element("item", {"ident": "OBJ_" + ident, "label": question_ident, "d2l_2p0:page": "1", "title": question.title})
             # question_type = question.get_question_type()
@@ -122,7 +124,6 @@ class XmlWriter:
                     self.generate_written_response(item_el, question_ident, question)
 
             section_el.append(item_el)
-            index += 1
 
 
     def itemetadata(self, it, question_type, question):
