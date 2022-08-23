@@ -252,19 +252,19 @@ class TextConsumer(JsonWebsocketConsumer):
             questions = Question.objects.filter(section=section)
             for question in questions:
                 if question.error is not None:
-                    self.question_error_count += 1
+                    process.question_error_count += 1
 
                 ###### MC ERROR COUNT
                 mc = MultipleChoice.objects.filter(question=question)
                 try:
                     if mc.error is not None:
-                        self.question_error_count += 1
+                        process.question_error_count += 1
 
                     mcas = mc.get_multiple_choice_answers()
                     if mca is not None:
                         for mca in mcas:
                             if mca.error is not None:
-                                self.question_error_count += 1
+                                process.question_error_count += 1
                 except:
                     pass
                 
@@ -272,7 +272,7 @@ class TextConsumer(JsonWebsocketConsumer):
                 try:
                     tf = TrueFalse.objects.filter(question=question)
                     if tf.error is not None:
-                        self.question_error_count += 1
+                        process.question_error_count += 1
                 except:
                     pass
 
@@ -280,53 +280,53 @@ class TextConsumer(JsonWebsocketConsumer):
                 try:
                     fib = Fib.objects.filter(question=question)
                     if fib.error is not None:
-                        self.question_error_count += 1
+                        process.question_error_count += 1
                 except:
                     pass
                 ###### MS ERROR COUNT
                 try:
                     ms = MultipleSelect.objects.filter(question=question)
                     if ms.error is not None:
-                        self.question_error_count += 1
+                        process.question_error_count += 1
 
                     msas = ms.get_multiple_select_answers()
                     if msas is not None:
                         for msa in msas:
                             if msa.error is not None:
-                                self.question_error_count += 1    
+                                process.question_error_count += 1    
                 except:
                     pass
                 ###### MAT ERROR COUNT
                 try:
                     mat = Matching.objects.filter(question=question)
                     if mat is not None:
-                        self.question_error_count += 1
+                        process.question_error_count += 1
                     
                     mat_choices = mat.get_matching_choices()
                     if mat_choices is not None:
                         for mat_choice in mat_choices:
                             if mat_choice.error is not None:
-                                self.question_error_count += 1    
+                                process.question_error_count += 1    
 
                     mat_answers = mat.get_unique_matching_answers()
                     if mat_answers is not None:
                         for mat_answer in mat_answers:
                             if mat_answer.error is not None:
-                                self.question_error_count += 1    
+                                process.question_error_count += 1    
                 except:
                     pass
                 ###### ORD ERROR COUNT
                 try:
                     ord = Ordering.objects.filter(question=question)
                     if ord.error is not None:
-                        self.question_error_count += 1    
+                        process.question_error_count += 1    
                 except:
                     pass
                 ###### WR ERROR COUNT
                 try:
                     wr = WrittenResponse.objects.filter(question=question)
                     if wr.error is not None:
-                        self.question_error_count += 1  
+                        process.question_error_count += 1  
                 except:
                     pass
 
