@@ -24,15 +24,34 @@ class XmlWriter:
         questionLibraryIdent = "QLIB_" + ident
         root_el = ET.Element("questestinterop")
         objectbank_el = ET.SubElement(root_el, "objectbank", {"ident": questionLibraryIdent, "xmlns:d2l_2p0": "http://desire2learn.com/xsd/d2lcp_v2p0"})
-        root_section_obj = question_library.get_root_section()
-        root_section_el = self.create_section(objectbank_el, root_section_obj)
+        
+        # root_section_obj = question_library.get_root_section()
+        # root_section_el = self.create_section(objectbank_el, root_section_obj)
+
+        base_ident = "SECT_" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + str(int(UUID(int=0x12345678123456781234567812345678)))
+        base_section_el = ET.SubElement(objectbank_el, "section", {"ident": base_ident, "title": question_library.main_title})
+        if question_library.randomize_answer is True:
+            self.create_section_shuffle(base_section_el)
+
+        self.create_presentation_material(base_section_el, "") # we currently not catching any base section text and it's ignored in ANTLR
+        
+        sec_proc = ET.SubElement(base_section_el, "sectionproc_extension")
+        sec_proc_dis_name = ET.SubElement(sec_proc, "d2l_2p0:display_section_name")
+        # TODO: add is_title_displayed and text to QuestionLibrary because not all exam has root section
+        sec_proc_dis_name.text = "no" # "yes" if section_obj.is_title_displayed else "no"
+        sec_proc_dis_line = ET.SubElement(sec_proc, "d2l_2p0:display_section_line")
+        sec_proc_dis_line.text = "no"
+        sec_proc_dis_sec = ET.SubElement(sec_proc, "d2l_2p0:type_display_section")
+        sec_proc_dis_sec.text = "0" # "1" if section_obj.is_text_displayed else "0"
+
+
         section_objs = question_library.get_sections()
         for section_obj in section_objs:
             if section_obj.is_main_content is True:
                 root_question_objs = section_obj.get_questions()
-                self.create_questions(root_section_el, root_question_objs)
+                self.create_questions(base_section_el, root_question_objs)
             else:
-                current_section_el = self.create_section(root_section_el, section_obj)
+                current_section_el = self.create_section(base_section_el, section_obj)
                 question_objs = section_obj.get_questions()
                 self.create_questions(current_section_el, question_objs)
         self.questiondb_string = self.xml_to_string(root_el)
