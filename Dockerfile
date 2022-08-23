@@ -2,8 +2,13 @@
 
 ## Base
 FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
+RUN set -ex; \
+        pip install celery \
+        pip install redis \ 
+        pip install channels_redis \
+        pip install psycopg2-binary
 
-
+        
 ## ANLR Builder
 FROM openjdk:17-jdk AS antlr-builder
 
@@ -83,7 +88,8 @@ RUN set -ex; \
 
 
 ## Release
-FROM python:3.10-alpine AS release
+# FROM python:3.10-alpine AS release
+FROM python:slim AS release
 
 LABEL maintainer courseproduction@bcit.ca
 
@@ -92,9 +98,17 @@ ENV PATH /code:/opt/venv/bin:$PATH
 
 WORKDIR /code
 
-RUN apk --update add \
-        openjdk17; \
-    mkdir -p /run/daphne;
+# RUN apk --update add \
+#         redis \
+#         openjdk17; \
+#     mkdir -p /run/daphne;
+
+RUN set -ex; \
+        apt-get update; \
+        apt-get install -y --no-install-recommends \
+            redis \
+            openjdk-17-jdk-headless; \
+        mkdir -p /run/daphne;
 
 COPY .env ./
 COPY manage.py supervisord.conf ./

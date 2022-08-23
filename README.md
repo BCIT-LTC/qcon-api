@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-docker run -p 8000:8000 registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
+    docker run -p 8000:8000 registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
 
 Open your browser to [http://localhost:8000](http://localhost:8000).
 
@@ -16,7 +16,7 @@ See [Qcon Usage and Examples](https://qcon-user-guide.dev.ltc.bcit.ca) for docum
 
 See [developing.md](docs/developing.md) for information about the technology stack.
 
-docker compose up --build
+    docker compose up --build
 
 ## Deploying `qcon-api`
 

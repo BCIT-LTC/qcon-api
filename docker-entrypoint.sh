@@ -35,5 +35,14 @@ echo "from api_v2.models import CustomToken; \
     | python /code/manage.py shell
 echo "-------------------------------------------------------------------------------------------\n"
 
+>&2 echo "Starting redis"
+redis-server --daemonize yes
+
+>&2 echo "Starting Celery"
+celery -A qcon worker --loglevel=INFO --concurrency=4 -n worker1@%h --detach
+celery -A qcon worker --loglevel=INFO --concurrency=4 -n worker2@%h --detach
+celery -A qcon worker --loglevel=INFO --concurrency=4 -n worker3@%h --detach
+celery -A qcon worker --loglevel=INFO --concurrency=4 -n worker4@%h --detach
+
 >&2 echo "Starting Supervisor"
 exec "$@"
