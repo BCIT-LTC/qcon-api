@@ -18,7 +18,7 @@ class Process:
         self.questions_expected = 0
         self.questions_processed = 0
         self.endanswers_count = 0
-        self.total_question_errors = 0
+        self.question_error_count = 0
 
     def extract_images(self):
         self.images_extracted = extract_images(self.questionlibrary)
@@ -49,7 +49,7 @@ class Process:
                 'section_count': str(self.subsection_count),
                 'questions_count': str(self.questions_expected),
                 'endanswer_count': str(self.endanswers_count),
-                'question_error_count': str(self.total_question_errors),
+                'question_error_count': str(self.question_error_count),
                 'data': data
             }
 # ++++++++++++++++++++++++++++++++===================================
