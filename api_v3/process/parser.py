@@ -45,7 +45,7 @@ def run_parser(questionlibrary):
         else:
             section_count += 1
             if settings.DEBUG:
-                print("\nSection", section_count, ":", section.title )
+                print("\nSection", str(section.order), ":", section.title )
 
         section.questions_expected = len(questions) - 1
         section_start_time = time.time()
@@ -99,7 +99,7 @@ def run_parser(questionlibrary):
                 tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id, endanswers[idx]))
             else:
                 tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id))
- 
+            section_question_count += 1
         lazy_group = group(tasklist)
         promise = lazy_group()
         promise.get()

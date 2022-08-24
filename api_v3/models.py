@@ -110,7 +110,7 @@ class QuestionLibrary(models.Model):
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
-            listsPath = "./api_v3/pandoc-filters/lists.lua"
+            # listsPath = "./api_v3/pandoc-filters/lists.lua"
             pandoc_word_to_html = pypandoc.convert_file(self.temp_file.path,
                                                         format='docx+empty_paragraphs',
                                                         to='html+empty_paragraphs+tex_math_single_backslash',
@@ -123,7 +123,7 @@ class QuestionLibrary(models.Model):
                 'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
                 format='html+empty_paragraphs',
                 extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
-                            '--lua-filter=' + listsPath, '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
+                            '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
             self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
             self.pandoc_output = "\n" + pandoc_html_to_md
             self.save()
@@ -264,7 +264,8 @@ class Section(models.Model):
     id = models.AutoField(primary_key=True)
     question_library = models.ForeignKey(QuestionLibrary, related_name='sections', on_delete=models.CASCADE)
     is_main_content = models.BooleanField(blank=True, null=True, default=False)
-    order = models.DecimalField(max_digits=3, decimal_places=0, null=True)
+    # order = models.DecimalField(max_digits=3, decimal_places=0, null=True)
+    order = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
     validated = models.BooleanField(blank=True, null=True, default=False)
     finished_processing = models.BooleanField(blank=True, null=True, default=False)
     raw_content = models.TextField(blank=True, null=True)
@@ -278,7 +279,7 @@ class Section(models.Model):
     shuffle = models.BooleanField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.id)
+        return str(self.order)
 
     def get_questions(self):
         return Question.objects.filter(section=self.id).order_by('id')
@@ -287,7 +288,7 @@ class Section(models.Model):
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
     section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
-    number_provided = models.TextField(blank=True, null=True)
+    number_provided = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
     raw_header = models.TextField(blank=True, null=True)
     raw_content = models.TextField(blank=True, null=True)
     parser_output_xml = models.TextField(blank=True, null=True)
@@ -499,6 +500,8 @@ class WrittenResponse(models.Model):
 
 @receiver(post_delete, sender=QuestionLibrary, dispatch_uid="delete_files")
 def delete_files(sender, instance, **kwargs):
+    loggingfilter = QuestionlibraryFilenameFilter(instance)
+    logger.addFilter(loggingfilter)
     if path.exists(settings.MEDIA_ROOT + str(instance)):
         try:
             for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance), topdown=False):
@@ -514,7 +517,7 @@ def delete_files(sender, instance, **kwargs):
         except OSError as e:
             print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
 
-    logger.info("[" + str(instance) + "] " + "Questionlibrary and Files Deleted")
+    logger.info("Questionlibrary and Files Deleted")
 
 
 # @receiver(post_save, sender=QuestionLibrary, dispatch_uid="start_process")

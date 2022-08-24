@@ -193,16 +193,26 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class SectionSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, allow_null=True)
+    # questions = QuestionSerializer(many=True, allow_null=True)
+    questions = serializers.SerializerMethodField()
 
+    def get_questions(self, section):
+        question_queryset = Question.objects.filter(section=section).order_by('number_provided')
+        serializer = QuestionSerializer(instance=question_queryset, many=True)
+        return serializer.data
     class Meta:
         model = Section
         fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
 
 
 class JsonResponseSerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True, read_only=True)
+    # sections = SectionSerializer(many=True, read_only=True)
+    sections = serializers.SerializerMethodField()
 
+    def get_sections(self, questionlibrary):
+        section_queryset = Section.objects.filter(question_library=questionlibrary).order_by('order')
+        serializer = SectionSerializer(instance=section_queryset, many=True)
+        return serializer.data
     class Meta:
         model = QuestionLibrary
         fields = ['main_title', 'sections']

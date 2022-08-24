@@ -13,10 +13,14 @@ def run_splitter(questionlibrary):
     logger.addFilter(loggingfilter)
     sections = Section.objects.filter(question_library=questionlibrary)
     questions_count = 0
+    section_order = 1
     for section in sections:
         questions_count_section = 0
         try:
             questions_count_section = split_questions(section)
+            section.order = section_order
+            section_order += 1
+            section.save()
         except SplitterError as e:
             logger.warn("No questions detected. Discarding empty section")
         questions_count += questions_count_section
