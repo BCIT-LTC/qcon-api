@@ -96,7 +96,7 @@ def run_parser(questionlibrary):
         tasklist = []
         for idx, question in enumerate(questions):
             if len(endanswers) != 0:
-                tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id, endanswers[idx]))
+                tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id, endanswers[idx].id))
             else:
                 tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id))
             section_question_count += 1
