@@ -4,7 +4,7 @@ from time import sleep
 from celery import shared_task
 import logging
 logger = logging.getLogger(__name__)
-from .models import Question
+from .models import EndAnswer, Question
 import xml.etree.ElementTree as ET
 import re
 from .process.process_helper import trim_text, markdown_to_plain, trim_md_to_html
@@ -167,7 +167,11 @@ def check_endanswer_questiontype(question, answers, endanswer):
 def parse_question(randomize_answer, question_id, endanswer=None):
 
     question = Question.objects.get(pk=question_id)
-
+    try:
+        endanswer = EndAnswer.objects.get(pk=endanswer)
+    except EndAnswer.DoesNotExist:
+        pass
+    
     os.chdir('/questionparser/jarfile')
     popen = subprocess.Popen(
         'java -cp questionparser.jar:* questionparser', 
