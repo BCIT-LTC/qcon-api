@@ -1,15 +1,13 @@
 version: "3"
 
 services:
-  db:
+  postgres:
     image: postgres
-    restart: always
     environment:
-      POSTGRES_PASSWORD: postgres
+      - 'POSTGRES_PASSWORD=postgres'
     networks:
       qcon-network:
 
-      
   app:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -21,13 +19,11 @@ services:
       - 'ADMIN_USERNAME=admin'
       - 'ADMIN_PASSWORD=admin'
       - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_HOST=db'
       - 'API_KEY=2222222222222222222222222222222222222222'
       - 'DJANGO_SECRET_KEY=d8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=('
       - 'GIT_TAG=0.0.1'
       - 'IMAGE_TAG=0.0.1'
       - 'IMAGE_TITLE=qcon-api'
-    restart: always
     volumes:
       - .:/code
     ports:
