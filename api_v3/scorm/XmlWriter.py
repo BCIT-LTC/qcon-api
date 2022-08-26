@@ -40,7 +40,7 @@ class XmlWriter:
         sec_proc = ET.SubElement(base_section_el, "sectionproc_extension")
         sec_proc_dis_name = ET.SubElement(sec_proc, "d2l_2p0:display_section_name")
         # TODO: add is_title_displayed and text to QuestionLibrary because not all exam has root section
-        sec_proc_dis_name.text = "no" # "yes" if section_obj.is_title_displayed else "no"
+        sec_proc_dis_name.text = "yes" # section_obj.is_title_displayed if section_obj.is_title_displayed else "yes"
         sec_proc_dis_line = ET.SubElement(sec_proc, "d2l_2p0:display_section_line")
         sec_proc_dis_line.text = "no"
         sec_proc_dis_sec = ET.SubElement(sec_proc, "d2l_2p0:type_display_section")
@@ -91,7 +91,7 @@ class XmlWriter:
         # presentation_material Node
         sec_proc = ET.SubElement(section_el, "sectionproc_extension")
         sec_proc_dis_name = ET.SubElement(sec_proc, "d2l_2p0:display_section_name")
-        sec_proc_dis_name.text = "yes" if section_obj.is_title_displayed else "no"
+        sec_proc_dis_name.text = section_obj.is_title_displayed if section_obj.is_title_displayed else "yes"
         sec_proc_dis_line = ET.SubElement(sec_proc, "d2l_2p0:display_section_line")
         sec_proc_dis_line.text = "no"
         sec_proc_dis_sec = ET.SubElement(sec_proc, "d2l_2p0:type_display_section")
