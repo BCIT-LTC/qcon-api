@@ -22,6 +22,7 @@ load_dotenv()
 
 API_HOST = os.getenv('API_HOST')
 API_PORT = os.getenv('API_PORT')
+POSTGRES_HOST = os.getenv('POSTGRES_HOST')
 API_KEY = os.environ.get('API_KEY')
 GIT_TAG = os.getenv('GIT_TAG')
 IMAGE_TAG = os.getenv('IMAGE_TAG')
@@ -41,6 +42,9 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 DEBUG = os.getenv('DEBUG', False) == 'True'
 ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
+
+if DEBUG:
+    POSTGRES_HOST = 'postgres'
 
 ALLOWED_HOSTS = ['*']
 
@@ -120,7 +124,7 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': os.environ["POSTGRES_PASSWORD"],
-        'HOST': os.environ["POSTGRES_HOST"],
+        'HOST': POSTGRES_HOST,
         'PORT': 5432,
     }
 }

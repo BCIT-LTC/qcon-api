@@ -2,13 +2,13 @@
 
 ## Base
 FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
+
 RUN set -ex; \
         pip install celery \
         pip install redis \ 
         pip install channels_redis \
         pip install psycopg2-binary
 
-        
 ## ANLR Builder
 FROM openjdk:17-jdk AS antlr-builder
 
