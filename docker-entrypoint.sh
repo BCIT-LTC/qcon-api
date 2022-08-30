@@ -3,7 +3,7 @@
 set -e
 
 # set secrets from Vault init container or from dev configmap
-if [ -f "/vault/secrets/config" ]; then echo -e "$(cat /vault/secrets/config)" >> .env;
+if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env;
 export $(grep -v '^#' .env | xargs -0); fi
 
 >&2 echo "make Database migrations"
