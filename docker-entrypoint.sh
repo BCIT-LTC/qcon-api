@@ -6,6 +6,7 @@ set -e
 if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env;
 export $(grep -v '^#' .env | xargs -0); fi
 
+
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v2 api_v3
 echo "-------------------------------------------------------------------------------------------\n"
