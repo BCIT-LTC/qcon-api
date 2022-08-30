@@ -15,7 +15,7 @@ def run_formatter(questionlibrary):
     os.chdir('/formatter/jarfile')
     result = subprocess.run('java -cp formatter.jar:* formatter',
                             shell=True,
-                            input=questionlibrary.pandoc_output.encode(),
+                            input=questionlibrary.pandoc_output.encode("utf-8"),
                             capture_output=True)
     os.chdir('/code')
     root = None

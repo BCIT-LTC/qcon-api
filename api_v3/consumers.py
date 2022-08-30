@@ -28,13 +28,15 @@ class TextConsumer(JsonWebsocketConsumer):
         print("connected")
         sessionid = None
         # print(self.scope['url_route']['kwargs']['session_id'])
-        self.sessionid = self.scope['url_route']['kwargs']['session_id']
-        self.channel_layer.group_add(self.sessionid, self.channel_name)
+        # self.sessionid = self.scope['url_route']['kwargs']['session_id']
+        # self.channel_layer.group_add(self.sessionid, self.channel_name)
         self.accept()
 
     def disconnect(self, close_code):
         print("disconnected")
-        self.channel_layer.group_discard(self.sessionid, self.channel_name)
+        self.close()
+        print("closed")
+        # self.channel_layer.group_discard(self.sessionid, self.channel_name)
         pass
 
     def receive_json(self, content, **kwargs):
@@ -50,7 +52,7 @@ class TextConsumer(JsonWebsocketConsumer):
             new_questionlibrary = QuestionLibrary.objects.create()
 
             new_questionlibrary.temp_file = received_file
-            new_questionlibrary.session_id = self.sessionid
+            # new_questionlibrary.session_id = self.sessionid
             new_questionlibrary.main_title = content.get('filename').split(".")[0]
             new_questionlibrary.randomize_answer = content.get('randomize_answer')
             new_questionlibrary.save()
@@ -339,3 +341,4 @@ class TextConsumer(JsonWebsocketConsumer):
 
 ######################### Close Connection
         self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
+        self.close()
