@@ -193,13 +193,21 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class SectionSerializer(serializers.ModelSerializer):
-    # questions = QuestionSerializer(many=True, allow_null=True)
     questions = serializers.SerializerMethodField()
 
     def get_questions(self, section):
         question_queryset = Question.objects.filter(section=section).order_by('number_provided')
         serializer = QuestionSerializer(instance=question_queryset, many=True)
+        
         return serializer.data
+    class Meta:
+        model = Section
+        fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
+
+
+class SectionPackageSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, allow_null=True)
+    
     class Meta:
         model = Section
         fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
@@ -218,7 +226,7 @@ class JsonResponseSerializer(serializers.ModelSerializer):
         fields = ['main_title', 'sections']
 
 class QuestionLibrarySerializer(serializers.ModelSerializer):
-    sections = SectionSerializer(many=True, allow_null=True)
+    sections = SectionPackageSerializer(many=True, allow_null=True)
 
     class Meta:
         model = QuestionLibrary
@@ -229,6 +237,7 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
         question_library_instance = QuestionLibrary.objects.create(**validated_data)
 
         for section in sections_data:
+            print(section)
             questions_data = section.pop('questions')
             section_instance = Section.objects.create(question_library=question_library_instance, **section)
 
