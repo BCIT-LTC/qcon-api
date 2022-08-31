@@ -219,7 +219,7 @@ class JsonToScorm(APIView):
     )
     def post(self, request, format=None):
 
-        json_data = request.data
+        json_data = request.data['json_data']
         ql_serializer = QuestionLibrarySerializer(data=json_data['data'])
         if ql_serializer.is_valid():
             ql_instance = ql_serializer.save()
