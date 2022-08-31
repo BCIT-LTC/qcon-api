@@ -8,7 +8,7 @@ export $(grep -v '^#' .env | xargs -0); fi
 
 
 >&2 echo "make Database migrations"
-python manage.py makemigrations api_v2 api_v3
+python manage.py makemigrations api_v3
 echo "-------------------------------------------------------------------------------------------\n"
 
 >&2 echo "Run Database migrations"
@@ -27,7 +27,7 @@ echo "from django.contrib.auth.models import User; \
 echo "-------------------------------------------------------------------------------------------\n"
 
 >&2 echo "Create API TOKEN"
-echo "from api_v2.models import CustomToken; \
+echo "from api_v3.models import CustomToken; \
         from django.contrib.auth.models import User; \
         theuser = User.objects.get(username='$ADMIN_USERNAME'); \
         CustomToken.objects.filter(user=theuser).exists() or \

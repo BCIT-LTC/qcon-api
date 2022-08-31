@@ -22,12 +22,12 @@ from django.urls import path, include, re_path
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from api_v2 import views
+from api_v3 import views
 
 urlpatterns = [
     # # path('admin/', admin.site.urls),
-    path('', include('api_v2.urls')),
-    path('v2/', include('api_v2.urls')),
+    path('', include('api_v3.urls')),
+    # path('v2/', include('api_v2.urls')),
     path('v3/', include('api_v3.urls'))
 ]
 
@@ -45,7 +45,7 @@ if settings.DEBUG:
 else:
     urlpatterns += [path('', views.RootPath.as_view(), name='root')]
 
-handler404 = 'api_v2.views.view_404'
+handler404 = 'api_v3.views.view_404'
 
 if settings.ADMIN_ENABLED:
     urlpatterns += [path('admin/', admin.site.urls)]

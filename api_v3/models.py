@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from os import makedirs, path
 from django.db import models
 
 import pypandoc
@@ -13,7 +12,7 @@ from api_v3.scorm.manifest import ManifestEntity, ManifestResourceEntity
 from xml.dom.minidom import parseString
 import xml.etree.cElementTree as ET
 from zipfile import *
-from os import makedirs, path, walk, rmdir, remove
+from os import makedirs, path, walk, rmdir, remove, urandom
 
 import re
 import base64
@@ -21,7 +20,7 @@ from os.path import basename
 from django.core.files.base import ContentFile
 
 # from django.contrib.auth.models import User
-# from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.models import Token
 
 from enum import Enum
 from django.conf import settings
@@ -520,26 +519,21 @@ def delete_files(sender, instance, **kwargs):
     logger.info("Questionlibrary and Files Deleted")
 
 
-# @receiver(post_save, sender=QuestionLibrary, dispatch_uid="start_process")
-# def start_process(sender, instance, **kwargs):
-#     instance.save()
-# class CustomToken1(Token):
-#     """
-#     The extended authorization token model to support tokens generated from external sources
-#     """
+class CustomToken(Token):
+    """
+    The extended authorization token model to support tokens generated from external sources
+    """
+    def save(self, *args, **kwargs):
+        # print(self.user)
+        # print(self.key)
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
 
-#     def save(self, *args, **kwargs):
-#         # print(self.user)
-#         # print(self.key)
-#         if not self.key:
-#             self.key = self.generate_key()
-#         return super().save(*args, **kwargs)
-
-#     @classmethod
-#     def generate_key(cls):
-#         return binascii.hexlify(os.urandom(20)).decode()
-#         # return '1111111111111111111111111111111111111111'
-
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+        # return '1111111111111111111111111111111111111111'
 
 class StatusResponse:
 
