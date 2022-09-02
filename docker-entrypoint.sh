@@ -2,23 +2,9 @@
 
 set -e
 
-# mkdir -p /vault/secrets/
-# echo 'ADMIN_USERNAME="admin"' >> /vault/secrets/config
-# echo 'ADMIN_PASSWORD="password"' >> /vault/secrets/config
-# echo 'API_KEY="keeeyyyy"' >> /vault/secrets/config
-
 # set secrets from Vault init container or from dev configmap
 if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env;
-echo "-------------------------------------------------------------------------------------------\n"
-
-echo "SHOW SECRETS AFTER DOTENV\n"
-# export $(grep -v '^#' .env | xargs -0); fi
 export $(dotenv list | xargs -0); fi
-# dotenv list | xargs -0; fi
-
-echo "-------------------------------------------------------------------------------------------\n"
-echo "printenv \n"
-printenv
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api_v3
