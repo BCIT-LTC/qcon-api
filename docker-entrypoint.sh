@@ -10,12 +10,11 @@ set -e
 # set secrets from Vault init container or from dev configmap
 if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env;
 echo "-------------------------------------------------------------------------------------------\n"
-echo "SHOW VAULT SECRETS\n"
-cat /vault/secrets/config
 
 echo "SHOW SECRETS AFTER DOTENV\n"
 # export $(grep -v '^#' .env | xargs -0); fi
-dotenv list | xargs -0; fi
+export $(dotenv list | xargs -0); fi
+# dotenv list | xargs -0; fi
 
 echo "-------------------------------------------------------------------------------------------\n"
 echo "printenv \n"
