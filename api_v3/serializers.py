@@ -237,7 +237,6 @@ class QuestionLibrarySerializer(serializers.ModelSerializer):
         question_library_instance = QuestionLibrary.objects.create(**validated_data)
 
         for section in sections_data:
-            print(section)
             questions_data = section.pop('questions')
             section_instance = Section.objects.create(question_library=question_library_instance, **section)
 
