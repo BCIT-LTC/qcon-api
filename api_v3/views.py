@@ -24,7 +24,9 @@ from .models import QuestionLibrary
 
 import logging
 logger = logging.getLogger(__name__)
-
+from .logging.contextfilter import QuestionlibraryFilenameFilter
+loggingfilter = QuestionlibraryFilenameFilter()
+logger.addFilter(loggingfilter)
 
 class TokenAuthenticationWithBearer(TokenAuthentication):
     keyword = 'Bearer'
@@ -234,27 +236,13 @@ class JsonToScorm(APIView):
             ql_instance.zip_files()
             file_response = FileResponse(ql_instance.zip_file)
             file_response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
-
+            logger.addFilter(QuestionlibraryFilenameFilter(ql_instance))
             logger.info("[" + str(ql_instance.id) + "] " +">>>>>>>>>>Transaction Finished>>>>>>>>>>")
 
             ql_instance.cleanup()
 
             return file_response
                 
-        #     else:
-        #         #Serializer to query only the records that contain errors
-
-        #         serialized_data = QuestionLibraryErrorSummarySerializer(
-        #             ql_instance)
-
-        #         logger.info(
-        #             "[" + str(ql_instance.id) + "] " +
-        #             ">>>>>>>>>>Transaction Finished with errors>>>>>>>>>>")
-
-        #         json_response = JsonResponse("", status=201)
-        #         ql_instance.cleanup()
-        #         return json_response
-        # print("NOT VALID")
         return JsonResponse({"hostname": settings.GIT_TAG, "serializer_errors": ql_serializer.errors}, status=400)
 
 class RootPath(APIView):

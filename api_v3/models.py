@@ -35,6 +35,8 @@ from django.dispatch import receiver
 import logging
 logger = logging.getLogger(__name__)
 from .logging.contextfilter import QuestionlibraryFilenameFilter
+loggingfilter = QuestionlibraryFilenameFilter()
+logger.addFilter(loggingfilter)
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -104,8 +106,7 @@ class QuestionLibrary(models.Model):
             makedirs(self.folder_path)
 
     def create_pandocstring(self):
-        loggingfilter = QuestionlibraryFilenameFilter(self)
-        logger.addFilter(loggingfilter)
+        # logger.addFilter(QuestionlibraryFilenameFilter(self))
         try:
             mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
             emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
@@ -133,7 +134,7 @@ class QuestionLibrary(models.Model):
     # ImsManifest string create ===================================================================================
 
     def create_xml_files(self):
-
+        logger.addFilter(QuestionlibraryFilenameFilter(self))
         try:
             ql_obj = QuestionLibrary.objects.filter(id=self.id).first()
             parsed_xml = XmlWriter(ql_obj)
@@ -208,7 +209,7 @@ class QuestionLibrary(models.Model):
             self.save()
 
     def zip_files(self):
-
+        logger.addFilter(QuestionlibraryFilenameFilter(self))
         try:
             with ZipFile(self.folder_path + "/" + self.filtered_main_title + '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
@@ -228,6 +229,7 @@ class QuestionLibrary(models.Model):
             self.save()
 
     def create_zip_file_package(self):
+        logger.addFilter(QuestionlibraryFilenameFilter(self))
         try:
             with ZipFile(self.folder_path + "/" + self.filtered_main_title, 'w') as myzip:
                 myzip.write(self.zip_file.path, self.filtered_main_title + '.zip')
@@ -499,8 +501,7 @@ class WrittenResponse(models.Model):
 
 @receiver(post_delete, sender=QuestionLibrary, dispatch_uid="delete_files")
 def delete_files(sender, instance, **kwargs):
-    loggingfilter = QuestionlibraryFilenameFilter(instance)
-    logger.addFilter(loggingfilter)
+    logger.addFilter(QuestionlibraryFilenameFilter(instance))
     if path.exists(settings.MEDIA_ROOT + str(instance)):
         try:
             for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance), topdown=False):
@@ -510,12 +511,10 @@ def delete_files(sender, instance, **kwargs):
                     rmdir(path.join(root, name))
         except OSError as e:
             logger.error("[" + str(instance) + "] " + "Error deleting files")
-
         try:
             rmdir(settings.MEDIA_ROOT + str(instance))
         except OSError as e:
             print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
-
     logger.info("Questionlibrary and Files Deleted")
 
 
