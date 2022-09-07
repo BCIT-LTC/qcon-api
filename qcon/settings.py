@@ -22,6 +22,8 @@ load_dotenv()
 
 API_HOST = os.getenv('API_HOST')
 API_PORT = os.getenv('API_PORT')
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 POSTGRES_HOST = os.getenv('POSTGRES_HOST')
 API_KEY = os.environ.get('API_KEY')
 GIT_TAG = os.getenv('GIT_TAG')
@@ -54,7 +56,6 @@ CSRF_COOKIE_HTTPONLY = True
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -66,6 +67,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
+    'channels',
     # 'django_q',
     'drf_spectacular',
 
