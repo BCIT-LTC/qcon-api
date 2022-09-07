@@ -33,7 +33,8 @@ services:
       qcon-network:
         aliases:
           - api.local
-
+    depends_on:
+      - postgres
 networks:
   qcon-network:
     # external: true

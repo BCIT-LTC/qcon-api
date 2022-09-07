@@ -98,11 +98,6 @@ ENV PATH /code:/opt/venv/bin:$PATH
 
 WORKDIR /code
 
-# RUN apk --update add \
-#         redis \
-#         openjdk17; \
-#     mkdir -p /run/daphne;
-
 RUN set -ex; \
         apt-get update; \
         apt-get install -y --no-install-recommends \
