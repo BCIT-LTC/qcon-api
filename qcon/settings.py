@@ -20,8 +20,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_HOST = os.getenv('API_HOST')
-API_PORT = os.getenv('API_PORT')
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 POSTGRES_HOST = os.getenv('POSTGRES_HOST')
@@ -107,16 +105,6 @@ TEMPLATES = [
 
 # Channels
 ASGI_APPLICATION = 'qcon.asgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': '/tmp/database',
-#     }
-# }
 
 DATABASES = {
     'default': {
