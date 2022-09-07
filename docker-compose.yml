@@ -14,8 +14,6 @@ services:
     image: qcon-api
     environment:
       - 'DEBUG=True'
-      - 'API_HOST=api.local'
-      - 'API_PORT=8000'
       - 'ADMIN_USERNAME=admin'
       - 'ADMIN_PASSWORD=admin'
       - 'POSTGRES_PASSWORD=postgres'
