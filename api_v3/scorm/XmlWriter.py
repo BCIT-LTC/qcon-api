@@ -517,7 +517,7 @@ class XmlWriter:
         # Presentation -> Flow -> Response_extension
         it_pre_flow_res = ET.SubElement(it_pre_flow, "response_extension")
         it_pre_flow_res_grading_type = ET.SubElement(it_pre_flow_res, "d2l_2p0:grading_type")
-        it_pre_flow_res_grading_type.text = str(matching.grading_type)
+        it_pre_flow_res_grading_type.text = '2' #str(matching.grading_type)
 
         # Presentation -> Flow -> Response_grp -> Render_choice
         it_pre_flow_res_grp_ren = ET.Element("render_choice", {"shuffle": "yes"})  # add to response_grp later
@@ -634,7 +634,7 @@ class XmlWriter:
         # Presentation -> Flow -> Response_extension
         it_pre_flow_res_ext = ET.SubElement(it_pre_flow, "response_extension")
         it_pre_flow_res_ext_grading = ET.SubElement(it_pre_flow_res_ext, "d2l_2p0:grading_type")
-        grading_type = 0  # Equally weighted, All or nothing, Right minus wrong
+        grading_type = 2  # Equally weighted, All or nothing, Right minus wrong
         it_pre_flow_res_ext_grading.append(CDATA(grading_type))
 
         # Presentation -> Flow -> Response_grp
