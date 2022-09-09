@@ -10,6 +10,7 @@ import re
 import logging
 logger = logging.getLogger(__name__)
 from .logging.contextfilter import QuestionlibraryFilenameFilter
+logger.addFilter(QuestionlibraryFilenameFilter())
 
 from .serializers import JsonResponseSerializer
 from .process.process import Process
@@ -25,7 +26,7 @@ from .process.parser import ParserError
 class TextConsumer(JsonWebsocketConsumer):
 
     def connect(self):
-        print("connected")
+        logger.info("New connection started")
         sessionid = None
         # print(self.scope['url_route']['kwargs']['session_id'])
         # self.sessionid = self.scope['url_route']['kwargs']['session_id']
@@ -33,11 +34,9 @@ class TextConsumer(JsonWebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
-        print("disconnected")
         self.close()
-        print("closed")
+        logger.info("Closing Connection")
         # self.channel_layer.group_discard(self.sessionid, self.channel_name)
-        pass
 
     def receive_json(self, content, **kwargs):
 
@@ -45,6 +44,7 @@ class TextConsumer(JsonWebsocketConsumer):
         # Save the file
 ###########################################
         try:
+            logger.info("Process Start")
             format, fixeddata = content.get('file').split(';base64,')
             received_file = ContentFile(base64.b64decode(fixeddata),
                                         name=content.get('filename'))
@@ -335,6 +335,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         # serialize and send response
 ###########################################
+        logger.info("Process End")
 
         serialized_ql = JsonResponseSerializer(process.questionlibrary)
         self.send(text_data=json.dumps(process.sendformat("Done", "", serialized_ql.data)))

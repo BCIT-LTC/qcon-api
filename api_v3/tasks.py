@@ -406,7 +406,9 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 case 'endanswer_ORD':
                     build_endanswer_ORD(question, endanswer)
                 case 'inline_NO_TYPE':
-                    print("inline_NO_TYPE")
+                    # print("inline_NO_TYPE")
+                    pass
                 case 'endanswer_NO_TYPE':
-                    print("endanswer_NO_TYPE")
+                    # print("endanswer_NO_TYPE")
+                    pass
     return question_id

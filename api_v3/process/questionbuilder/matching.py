@@ -1,6 +1,10 @@
 from ...models import Matching, MatchingChoice, MatchingAnswer
 from ..process_helper import trim_text, markdown_to_html
 import re
+import logging
+logger = logging.getLogger(__name__)
+from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+logger.addFilter(QuestionlibraryFilenameFilter())
 
 def build_inline_MAT(question, answers):
     mat_object = Matching.objects.create(question=question)
@@ -21,7 +25,7 @@ def build_inline_MAT(question, answers):
                 group_num.extend([8, 9])
             else:
                 # This should be impossible as we made sure the answer would have an `=`
-                print("No match in MAT answer")
+                logger.debug("No match in MAT answer")
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
             mat_choice_text = markdown_to_html(mat_choice_text)
@@ -88,7 +92,7 @@ def build_endanswer_MAT(question, endanswer):
                 group_num.extend([8, 9])
             else:
                 # This should be impossible as we made sure the answer would have an `=`
-                print("No match in MAT answer")
+                logger.debug("No match in MAT answer")
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
             mat_choice_text = markdown_to_html(mat_choice_text)

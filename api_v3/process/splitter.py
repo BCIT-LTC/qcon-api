@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
 
 def run_splitter(questionlibrary):
-    loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
-    logger.addFilter(loggingfilter)
+    logger.addFilter(QuestionlibraryFilenameFilter(questionlibrary=questionlibrary))
     sections = Section.objects.filter(question_library=questionlibrary)
     questions_count = 0
     section_order = 1

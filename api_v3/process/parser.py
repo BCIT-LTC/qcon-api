@@ -40,12 +40,10 @@ def run_parser(questionlibrary):
     for section in sections:
         questions = Question.objects.filter(section=section)
         if section.is_main_content:
-            if settings.DEBUG:
-                print("\nRoot section:")
+            logger.debug("\nRoot section:")
         else:
             section_count += 1
-            if settings.DEBUG:
-                print("\nSection", str(section.order), ":", section.title )
+            logger.debug("\nSection", str(section.order), ":", section.title )
 
         section.questions_expected = len(questions) - 1
         section_start_time = time.time()
@@ -108,12 +106,10 @@ def run_parser(questionlibrary):
         section_end_time = time.time()
         section.processing_time = section_end_time - section_start_time
         section.save()
-        if settings.DEBUG:
-            print("  Section total questions :", section_question_count)
-            print("  Section processing time :", section.processing_time)
+        logger.debug("  Section total questions :", section_question_count)
+        logger.debug("  Section processing time :", section.processing_time)
     logger.info(f'Total Processing time for Parser : {time.time() - start_time}')
-    if settings.DEBUG:
-        print("\nProccessing Time Total :", time.time() - start_time)
+    logger.debug("\nProccessing Time Total :", time.time() - start_time)
 
 class ParserError(Exception):
     def __init__(self, reason, message="Parser Error"):
