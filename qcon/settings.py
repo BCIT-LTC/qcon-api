@@ -197,6 +197,9 @@ LOGGING = {
             'format': '{levelname} {asctime} {file} {name} {funcName} {message}',
             'style': '{',
         },
+        'json': {
+            '()': 'json_log_formatter.VerboseJSONFormatter'
+        }
     },
     'handlers': {
         'console': {
@@ -204,12 +207,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'custom'
         },
-        # 'file': {
-        #     'level': 'ERROR',
-        #     'class': 'logging.FileHandler',
-        #     'filename': '/code/log/main.log',
-        #     'formatter': 'custom'
-        # },
+        'json_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'main.log',
+            'formatter': 'json'
+        }
         # 'file': {
         #     'level': 'INFO',
         #     'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -223,15 +226,10 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'ERROR',
-            'propagate': True,
-        },
-        'api_v2': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'api_v3': {
-            'handlers': ['console'],
+            'handlers': ['console','json_file'],
             'level': 'INFO',
             'propagate': True,
         }

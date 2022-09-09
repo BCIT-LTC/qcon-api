@@ -176,7 +176,7 @@ class QuestionLibrary(models.Model):
                     with open(img_path, "wb") as fh:
                         fh.write(image_data)
                 except IOError as e:
-                    print("Cannot proccess image with error:", e)
+                    logger.error(f"Cannot proccess image with error: {e}")
 
                 new_img = '<img src="{0}" alt="{1}" />'.format('assessment-assets/' + self.filtered_main_title + '/' + new_image_name, new_image_name)
                 questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
@@ -514,7 +514,8 @@ def delete_files(sender, instance, **kwargs):
         try:
             rmdir(settings.MEDIA_ROOT + str(instance))
         except OSError as e:
-            print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
+            # print("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
+            logger.error("Error: %s : %s" % (settings.MEDIA_ROOT, e.strerror))
     logger.info("Questionlibrary and Files Deleted")
 
 

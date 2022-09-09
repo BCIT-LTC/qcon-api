@@ -7,6 +7,7 @@ RUN set -ex; \
         pip install celery \
         pip install redis \ 
         pip install channels_redis \
+        pip install JSON-log-formatter \
         pip install psycopg2-binary
 
 ## ANLR Builder
