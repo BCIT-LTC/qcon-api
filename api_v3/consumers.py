@@ -15,13 +15,13 @@ logger.addFilter(QuestionlibraryFilenameFilter())
 from .serializers import JsonResponseSerializer
 from .process.process import Process
 
-from .models import MarkDownConversionError
 from .process.extract_images import ImageExtractError
 from .process.formatter import FormatterError
 from .process.sectioner import SectionerError
 from .process.splitter import SplitterError
 from .process.endanswers import EndAnswerError
 from .process.parser import ParserError
+from .tasks import MarkDownConversionError
 
 class TextConsumer(JsonWebsocketConsumer):
 
@@ -72,7 +72,8 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
 
         try:
-            process.questionlibrary.create_pandocstring()
+            # process.questionlibrary.create_pandocstring()
+            process.run_pandoc()
             logger.info("Pandoc Done")
         except MarkDownConversionError:
             logger.error("Failed to convert to Markdown")

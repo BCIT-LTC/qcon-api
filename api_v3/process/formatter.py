@@ -12,14 +12,16 @@ from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
 def run_formatter(questionlibrary):
     loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
     logger.addFilter(loggingfilter)
-    os.chdir('/formatter/jarfile')
-    result = subprocess.run('java -cp formatter.jar:* formatter',
-                            shell=True,
-                            input=questionlibrary.pandoc_output.encode("utf-8"),
-                            capture_output=True)
-    os.chdir('/code')
+    
     root = None
+
     try:
+        os.chdir('/formatter/jarfile')
+        result = subprocess.run('java -cp formatter.jar:* formatter',
+                                shell=True,
+                                input=questionlibrary.pandoc_output.encode("utf-8"),
+                                capture_output=True)
+        os.chdir('/code')
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
         FormatterError("File Not valid")

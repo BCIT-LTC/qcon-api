@@ -1,25 +1,25 @@
 import os
-import subprocess
-import re
+# import subprocess
+# import re
 import xml.etree.ElementTree as ET
 from ..models import EndAnswer, Section, Question
-from .process_helper import trim_text, markdown_to_plain, trim_md_to_html
-from .questionbuilder.truefalse import build_inline_TF, build_endanswer_TF
-from .questionbuilder.multiplechoice import build_inline_MC, build_endanswer_MC
-from .questionbuilder.multipleselect import build_inline_MS, build_endanswer_MS
-from .questionbuilder.fib import build_inline_FIB, build_endanswer_FIB
-from .questionbuilder.matching import build_inline_MAT, build_endanswer_MAT
-from .questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
-from .questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
+# from .process_helper import trim_text, markdown_to_plain, trim_md_to_html
+# from .questionbuilder.truefalse import build_inline_TF, build_endanswer_TF
+# from .questionbuilder.multiplechoice import build_inline_MC, build_endanswer_MC
+# from .questionbuilder.multipleselect import build_inline_MS, build_endanswer_MS
+# from .questionbuilder.fib import build_inline_FIB, build_endanswer_FIB
+# from .questionbuilder.matching import build_inline_MAT, build_endanswer_MAT
+# from .questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
+# from .questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
 
 from django.conf import settings
 import logging
 logger = logging.getLogger(__name__)
 from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
-import threading
-from asgiref.sync import sync_to_async
-import time
-import asyncio
+# import threading
+# from asgiref.sync import sync_to_async
+# import time
+# import asyncio
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
 from api_v3.tasks import parse_question
