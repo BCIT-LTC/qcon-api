@@ -1,4 +1,3 @@
-import logging
 from bs4 import BeautifulSoup
 from .extract_images import extract_images
 from .formatter import run_formatter
@@ -7,8 +6,12 @@ from .splitter import run_splitter
 from .endanswers import get_endanswers
 from .parser import run_parser
 import socket
+from api_v3.tasks import MarkDownConversionError, run_pandoc_task
 
+import logging
 logger = logging.getLogger(__name__)
+from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+logger.addFilter(QuestionlibraryFilenameFilter())
 
 class Process:
     def __init__(self, questionlibrary) -> None:
@@ -19,6 +22,22 @@ class Process:
         self.questions_processed = 0
         self.endanswers_count = 0
         self.question_error_count = 0
+        logger.addFilter(QuestionlibraryFilenameFilter(self.questionlibrary))
+
+    def run_pandoc(self):
+        try:
+            result = run_pandoc_task.apply_async(kwargs={"questionlibrary_id":self.questionlibrary.id}, ignore_result=False)
+            pandoc_task_result = result.get()
+            self.questionlibrary.pandoc_output = pandoc_task_result
+        except MarkDownConversionError as e:
+            logger.error(e)
+            raise
+        try: 
+            if self.questionlibrary.pandoc_output == None:
+                raise MarkDownConversionError("Pandoc output string is empty")
+        except Exception as e:
+            logger.error(e)
+            raise MarkDownConversionError(e)
 
     def extract_images(self):
         self.images_extracted = extract_images(self.questionlibrary)

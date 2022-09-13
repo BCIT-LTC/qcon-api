@@ -4,7 +4,7 @@ from time import sleep
 from celery import shared_task
 import logging
 logger = logging.getLogger(__name__)
-from .models import EndAnswer, Question
+from .models import EndAnswer, Question, QuestionLibrary
 import xml.etree.ElementTree as ET
 import re
 from .process.process_helper import trim_text, markdown_to_plain, trim_md_to_html
@@ -17,6 +17,10 @@ from .process.questionbuilder.matching import build_inline_MAT, build_endanswer_
 from .process.questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
 from .process.questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
 
+import logging
+logger = logging.getLogger(__name__)
+from .logging.contextfilter import QuestionlibraryFilenameFilter
+logger.addFilter(QuestionlibraryFilenameFilter())
 
 def check_inline_questiontype(question, answers, wr_answer):
     answers_length = len(answers)
@@ -412,3 +416,44 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     # print("endanswer_NO_TYPE")
                     pass
     return question_id
+
+
+@shared_task()
+def run_pandoc_task(questionlibrary_id):
+    try:
+        import pypandoc
+        from django.core.files.base import ContentFile
+        questionlibrary = QuestionLibrary.objects.get(pk=questionlibrary_id)
+        mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
+        emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
+        # listsPath = "./api_v3/pandoc-filters/lists.lua"
+        pandoc_word_to_html = pypandoc.convert_file(questionlibrary.temp_file.path,
+                                                    format='docx+empty_paragraphs',
+                                                    to='html+empty_paragraphs+tex_math_single_backslash',
+                                                    extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml',
+                                                    '--ascii'])
+        pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
+        pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
+        pandoc_html_to_md = pypandoc.convert_text(
+            pandoc_word_to_html,
+            'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
+            format='html+empty_paragraphs',
+            extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
+                        '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
+        # questionlibrary.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
+        # questionlibrary.pandoc_output = "\n" + pandoc_html_to_md
+        # questionlibrary.save()
+
+        return "\n" + pandoc_html_to_md
+
+    except Exception as e:
+        raise MarkDownConversionError(e)
+
+class MarkDownConversionError(Exception):
+    def __init__(self, reason, message="File invalid"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'

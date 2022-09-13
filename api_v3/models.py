@@ -4,7 +4,7 @@
 
 from django.db import models
 
-import pypandoc
+# import pypandoc
 
 from api_v3.scorm.XmlWriter import XmlWriter
 from api_v3.scorm.manifest import ManifestEntity, ManifestResourceEntity
@@ -22,21 +22,20 @@ from django.core.files.base import ContentFile
 # from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
-from enum import Enum
+# from enum import Enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models.signals import post_delete
-from django.db.models.signals import post_save
-from django.db.models.signals import pre_save
+# from django.db.models.signals import post_save
+# from django.db.models.signals import pre_save
 from django.dispatch import receiver
 # Create your models here.
 
 import logging
 logger = logging.getLogger(__name__)
 from .logging.contextfilter import QuestionlibraryFilenameFilter
-loggingfilter = QuestionlibraryFilenameFilter()
-logger.addFilter(loggingfilter)
+logger.addFilter(QuestionlibraryFilenameFilter())
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -105,31 +104,31 @@ class QuestionLibrary(models.Model):
         if not path.exists(self.folder_path):
             makedirs(self.folder_path)
 
-    def create_pandocstring(self):
-        # logger.addFilter(QuestionlibraryFilenameFilter(self))
-        try:
-            mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
-            emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
-            # listsPath = "./api_v3/pandoc-filters/lists.lua"
-            pandoc_word_to_html = pypandoc.convert_file(self.temp_file.path,
-                                                        format='docx+empty_paragraphs',
-                                                        to='html+empty_paragraphs+tex_math_single_backslash',
-                                                        extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml',
-                                                        '--ascii'])
-            pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
-            pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
-            pandoc_html_to_md = pypandoc.convert_text(
-                pandoc_word_to_html,
-                'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
-                format='html+empty_paragraphs',
-                extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
-                            '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
-            self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
-            self.pandoc_output = "\n" + pandoc_html_to_md
-            self.save()
-        except Exception as e:
-            logger.error(e)
-            raise MarkDownConversionError(e)
+    # def create_pandocstring(self):
+    #     # logger.addFilter(QuestionlibraryFilenameFilter(self))
+    #     try:
+    #         mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
+    #         emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
+    #         # listsPath = "./api_v3/pandoc-filters/lists.lua"
+    #         pandoc_word_to_html = pypandoc.convert_file(self.temp_file.path,
+    #                                                     format='docx+empty_paragraphs',
+    #                                                     to='html+empty_paragraphs+tex_math_single_backslash',
+    #                                                     extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml',
+    #                                                     '--ascii'])
+    #         pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
+    #         pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
+    #         pandoc_html_to_md = pypandoc.convert_text(
+    #             pandoc_word_to_html,
+    #             'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
+    #             format='html+empty_paragraphs',
+    #             extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
+    #                         '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
+    #         self.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
+    #         self.pandoc_output = "\n" + pandoc_html_to_md
+    #         self.save()
+    #     except Exception as e:
+    #         logger.error(e)
+    #         raise MarkDownConversionError(e)
 
     # ImsManifest string create ===================================================================================
 
@@ -539,15 +538,3 @@ class StatusResponse:
 
     def __init__(self, version_number, created=None):
         self.version_number = version_number
-
-
-class MarkDownConversionError(Exception):
-
-    def __init__(self, reason, message="File invalid"):
-        self.reason = reason
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f'{self.message} -> {self.reason}'
-
