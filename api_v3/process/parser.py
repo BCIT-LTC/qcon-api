@@ -89,18 +89,21 @@ def run_parser(questionlibrary):
         #     section_question_count += 1
         #     if settings.DEBUG:
         #         print("    question : " + str(question_count + section_question_count))
-        
-        questions = Question.objects.filter(section=section)
-        tasklist = []
-        for idx, question in enumerate(questions):
-            if len(endanswers) != 0:
-                tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id, endanswers[idx].id))
-            else:
-                tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id))
-            section_question_count += 1
-        lazy_group = group(tasklist)
-        promise = lazy_group()
-        promise.get()
+
+        try:
+            questions = Question.objects.filter(section=section)
+            tasklist = []
+            for idx, question in enumerate(questions):
+                if len(endanswers) != 0:
+                    tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id, endanswers[idx].id))
+                else:
+                    tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id))
+                section_question_count += 1
+            lazy_group = group(tasklist)
+            promise = lazy_group()
+            promise.get()
+        except:
+            raise ParserError("Error in Parser group task")
 
         question_count += section_question_count
         section_end_time = time.time()
@@ -109,7 +112,7 @@ def run_parser(questionlibrary):
         logger.debug("  Section total questions :", section_question_count)
         logger.debug("  Section processing time :", section.processing_time)
     logger.info(f'Total Processing time for Parser : {time.time() - start_time}')
-    logger.debug("\nProccessing Time Total :", time.time() - start_time)
+    logger.debug("\nProcessing Time Total :", time.time() - start_time)
 
 class ParserError(Exception):
     def __init__(self, reason, message="Parser Error"):
