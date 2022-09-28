@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
+    'elasticapm.contrib.django',
     'channels',
     # 'django_q',
     'drf_spectacular',
@@ -72,6 +73,21 @@ INSTALLED_APPS = [
     # Local Apps
     'api_v3'
 ]
+
+ELASTIC_APM = {
+# Set the required service name. Allowed characters:
+# a-z, A-Z, 0-9, -, _, and space
+'SERVICE_NAME': 'qcon-api',
+
+# Use if APM Server requires a secret token
+'SECRET_TOKEN': '',
+
+# Set the custom APM Server URL (default: http://localhost:8200)
+'SERVER_URL': 'https://bcit-ltc.apm.westus2.azure.elastic-cloud.com',
+
+# Set the service environment
+'ENVIRONMENT': 'production',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -81,6 +97,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'elasticapm.contrib.django.middleware.TracingMiddleware',
 ]
 
 ROOT_URLCONF = 'qcon.urls'
