@@ -28,9 +28,11 @@ def build_inline_MAT(question, answers):
                 logger.debug("No match in MAT answer")
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
+            mat_choice_text = re.sub(r"^\\\`|\\\`$", '', mat_choice_text)
             mat_choice_text = markdown_to_html(mat_choice_text)
 
             mat_answer_text = choice_answer_groups_regex.group(group_num[1]).strip()
+            mat_answer_text = re.sub(r"^\\\`|\\\`$", '', mat_answer_text)
             mat_answer_text = markdown_to_html(mat_answer_text)
 
             if mat_choice_text == "":
@@ -79,7 +81,7 @@ def build_endanswer_MAT(question, endanswer):
 
     for answer in answer_list:
         answercontent = trim_text(answer)
-        regpattern = r"((.+)\\?`\s*=\s*\\?`(.+))|((.+)==(.+))|((.+)=(.+))"
+        regpattern = r"(\\`(.+)\\`\s*=\s*\\`(.+)\\`)|((.+)==(.+))|((.+)=(.+))"
         choice_answer_groups_regex = re.search(regpattern, answercontent)
 
         if choice_answer_groups_regex is not None:
@@ -95,9 +97,11 @@ def build_endanswer_MAT(question, endanswer):
                 logger.debug("No match in MAT answer")
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
+            mat_choice_text = re.sub(r"^\\\`|\\\`$", '', mat_choice_text)
             mat_choice_text = markdown_to_html(mat_choice_text)
 
             mat_answer_text = choice_answer_groups_regex.group(group_num[1]).strip()
+            mat_answer_text = re.sub(r"^\\\`|\\\`$", '', mat_answer_text)
             mat_answer_text = markdown_to_html(mat_answer_text)
 
             if mat_choice_text == "":
