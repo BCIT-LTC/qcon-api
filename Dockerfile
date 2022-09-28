@@ -8,7 +8,8 @@ RUN set -ex; \
         pip install redis \ 
         pip install channels_redis \
         pip install JSON-log-formatter \
-        pip install psycopg2-binary
+        pip install psycopg2-binary \
+        pip install elastic-apm
 
 ## ANLR Builder
 FROM openjdk:17-jdk AS antlr-builder
