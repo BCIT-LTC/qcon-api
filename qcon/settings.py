@@ -215,9 +215,6 @@ LOGGING = {
         'custom': {
             'format': '{levelname} {asctime} {file} {name} {funcName} {message}',
             'style': '{',
-        },
-        'json': {
-            '()': 'json_log_formatter.VerboseJSONFormatter'
         }
     },
     'handlers': {
@@ -226,12 +223,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'custom'
         },
-        'json_file': {
+        'elasticapm': {
             'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'main.log',
-            'formatter': 'json'
-        }
+            'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
+        },
         # 'file': {
         #     'level': 'INFO',
         #     'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -248,9 +243,9 @@ LOGGING = {
             'propagate': False,
         },
         'api_v3': {
-            'handlers': ['console','json_file'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'handlers': ['console','elasticapm'],
+            'level': 'INFO',
+            'propagate': False,
         }
     },
 }

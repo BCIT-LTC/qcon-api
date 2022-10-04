@@ -7,7 +7,6 @@ RUN set -ex; \
         pip install celery \
         pip install redis \ 
         pip install channels_redis \
-        pip install JSON-log-formatter \
         pip install psycopg2-binary \
         pip install elastic-apm
 
@@ -129,4 +128,5 @@ COPY api_v3 api_v3
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8001
-CMD ["supervisord", "-c", "supervisord.conf", "-n"]
+# CMD ["supervisord", "-c", "supervisord.conf", "-n"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "qcon.asgi:application"]
