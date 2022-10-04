@@ -42,9 +42,11 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 DEBUG = os.getenv('DEBUG', False) == 'True'
 ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
+CONSOLE_LOGGING_LEVEL = 'INFO'
 
 if DEBUG:
     POSTGRES_HOST = 'postgres'
+    CONSOLE_LOGGING_LEVEL = 'DEBUG'
 
 ALLOWED_HOSTS = ['*']
 
@@ -220,7 +222,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': CONSOLE_LOGGING_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'custom'
         },
@@ -247,7 +249,7 @@ LOGGING = {
         },
         'api_v3': {
             'handlers': ['console','json_file'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         }
     },

@@ -61,6 +61,7 @@ class QuestionLibrary(models.Model):
     formatter_output = models.TextField(blank=True, null=True)
     pandoc_output_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     pandoc_output = models.TextField(blank=True, null=True)
+    txt_output = models.TextField(blank=True, null=True)
     sectioner_output = models.TextField(blank=True, null=True)
     imsmanifest_string = models.TextField(blank=True, null=True)
     imsmanifest_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
