@@ -22,6 +22,7 @@ services:
       - 'GIT_TAG=0.0.1'
       - 'IMAGE_TAG=0.0.1'
       - 'IMAGE_TITLE=qcon-api'
+      - 'ELASTIC_APM_DISABLE_SEND=true'
     volumes:
       - .:/code
     ports:
