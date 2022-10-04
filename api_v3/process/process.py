@@ -5,6 +5,8 @@ from .sectioner import run_sectioner
 from .splitter import run_splitter
 from .endanswers import get_endanswers
 from .parser import run_parser
+from .convert_txt import convert_txt
+from .fix_numbering import fix_numbering
 import socket
 from api_v3.tasks import MarkDownConversionError, run_pandoc_task
 
@@ -39,6 +41,12 @@ class Process:
             logger.error(e)
             raise MarkDownConversionError(e)
 
+    def convert_txt(self):
+        convert_txt(self.questionlibrary)
+
+    def fix_numbering(self):
+        fix_numbering(self.questionlibrary)
+        
     def extract_images(self):
         self.images_extracted = extract_images(self.questionlibrary)
 

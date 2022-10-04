@@ -90,6 +90,32 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(process.sendformat("Busy", "The file is valid", "")))
 
 ###########################################
+        # Convert to txt for fixing numbering
+###########################################
+
+        try:
+            process.convert_txt()
+            logger.info("convert txt done")
+        except Exception as e:
+            logger.error(e)
+
+###########################################
+        # Fix Numbering (broken lists)
+###########################################
+
+        try:
+            process.fix_numbering()
+            logger.info("numbering fix done")
+        except Exception as e:
+            logger.error(e)
+            self.send(
+                text_data=json.dumps(process.sendformat("Error", "reference and original size mismatch", "")))
+            # close connection
+            # self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
+            return
+
+
+###########################################
         # Extract Images
 ###########################################
 

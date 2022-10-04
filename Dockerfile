@@ -104,6 +104,7 @@ RUN set -ex; \
         apt-get update; \
         apt-get install -y --no-install-recommends \
             redis \
+            libreoffice \
             openjdk-17-jdk-headless; \
         mkdir -p /run/daphne;
 
