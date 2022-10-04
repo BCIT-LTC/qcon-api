@@ -20,7 +20,7 @@ See [developing.md](docs/developing.md) for information about the technology sta
 
 ## Deploying `qcon-api`
 
-`qcon-api` can be deployed as a single docker container or as a scalable Kubernetes cluster workload. See the [deployment package](docs/deployments.md) for each setup.
+`qcon-api` can be deployed as a single docker container or as a scalable Kubernetes cluster workload. We use `kpt` and `kustomize` to deploy a package of resource manifests to the cluster based on the target environment.
 
 ## Support
 

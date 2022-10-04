@@ -1,4 +1,3 @@
-#
 # Default LTC GitLab CI/CD Source Project Pipeline
 #
 ## Requirements
@@ -101,7 +100,7 @@ variables: # other global variables are set in GitLab Admin
   # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
   DEPLOY_PKG_PROJECT_ID: "405"
   COMMON_NAMESPACE: "qcon" # combine apps into one namespace
-  PIPELINE_DEBUG: "false"
+  PIPELINE_DEBUG: "true"
 #
 ## ---------- It's generally bad to change anything below here ----------
 #
