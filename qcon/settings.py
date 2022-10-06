@@ -23,6 +23,11 @@ load_dotenv()
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+
+ELASTIC_APM_SERVICE_NAME = os.getenv('ELASTIC_APM_SERVICE_NAME')
+ELASTIC_APM_SECRET_TOKEN = os.getenv('ELASTIC_APM_SECRET_TOKEN')
+ELASTIC_APM_SERVER_URL = os.getenv('ELASTIC_APM_SERVER_URL')
+
 API_KEY = os.environ.get('API_KEY')
 GIT_TAG = os.getenv('GIT_TAG')
 IMAGE_TAG = os.getenv('IMAGE_TAG')
@@ -56,6 +61,7 @@ CSRF_COOKIE_HTTPONLY = True
 # Application definition
 
 INSTALLED_APPS = [
+    'elasticapm.contrib.django',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -67,7 +73,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
-    # 'elasticapm.contrib.django',
     'channels',
     # 'django_q',
     'drf_spectacular',
@@ -76,22 +81,24 @@ INSTALLED_APPS = [
     'api_v3'
 ]
 
-# ELASTIC_APM = {
-# # Set the required service name. Allowed characters:
-# # a-z, A-Z, 0-9, -, _, and space
-# 'SERVICE_NAME': 'qcon-api',
+ELASTIC_APM = {
+# "DEBUG": True,
+# Set the required service name. Allowed characters:
+# a-z, A-Z, 0-9, -, _, and space
+'SERVICE_NAME': ELASTIC_APM_SERVICE_NAME,
 
-# # Use if APM Server requires a secret token
-# 'SECRET_TOKEN': 'wCZhoYMBD9cF07Xi4GXw:rNVqm1CaT320RbhBWNFfQA',
+# Use if APM Server requires a secret token
+'SECRET_TOKEN': ELASTIC_APM_SECRET_TOKEN,
 
-# # Set the custom APM Server URL (default: http://localhost:8200)
-# 'SERVER_URL': 'https://bcit-ltc.apm.westus2.azure.elastic-cloud.com',
+# Set the custom APM Server URL (default: http://localhost:8200)
+'SERVER_URL': ELASTIC_APM_SERVER_URL,
 
-# # Set the service environment
-# 'ENVIRONMENT': 'production',
-# }
+# Set the service environment
+'ENVIRONMENT': 'production',
+}
 
 MIDDLEWARE = [
+    'elasticapm.contrib.django.middleware.TracingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -99,7 +106,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'elasticapm.contrib.django.middleware.TracingMiddleware',
 ]
 
 ROOT_URLCONF = 'qcon.urls'
