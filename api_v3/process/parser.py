@@ -45,7 +45,6 @@ def run_parser(questionlibrary):
             section_count += 1
             logger.debug("Section", str(section.order), ":", section.title )
 
-        section.questions_expected = len(questions) - 1
         section_start_time = time.time()
         section_question_count = 0
 

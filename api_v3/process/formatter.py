@@ -63,7 +63,7 @@ def run_formatter(questionlibrary):
         questionlibrary.end_answers_raw = end_answers.text
         questionlibrary.save()
     else:
-        logger.warn("No endanswers found")
+        logger.info("No endanswers found")
 
 class FormatterError(Exception):
     def __init__(self, reason, message="Formatter Error"):

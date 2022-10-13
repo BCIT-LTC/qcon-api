@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from .extract_images import extract_images
 from .formatter import run_formatter
 from .sectioner import run_sectioner
-from .splitter import run_splitter
+from .splitter import Splitter
 from .endanswers import get_endanswers
 from .parser import run_parser
 from .convert_txt import convert_txt
@@ -58,7 +58,8 @@ class Process:
         self.subsection_count = run_sectioner(self.questionlibrary)
 
     def run_splitter(self):
-        self.questions_expected = run_splitter(self.questionlibrary)
+        splitter = Splitter(self.questionlibrary)
+        self.questions_expected = splitter.run_splitter()
 
     def get_endanswers(self):
         self.endanswers_count = get_endanswers(self.questionlibrary)

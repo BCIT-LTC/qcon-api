@@ -278,6 +278,7 @@ class Section(models.Model):
     text = models.TextField(blank=True, null=True)
     is_text_displayed = models.BooleanField(blank=True, null=True)
     shuffle = models.BooleanField(blank=True, null=True)
+    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.order)
@@ -289,6 +290,7 @@ class Section(models.Model):
 class Question(models.Model):
     id = models.AutoField(primary_key=True)
     section = models.ForeignKey(Section, related_name='questions', on_delete=models.CASCADE)
+    index = models.IntegerField(blank=True, null=True)
     number_provided = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
     raw_header = models.TextField(blank=True, null=True)
     raw_content = models.TextField(blank=True, null=True)
