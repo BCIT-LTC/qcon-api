@@ -196,7 +196,7 @@ class SectionSerializer(serializers.ModelSerializer):
     questions = serializers.SerializerMethodField()
 
     def get_questions(self, section):
-        question_queryset = Question.objects.filter(section=section).order_by('number_provided')
+        question_queryset = Question.objects.filter(section=section).order_by('index')
         serializer = QuestionSerializer(instance=question_queryset, many=True)
         
         return serializer.data

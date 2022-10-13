@@ -8,56 +8,64 @@ import logging
 logger = logging.getLogger(__name__)
 from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
 
-def run_splitter(questionlibrary):
-    logger.addFilter(QuestionlibraryFilenameFilter(questionlibrary=questionlibrary))
-    sections = Section.objects.filter(question_library=questionlibrary)
-    questions_count = 0
-    section_order = 1
-    for section in sections:
-        questions_count_section = 0
+class Splitter:
+    def __init__(self, questionlibrary) -> None:
+        self.questionlibrary = questionlibrary
+        self.total_questions_found = 0
+        self.section_order = 1
+
+    def run_splitter(self):
+        logger.addFilter(QuestionlibraryFilenameFilter(questionlibrary=self.questionlibrary))
+        sections = Section.objects.filter(question_library=self.questionlibrary)
+        for section in sections:
+            try:
+                section.questions_expected = self.split_questions(section)
+                section.order = self.section_order
+                self.section_order += 1
+                section.save()
+            except SplitterError as e:
+                logger.info("No questions detected. Discarding empty section")
+                section.delete()
+            # remove empty sections
+            if section.questions_expected == 0:        
+                section.delete()
+        # return questions_count
+        return self.total_questions_found
+
+    def split_questions(self, sectionobject):
+        root = None
         try:
-            questions_count_section = split_questions(section)
-            section.order = section_order
-            section_order += 1
-            section.save()
-        except SplitterError as e:
-            logger.warn("No questions detected. Discarding empty section")
-        questions_count += questions_count_section
-        # remove empty sections
-        if questions_count_section == 0:        
-            section.delete()
-    return questions_count
+            os.chdir('/splitter/jarfile')
+            result = subprocess.run(
+                'java -cp splitter.jar:* splitter',
+                shell=True,
+                input=sectionobject.raw_content.encode("utf-8"),
+                capture_output=True)
+            os.chdir('/code')
+            root = ET.fromstring(result.stdout.decode("utf-8"))
+        except:
+            sectionobject.error = "ANTLR"
+            raise SplitterError("ANTLR")
 
-def split_questions(sectionobject):
-    root = None
-    try:
-        os.chdir('/splitter/jarfile')
-        result = subprocess.run(
-            'java -cp splitter.jar:* splitter',
-            shell=True,
-            input=sectionobject.raw_content.encode("utf-8"),
-            capture_output=True)
-        os.chdir('/code')
-        root = ET.fromstring(result.stdout.decode("utf-8"))
-    except:
-        raise SplitterError("Splitter failed")   
-
-    questions_found = 0
-    try:    
-        for question in root:
-            questionobject = Question.objects.create(
-                section=sectionobject)
-            questionobject.save()
-            content = question.find('content')
-            if content is not None:
-                # Filter out empty questions
-                if len(trim_text(content.text)) > 0:
-                    questions_found += 1
-                    questionobject.raw_content = content.text
-            questionobject.save()
-    except:
-        raise SplitterError("Splitter failed")
-    return questions_found
+        section_questions_found = 0
+        try:    
+            for question in root:
+                questionobject = Question.objects.create(
+                    section=sectionobject)
+                questionobject.save()
+                content = question.find('content')
+                if content is not None:
+                    # Filter out empty questions
+                    if len(trim_text(content.text)) > 0:
+                        self.total_questions_found += 1
+                        questionobject.index = self.total_questions_found
+                        section_questions_found += 1
+                        questionobject.raw_content = content.text
+                questionobject.save()
+        except:
+            sectionobject.error = "Failed to process questions in section"
+            raise SplitterError("Failed to process questions in section")
+        return section_questions_found
 
 class SplitterError(Exception):
     def __init__(self, reason, message="Splitter Error"):
