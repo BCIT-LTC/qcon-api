@@ -23,6 +23,8 @@ from .process.endanswers import EndAnswerError
 from .process.parser import ParserError
 from .tasks import MarkDownConversionError
 
+import elasticapm
+
 class TextConsumer(JsonWebsocketConsumer):
 
     def connect(self):
@@ -60,6 +62,7 @@ class TextConsumer(JsonWebsocketConsumer):
             loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=new_questionlibrary)
             logger.addFilter(loggingfilter)
             logger.info("File Saved")
+            elasticapm.set_custom_context({'docx_filename': new_questionlibrary.temp_file.name})
         except Exception as e:
             logger.error("Not a valid .docx File: {e}")
             self.send(text_data=json.dumps(process.sendformat("Error", "Not a valid .docx File", "")))
