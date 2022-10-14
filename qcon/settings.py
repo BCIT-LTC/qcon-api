@@ -230,8 +230,9 @@ LOGGING = {
             'formatter': 'custom'
         },
         'elasticapm': {
-            'level': 'INFO',
+            'level': CONSOLE_LOGGING_LEVEL,
             'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
+            'formatter': 'custom'
         },
         # 'file': {
         #     'level': 'INFO',
@@ -250,7 +251,7 @@ LOGGING = {
         },
         'api_v3': {
             'handlers': ['console','elasticapm'],
-            'level': 'INFO',
+            'level': DEBUG,
             'propagate': False,
         }
     },
