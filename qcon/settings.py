@@ -208,6 +208,14 @@ QCON = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'docxfilename': {
+            '()': 'api_v3.logging.contextfilter.QuestionlibraryFilenameFilter',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'formatters': {
         'verbose': {
             'format':
@@ -219,7 +227,7 @@ LOGGING = {
             'style': '{',
         },
         'custom': {
-            'format': '{levelname} {asctime} {file} {name} {funcName} {message}',
+            'format': '{levelname} {asctime} {name} {funcName} {message}',
             'style': '{',
         }
     },
@@ -234,24 +242,24 @@ LOGGING = {
             'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
             'formatter': 'custom'
         },
-        # 'file': {
-        #     'level': 'INFO',
-        #     'class': 'logging.handlers.TimedRotatingFileHandler',
-        #     'filename': '/code/log/main.log',
-        #     'when': 'D',  # daily 'D', you can use 'midnight' as well
-        #     'backupCount': 7,  # 7 days backup
-        #     'formatter': 'custom'
-        # }
+        'console_dev': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'dev.log',
+            'formatter': 'custom',
+            'maxBytes': 1024 * 1024 * 10,  # 10 mb
+            'filters': ['require_debug_true']
+        }
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console','console_dev'],
             'level': 'ERROR',
             'propagate': False,
         },
         'api_v3': {
-            'handlers': ['console','elasticapm'],
-            'level': DEBUG,
+            'handlers': ['console','console_dev','elasticapm'],
+            'level': CONSOLE_LOGGING_LEVEL,
             'propagate': False,
         }
     },
