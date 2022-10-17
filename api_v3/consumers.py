@@ -24,6 +24,7 @@ from .process.parser import ParserError
 from .tasks import MarkDownConversionError
 
 import elasticapm
+elastic_client = elasticapm.get_client()
 
 class TextConsumer(JsonWebsocketConsumer):
 
@@ -62,7 +63,7 @@ class TextConsumer(JsonWebsocketConsumer):
             loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=new_questionlibrary)
             logger.addFilter(loggingfilter)
             logger.info("File Saved")
-            elasticapm.set_custom_context({'docx_filename': new_questionlibrary.temp_file.name})
+            elastic_client.begin_transaction('convert')
         except Exception as e:
             logger.error("Not a valid .docx File: {e}")
             self.send(text_data=json.dumps(process.sendformat("Error", "Not a valid .docx File", "")))
@@ -369,6 +370,7 @@ class TextConsumer(JsonWebsocketConsumer):
 
         serialized_ql = JsonResponseSerializer(process.questionlibrary)
         self.send(text_data=json.dumps(process.sendformat("Done", "", serialized_ql.data)))
+        elastic_client.end_transaction('convert')
 
 ######################### Close Connection
         self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
