@@ -48,6 +48,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         try:
             logger.info("Process Start")
+            print("test if this is an error in elastic")
             format, fixeddata = content.get('file').split(';base64,')
             received_file = ContentFile(base64.b64decode(fixeddata),
                                         name=content.get('filename'))
