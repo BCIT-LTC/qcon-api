@@ -52,7 +52,7 @@ class TextConsumer(JsonWebsocketConsumer):
         # self.channel_layer.group_discard(self.sessionid, self.channel_name)
 
     def receive_json(self, content, **kwargs):
-        elastic_client.begin_transaction('convert')
+        elastic_client.begin_transaction('main')
 ###########################################
         # Save the file
 ###########################################
@@ -385,4 +385,4 @@ class TextConsumer(JsonWebsocketConsumer):
         self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
         self.close()
 
-        elastic_client.end_transaction('convert')
+        elastic_client.end_transaction('main')
