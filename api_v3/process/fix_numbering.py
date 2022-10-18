@@ -14,10 +14,15 @@ def fix_numbering(questionlibrary):
     logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(questionlibrary.temp_file.name)})
 
     try:
-        ref_array = re.split('(\n.*[0-9]+)', questionlibrary.txt_output)
-        original_array = re.split('(\n.*[0-9]+)', questionlibrary.pandoc_output)
+        ref_array = re.split('(\n *[0-9]+)', questionlibrary.txt_output)
+        original_array = re.split('(\n *[0-9]+)', questionlibrary.pandoc_output)
 
         logger.debug(f"ref length: {len(ref_array)} orig length: {len(original_array)}")
+        # logger.debug("--------------") 
+        # logger.debug(ref_array)
+        # logger.debug("--------------")
+        # logger.debug(original_array)
+        # logger.debug("--------------") 
 
         if len(ref_array) != len(original_array):
             logger.debug(f"ref length and original length not equal")

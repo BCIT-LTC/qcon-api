@@ -47,11 +47,11 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 DEBUG = os.getenv('DEBUG', False) == 'True'
 ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
-CONSOLE_LOGGING_LEVEL = 'INFO'
+LOGGING_LEVEL = 'INFO'
 
 if DEBUG:
     POSTGRES_HOST = 'postgres'
-    CONSOLE_LOGGING_LEVEL = 'DEBUG'
+    LOGGING_LEVEL = 'DEBUG'
 
 ALLOWED_HOSTS = ['*']
 
@@ -230,12 +230,12 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': CONSOLE_LOGGING_LEVEL,
+            'level': LOGGING_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'custom'
         },
         'elasticapm': {
-            'level': CONSOLE_LOGGING_LEVEL,
+            'level': LOGGING_LEVEL,
             'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
             'formatter': 'custom'
         },
@@ -256,7 +256,7 @@ LOGGING = {
         },
         'api_v3': {
             'handlers': ['console','console_dev','elasticapm'],
-            'level': CONSOLE_LOGGING_LEVEL,
+            'level': LOGGING_LEVEL,
             'propagate': False,
         }
     },
