@@ -6,12 +6,14 @@ import re
 from .process_helper import trim_text
 
 import logging
-logger = logging.getLogger(__name__)
-from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+newlogger = logging.getLogger(__name__)
+# from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 def run_formatter(questionlibrary):
-    loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
-    logger.addFilter(loggingfilter)
+    # loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
+    # logger.addFilter(loggingfilter)
+    logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(questionlibrary.temp_file.name)})
     
     root = None
 

@@ -207,11 +207,8 @@ QCON = {
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'filters': {
-        'docxfilename': {
-            '()': 'api_v3.logging.contextfilter.QuestionlibraryFilenameFilter',
-        },
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },

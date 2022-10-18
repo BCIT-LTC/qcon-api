@@ -5,12 +5,13 @@ import subprocess
 from pathlib import Path
 
 import logging
-logger = logging.getLogger(__name__)
-from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+newlogger = logging.getLogger(__name__)
+# from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 def fix_numbering(questionlibrary):
 
-    logger.addFilter(QuestionlibraryFilenameFilter(questionlibrary=questionlibrary))
+    logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(questionlibrary.temp_file.name)})
 
     try:
         ref_array = re.split('(\n.*[0-9]+)', questionlibrary.txt_output)

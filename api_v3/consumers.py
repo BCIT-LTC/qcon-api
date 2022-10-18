@@ -2,15 +2,17 @@ import json
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.core.files.base import ContentFile
 import base64
+import os
 
 from .models import Question, Section, QuestionLibrary, \
     Image, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, \
         Matching, MatchingAnswer, MatchingChoice, Ordering, WrittenResponse
 import re
 import logging
-logger = logging.getLogger(__name__)
-from .logging.contextfilter import QuestionlibraryFilenameFilter
-logger.addFilter(QuestionlibraryFilenameFilter())
+newlogger = logging.getLogger(__name__)
+from .logging.logging_adapter import FilenameLoggingAdapter
+# from .logging.contextfilter import QuestionlibraryFilenameFilter
+# logger.addFilter(QuestionlibraryFilenameFilter())
 
 from .serializers import JsonResponseSerializer
 from .process.process import Process
@@ -26,10 +28,18 @@ from .tasks import MarkDownConversionError
 import elasticapm
 elastic_client = elasticapm.get_client()
 
+# class FilenameLoggingAdapter(logging.LoggerAdapter):
+#     """
+#     This example adapter expects the passed in dict-like object to have a
+#     'connid' key, whose value in brackets is prepended to the log message.
+#     """
+#     def process(self, msg, kwargs):
+#         return f"[{self.extra['filename']}] {msg}", kwargs
+
 class TextConsumer(JsonWebsocketConsumer):
 
     def connect(self):
-        logger.info("New connection started")
+        newlogger.info("New connection started")
         sessionid = None
         # print(self.scope['url_route']['kwargs']['session_id'])
         # self.sessionid = self.scope['url_route']['kwargs']['session_id']
@@ -38,17 +48,16 @@ class TextConsumer(JsonWebsocketConsumer):
 
     def disconnect(self, close_code):
         self.close()
-        logger.info("Closing Connection")
+        newlogger.info("Closing Connection")
         # self.channel_layer.group_discard(self.sessionid, self.channel_name)
 
     def receive_json(self, content, **kwargs):
-
+        elastic_client.begin_transaction('convert')
 ###########################################
         # Save the file
 ###########################################
         try:
-            logger.info("Process Start")
-            print("test if this is an error in elastic")
+            newlogger.info("Process Start")
             format, fixeddata = content.get('file').split(';base64,')
             received_file = ContentFile(base64.b64decode(fixeddata),
                                         name=content.get('filename'))
@@ -61,10 +70,10 @@ class TextConsumer(JsonWebsocketConsumer):
             new_questionlibrary.randomize_answer = content.get('randomize_answer')
             new_questionlibrary.save()
             process = Process(new_questionlibrary)
-            loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=new_questionlibrary)
-            logger.addFilter(loggingfilter)
+            # loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=new_questionlibrary)
+            # logger.addFilter(loggingfilter)
+            logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(new_questionlibrary.temp_file.name)})
             logger.info("File Saved")
-            elastic_client.begin_transaction('convert')
         except Exception as e:
             logger.error("Not a valid .docx File: {e}")
             self.send(text_data=json.dumps(process.sendformat("Error", "Not a valid .docx File", "")))
@@ -371,8 +380,9 @@ class TextConsumer(JsonWebsocketConsumer):
 
         serialized_ql = JsonResponseSerializer(process.questionlibrary)
         self.send(text_data=json.dumps(process.sendformat("Done", "", serialized_ql.data)))
-        elastic_client.end_transaction('convert')
 
 ######################### Close Connection
         self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
         self.close()
+
+        elastic_client.end_transaction('convert')

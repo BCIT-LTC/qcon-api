@@ -3,8 +3,6 @@ from django.conf import settings
 import sys
 import logging
 logger = logging.getLogger(__name__)
-from .logging.contextfilter import QuestionlibraryFilenameFilter
-logger.addFilter(QuestionlibraryFilenameFilter())
 
 class ApiV3Config(AppConfig):
     # default_auto_field = 'django.db.models.BigAutoField'
