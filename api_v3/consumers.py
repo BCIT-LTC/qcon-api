@@ -104,6 +104,19 @@ class TextConsumer(JsonWebsocketConsumer):
             self.send(text_data=json.dumps(process.sendformat("Busy", "The file is valid", "")))
 
 ###########################################
+        # Extract Images
+###########################################
+
+        try:
+            process.extract_images()
+            logger.info("Done extracting Images")
+        except ImageExtractError as e:
+            self.send(text_data=json.dumps(process.sendformat("Warn", "Images extraction failed", "")))
+        else:
+            logger.info(f'{str(process.images_extracted)} Images Extracted')
+            self.send(text_data=json.dumps(process.sendformat("Busy", "Image found: " + str(process.images_extracted), "")))
+
+###########################################
         # Convert to txt for fixing numbering
 ###########################################
 
@@ -128,19 +141,6 @@ class TextConsumer(JsonWebsocketConsumer):
             # self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
             return
 
-
-###########################################
-        # Extract Images
-###########################################
-
-        try:
-            process.extract_images()
-            logger.info("Done extracting Images")
-        except ImageExtractError as e:
-            self.send(text_data=json.dumps(process.sendformat("Warn", "Images extraction failed", "")))
-        else:
-            logger.info(f'{str(process.images_extracted)} Images Extracted')
-            self.send(text_data=json.dumps(process.sendformat("Busy", "Image found: " + str(process.images_extracted), "")))
 ##########################################
         # run_formatter
 ##########################################
