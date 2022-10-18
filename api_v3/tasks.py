@@ -2,8 +2,6 @@ import os
 import subprocess
 from time import sleep
 from celery import shared_task
-import logging
-logger = logging.getLogger(__name__)
 from .models import EndAnswer, Question, QuestionLibrary
 import xml.etree.ElementTree as ET
 import re
@@ -21,6 +19,9 @@ import logging
 logger = logging.getLogger(__name__)
 from .logging.contextfilter import QuestionlibraryFilenameFilter
 logger.addFilter(QuestionlibraryFilenameFilter())
+
+import elasticapm
+elastic_client = elasticapm.get_client()
 
 def check_inline_questiontype(question, answers, wr_answer):
     answers_length = len(answers)
@@ -169,6 +170,7 @@ def check_endanswer_questiontype(question, answers, endanswer):
 
 @shared_task()
 def parse_question(randomize_answer, question_id, endanswer=None):
+    elastic_client.begin_transaction('parse')
     question = Question.objects.get(pk=question_id)
     try:
         endanswer = EndAnswer.objects.get(pk=endanswer)
@@ -415,6 +417,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 case 'endanswer_NO_TYPE':
                     # print("endanswer_NO_TYPE")
                     pass
+    elastic_client.end_transaction('parse')
     return question_id
 
 
