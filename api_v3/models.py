@@ -33,9 +33,8 @@ from django.dispatch import receiver
 # Create your models here.
 
 import logging
-logger = logging.getLogger(__name__)
-from .logging.contextfilter import QuestionlibraryFilenameFilter
-logger.addFilter(QuestionlibraryFilenameFilter())
+newlogger = logging.getLogger(__name__)
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 def format_file_path(instance, file_name):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -134,7 +133,7 @@ class QuestionLibrary(models.Model):
     # ImsManifest string create ===================================================================================
 
     def create_xml_files(self):
-        logger.addFilter(QuestionlibraryFilenameFilter(self))
+        logger = FilenameLoggingAdapter(newlogger, {'filename': str(self.id)})
         try:
             ql_obj = QuestionLibrary.objects.filter(id=self.id).first()
             parsed_xml = XmlWriter(ql_obj)
@@ -147,12 +146,9 @@ class QuestionLibrary(models.Model):
             parsed_imsmanifest = parsed_imsmanifest.toprettyxml(indent="\t")
             self.imsmanifest_string = parsed_imsmanifest
             self.save()
-
-            logger.info("[" + str(self.id) + "] " + "imsmanifest String Created")
-
+            logger.info("imsmanifest String Created")
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " + "imsmanifest String Failed")
-
+            logger.error("imsmanifest String Failed")
             self.error = "imsmanifest String Failed"
             self.save()
 
@@ -187,10 +183,10 @@ class QuestionLibrary(models.Model):
             imsmanifest_file = ContentFile(self.imsmanifest_string, name="imsmanifest.xml")
             self.imsmanifest_file = imsmanifest_file
             self.save()
-            logger.info("[" + str(self.id) + "] " + "QuestionDB String Created")
+            logger.info("QuestionDB String Created")
 
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " + "QuestionDB String Failed")
+            logger.error("QuestionDB String Failed")
 
             self.error = "QuestionDB String Failed"
             self.save()
@@ -200,16 +196,16 @@ class QuestionLibrary(models.Model):
             self.questiondb_file = questiondb_file
             # question_library.checkpoint = 5;
             self.save()
-            logger.info("[" + str(self.id) + "] " + "XML files Created")
+            logger.info("XML files Created")
             # print(datetime.now().strftime("%H:%M:%S"), "imsmanifest.xml and questiondb.xml created!")
 
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " + "XML files Failed")
+            logger.error("XML files Failed")
             self.error = "XML files Failed"
             self.save()
 
     def zip_files(self):
-        logger.addFilter(QuestionlibraryFilenameFilter(self))
+        logger = FilenameLoggingAdapter(newlogger, {'filename': str(self.id)})
         try:
             with ZipFile(self.folder_path + "/" + self.filtered_main_title + '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
@@ -220,16 +216,16 @@ class QuestionLibrary(models.Model):
 
             self.zip_file.name = str(self.id) + "/" + self.filtered_main_title + '.zip'
             self.save()
-            logger.info("[" + str(self.id) + "] " + "ZIP file Created")
+            logger.info("ZIP file Created")
 
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " + "ZIP file Failed")
+            logger.error("ZIP file Failed")
 
             self.error = "ZIP file Failed"
             self.save()
 
     def create_zip_file_package(self):
-        logger.addFilter(QuestionlibraryFilenameFilter(self))
+        logger = FilenameLoggingAdapter(newlogger, {'filename': str(self.id)})
         try:
             with ZipFile(self.folder_path + "/" + self.filtered_main_title, 'w') as myzip:
                 myzip.write(self.zip_file.path, self.filtered_main_title + '.zip')
@@ -237,9 +233,9 @@ class QuestionLibrary(models.Model):
 
             self.output_zip_file.name = str(self.id) + "/" + self.filtered_main_title
             self.save()
-            logger.info("[" + str(self.id) + "] " + "ZIP file with JSON package Created")
+            logger.info("ZIP file with JSON package Created")
         except Exception as e:
-            logger.error("[" + str(self.id) + "] " + "ZIP file with JSON package Failed")
+            logger.error("ZIP file with JSON package Failed")
             self.error = "ZIP file Failed"
             self.save()
 
@@ -503,7 +499,7 @@ class WrittenResponse(models.Model):
 
 @receiver(post_delete, sender=QuestionLibrary, dispatch_uid="delete_files")
 def delete_files(sender, instance, **kwargs):
-    logger.addFilter(QuestionlibraryFilenameFilter(instance))
+    logger = FilenameLoggingAdapter(newlogger, {'filename': str(instance)})
     if path.exists(settings.MEDIA_ROOT + str(instance)):
         try:
             for root, dirs, files in walk(settings.MEDIA_ROOT + str(instance), topdown=False):
@@ -512,7 +508,7 @@ def delete_files(sender, instance, **kwargs):
                 for name in dirs:
                     rmdir(path.join(root, name))
         except OSError as e:
-            logger.error("[" + str(instance) + "] " + "Error deleting files")
+            logger.error("Error deleting files")
         try:
             rmdir(settings.MEDIA_ROOT + str(instance))
         except OSError as e:

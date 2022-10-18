@@ -11,7 +11,8 @@ class QuestionlibraryFilenameFilter(logging.Filter):
         else:
             if self.questionlibrary.temp_file.name != None:
                 # record.file = 'docx_filename:' + os.path.basename(self.questionlibrary.temp_file.name)
-                filename = 'docx_filename:' + os.path.basename(self.questionlibrary.temp_file.name)
+                # filename = 'docx_filename:' + os.path.basename(self.questionlibrary.temp_file.name)
+                filename = 'docx_filename:' + self.questionlibrary.temp_file.name
                 record.msg = filename + " >>> " + str(record.getMessage())
             elif self.questionlibrary.filtered_main_title != None:
                 # record.file = 'filtered_main_title:' + os.path.basename(self.questionlibrary.filtered_main_title)   

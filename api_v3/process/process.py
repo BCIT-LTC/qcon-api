@@ -11,9 +11,12 @@ import socket
 from api_v3.tasks import MarkDownConversionError, run_pandoc_task
 
 import logging
-logger = logging.getLogger(__name__)
-from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
-logger.addFilter(QuestionlibraryFilenameFilter())
+newlogger = logging.getLogger(__name__)
+# from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+# logger.addFilter(QuestionlibraryFilenameFilter())
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
+
+import os
 
 class Process:
     def __init__(self, questionlibrary) -> None:
@@ -24,22 +27,23 @@ class Process:
         self.questions_processed = 0
         self.endanswers_count = 0
         self.question_error_count = 0
-        logger.addFilter(QuestionlibraryFilenameFilter(self.questionlibrary))
 
     def run_pandoc(self):
+        logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(self.questionlibrary.temp_file.name)})
         try:
             result = run_pandoc_task.apply_async(kwargs={"questionlibrary_id":self.questionlibrary.id}, ignore_result=False)
             pandoc_task_result = result.get()
             self.questionlibrary.pandoc_output = pandoc_task_result
-        except MarkDownConversionError as e:
+        except Exception as e:
             logger.error(e)
-            raise
+            raise Exception(e)
+
         try: 
             if self.questionlibrary.pandoc_output == None:
                 raise MarkDownConversionError("Pandoc output string is empty")
         except Exception as e:
             logger.error(e)
-            raise MarkDownConversionError(e)
+            raise Exception(e)
 
     def convert_txt(self):
         convert_txt(self.questionlibrary)
