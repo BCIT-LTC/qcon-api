@@ -1,6 +1,8 @@
 from ...models import TrueFalse
 from ..process_helper import trim_text, trim_md_to_html, markdown_to_plain
+from celery.utils.log import get_task_logger
 
+loggercelery = get_task_logger(__name__)
 
 def build_inline_TF(question, answers):
     tf_object = TrueFalse.objects.create(question=question)
@@ -27,12 +29,16 @@ def build_inline_TF(question, answers):
                 tf_object.false_weight = 100
                 correctanswer_count += 1
 
-        tf_object.error = ""
-
         if correctanswer_count == 0:
-            tf_object.error = "No answer selected in True/False question"
+            error_message = "TFNoAnswerError -> No answer selected in True/False question"
+            if error_message not in question.error:
+                question.error = question.error + "\n" + error_message if question.error else error_message
+                question.save()
         elif correctanswer_count > 1:
-            tf_object.error = "More than one answer selected in True/False question"
+            error_message = "TFSelectedAnswerError -> More than one answer selected in True/False question"
+            if error_message not in question.error:
+                question.error = question.error + "\n" + error_message if question.error else error_message
+                question.save()
         
         tf_object.save()
         question.questiontype = 'TF'
@@ -58,7 +64,7 @@ def build_endanswer_TF(question, answers, endanswer):
             if idx == parsedanswer_index:
                 tf_object.true_weight = 100
                 correctanswer_count += 1
-        
+
         if "false" in answer_text:
             if answer_feedback != None:
                 tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
@@ -68,12 +74,18 @@ def build_endanswer_TF(question, answers, endanswer):
                 correctanswer_count += 1
 
 
-        tf_object.error = ""
         if correctanswer_count == 0:
-            tf_object.error = "No answer selected in True/False question"
+            error_message = "TFNoAnswerError -> No answer selected in True/False question"
+            if error_message not in question.error:
+                question.error = question.error + "\n" + error_message if question.error else error_message
+                loggercelery.error(error_message)
+
         elif correctanswer_count > 1:
-            tf_object.error = "More than one answer selected in True/False question"
-        
+            error_message = "TFSelectedAnswerError -> More than one answer selected in True/False question"
+            if error_message not in question.error:
+                question.error = question.error + "\n" + error_message if question.error else error_message
+                loggercelery.error(error_message)
+
         tf_object.save()
         question.questiontype = 'TF'
         question.save()

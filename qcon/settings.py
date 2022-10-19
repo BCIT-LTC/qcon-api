@@ -226,13 +226,29 @@ LOGGING = {
         'custom': {
             'format': '{levelname} {asctime} {name} {funcName} {message}',
             'style': '{',
-        }
+        },
+        'task': {
+            'format': '{levelname} {asctime} "TASK" {name} {funcName} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
         'console': {
             'level': LOGGING_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'custom'
+        },
+        'task': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'task'
+        },
+        'celery': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'celery.log',
+            'formatter': 'task',
+            'maxBytes': 1024 * 1024 * 100,  # 100 mb
         },
         'elasticapm': {
             'level': LOGGING_LEVEL,
@@ -258,6 +274,15 @@ LOGGING = {
             'handlers': ['console','console_dev','elasticapm'],
             'level': LOGGING_LEVEL,
             'propagate': False,
+        },
+        # 'celery': {
+        #     'handlers': ['celery'],
+        #     'level': 'INFO',
+        #     'propagate': False,
+        # },
+        'celery.task': {
+            'handlers': ['celery'],
+            'level': 'DEBUG',
         }
     },
 }

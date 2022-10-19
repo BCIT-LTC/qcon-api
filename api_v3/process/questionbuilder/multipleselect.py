@@ -1,5 +1,8 @@
 from ...models import MultipleSelect, MultipleSelectAnswer
 from ..process_helper import trim_text, trim_md_to_html, trim_md_to_plain
+from celery.utils.log import get_task_logger
+
+loggercelery = get_task_logger(__name__)
 
 def build_inline_MS(question, answers, is_random):
     ms_object = MultipleSelect.objects.create(question=question)
@@ -55,7 +58,10 @@ def build_endanswer_MS(question, answers, endanswer, is_random):
                 ms_answerobject.is_correct = True
 
         if is_correct == 'true':
-            ms_answerobject.error = "Correct answer in the question is ignored because of existing Answer Key."
+            warning_message = "MSEndAnswerExistWarning -> Correct answer in the question is ignored because of existing Answer Key."
+            question.warning = warning_message
+            question.save()
+            loggercelery.warning(warning_message)
         
         ms_answerobject.save()
 

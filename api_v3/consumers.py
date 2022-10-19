@@ -294,10 +294,16 @@ class TextConsumer(JsonWebsocketConsumer):
         for section in sections:
             questions = Question.objects.filter(section=section)
             for question in questions:
+                if question.info is not None:
+                    process.question_info_count += 1
+
+                if question.warning is not None:
+                    process.question_warning_count += 1
+
                 if question.error is not None:
                     process.question_error_count += 1
 
-                ###### MC ERROR COUNT
+                """ ###### MC ERROR COUNT
                 mc = MultipleChoice.objects.filter(question=question)
                 try:
                     if mc.error is not None:
@@ -371,7 +377,7 @@ class TextConsumer(JsonWebsocketConsumer):
                     if wr.error is not None:
                         process.question_error_count += 1  
                 except:
-                    pass
+                    pass """
 
 ###########################################
         # serialize and send response
