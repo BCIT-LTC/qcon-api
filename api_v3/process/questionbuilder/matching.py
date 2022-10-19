@@ -1,10 +1,9 @@
 from ...models import Matching, MatchingChoice, MatchingAnswer
 from ..process_helper import trim_text, markdown_to_html
 import re
-import logging
-logger = logging.getLogger(__name__)
-from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
-logger.addFilter(QuestionlibraryFilenameFilter())
+from celery.utils.log import get_task_logger
+
+loggercelery = get_task_logger(__name__)
 
 def build_inline_MAT(question, answers):
     mat_object = Matching.objects.create(question=question)
@@ -25,7 +24,7 @@ def build_inline_MAT(question, answers):
                 group_num.extend([8, 9])
             else:
                 # This should be impossible as we made sure the answer would have an `=`
-                logger.debug("No match in MAT answer")
+                loggercelery.error("MATNoMatchError -> No match in MAT answer")
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
             mat_choice_text = re.sub(r"^\\\`|\\\`$", '', mat_choice_text)
@@ -36,8 +35,12 @@ def build_inline_MAT(question, answers):
             mat_answer_text = markdown_to_html(mat_answer_text)
 
             if mat_choice_text == "":
-                mat_choice.error = "matching choice missing"
-                mat_object.error = "one or more matching or answer choices missing"
+                error_message = "MissingMATChoiceError -> one or more matching choice is missing"
+                if error_message not in question.error:
+                    question.error = question.error + "\n" + error_message if question.error else error_message
+                    question.save()
+                    loggercelery.error(error_message)
+
             else:
                 if mat_object.get_matching_choice_by_text(mat_choice_text):
                     mat_choice = mat_object.get_matching_choice_by_text(mat_choice_text)
@@ -53,8 +56,11 @@ def build_inline_MAT(question, answers):
                 mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
 
             if mat_answer_text == "":
-                mat_answer.error = "matching answer missing"
-                mat_object.error = "one or more matching or answer choices missing"
+                error_message = "MissingMATAnswerError -> one or more matching answer is missing"
+                if error_message not in question.error:
+                    question.error = question.error + "\n" + error_message if question.error else error_message
+                    question.save()
+                    loggercelery.error(error_message)
             else:
 
                 mat_answer.answer_text = mat_answer_text
@@ -62,9 +68,11 @@ def build_inline_MAT(question, answers):
         else:
             mat_choice = MatchingChoice.objects.create(matching=mat_object)
             mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
-            mat_choice.error = "matching choice missing"
-            mat_answer.error = "matching answer missing"
-            mat_object.error = "one or more matching or answer choices missing"
+            error_message = "MissingMATOptionError -> one or more matching choice/answer choices missing"
+            if error_message not in question.error:
+                question.error = question.error + "\n" + error_message if question.error else error_message
+                question.save()
+                loggercelery.error(error_message)
 
         mat_choice.save()
         mat_answer.save()
@@ -94,7 +102,7 @@ def build_endanswer_MAT(question, endanswer):
                 group_num.extend([8, 9])
             else:
                 # This should be impossible as we made sure the answer would have an `=`
-                logger.debug("No match in MAT answer")
+                loggercelery.debug("No match in MAT answer")
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
             mat_choice_text = re.sub(r"^\\\`|\\\`$", '', mat_choice_text)
@@ -105,8 +113,11 @@ def build_endanswer_MAT(question, endanswer):
             mat_answer_text = markdown_to_html(mat_answer_text)
 
             if mat_choice_text == "":
-                mat_choice.error = "matching choice missing"
-                mat_object.error = "one or more matching or answer choices missing"
+                error_message = "MissingMATChoiceError -> one or more matching choice is missing"
+                if error_message not in question.error:
+                    question.error = question.error + "\n" + error_message if question.error else error_message
+                    question.save()
+                    loggercelery.error(error_message)
             else:
                 if mat_object.get_matching_choice_by_text(mat_choice_text):
                     mat_choice = mat_object.get_matching_choice_by_text(mat_choice_text)
@@ -122,8 +133,11 @@ def build_endanswer_MAT(question, endanswer):
                 mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
 
             if mat_answer_text == "":
-                mat_answer.error = "matching answer missing"
-                mat_object.error = "one or more matching or answer choices missing"
+                error_message = "MissingMATChoiceError -> one or more matching answer is missing"
+                if error_message not in question.error:
+                    question.error = question.error + "\n" + error_message if question.error else error_message
+                    question.save()
+                    loggercelery.error(error_message)
             else:
 
                 mat_answer.answer_text = mat_answer_text
@@ -131,9 +145,11 @@ def build_endanswer_MAT(question, endanswer):
         else:
             mat_choice = MatchingChoice.objects.create(matching=mat_object)
             mat_answer = MatchingAnswer.objects.create(matching_choice=mat_choice)
-            mat_choice.error = "matching choice missing"
-            mat_answer.error = "matching answer missing"
-            mat_object.error = "one or more matching or answer choices missing"
+            error_message = "MissingMATOptionError -> one or more matching choice/answer choices missing"
+            if error_message not in question.error:
+                question.error = question.error + "\n" + error_message if question.error else error_message
+                question.save()
+                loggercelery.error(error_message)
 
         mat_choice.save()
         mat_answer.save()

@@ -26,6 +26,8 @@ class Process:
         self.questions_expected = 0
         self.questions_processed = 0
         self.endanswers_count = 0
+        self.question_info_count = 0
+        self.question_warning_count = 0
         self.question_error_count = 0
 
     def run_pandoc(self):
@@ -81,6 +83,8 @@ class Process:
                 'section_count': str(self.subsection_count),
                 'questions_count': str(self.questions_expected),
                 'endanswer_count': str(self.endanswers_count),
+                'question_info_count': str(self.question_info_count),
+                'question_warning_count': str(self.question_warning_count),
                 'question_error_count': str(self.question_error_count),
                 'data': data
             }

@@ -299,6 +299,8 @@ class Question(models.Model):
     mandatory = models.BooleanField(blank=True, null=True)
     hint = models.TextField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
+    info = models.TextField(blank=True, null=True)
+    warning = models.TextField(blank=True, null=True)
     error = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -350,7 +352,6 @@ class MultipleChoice(models.Model):
     question = models.ForeignKey(Question, related_name='multiple_choice', on_delete=models.CASCADE)
     randomize = models.BooleanField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -366,7 +367,6 @@ class MultipleChoiceAnswer(models.Model):
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -380,7 +380,6 @@ class TrueFalse(models.Model):
     false_weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
     false_feedback = models.TextField(blank=True, null=True)
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True, default=4)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -394,7 +393,6 @@ class Fib(models.Model):
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     size = models.DecimalField(unique=False, max_digits=3, decimal_places=0, null=True)
     weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -407,7 +405,6 @@ class MultipleSelect(models.Model):
     enumeration = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(6)], default=4)
     style = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(3)], default=2)
     grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=2)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -423,7 +420,6 @@ class MultipleSelectAnswer(models.Model):
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
-    error = models.TextField(blank=True, null=True)
     
     def __str__(self):
         return str(self.id)
@@ -433,7 +429,6 @@ class Matching(models.Model):
     id = models.AutoField(primary_key=True)
     question = models.ForeignKey(Question, related_name='matching', on_delete=models.CASCADE)
     grading_type = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MaxValueValidator(3)], default=3)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -453,7 +448,6 @@ class MatchingChoice(models.Model):
     id = models.AutoField(primary_key=True)
     matching = models.ForeignKey(Matching, related_name='matching_choices', on_delete=models.CASCADE)
     choice_text = models.TextField(blank=True, null=True)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -467,7 +461,6 @@ class MatchingAnswer(models.Model):
     id = models.AutoField(primary_key=True)
     matching_choice = models.ForeignKey(MatchingChoice, related_name='matching_answers', on_delete=models.CASCADE)
     answer_text = models.TextField(blank=True, null=True)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -479,7 +472,6 @@ class Ordering(models.Model):
     text = models.TextField(blank=True, null=True)
     order = models.PositiveSmallIntegerField(blank=True, null=True)
     ord_feedback = models.TextField(blank=True, null=True)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
@@ -492,7 +484,6 @@ class WrittenResponse(models.Model):
     initial_text = models.TextField(blank=True, null=True)
     answer_key = models.TextField(blank=True, null=True)
     enable_attachments = models.BooleanField(blank=True, null=True)
-    error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.id)
