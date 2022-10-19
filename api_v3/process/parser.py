@@ -1,34 +1,22 @@
 import os
-# import subprocess
-# import re
 import xml.etree.ElementTree as ET
 from ..models import EndAnswer, Section, Question
-# from .process_helper import trim_text, markdown_to_plain, trim_md_to_html
-# from .questionbuilder.truefalse import build_inline_TF, build_endanswer_TF
-# from .questionbuilder.multiplechoice import build_inline_MC, build_endanswer_MC
-# from .questionbuilder.multipleselect import build_inline_MS, build_endanswer_MS
-# from .questionbuilder.fib import build_inline_FIB, build_endanswer_FIB
-# from .questionbuilder.matching import build_inline_MAT, build_endanswer_MAT
-# from .questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
-# from .questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
-
 from django.conf import settings
+
 import logging
-logger = logging.getLogger(__name__)
-from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
-# import threading
-# from asgiref.sync import sync_to_async
-# import time
-# import asyncio
-os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+newlogger = logging.getLogger(__name__)
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 from api_v3.tasks import parse_question
 
 from celery import group
 
 def run_parser(questionlibrary):
-    loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
-    logger.addFilter(loggingfilter)
+    logger = FilenameLoggingAdapter(newlogger, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip
+        })
+
     import time
     sections = Section.objects.filter(question_library=questionlibrary)
     if len(sections) == 0:
@@ -55,40 +43,6 @@ def run_parser(questionlibrary):
             if question.raw_content is None:
                 question.delete()
 
-# ========THREADS 
-        # ----------------------- ADD questionparser to thread here 
-        # threads = []
-        # for idx, question in enumerate(questions):
-        #     if len(endanswers) != 0:
-        #         t = threading.Thread(target=parse_question, args=[questionlibrary, question, endanswers[idx]], daemon=True)
-        #         threads.append(t)
-        #     else:
-        #         t = threading.Thread(target=parse_question, args=[questionlibrary, question, None], daemon=True)
-        #         threads.append(t)
-        #     section_question_count += 1
-        #     if settings.DEBUG:
-        #         print("    question : " + str(question_count + section_question_count))
-        # # ----------------------- START threads here
-        # for x in threads:
-        #     x.start()    
-        # # ----------------------- WAIT for all threads to finish
-        # for x in threads:
-        #     x.join()
-        
-# ======== NO THREADS
-        # for idx, question in enumerate(questions):
-        #     # discard empty question
-        #     if question.raw_content is None:
-        #         question.delete()
-        #     else:
-        #         if len(endanswers) != 0:
-        #             parse_question(questionlibrary, question, endanswers[idx])
-        #         else:
-        #             parse_question(questionlibrary, question)            
-        #     section_question_count += 1
-        #     if settings.DEBUG:
-        #         print("    question : " + str(question_count + section_question_count))
-
         try:
             questions = Question.objects.filter(section=section)
             tasklist = []
@@ -101,7 +55,8 @@ def run_parser(questionlibrary):
             lazy_group = group(tasklist)
             promise = lazy_group()
             promise.get()
-        except:
+        except Exception as e:
+            logger.error(str(e))
             raise ParserError("Error in Parser group task")
 
         question_count += section_question_count

@@ -51,6 +51,7 @@ class QuestionLibrary(models.Model):
     temp_file = models.FileField(upload_to=format_file_path, blank=True, null=True)
     is_busy_processing = models.BooleanField(default=False, blank=True)
     session_id = models.TextField(blank=True, null=True)
+    user_ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=False, blank=True, null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     main_title = models.TextField(blank=True, null=True)

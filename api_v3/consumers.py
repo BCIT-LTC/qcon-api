@@ -68,11 +68,13 @@ class TextConsumer(JsonWebsocketConsumer):
             # new_questionlibrary.session_id = self.sessionid
             new_questionlibrary.main_title = content.get('filename').split(".")[0]
             new_questionlibrary.randomize_answer = content.get('randomize_answer')
+            new_questionlibrary.user_ip = content.get('user_ip')
             new_questionlibrary.save()
             process = Process(new_questionlibrary)
-            # loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=new_questionlibrary)
-            # logger.addFilter(loggingfilter)
-            logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(new_questionlibrary.temp_file.name)})
+            logger = FilenameLoggingAdapter(newlogger, {
+                'filename': new_questionlibrary.temp_file.name,
+                'user_ip': new_questionlibrary.user_ip
+                })
             logger.info("File Saved")
         except Exception as e:
             logger.error("Not a valid .docx File: {e}")
@@ -208,12 +210,11 @@ class TextConsumer(JsonWebsocketConsumer):
         try:
             process.run_parser()
             logger.info("Parser Done")
-        except ParserError as e:
+        except Exception as e:
             logger.error("ParserError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "Parser failed", "")))
                 # close connection
             self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
-            return
         else:
             self.send(text_data=json.dumps(process.sendformat("Busy", "Parsing complete", "")))
 

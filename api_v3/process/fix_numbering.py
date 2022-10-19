@@ -11,7 +11,10 @@ from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 def fix_numbering(questionlibrary):
 
-    logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(questionlibrary.temp_file.name)})
+    logger = FilenameLoggingAdapter(newlogger, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip
+        })
 
     try:
         ref_array = re.split('(\n *[0-9]+)', questionlibrary.txt_output)
