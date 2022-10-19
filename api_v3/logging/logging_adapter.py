@@ -6,4 +6,17 @@ class FilenameLoggingAdapter(logging.LoggerAdapter):
     'connid' key, whose value in brackets is prepended to the log message.
     """
     def process(self, msg, kwargs):
-        return f"[{self.extra['filename']}] {msg}", kwargs
+        user_ip = ""
+        filename = ""
+        question = ""
+
+        if 'user_ip' in self.extra:
+            user_ip = self.extra['user_ip']
+        
+        if 'filename' in self.extra:
+            filename = self.extra['filename']
+        
+        if 'question' in self.extra:
+            question = self.extra['question']
+
+        return f"{user_ip}:[{filename}]:{question} {msg}", kwargs
