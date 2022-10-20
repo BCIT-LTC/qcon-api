@@ -9,7 +9,8 @@ def build_inline_WR_with_keyword(question, wr_answer):
     answer_key = wr_answer.find('content')
 
     if answer_key != None:
-        wr_object.answer_key = trim_md_to_html(answer_key.text)
+        # wr_object.answer_key = trim_md_to_html(answer_key.text)
+        wr_object.answer_key = answer_key.text
 
     wr_object.save()
     question.questiontype = 'WR'
@@ -23,7 +24,8 @@ def build_inline_WR_with_list(question, answers):
         answer_key = answer.find('content')
 
         if answer_key != None:
-            wr_object.answer_key = trim_md_to_html(answer_key.text)
+            # wr_object.answer_key = trim_md_to_html(answer_key.text)
+            wr_object.answer_key = answer_key.text
 
     wr_object.save()
     question.questiontype = 'WR'
@@ -32,7 +34,8 @@ def build_inline_WR_with_list(question, answers):
 def build_endanswer_WR_with_list(question, endanswer, wr_answer):
     wr_object = WrittenResponse.objects.create(question=question)
 
-    wr_object.answer_key = trim_md_to_html(endanswer.answer)
+    # wr_object.answer_key = trim_md_to_html(endanswer.answer)
+    wr_object.answer_key = endanswer.answer
     
     if wr_answer != None:
         warning_message = "WREndAnswerExistWarning -> Correct answer in the question is ignored because of existing Answer Key."

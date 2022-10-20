@@ -31,7 +31,10 @@ class Process:
         self.question_error_count = 0
 
     def run_pandoc(self):
-        logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(self.questionlibrary.temp_file.name)})
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
         try:
             result = run_pandoc_task.apply_async(kwargs={"questionlibrary_id":self.questionlibrary.id}, ignore_result=False)
             pandoc_task_result = result.get()

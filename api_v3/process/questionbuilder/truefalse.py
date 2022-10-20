@@ -15,7 +15,8 @@ def build_inline_TF(question, answers):
 
         if "true" in answer_text:
             if answer_feedback != None:
-                tf_object.true_feedback = trim_md_to_html(answer_feedback.text)
+                # tf_object.true_feedback = trim_md_to_html(answer_feedback.text)
+                tf_object.true_feedback = answer_feedback.text
 
             if is_correct == 'true':
                 tf_object.true_weight = 100
@@ -23,7 +24,8 @@ def build_inline_TF(question, answers):
         
         if "false" in answer_text:
             if answer_feedback != None:
-                tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
+                # tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
+                tf_object.false_feedback = answer_feedback.text
             
             if is_correct == 'true':
                 tf_object.false_weight = 100
@@ -49,7 +51,8 @@ def build_endanswer_TF(question, answers, endanswer):
     tf_object = TrueFalse.objects.create(question=question)
     correctanswer_count = 0
 
-    endanswer_text = markdown_to_plain(endanswer.answer)
+    # endanswer_text = markdown_to_plain(endanswer.answer)
+    endanswer_text = endanswer.answer
     endanswer_text = trim_text(endanswer_text).lower()
 
     for idx, answer in enumerate(answers):
@@ -59,7 +62,8 @@ def build_endanswer_TF(question, answers, endanswer):
 
         if "true" in answer_text:
             if answer_feedback != None:
-                tf_object.true_feedback = trim_md_to_html(answer_feedback.text)
+                # tf_object.true_feedback = trim_md_to_html(answer_feedback.text)
+                tf_object.true_feedback = answer_feedback.text
 
             if idx == parsedanswer_index:
                 tf_object.true_weight = 100
@@ -67,7 +71,8 @@ def build_endanswer_TF(question, answers, endanswer):
 
         if "false" in answer_text:
             if answer_feedback != None:
-                tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
+                # tf_object.false_feedback = trim_md_to_html(answer_feedback.text)
+                tf_object.false_feedback = answer_feedback.text
 
             if idx == parsedanswer_index:
                 tf_object.false_weight = 100

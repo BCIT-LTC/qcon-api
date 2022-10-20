@@ -3,10 +3,11 @@ import subprocess
 import xml.etree.ElementTree as ET
 from ..models import Section
 from ..models import Question
-from .process_helper import trim_text
+# from .process_helper import trim_text
+from api_v3.tasks import trim_text
 import logging
-logger = logging.getLogger(__name__)
-from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
+newlogger = logging.getLogger(__name__)
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 class Splitter:
     def __init__(self, questionlibrary) -> None:
@@ -15,7 +16,10 @@ class Splitter:
         self.section_order = 1
 
     def run_splitter(self):
-        logger.addFilter(QuestionlibraryFilenameFilter(questionlibrary=self.questionlibrary))
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
         sections = Section.objects.filter(question_library=self.questionlibrary)
         for section in sections:
             try:
@@ -24,7 +28,7 @@ class Splitter:
                 self.section_order += 1
                 section.save()
             except SplitterError as e:
-                logger.info("No questions detected. Discarding empty section")
+                logger.debug("No questions detected. Discarding empty section")
                 section.delete()
             # remove empty sections
             if section.questions_expected == 0:        
@@ -33,6 +37,10 @@ class Splitter:
         return self.total_questions_found
 
     def split_questions(self, sectionobject):
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
         root = None
         try:
             os.chdir('/splitter/jarfile')

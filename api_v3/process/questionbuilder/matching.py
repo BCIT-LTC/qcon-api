@@ -28,11 +28,13 @@ def build_inline_MAT(question, answers):
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
             mat_choice_text = re.sub(r"^\\\`|\\\`$", '', mat_choice_text)
-            mat_choice_text = markdown_to_html(mat_choice_text)
+            # mat_choice_text = markdown_to_html(mat_choice_text)
+            mat_choice_text = mat_choice_text
 
             mat_answer_text = choice_answer_groups_regex.group(group_num[1]).strip()
             mat_answer_text = re.sub(r"^\\\`|\\\`$", '', mat_answer_text)
-            mat_answer_text = markdown_to_html(mat_answer_text)
+            # mat_answer_text = markdown_to_html(mat_answer_text)
+            mat_choice_text = mat_choice_text
 
             if mat_choice_text == "":
                 error_message = "MissingMATChoiceError -> one or more matching choice is missing"
@@ -106,11 +108,13 @@ def build_endanswer_MAT(question, endanswer):
 
             mat_choice_text = choice_answer_groups_regex.group(group_num[0]).strip()
             mat_choice_text = re.sub(r"^\\\`|\\\`$", '', mat_choice_text)
-            mat_choice_text = markdown_to_html(mat_choice_text)
+            # mat_choice_text = markdown_to_html(mat_choice_text)
+            mat_choice_text = mat_choice_text
 
             mat_answer_text = choice_answer_groups_regex.group(group_num[1]).strip()
             mat_answer_text = re.sub(r"^\\\`|\\\`$", '', mat_answer_text)
-            mat_answer_text = markdown_to_html(mat_answer_text)
+            # mat_answer_text = markdown_to_html(mat_answer_text)
+            mat_answer_text = mat_answer_text
 
             if mat_choice_text == "":
                 error_message = "MissingMATChoiceError -> one or more matching choice is missing"

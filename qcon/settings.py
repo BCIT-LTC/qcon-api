@@ -226,11 +226,7 @@ LOGGING = {
         'custom': {
             'format': '{levelname} {asctime} {name} {funcName} {message}',
             'style': '{',
-        },
-        'task': {
-            'format': '{levelname} {asctime} "TASK" {name} {funcName} {message}',
-            'style': '{',
-        },
+        }
     },
     'handlers': {
         'console': {
@@ -238,22 +234,18 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'custom'
         },
-        'task': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'task'
+        'elasticapm': {
+            'level': LOGGING_LEVEL,
+            'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
+            'formatter': 'custom'
         },
         'celery': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': 'celery.log',
-            'formatter': 'task',
-            'maxBytes': 1024 * 1024 * 100,  # 100 mb
-        },
-        'elasticapm': {
-            'level': LOGGING_LEVEL,
-            'class': 'elasticapm.contrib.django.handlers.LoggingHandler',
-            'formatter': 'custom'
+            'formatter': 'custom',
+            'maxBytes': 1024 * 1024 * 10,  # 10 mb
+            'filters': ['require_debug_true']
         },
         'console_dev': {
             'level': 'DEBUG',
@@ -273,16 +265,17 @@ LOGGING = {
         'api_v3': {
             'handlers': ['console','console_dev','elasticapm'],
             'level': LOGGING_LEVEL,
-            'propagate': False,
+            'propagate': True,
         },
         # 'celery': {
-        #     'handlers': ['celery'],
-        #     'level': 'INFO',
-        #     'propagate': False,
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
         # },
         'celery.task': {
-            'handlers': ['celery'],
+            'handlers': ['console','console_dev','celery'],
             'level': 'DEBUG',
+            'propagate': True
         }
     },
 }

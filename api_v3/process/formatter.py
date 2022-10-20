@@ -3,7 +3,8 @@ import os
 import xml.etree.ElementTree as ET
 import subprocess
 import re
-from .process_helper import trim_text
+# from .process_helper import trim_text
+from api_v3.tasks import trim_text
 
 import logging
 newlogger = logging.getLogger(__name__)

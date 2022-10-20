@@ -1,7 +1,8 @@
 import os
 import subprocess
 import xml.etree.ElementTree as ET
-from .process_helper import markdown_to_plain, trim_text, markdown_to_html
+# from .process_helper import markdown_to_plain, trim_text, markdown_to_html
+from api_v3.tasks import markdown_to_plain, trim_text, markdown_to_html
 from ..models import Section
 
 # This is to split sections into separate objects

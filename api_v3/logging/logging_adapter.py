@@ -11,12 +11,12 @@ class FilenameLoggingAdapter(logging.LoggerAdapter):
         question = ""
 
         if 'user_ip' in self.extra:
-            user_ip = self.extra['user_ip']
+            user_ip = str(self.extra['user_ip'])
         
         if 'filename' in self.extra:
-            filename = self.extra['filename']
+            filename = str(self.extra['filename'])
         
         if 'question' in self.extra:
-            question = self.extra['question']
+            question = "#" + str(self.extra['question'])
 
         return f"{user_ip}:[{filename}]:{question} {msg}", kwargs
