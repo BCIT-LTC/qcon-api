@@ -27,22 +27,25 @@ def run_parser(questionlibrary):
     start_time = time.time()
     for section in sections:
         questions = Question.objects.filter(section=section)
-        if section.is_main_content:
-            logger.debug("Root section:")
-        else:
-            section_count += 1
-            logger.debug("Section", str(section.order), ":", section.title )
+        # if section.is_main_content:
+        #     logger.debug("Root section:")
+        # else:
+        #     section_count += 1
+        #     logger.debug("Section", str(section.order), ":", section.title )
 
         section_start_time = time.time()
         section_question_count = 0
 
         # ----------------------- DELETE empty questions before adding to thread
-
         for question in questions:
             # discard empty question
             if question.raw_content is None:
                 question.delete()
 
+        # TODO ----------------------- Clean endanswers
+
+
+        # ----------------------- Run parser task in celery
         try:
             questions = Question.objects.filter(section=section)
             tasklist = []
@@ -53,11 +56,16 @@ def run_parser(questionlibrary):
                     tasklist.append(parse_question.s(questionlibrary.randomize_answer, question.id))
                 section_question_count += 1
             lazy_group = group(tasklist)
+            logger.info("Starting group task ... ")
             promise = lazy_group()
-            promise.get()
+            result = promise.get()
+            logger.debug(result)
+            for item in result:
+                if not item == 'success':
+                    logger.error(item)
         except Exception as e:
             logger.error(str(e))
-            raise ParserError("Error in Parser group task")
+            raise ParserError("uncaught error in Parser group task")
 
         question_count += section_question_count
         section_end_time = time.time()

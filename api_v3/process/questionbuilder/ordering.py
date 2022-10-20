@@ -8,11 +8,13 @@ def build_inline_ORD(question, answers):
         ord_object = Ordering.objects.create(question=question)
         ord_object.order = iterator
         iterator += 1
-        ord_object.text = trim_md_to_html(answer.find('content').text)
+        # ord_object.text = trim_md_to_html(answer.find('content').text)
+        ord_object.text = answer.find('content').text
         answer_feedback = answer.find('feedback')
 
         if answer_feedback != None:
-            ord_object.ord_feedback = trim_md_to_html(answer_feedback.text)
+            # ord_object.ord_feedback = trim_md_to_html(answer_feedback.text)
+            ord_object.ord_feedback = answer_feedback.text
 
         ord_object.save()
 
@@ -28,7 +30,8 @@ def build_endanswer_ORD(question, endanswer):
         ord_object = Ordering.objects.create(question=question)
         ord_object.order = iterator
         iterator += 1
-        ord_object.text = trim_md_to_html(answer)
+        # ord_object.text = trim_md_to_html(answer)
+        ord_object.text = answer
 
         ord_object.save()
     

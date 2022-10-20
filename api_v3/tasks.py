@@ -5,7 +5,7 @@ from celery import shared_task
 from .models import EndAnswer, Question, QuestionLibrary
 import xml.etree.ElementTree as ET
 import re
-from .process.process_helper import trim_text, markdown_to_plain, trim_md_to_html
+# from .process.process_helper import trim_text, markdown_to_plain, trim_md_to_html
 
 from .process.questionbuilder.truefalse import build_inline_TF, build_endanswer_TF
 from .process.questionbuilder.multiplechoice import build_inline_MC, build_endanswer_MC
@@ -14,17 +14,49 @@ from .process.questionbuilder.fib import build_inline_FIB, build_endanswer_FIB
 from .process.questionbuilder.matching import build_inline_MAT, build_endanswer_MAT
 from .process.questionbuilder.ordering import build_inline_ORD, build_endanswer_ORD
 from .process.questionbuilder.writtenresponse import build_inline_WR_with_keyword, build_inline_WR_with_list, build_endanswer_WR_with_list
-import logging
-from .logging.contextfilter import QuestionlibraryFilenameFilter
 from celery.utils.log import get_task_logger
 import elasticapm
 
+from api_v3.logging.ErrorTypes import *
+
+import logging
 logger = logging.getLogger(__name__)
-logger.addFilter(QuestionlibraryFilenameFilter())
+from .logging.logging_adapter import FilenameLoggingAdapter
 
 loggercelery = get_task_logger(__name__)
-
 elastic_client = elasticapm.get_client()
+
+def trim_text(txt):
+    text = txt.strip()
+    text = re.sub('<!-- -->', '', text)
+    text = re.sub('<!-- NewLine -->', '\n', text)
+    text = text.strip("\n")
+    return text
+
+def markdown_to_plain(text):
+    import pypandoc
+    plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
+    return plain_text
+
+def markdown_to_html(text):
+    import pypandoc
+    html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
+    return str(html_text)
+
+def trim_md_to_plain(text):
+    import pypandoc
+    text_content = trim_text(text)
+    # text_content = markdown_to_plain(text_content)
+    plain_text = pypandoc.convert_text(text_content, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
+    return plain_text
+
+def trim_md_to_html(text):
+    import pypandoc
+    text_content = trim_text(text)
+    # text_content = markdown_to_html(text_content)
+    html_text = pypandoc.convert_text(text_content, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
+    text_content = html_text.strip('\n')
+    return text_content
 
 def check_inline_questiontype(question, answers, wr_answer):
     answers_length = len(answers)
@@ -173,16 +205,22 @@ def check_endanswer_questiontype(question, answers, endanswer):
 
 @shared_task()
 def parse_question(randomize_answer, question_id, endanswer=None):
-
-    loggercelery.info(f'Start parse_question task question_id: {question_id}')
     elastic_client.begin_transaction('parse')
 
     question = Question.objects.get(pk=question_id)
+    questionlibrary = question.section.question_library
+
+    logger = FilenameLoggingAdapter(loggercelery, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip
+        })
+
+    endanswer = None
     try:
         endanswer = EndAnswer.objects.get(pk=endanswer)
     except EndAnswer.DoesNotExist:
-        pass
-    
+        logger.info("No End answer found")
+
     os.chdir('/questionparser/jarfile')
     popen = subprocess.Popen(
         'java -cp questionparser.jar:* questionparser', 
@@ -203,243 +241,343 @@ def parse_question(randomize_answer, question_id, endanswer=None):
     root = None
     try:
         root = ET.fromstring(result.decode("utf-8"))
-    except:
-        logger.error(f"Empty question: {question.id}")
-        pass
+    except Exception as e:
+        logger.warning(f"Empty question: {question.id}")
+        return "Empty question: " + str(e) 
 
-    questiontype = root.find('type')
-    if questiontype is not None:
-        question.questiontype = trim_text(questiontype.text)
+# ================================# ================================
+#   GET QUESTION DATA FROM XML
+# ================================# ================================
 
-    title = root.find('title')
-    if title is not None:
-        title_text = markdown_to_plain(title.text)
-        title_text = title_text.replace('\n', ' ')
-        question.title = trim_text(title_text)
+    try:
+        questiontype = root.find('type')
+        if questiontype is not None:
+            question.questiontype = trim_text(questiontype.text)
 
-    points = root.find('points')
-    if points is not None:
-        filterpoint = re.search("\d+((.|,)\d+)?", points.text)
-        question.points = float(filterpoint.group())
-
-    question_number = root.find('question_number')
-    if question_number is not None:
-        filter_question_number = re.search("\d+", question_number.text)
-        question.number_provided = filter_question_number.group()
-
-    question_feedback = root.find('question_feedback')
-    if question_feedback is not None:
-        question.feedback = trim_md_to_html(question_feedback.text)
-
-    question_from_xml = root.find('question')
-    answers = root.findall("answer")
-    wr_answer = root.find("wr_answer")
-    is_random = randomize_answer
-    question_type = None
-    if question_from_xml is not None:
-        question.text = trim_md_to_html(question_from_xml.text)
-
-        if question.title is None:
-            title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", question_from_xml.text)
-            title_text = markdown_to_plain(title_text)
+        title = root.find('title')
+        if title is not None:
+            title_text = markdown_to_plain(title.text)
             title_text = title_text.replace('\n', ' ')
-            title_text = trim_text(title_text)
-            question.title = title_text[0:127]
-        
-        question.save()
+            question.title = trim_text(title_text)
 
-    if question.questiontype == 'WR':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
+        points = root.find('points')
+        if points is not None:
+            filterpoint = re.search("\d+((.|,)\d+)?", points.text)
+            question.points = float(filterpoint.group())
 
-            if question_type == 'inline_WR_keyword':
-                build_inline_WR_with_keyword(question, wr_answer)
-            elif question_type == 'inline_WR_list':
-                build_inline_WR_with_list(question, answers)
-            else:
-                question.error = "Inline question structure doesn't conform to WR type question format." 
-                question.save()
-                logger.error(f"WRInlineStructureError -> {question.error}")
+        question_number = root.find('question_number')
+        if question_number is not None:
+            filter_question_number = re.search("\d+", question_number.text)
+            question.number_provided = filter_question_number.group()
+
+        question_feedback = root.find('question_feedback')
+        if question_feedback is not None:
+            question.feedback = trim_md_to_html(question_feedback.text)
+
+        question_from_xml = root.find('question')
+        answers = root.findall("answer")
+        wr_answer = root.find("wr_answer")
+        is_random = randomize_answer
+    except Exception as e:  
+        logger.error("Failed to get question data from xml") 
+        return str(question.number_provided) + " " + str(e) 
+
+    # Re-init logging adapter with available question number 
+
+    logger = FilenameLoggingAdapter(loggercelery, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip,
+        'question': str(question.number_provided)
+        })
+
+# ================================# ================================
+#   CHECK TYPES AND BUILD QUESTION
+# ================================# ================================
+ 
+    try:
+        if question_from_xml is not None:
+            question.text = trim_md_to_html(question_from_xml.text)
+            question.text = question_from_xml.text
+
+            if question.title is None:
+                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", question_from_xml.text)
+                title_text = markdown_to_plain(title_text)
+                title_text = title_text.replace('\n', ' ')
+                title_text = trim_text(title_text)
+                question.title = title_text[0:127]
+            question.save()
+    except Exception as e:
+        return str(question.number_provided) + " " + str(e) 
+
+
+# ================================# ================================
+#   Written Response
+# ================================# ================================
+    question_type = None
+
+    try:
+        if question.questiontype == 'WR':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+
+                    if question_type == 'inline_WR_keyword':
+                        build_inline_WR_with_keyword(question, wr_answer)
+                    elif question_type == 'inline_WR_list':
+                        build_inline_WR_with_list(question, answers)
+                    else:
+                        question.error = "Inline question structure doesn't conform to WR type question format." 
+                        question.save()
+                        # logger.error(f"WRInlineStructureError -> {question.error}")
+                        raise WRInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_WR':
+                        build_endanswer_WR_with_list(question, endanswer, wr_answer)
+                    else:
+                        question.error = "End answer question structure doesn't conform to WR type question format." 
+                        question.save()
+                        # logger.error(f"WREndStructureError -> {question.error}")
+                        raise WREndStructureError(question.error)
+            except Exception as e:
+                logger.error("WRError")
+                raise Exception(e)
+
+# ================================# ================================
+#   Multi Select
+# ================================# ================================
+
+
+        elif question.questiontype == 'MS':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                    if question_type == 'inline_MS':
+                        build_inline_MS(question, answers, is_random)
+                    else:
+                        question.error = "Inline question structure doesn't conform to MS type question format." 
+                        question.save()
+                        # logger.error(f"MSInlineStructureError -> {question.error}")
+                        raise MSInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_MS':
+                        build_endanswer_MS(question, answers, endanswer, is_random)
+                    else:
+                        question.error = "End answer question structure doesn't conform to MS type question format." 
+                        question.save()
+                        # logger.error(f"MSEndStructureError -> {question.error}")
+                        raise MSEndStructureError(question.error)
+            except Exception as e:
+                logger.error("MSError")
+                raise Exception(e)
+
+# ================================# ================================
+#   ORDERING
+# ================================# ================================
+
+        elif question.questiontype == 'ORD':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                    if question_type == 'inline_ORD':
+                        build_inline_ORD(question, answers)
+                    else:
+                        question.error = "Inline question structure doesn't conform to ORD type question format." 
+                        question.save()
+                        # logger.error(f"ORDInlineStructureError -> {question.error}")
+                        raise ORDInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_ORD':
+                        build_endanswer_ORD(question, endanswer)
+                    else:
+                        question.error = "End answer question structure doesn't conform to ORD type question format." 
+                        question.save()
+                        # logger.error(f"ORDEndStructureError -> {question.error}")
+                        raise ORDEndStructureError(question.error)
+            except Exception as e:
+                logger.error("ORDError")
+                raise Exception(e)
+
+# ================================# ================================
+#   MULTIPLE CHOICE
+# ================================# ================================
+
+        elif question.questiontype == 'MC':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                    if question_type == 'inline_MC':
+                        build_inline_MC(question, answers, is_random)
+                    else:
+                        question.error = "Inline question structure doesn't conform to MC type question format." 
+                        question.save()
+                        # logger.error(f"MCInlineStructureError -> {question.error}")
+                        raise MCInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_MC':
+                        build_endanswer_MC(question, answers, endanswer, is_random)
+                    else:
+                        question.error = "End answer question structure doesn't conform to MC type question format." 
+                        question.save()
+                        # logger.error(f"MCEndStructureError -> {question.error}")
+                        raise MCEndStructureError(question.error)
+            except Exception as e:
+                logger.error("MCError")
+                raise Exception(e)
+
+# ================================# ================================
+#   TRUE-FALSE
+# ================================# ================================
+
+        elif question.questiontype == 'TF':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                    if question_type == 'inline_TF':
+                        build_inline_TF(question, answers)
+                    else:
+                        question.error = "Inline question structure doesn't conform to TF type question format." 
+                        question.save()
+                        # logger.error(f"TFInlineStructureError -> {question.error}")
+                        raise TFInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_TF':
+                        build_endanswer_TF(question, answers, endanswer)
+                    else:
+                        question.error = "End answer question structure doesn't conform to TF type question format." 
+                        question.save()
+                        # logger.error(f"TFEndStructureError -> {question.error}")
+                        raise TFEndStructureError(question.error)
+            except Exception as e:
+                logger.error("TFError")
+                raise Exception(e)
+
+# ================================# ================================
+#   FILL IN BLANK
+# ================================# ================================
+
+        elif question.questiontype == 'FIB':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                    if question_type == 'inline_FIB':
+                        build_inline_FIB(question, question_from_xml.text)
+                    else:
+                        question.error = "Inline question structure doesn't conform to FIB type question format." 
+                        question.save()
+                        # logger.error(f"FIBInlineStructureError -> {question.error}")
+                        raise FIBInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_FIB':
+                        build_endanswer_FIB(question, endanswer, question_from_xml.text)
+                    else:
+                        question.error = "End answer question structure doesn't conform to FIB type question format." 
+                        question.save()
+                        # logger.error(f"FIBEndStructureError -> {question.error}")
+                        raise FIBEndStructureError(question.error)
+            except Exception as e:
+                logger.error("FIBError")
+                raise Exception(e)
+
+# ================================# ================================
+#   MATCHING
+# ================================# ================================
+
+        elif question.questiontype == 'MAT':
+            try:
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                    if question_type == 'inline_MAT':
+                        build_inline_MAT(question, answers)
+                    else:
+                        question.error = "Inline question structure doesn't conform to MAT type question format." 
+                        question.save()
+                        # logger.error(f"MATInlineStructureError -> {question.error}")
+                        raise MATInlineStructureError(question.error)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+
+                    if question_type == 'endanswer_MAT':
+                        build_endanswer_MAT(question, endanswer)
+                    else:
+                        question.error = "End answer question structure doesn't conform to MAT type question format." 
+                        question.save()
+                        # logger.error(f"MATEndStructureError -> {question.error}")
+                        raise MATEndStructureError(question.error)
+            except Exception as e:
+                logger.error("MatchingError")
+                raise Exception(e)
+
+# ================================# ================================
+#   ????????????
+# ================================# ================================
+
         else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
+        # all other types try autodetect and compare if the given type is correct. if not then notify user.
+            try:    
+                if endanswer == None:
+                    question_type = check_inline_questiontype(question, answers, wr_answer)
+                else:
+                    question_type = check_endanswer_questiontype(question, answers, endanswer)
+                    
+                # print("question_type:", question_type)
+                match question_type:
+                    case 'inline_MC':
+                        build_inline_MC(question, answers, is_random)
+                    case 'endanswer_MC':
+                        build_endanswer_MC(question, answers, endanswer, is_random)
+                    case 'inline_TF':
+                        build_inline_TF(question, answers)
+                    case 'endanswer_TF':
+                        build_endanswer_TF(question, answers, endanswer)
+                    case 'inline_MS':
+                        build_inline_MS(question, answers, is_random)
+                    case 'endanswer_MS':
+                        build_endanswer_MS(question, answers, endanswer, is_random)
+                    case 'inline_WR_keyword':
+                        build_inline_WR_with_keyword(question, wr_answer)
+                    case 'inline_WR_list':
+                        build_inline_WR_with_list(question, answers)
+                    case 'endanswer_WR':
+                        build_endanswer_WR_with_list(question, endanswer, wr_answer)
+                    case 'inline_FIB':
+                        build_inline_FIB(question, question_from_xml.text)
+                    case 'endanswer_FIB':
+                        build_endanswer_FIB(question, endanswer, question_from_xml.text)
+                    case 'inline_MAT':
+                        build_inline_MAT(question, answers)
+                    case 'endanswer_MAT':
+                        build_endanswer_MAT(question, endanswer)
+                    case 'inline_ORD':
+                        build_inline_ORD(question, answers)
+                    case 'endanswer_ORD':
+                        build_endanswer_ORD(question, endanswer)
+                    case 'inline_NO_TYPE':
+                        # logger.error(f"InlineNoTypeError -> Cannot determined the question type")
+                        raise InlineNoTypeError("Cannot determined the question type")
+                    case 'endanswer_NO_TYPE':
+                        # logger.error(f"EndAnswerNoTypeError -> Cannot determined the question type")
+                        raise EndAnswerNoTypeError("Cannot determined the question type")
+            except Exception as e:
+                # logger.error("InLineOrEndanswerError")
+                raise InLineOrEndanswerError(e)
+    except Exception as e:
+        logger.error(str(e))
+        return str(question.number_provided) + " " + str(e)
 
-            if question_type == 'endanswer_WR':
-                build_endanswer_WR_with_list(question, endanswer, wr_answer)
-            else:
-                question.error = "End answer question structure doesn't conform to WR type question format." 
-                question.save()
-                logger.error(f"WREndStructureError -> {question.error}")
-                
-
-
-    elif question.questiontype == 'MS':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
-            if question_type == 'inline_MS':
-                build_inline_MS(question, answers, is_random)
-            else:
-                question.error = "Inline question structure doesn't conform to MS type question format." 
-                question.save()
-                logger.error(f"MSInlineStructureError -> {question.error}")
-        else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
-
-            if question_type == 'endanswer_MS':
-                build_endanswer_MS(question, answers, endanswer, is_random)
-            else:
-                question.error = "End answer question structure doesn't conform to MS type question format." 
-                question.save()
-                logger.error(f"MSEndStructureError -> {question.error}")
-
-
-    elif question.questiontype == 'ORD':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
-            if question_type == 'inline_ORD':
-                build_inline_ORD(question, answers)
-            else:
-                question.error = "Inline question structure doesn't conform to ORD type question format." 
-                question.save()
-                logger.error(f"ORDInlineStructureError -> {question.error}")
-        else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
-
-            if question_type == 'endanswer_ORD':
-                build_endanswer_ORD(question, endanswer)
-            else:
-                question.error = "End answer question structure doesn't conform to ORD type question format." 
-                question.save()
-                logger.error(f"ORDEndStructureError -> {question.error}")
-
-
-    elif question.questiontype == 'MC':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
-            if question_type == 'inline_MC':
-                build_inline_MC(question, answers, is_random)
-            else:
-                question.error = "Inline question structure doesn't conform to MC type question format." 
-                question.save()
-                logger.error(f"MCInlineStructureError -> {question.error}")
-        else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
-
-            if question_type == 'endanswer_MC':
-                build_endanswer_MC(question, answers, endanswer, is_random)
-            else:
-                question.error = "End answer question structure doesn't conform to MC type question format." 
-                question.save()
-                logger.error(f"MCEndStructureError -> {question.error}")
-
-
-    elif question.questiontype == 'TF':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
-            if question_type == 'inline_TF':
-                build_inline_TF(question, answers)
-            else:
-                question.error = "Inline question structure doesn't conform to TF type question format." 
-                question.save()
-                logger.error(f"TFInlineStructureError -> {question.error}")
-        else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
-
-            if question_type == 'endanswer_TF':
-                build_endanswer_TF(question, answers, endanswer)
-            else:
-                question.error = "End answer question structure doesn't conform to TF type question format." 
-                question.save()
-                logger.error(f"TFEndStructureError -> {question.error}")
-    
-
-    elif question.questiontype == 'FIB':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
-            if question_type == 'inline_FIB':
-                build_inline_FIB(question, question_from_xml.text)
-            else:
-                question.error = "Inline question structure doesn't conform to FIB type question format." 
-                question.save()
-                logger.error(f"FIBInlineStructureError -> {question.error}")
-        else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
-
-            if question_type == 'endanswer_FIB':
-                build_endanswer_FIB(question, endanswer, question_from_xml.text)
-            else:
-                question.error = "End answer question structure doesn't conform to FIB type question format." 
-                question.save()
-                logger.error(f"FIBEndStructureError -> {question.error}")
-    
-
-    elif question.questiontype == 'MAT':
-        if endanswer == None:
-            question_type = check_inline_questiontype(question, answers, wr_answer)
-            if question_type == 'inline_MAT':
-                build_inline_MAT(question, answers)
-            else:
-                question.error = "Inline question structure doesn't conform to MAT type question format." 
-                question.save()
-                logger.error(f"MATInlineStructureError -> {question.error}")
-        else:
-            question_type = check_endanswer_questiontype(question, answers, endanswer)
-
-            if question_type == 'endanswer_MAT':
-                build_endanswer_MAT(question, endanswer)
-            else:
-                question.error = "End answer question structure doesn't conform to MAT type question format." 
-                question.save()
-                logger.error(f"MATEndStructureError -> {question.error}")
-
-    
-    else:
-    # all other types try autodetect and compare if the given type is correct. if not then notify user.
-            
-            if endanswer == None:
-                question_type = check_inline_questiontype(question, answers, wr_answer)
-            else:
-                question_type = check_endanswer_questiontype(question, answers, endanswer)
-                
-            # print("question_type:", question_type)
-            match question_type:
-                case 'inline_MC':
-                    build_inline_MC(question, answers, is_random)
-                case 'endanswer_MC':
-                    build_endanswer_MC(question, answers, endanswer, is_random)
-                case 'inline_TF':
-                    build_inline_TF(question, answers)
-                case 'endanswer_TF':
-                    build_endanswer_TF(question, answers, endanswer)
-                case 'inline_MS':
-                    build_inline_MS(question, answers, is_random)
-                case 'endanswer_MS':
-                    build_endanswer_MS(question, answers, endanswer, is_random)
-                case 'inline_WR_keyword':
-                    build_inline_WR_with_keyword(question, wr_answer)
-                case 'inline_WR_list':
-                    build_inline_WR_with_list(question, answers)
-                case 'endanswer_WR':
-                    build_endanswer_WR_with_list(question, endanswer, wr_answer)
-                case 'inline_FIB':
-                    build_inline_FIB(question, question_from_xml.text)
-                case 'endanswer_FIB':
-                    build_endanswer_FIB(question, endanswer, question_from_xml.text)
-                case 'inline_MAT':
-                    build_inline_MAT(question, answers)
-                case 'endanswer_MAT':
-                    build_endanswer_MAT(question, endanswer)
-                case 'inline_ORD':
-                    build_inline_ORD(question, answers)
-                case 'endanswer_ORD':
-                    build_endanswer_ORD(question, endanswer)
-                case 'inline_NO_TYPE':
-                    logger.error(f"InlineNoTypeError -> Cannot determined the question type")
-                    pass
-                case 'endanswer_NO_TYPE':
-                    logger.error(f"EndAnswerNoTypeError -> Cannot determined the question type")
-                    pass
     elastic_client.end_transaction('parse')
-    return question_id
+    return "success"
 
 
 @shared_task()
@@ -472,12 +610,3 @@ def run_pandoc_task(questionlibrary_id):
 
     except Exception as e:
         raise MarkDownConversionError(e)
-
-class MarkDownConversionError(Exception):
-    def __init__(self, reason, message="File invalid"):
-        self.reason = reason
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f'{self.message} -> {self.reason}'
