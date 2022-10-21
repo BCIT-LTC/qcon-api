@@ -5,7 +5,7 @@ from celery import shared_task
 from .models import EndAnswer, Question, QuestionLibrary
 import xml.etree.ElementTree as ET
 import re
-# from .process.process_helper import trim_text, markdown_to_plain, trim_md_to_html
+from .process.process_helper import trim_text, markdown_to_plain, markdown_to_html, trim_md_to_html
 
 from .process.questionbuilder.truefalse import build_inline_TF, build_endanswer_TF
 from .process.questionbuilder.multiplechoice import build_inline_MC, build_endanswer_MC
@@ -25,38 +25,6 @@ from .logging.logging_adapter import FilenameLoggingAdapter
 
 loggercelery = get_task_logger(__name__)
 elastic_client = elasticapm.get_client()
-
-def trim_text(txt):
-    text = txt.strip()
-    text = re.sub('<!-- -->', '', text)
-    text = re.sub('<!-- NewLine -->', '\n', text)
-    text = text.strip("\n")
-    return text
-
-def markdown_to_plain(text):
-    import pypandoc
-    plain_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
-    return plain_text
-
-def markdown_to_html(text):
-    import pypandoc
-    html_text = pypandoc.convert_text(text, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
-    return str(html_text)
-
-def trim_md_to_plain(text):
-    import pypandoc
-    text_content = trim_text(text)
-    # text_content = markdown_to_plain(text_content)
-    plain_text = pypandoc.convert_text(text_content, format="markdown_github+fancy_lists+emoji", to="plain", extra_args=['--wrap=none'])
-    return plain_text
-
-def trim_md_to_html(text):
-    import pypandoc
-    text_content = trim_text(text)
-    # text_content = markdown_to_html(text_content)
-    html_text = pypandoc.convert_text(text_content, format="markdown_github+fancy_lists+emoji+task_lists+hard_line_breaks+all_symbols_escapable+tex_math_dollars", to="html", extra_args=['--mathjax', '--ascii'])
-    text_content = html_text.strip('\n')
-    return text_content
 
 def check_inline_questiontype(question, answers, wr_answer):
     answers_length = len(answers)
@@ -297,7 +265,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
     try:
         if question_from_xml is not None:
             question.text = trim_md_to_html(question_from_xml.text)
-            question.text = question_from_xml.text
 
             if question.title is None:
                 title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", question_from_xml.text)
@@ -565,16 +532,16 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                         build_endanswer_ORD(question, endanswer)
                     case 'inline_NO_TYPE':
                         # logger.error(f"InlineNoTypeError -> Cannot determined the question type")
-                        raise InlineNoTypeError("Cannot determined the question type")
+                        raise InlineNoTypeError("Cannot determined the inline question type.")
                     case 'endanswer_NO_TYPE':
                         # logger.error(f"EndAnswerNoTypeError -> Cannot determined the question type")
-                        raise EndAnswerNoTypeError("Cannot determined the question type")
+                        raise EndAnswerNoTypeError("Cannot determined the end answer question type.")
             except Exception as e:
-                # logger.error("InLineOrEndanswerError")
-                raise InLineOrEndanswerError(e)
+                # logger.error("NoTypeDeterminedError")
+                raise NoTypeDeterminedError("Cannot determine the question type.")
     except Exception as e:
         logger.error(str(e))
-        return str(question.number_provided) + " " + str(e)
+        return "#" + str(question.number_provided) + " " + str(e)
 
     elastic_client.end_transaction('parse')
     return "success"

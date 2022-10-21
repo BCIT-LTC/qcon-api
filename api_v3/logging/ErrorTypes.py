@@ -7,8 +7,8 @@ class MarkDownConversionError(Exception):
     def __str__(self):
         return f'{self.message} -> {self.reason}'
 
-class InLineOrEndanswerError(Exception):
-    def __init__(self, reason, message="InLineOrEndanswerError"):
+class NoTypeDeterminedError(Exception):
+    def __init__(self, reason, message="NoTypeDeterminedError"):
         self.reason = reason
         self.message = message
         super().__init__(self.message)
@@ -49,6 +49,38 @@ class MATInlineStructureError(Exception):
     def __str__(self):
         return f'{self.message} -> {self.reason}'
 
+class MATNoMatchError(Exception):
+    def __init__(self, reason, message="MATNoMatchError"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+
+class MATMissingChoiceError(Exception):
+    def __init__(self, reason, message="MATMissingChoiceError"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+
+class MATMissingAnswerError(Exception):
+    def __init__(self, reason, message="MATMissingAnswerError"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+
+class MATMissingOptionError(Exception):
+    def __init__(self, reason, message="MATMissingOptionError"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+        
 class FIBEndStructureError(Exception):
     def __init__(self, reason, message="FIBEndStructureError"):
         self.reason = reason
@@ -75,6 +107,22 @@ class TFEndStructureError(Exception):
 
 class TFInlineStructureError(Exception):
     def __init__(self, reason, message="TFInlineStructureError"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+
+class TFNoAnswerError(Exception):
+    def __init__(self, reason, message="TFNoAnswerError"):
+        self.reason = reason
+        self.message = message
+        super().__init__(self.message)
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
+
+class TFSelectedAnswerError(Exception):
+    def __init__(self, reason, message="TFSelectedAnswerError"):
         self.reason = reason
         self.message = message
         super().__init__(self.message)
@@ -144,4 +192,3 @@ class WRInlineStructureError(Exception):
         super().__init__(self.message)
     def __str__(self):
         return f'{self.message} -> {self.reason}'
-

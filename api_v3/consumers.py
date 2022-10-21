@@ -258,6 +258,8 @@ class TextConsumer(JsonWebsocketConsumer):
                 MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)   
                 for answer in MS_answer_objects:                
                     answer.answer = re.sub(substring, lambda x: image.image, answer.answer)
+                    if answer.answer_feedback is not None:
+                        answer.answer_feedback = re.sub(substring, lambda x: image.image, answer.answer_feedback)
                     answer.save()
                 #Check ORD
                 ORD_objects = Ordering.objects.filter(question=question) 
