@@ -1,7 +1,10 @@
 from ...models import Fib
 import re 
 from ..process_helper import markdown_to_plain
+
 def build_inline_FIB(question, question_xml_text):
+    question.questiontype = 'FIB'
+    
     is_fib = re.search(r"\[(.*?)\]", question.text)
     answer_at_start = False
 
@@ -15,6 +18,7 @@ def build_inline_FIB(question, question_xml_text):
     fib_title = re.sub('<!-- NewLine -->', '', fib_title)
     fib_title = re.sub(r"<<<<\d+>>>>", "[IMG]", fib_title)
     question.title = fib_title
+    question.save()
     
     list_of_text = replaced_answers.split("_______")
     if answer_at_start:
@@ -28,8 +32,7 @@ def build_inline_FIB(question, question_xml_text):
                 answer_found = list_of_answers.pop(0)
                 fib_object = Fib.objects.create(question=question)
                 fib_object.order = order
-                # fib_object.text = markdown_to_plain(answer_found)
-                fib_object.text = answer_found
+                fib_object.text = markdown_to_plain(answer_found)
                 fib_object.type = "fibanswer"
                 fib_object.size = None
                 fib_object.weight = None
@@ -68,8 +71,7 @@ def build_inline_FIB(question, question_xml_text):
                 answer_found = list_of_answers.pop(0)
                 fib_object = Fib.objects.create(question=question)
                 fib_object.order = order
-                # fib_object.text = markdown_to_plain(answer_found)
-                fib_object.text = answer_found
+                fib_object.text = markdown_to_plain(answer_found)
                 fib_object.type = "fibanswer"
                 fib_object.size = None
                 fib_object.weight = None
@@ -78,11 +80,9 @@ def build_inline_FIB(question, question_xml_text):
             except:
                 pass
 
-    question.questiontype = 'FIB'
-    question.save()
-
 
 def build_endanswer_FIB(question, endanswer, question_xml_text):
+    question.questiontype = 'FIB'
     is_fib = re.search(r"\[(.*?)\]", question.text)
     answer_at_start = False
 
@@ -96,6 +96,7 @@ def build_endanswer_FIB(question, endanswer, question_xml_text):
     fib_title = re.sub('<!-- NewLine -->', '', fib_title)
     fib_title = re.sub(r"<<<<\d+>>>>", "[IMG]", fib_title)
     question.title = fib_title
+    question.save()
     
     list_of_text = replaced_answers.split("_______")
     if answer_at_start:
@@ -109,8 +110,7 @@ def build_endanswer_FIB(question, endanswer, question_xml_text):
                 answer_found = list_of_answers.pop(0)
                 fib_object = Fib.objects.create(question=question)
                 fib_object.order = order
-                # fib_object.text = markdown_to_plain(answer_found)
-                fib_object.text = answer_found
+                fib_object.text = markdown_to_plain(answer_found)
                 fib_object.type = "fibanswer"
                 fib_object.size = None
                 fib_object.weight = None
@@ -149,8 +149,7 @@ def build_endanswer_FIB(question, endanswer, question_xml_text):
                 answer_found = list_of_answers.pop(0)
                 fib_object = Fib.objects.create(question=question)
                 fib_object.order = order
-                # fib_object.text = markdown_to_plain(answer_found)
-                fib_object.text = answer_found
+                fib_object.text = markdown_to_plain(answer_found)
                 fib_object.type = "fibanswer"
                 fib_object.size = None
                 fib_object.weight = None
@@ -158,6 +157,3 @@ def build_endanswer_FIB(question, endanswer, question_xml_text):
                 fib_object.save()
             except:
                 pass
-
-    question.questiontype = 'FIB'
-    question.save()

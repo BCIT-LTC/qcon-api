@@ -1,6 +1,36 @@
 import re
 import pypandoc
 
+def add_info_message(question, info_message):
+    if question.info:
+        if info_message not in question.info:
+            question.info = question.info + "\n" + info_message
+            question.save()
+
+    else:
+        question.info =  info_message
+        question.save()
+
+def add_warning_message(question, warning_message):
+    if question.warning:
+        if warning_message not in question.warning:
+            question.warning = question.warning + "\n" + warning_message
+            question.save()
+
+    else:
+        question.warning =  warning_message
+        question.save()
+
+def add_error_message(question, error_message):
+    if question.error:
+        if error_message not in question.error:
+            question.error = question.error + "\n" + error_message
+            question.save()
+
+    else:
+        question.error =  error_message
+        question.save()
+
 def trim_text(txt):
     text = txt.strip()
     text = re.sub('<!-- -->', '', text)
