@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 set -e
-
+# tail -f /dev/null
 # set secrets from Vault init container or from dev configmap
 if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env; fi
 
@@ -26,5 +26,5 @@ celery -A qcon worker --loglevel=DEBUG --concurrency=4 -n worker2@%h --detach wo
 celery -A qcon worker --loglevel=DEBUG --concurrency=4 -n worker3@%h --detach worker_hijack_root_logger=False worker_redirect_stdouts=True worker_redirect_stdouts_level=DEBUG
 celery -A qcon worker --loglevel=DEBUG --concurrency=4 -n worker4@%h --detach worker_hijack_root_logger=False worker_redirect_stdouts=True worker_redirect_stdouts_level=DEBUG
 
->&2 echo "Starting Supervisor"
+>&2 echo "Starting Daphne/Runserver"
 exec "$@"
