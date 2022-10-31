@@ -549,10 +549,14 @@ def parse_question(randomize_answer, question_id, endanswer=None):
 
 @shared_task()
 def run_pandoc_task(questionlibrary_id):
+    questionlibrary = QuestionLibrary.objects.get(pk=questionlibrary_id)
+    logger = FilenameLoggingAdapter(loggercelery, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip
+        })
     try:
         import pypandoc
         from django.core.files.base import ContentFile
-        questionlibrary = QuestionLibrary.objects.get(pk=questionlibrary_id)
         mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
         emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
         # listsPath = "./api_v3/pandoc-filters/lists.lua"
@@ -572,8 +576,7 @@ def run_pandoc_task(questionlibrary_id):
         # questionlibrary.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
         # questionlibrary.pandoc_output = "\n" + pandoc_html_to_md
         # questionlibrary.save()
-
         return "\n" + pandoc_html_to_md
-
     except Exception as e:
+        logger.debug(e)
         raise MarkDownConversionError(e)

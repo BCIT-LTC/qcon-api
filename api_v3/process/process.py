@@ -8,7 +8,7 @@ from .parser import run_parser
 from .convert_txt import convert_txt
 from .fix_numbering import fix_numbering
 import socket
-from api_v3.tasks import MarkDownConversionError, run_pandoc_task
+from api_v3.tasks import run_pandoc_task
 
 import logging
 newlogger = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ newlogger = logging.getLogger(__name__)
 # logger.addFilter(QuestionlibraryFilenameFilter())
 from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
+from api_v3.logging.ErrorTypes import *
 import os
 
 class Process:
@@ -38,17 +39,13 @@ class Process:
         try:
             result = run_pandoc_task.apply_async(kwargs={"questionlibrary_id":self.questionlibrary.id}, ignore_result=False)
             pandoc_task_result = result.get()
+            logger.debug(pandoc_task_result)
             self.questionlibrary.pandoc_output = pandoc_task_result
         except Exception as e:
-            logger.error(e)
-            raise Exception(e)
+            raise Exception(str(e))
 
-        try: 
-            if self.questionlibrary.pandoc_output == None:
-                raise MarkDownConversionError("Pandoc output string is empty")
-        except Exception as e:
-            logger.error(e)
-            raise Exception(e)
+        if self.questionlibrary.pandoc_output == None:
+            raise MarkDownConversionError("Pandoc output string is empty")
 
     def convert_txt(self):
         convert_txt(self.questionlibrary)

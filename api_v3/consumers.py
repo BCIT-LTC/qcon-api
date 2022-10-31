@@ -91,17 +91,17 @@ class TextConsumer(JsonWebsocketConsumer):
             # process.questionlibrary.create_pandocstring()
             process.run_pandoc()
             logger.info("Pandoc Done")
-        except MarkDownConversionError:
-            logger.error("Failed to convert to Markdown")
+        except Exception as e:
+            logger.error(str(e))
             self.send(
                 text_data=json.dumps(process.sendformat("Error", "File unreadable", "")))
             # close connection
             self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
-            return
-        except Exception as e:
-            self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
-            logger.error(str(e))
-            return
+            # return
+        # except Exception as e:
+        #     self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
+        #     logger.error(str(e))
+        #     return
         else:
             self.send(text_data=json.dumps(process.sendformat("Busy", "The file is valid", "")))
 
