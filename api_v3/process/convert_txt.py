@@ -16,7 +16,7 @@ def convert_txt(questionlibrary):
             # print(path.name)
             # print(path.stem)
             txt_file_path = str(questionlibrary.id)+ "/" + path.stem + ".txt"
-            f = open(txt_file_path ,"r")
+            f = open(txt_file_path , mode='r', encoding='utf-8-sig')
             lines = f.read()
             questionlibrary.txt_output = '\n' + lines
             questionlibrary.save()
