@@ -17,8 +17,8 @@ def fix_numbering(questionlibrary):
         })
 
     try:
-        ref_array = re.split('(\n *[0-9]+)', questionlibrary.txt_output)
-        pandoc_array = re.split('(\n *[0-9]+)', questionlibrary.pandoc_output)
+        ref_array = re.split('(\n *[0-9]+[)|.])', questionlibrary.txt_output)
+        pandoc_array = re.split('(\n *[0-9]+[)|.])', questionlibrary.pandoc_output)
 
         logger.debug(f"ref_array length: {len(ref_array)} pandoc_array length: {len(pandoc_array)}")
         # logger.debug("--------------") 
@@ -44,6 +44,7 @@ def fix_numbering(questionlibrary):
                         pandoc_array[idx] = subbed
                         logger.info(f"mismatch fixed [ref]:[pandoc]-[{number_match_ref.group(1)}:{number_match_original.group(1)}]->[{number_match_ref.group(1)}:{number_match_ref.group(1)}]")
 
+        # logger.debug(pandoc_array)
         combined_string = ''.join(pandoc_array)
         questionlibrary.pandoc_output = combined_string
         questionlibrary.save()
