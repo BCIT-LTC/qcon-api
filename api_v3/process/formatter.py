@@ -8,12 +8,9 @@ from api_v3.tasks import trim_text
 
 import logging
 newlogger = logging.getLogger(__name__)
-# from api_v3.logging.contextfilter import QuestionlibraryFilenameFilter
 from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 def run_formatter(questionlibrary):
-    # loggingfilter = QuestionlibraryFilenameFilter(questionlibrary=questionlibrary)
-    # logger.addFilter(loggingfilter)
     logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(questionlibrary.temp_file.name)})
     
     root = None
@@ -72,6 +69,5 @@ class FormatterError(Exception):
     def __init__(self, reason, message="Formatter Error"):
         self.reason = reason
         self.message = message
-        super().__init__(self.message)
     def __str__(self):
         return f'{self.message} -> {self.reason}'

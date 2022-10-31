@@ -39,7 +39,7 @@ class Process:
         try:
             result = run_pandoc_task.apply_async(kwargs={"questionlibrary_id":self.questionlibrary.id}, ignore_result=False)
             pandoc_task_result = result.get()
-            logger.debug(pandoc_task_result)
+            # logger.debug(pandoc_task_result)
             self.questionlibrary.pandoc_output = pandoc_task_result
         except Exception as e:
             raise Exception(str(e))
