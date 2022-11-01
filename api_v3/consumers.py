@@ -174,6 +174,7 @@ class TextConsumer(JsonWebsocketConsumer):
             return
         else:
             self.send(text_data=json.dumps(process.sendformat("Busy", "Section found: " + str(process.subsection_count), "")))
+
 ##########################################
         # run_splitter
 ##########################################
@@ -181,7 +182,7 @@ class TextConsumer(JsonWebsocketConsumer):
         try:
             process.run_splitter()
             logger.info("Splitter Done")
-        except SplitterError as e:
+        except Exception as e:
             logger.error("SplitterError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "Splitter failed", "")))
             # close connection
