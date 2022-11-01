@@ -9,6 +9,9 @@ import logging
 newlogger = logging.getLogger(__name__)
 from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
+import re
+
+
 class Splitter:
     def __init__(self, questionlibrary) -> None:
         self.questionlibrary = questionlibrary
@@ -20,10 +23,17 @@ class Splitter:
             'filename': self.questionlibrary.temp_file.name,
             'user_ip': self.questionlibrary.user_ip
             })
-        sections = Section.objects.filter(question_library=self.questionlibrary)
+
+        # Fails on empty sections need to try/except because empty sections are deleted after splitter
+        try:
+            self.__add_newlines_before_question()
+        except Exception as e:
+            logger.info(str(e))
+
+        sections = Section.objects.filter(question_library=self.questionlibrary)        
         for section in sections:
             try:
-                section.questions_expected = self.split_questions(section)
+                section.questions_expected = self.__split_questions(section)
                 section.order = self.section_order
                 self.section_order += 1
                 section.save()
@@ -36,7 +46,82 @@ class Splitter:
         # return questions_count
         return self.total_questions_found
 
-    def split_questions(self, sectionobject):
+    def __add_newlines_before_question(self):  
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })      
+        sections = Section.objects.filter(question_library=self.questionlibrary)
+
+        for section in sections:            
+            lines_altered = []
+            lines_original = section.raw_content.splitlines()
+            # logger.debug("raw_content")
+            # logger.debug(section.raw_content)
+            # logger.debug("lines original")
+            # logger.debug(lines_original)
+
+            number_1_found = False
+            tracklist = 0
+            newline_detected = False
+            # letterlist_enumvalue = ''
+            for line in lines_original:
+                # check if newlines are detected.(newlines cancel lists)
+                if '<!-- NewLine -->' in line:
+                    #means newline is in this line so it canceled the previous list tracking
+                    # reset list back to zero 
+                    newline_detected = True
+                    tracklist = 0
+                if number_1_found:                    
+                    #check if the current line is a numbered line
+                    number_prefix = re.search(r"^ *(\d+)[\\]{0,2}[.|)]", line)
+                    if number_prefix:
+                        numbered_line = int(number_prefix.group(1))
+                        #it is a numbered line, so check if it is a #1
+                        if numbered_line == 1:
+                            # starting a new numbered list
+                            tracklist = 1
+                            newline_detected = False # reset to allow new list to be tracked
+                        else:
+                            # check if we were in a list on the previous numbered line
+                            if tracklist == 0:
+                                # we were not a list on the previous numbered line
+                                lines_altered.append('<!-- NewLine -->\n')
+                            else:
+                                # we were in a list on the previous line
+                                # check if we still are on a list on this line
+                                if numbered_line == tracklist+1:
+                                    # this means we might still be inside a list.
+                                    # to make sure lets see if a newline was detected prior to this line
+                                    if newline_detected:
+                                        # there was a newline detected so this means the list is cancelled
+                                        # reset the list tracker to zero
+                                        tracklist = 0
+                                        # and because the list was cancelled we can assume this line to be a new question
+                                        lines_altered.append('<!-- NewLine -->\n')
+                                        # reset the newline_detected to False
+                                        newline_detected = False
+                                    else:
+                                        #update tracklist to track the current list further
+                                        tracklist = numbered_line
+                                        # TODO WARN USER ABOUT POTENTIAL NEWLINE NEEDED HERE?? But we don't know the criteria to detect this issue yet. more development needed here
+                                else:
+                                    # this means we have exited the list, and is safe to assume this is a new question
+                                    lines_altered.append('<!-- NewLine -->\n')
+                                    tracklist = 0
+                                    
+                else:
+                    # look for first question          
+                    if re.search(r"^ *1[\\]{0,2}[.|)]", line):
+                        number_1_found = True
+                lines_altered.append(line)
+            result = '\n'.join(lines_altered)
+            result = '\n' + result
+            section.raw_content = result
+            section.save()
+        return
+
+    def __split_questions(self, sectionobject):
         logger = FilenameLoggingAdapter(newlogger, {
             'filename': self.questionlibrary.temp_file.name,
             'user_ip': self.questionlibrary.user_ip
@@ -79,6 +164,5 @@ class SplitterError(Exception):
     def __init__(self, reason, message="Splitter Error"):
         self.reason = reason
         self.message = message
-        super().__init__(self.message)
     def __str__(self):
         return f'{self.message} -> {self.reason}'

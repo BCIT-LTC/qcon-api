@@ -17,15 +17,15 @@ def fix_numbering(questionlibrary):
         })
 
     try:
-        ref_array = re.split('(\n *[0-9]+[)|.])', questionlibrary.txt_output)
-        pandoc_array = re.split('(\n *[0-9]+[)|.])', questionlibrary.pandoc_output)
+        ref_array = re.split(r"(\n *[0-9]+\\?[)|.])", questionlibrary.txt_output)
+        pandoc_array = re.split(r"(\n *[0-9]+\\?[)|.])", questionlibrary.pandoc_output)
 
         logger.debug(f"ref_array length: {len(ref_array)} pandoc_array length: {len(pandoc_array)}")
-        # logger.debug("--------------") 
-        # logger.debug(ref_array)
-        # logger.debug("--------------")
-        # logger.debug(pandoc_array)
-        # logger.debug("--------------") 
+        logger.debug("--------------") 
+        logger.debug(ref_array)
+        logger.debug("--------------")
+        logger.debug(pandoc_array)
+        logger.debug("--------------") 
 
         if len(ref_array) != len(pandoc_array):
             logger.debug(f"ref_array length and pandoc_array length not equal")
@@ -56,7 +56,6 @@ class FixNumberingError(Exception):
     def __init__(self, reason, message="FixNumberingError"):
         self.reason = reason
         self.message = message
-        super().__init__(self.message)
 
     def __str__(self):
         return f'{self.message} -> {self.reason}'
