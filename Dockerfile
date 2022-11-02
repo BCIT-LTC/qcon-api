@@ -120,5 +120,5 @@ COPY api_v3 api_v3
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-EXPOSE 8001
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "qcon.asgi:application"]
+EXPOSE 8000
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "qcon.asgi:application"]
