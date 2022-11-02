@@ -20,12 +20,12 @@ def fix_numbering(questionlibrary):
         ref_array = re.split(r"(\n *[0-9]+\\?[)|.])", questionlibrary.txt_output)
         pandoc_array = re.split(r"(\n *[0-9]+\\?[)|.])", questionlibrary.pandoc_output)
 
-        logger.debug(f"ref_array length: {len(ref_array)} pandoc_array length: {len(pandoc_array)}")
-        logger.debug("--------------") 
-        logger.debug(ref_array)
-        logger.debug("--------------")
-        logger.debug(pandoc_array)
-        logger.debug("--------------") 
+        logger.info(f"ref_array length: {len(ref_array)} pandoc_array length: {len(pandoc_array)}")
+        # logger.debug("--------------") 
+        logger.info(ref_array)
+        # logger.debug("--------------")
+        logger.info(pandoc_array)
+        # logger.debug("--------------") 
 
         if len(ref_array) != len(pandoc_array):
             logger.debug(f"ref_array length and pandoc_array length not equal")
