@@ -3,7 +3,7 @@ from ..models import Image
 
 def extract_images(questionlibrary):
     try:
-        x = re.findall(r"<img src=.*/>", questionlibrary.pandoc_output)
+        x = re.findall(r"\<img\s+.*?\>", questionlibrary.pandoc_output)
         if len(x) == 0:
             return
         for image in x:
