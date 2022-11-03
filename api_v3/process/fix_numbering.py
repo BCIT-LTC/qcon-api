@@ -21,11 +21,14 @@ def fix_numbering(questionlibrary):
         pandoc_array = re.split(r"(\n *[0-9]+\\?[)|.])", questionlibrary.pandoc_output)
 
         logger.info(f"ref_array length: {len(ref_array)} pandoc_array length: {len(pandoc_array)}")
-        # logger.debug("--------------") 
-        logger.info(ref_array)
-        # logger.debug("--------------")
-        logger.info(pandoc_array)
-        # logger.debug("--------------") 
+        comparison = "\n"
+        for idx, x in enumerate(ref_array):
+            ref = x[0:10]
+            pandoc = ""
+            if idx < len(pandoc_array):
+                pandoc = pandoc_array[idx][0:10]                           
+            comparison += f"[{idx}]:\n{ref}\n---\n{pandoc}\n"     
+        logger.info(comparison)
 
         if len(ref_array) != len(pandoc_array):
             logger.debug(f"ref_array length and pandoc_array length not equal")
