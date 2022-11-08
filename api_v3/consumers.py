@@ -138,7 +138,7 @@ class TextConsumer(JsonWebsocketConsumer):
         except Exception as e:
             logger.error(e)
             self.send(
-                text_data=json.dumps(process.sendformat("Error", "reference and original size mismatch", "")))
+                text_data=json.dumps(process.sendformat("Error", str(e), "")))
             # close connection
             # self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
             return
