@@ -3,6 +3,9 @@
 ## Base
 FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
 
+RUN set -ex; \
+        pip install jaro-winkler;
+
 
 ## ANLR Builder
 FROM openjdk:17-jdk AS antlr-builder

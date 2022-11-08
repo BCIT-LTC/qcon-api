@@ -577,27 +577,87 @@ def run_pandoc_task(questionlibrary_id):
         })
     try:
         import pypandoc
-        from django.core.files.base import ContentFile
         mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
         emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
         # listsPath = "./api_v3/pandoc-filters/lists.lua"
-        pandoc_word_to_html = pypandoc.convert_file(questionlibrary.temp_file.path,
-                                                    format='docx+empty_paragraphs',
-                                                    to='html+empty_paragraphs+tex_math_single_backslash',
-                                                    extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml',
-                                                    '--ascii'])
+        tables = "./api_v3/pandoc-filters/tables.lua"
+        pandoc_word_to_html = pypandoc.convert_file(
+            questionlibrary.temp_file.path,
+            format='docx+empty_paragraphs',
+            to='html+empty_paragraphs+tex_math_single_backslash',
+            extra_args=['--no-highlight', 
+                        '--self-contained', 
+                        '--markdown-headings=atx', 
+                        '--preserve-tabs', 
+                        '--wrap=preserve', 
+                        '--indent=false', 
+                        '--mathml',
+                        '--ascii'
+                        ])
         pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
         pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
         pandoc_html_to_md = pypandoc.convert_text(
             pandoc_word_to_html,
             'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
             format='html+empty_paragraphs',
-            extra_args=['--no-highlight', '--self-contained', '--markdown-headings=atx', '--preserve-tabs', '--wrap=preserve', '--indent=false', '--mathml', '--ascii',
-                        '--lua-filter=' + mdblockquotePath, '--lua-filter=' + emptyparaPath])
-        # questionlibrary.pandoc_output_file = ContentFile("\n" + pandoc_html_to_md, name="pandoc_output.md")
-        # questionlibrary.pandoc_output = "\n" + pandoc_html_to_md
-        # questionlibrary.save()
+            extra_args=['--no-highlight', 
+                        '--self-contained', 
+                        '--markdown-headings=atx', 
+                        '--preserve-tabs', 
+                        '--wrap=preserve', 
+                        '--indent=false', 
+                        '--mathml', 
+                        '--ascii',
+                        '--lua-filter=' + mdblockquotePath, 
+                        '--lua-filter=' + emptyparaPath,
+                        # '--lua-filter=' + tables
+                        ])
         return "\n" + pandoc_html_to_md
     except Exception as e:
         logger.debug(e)
         raise MarkDownConversionError(e)
+
+# @shared_task()
+# def convert_html_to_md(questionlibrary_id):
+#     questionlibrary = QuestionLibrary.objects.get(pk=questionlibrary_id)
+#     logger = FilenameLoggingAdapter(loggercelery, {
+#         'filename': questionlibrary.temp_file.name,
+#         'user_ip': questionlibrary.user_ip
+#         })
+#     try:
+#         logger.debug("pdf to markdown STARTING")
+#         import pypandoc
+#         from pathlib import Path
+
+#         mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
+#         emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
+#         tables = "./api_v3/pandoc-filters/tables.lua"
+
+#         logger.debug(f"cehck filename : {questionlibrary.temp_file}")
+#         docfilepath = Path("/code/temp/" + questionlibrary.temp_file.name)
+#         if docfilepath.is_file():
+#             html_file_path = Path("/code/temp/" + str(questionlibrary.id)+ "/" + docfilepath.stem + ".html")
+#             if html_file_path.is_file():
+#                 html_input_file_path = "/code/temp/" + str(questionlibrary.id)+ "/" + docfilepath.stem + ".html"
+#                 logger.debug(f"cehck pdf path : {html_input_file_path}")
+
+#                 pandoc_html_to_md = pypandoc.convert_file(html_input_file_path,
+#                                                         format='html+empty_paragraphs',
+#                                                         to='markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
+#                                                         extra_args=['--no-highlight', 
+#                                                                     '--self-contained', 
+#                                                                     '--markdown-headings=atx', 
+#                                                                     '--preserve-tabs', 
+#                                                                     '--wrap=preserve', 
+#                                                                     '--indent=false', 
+#                                                                     '--mathml', 
+#                                                                     '--ascii',
+#                                                                     '--lua-filter=' + mdblockquotePath, 
+#                                                                     '--lua-filter=' + emptyparaPath,
+#                                                                     '--lua-filter=' + tables
+#                                                                     ])
+#                 logger.debug("html to markdown finished")
+#                 return "\n" + pandoc_html_to_md
+#     except Exception as e:
+#         logger.debug(e)
+#         raise MarkDownConversionError(e)

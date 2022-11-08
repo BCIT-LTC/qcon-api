@@ -51,6 +51,21 @@ class Process:
         convert_txt(self.questionlibrary)
 
     def fix_numbering(self):
+        # logger = FilenameLoggingAdapter(newlogger, {
+        #     'filename': self.questionlibrary.temp_file.name,
+        #     'user_ip': self.questionlibrary.user_ip
+        #     })
+        # logger.debug("starting pandoc html to md")
+        # try:
+        #     result = convert_html_to_md.apply_async(kwargs={"questionlibrary_id":self.questionlibrary.id}, ignore_result=False)
+        #     convert_html_to_md_task_result = result.get()
+        #     logger.debug("pdf to md result")
+        #     logger.debug(convert_html_to_md_task_result)
+        #     self.questionlibrary.txt_output = convert_html_to_md_task_result
+        #     self.questionlibrary.save()
+        # except Exception as e:
+        #     raise Exception(str(e))
+
         fix_numbering(self.questionlibrary)
         
     def extract_images(self):

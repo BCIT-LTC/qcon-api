@@ -6,11 +6,17 @@ from pathlib import Path
 
 
 def convert_txt(questionlibrary):
-
     try:
         os.chdir('/code/temp')
-        # result = subprocess.run('soffice --headless --convert-to pdf --outdir . 7741.docx')
-        subprocess.run(["soffice", "--headless", "--convert-to", "txt", "--outdir", str(questionlibrary.id), questionlibrary.temp_file.name], capture_output=True)
+
+        subprocess.run(["soffice", 
+                        "--headless", 
+                        "--convert-to", 
+                        "txt", 
+                        "--outdir", 
+                        str(questionlibrary.id), 
+                        questionlibrary.temp_file.name], 
+                        capture_output=True)
         path = Path(questionlibrary.temp_file.name)
         if path.is_file():
             # print(path.name)
@@ -21,14 +27,14 @@ def convert_txt(questionlibrary):
             questionlibrary.txt_output = '\n' + lines
             questionlibrary.save()
         else:
-            raise ConvertTxtError("text file not found")
+            raise ConvertTxtError("txt file not found")
         os.chdir('/code')            
     except Exception as e:
         raise ConvertTxtError(e)
 
 
 class ConvertTxtError(Exception):
-    def __init__(self, reason, message="general error"):
+    def __init__(self, reason, message="ConvertTxtError"):
         self.reason = reason
         self.message = message
 
