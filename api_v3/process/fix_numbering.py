@@ -2,7 +2,7 @@ import re
 import os
 import subprocess
 import jaro
-
+import html
 from pathlib import Path
 
 import logging
@@ -34,10 +34,13 @@ def fix_numbering(questionlibrary):
         # logger.debug("--------------")
 
         ref_index = 0
+        highest_score = 0
         for pandoc_index, pandoc_comp in enumerate(pandoc_array):
             # check if a list item
             number_pandoc = re.search(r"^ *([0-9]+)\\?[)|.]", pandoc_comp)
             if number_pandoc:   
+                # unescape html characters like &rsquo; etc 
+                pandoc_comp = html.unescape(pandoc_comp)
                 # remove all non-letter characters
                 pandoc_comp = re.findall(r'[a-zA-Z0-9]+', pandoc_comp)
                 pandoc_comp = ''.join(pandoc_comp)
@@ -48,7 +51,16 @@ def fix_numbering(questionlibrary):
 
                     jaro_score = jaro.jaro_metric(ref_comp,pandoc_comp)
 
-                    if jaro_score > 0.90:
+                    ### FOR DEBUGGING specific line
+                    # debug_line = '47'
+                    # if number_pandoc.group(1) == debug_line:
+                    #     logger.debug(f"ref_index = {ref_index} ref_index_it = {ref_index_it}")
+                    #     logger.debug(f"ref_element =  {ref_element}")
+                    #     logger.debug(f"ref: {ref_comp[0:120]}")
+                    #     logger.debug(f"pandoc: {pandoc_comp[0:120]}")       
+                    #     logger.debug(f"score: {jaro_score}")
+
+                    if jaro_score > 0.9:
                         # matched by similarity
                         number_ref = re.search(r"^ *([0-9]+)\\?[)|.]", ref_element)
                         number_ref_alt = re.search(r"^ *([0-9]+)", ref_element)
@@ -74,9 +86,13 @@ def fix_numbering(questionlibrary):
                             raise QuestionEnumerationError(f'did not match the supported qcon numberlist pattern "." or ") at question: {error_question}')
                     else:
                         # no match; continue searching
+                        if jaro_score > highest_score:
+                            highest_score = jaro_score
+                        # reached end of ref array without finding a match, comparison strings need to be checked or score needs to be adjusted
                         if ref_index_it == len(ref_array) - 1:
                             error_question = number_pandoc.group(1)
-                            raise QuestionEnumerationError(f'No reference line found to compare against at listnumber: {error_question}')
+                            # logger.warning(f'No reference line found with a high enough similarity score[{highest_score}] for question: {error_question}')
+                            raise QuestionEnumerationError(f'No reference line found with a high enough similarity score[{highest_score}] for question: {error_question}')
 
         combined_string = '\n'.join(pandoc_array)
         questionlibrary.pandoc_output = '\n' + combined_string
