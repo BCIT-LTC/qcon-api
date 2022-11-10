@@ -91,7 +91,7 @@ def fix_numbering(questionlibrary):
                         # reached end of ref array without finding a match, comparison strings need to be checked or score needs to be adjusted
                         if ref_index_it == len(ref_array) - 1:
                             error_question = number_pandoc.group(1)
-                            # logger.warning(f'No reference line found with a high enough similarity score[{highest_score}] for question: {error_question}')
+                            logger.warning(f'No reference line found with a high enough similarity score[{highest_score}] for question: {error_question}')
                             raise QuestionEnumerationError(f'No reference line found with a high enough similarity score[{highest_score}] for question: {error_question}')
 
         combined_string = '\n'.join(pandoc_array)
