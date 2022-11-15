@@ -243,9 +243,35 @@ def parse_question(randomize_answer, question_id, endanswer=None):
         answers = root.findall("answer")
         wr_answer = root.find("wr_answer")
         is_random = randomize_answer
+
+        # Filter out the last letter enumerated list so that it can be set as the answerlist
+        start_of_list_found = False
+        answer_list = []
+        part_of_question_list = []
+        # Start iterating from the last item going up untill the index "a" is found and continue adding the rest of the lists as question content
+        for answer in reversed(answers):
+            if not start_of_list_found:
+                answer_list.append(answer)
+            else:
+                part_of_question_list.append(answer)
+            check_index = ''.join(filter(str.isalpha, answer.find('index').text.lower()))
+            if check_index == "a":
+                start_of_list_found = True
+
+        # because we started from the last item we need to reverse the list to bring in correct order
+        answers = answer_list[::-1]
+        part_of_question_list = part_of_question_list[::-1]
+
+        # add the remaining lists as content by appending the the question content
+        add_to_question_content = ""
+        for question_list_item in part_of_question_list:
+            add_to_question_content += f"{question_list_item.find('index').text}{question_list_item.find('content').text}"
+        question_from_xml.text += add_to_question_content
+
+
     except Exception as e:  
-        logger.error("Failed to get question data from xml") 
-        return str(question.number_provided) + " " + str(e) 
+        logger.error(f"Failed to get question data from xml {str(e)}") 
+        return "#" + str(question.number_provided) + " " + str(e)
 
     # Re-init logging adapter with available question number 
 
@@ -504,7 +530,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 raise Exception(e)
 
 # ================================# ================================
-#   ????????????
+#   TYPE NOT GIVEN, TRY TO DETERMINE IT
 # ================================# ================================
 
         else:
