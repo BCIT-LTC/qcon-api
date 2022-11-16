@@ -41,7 +41,7 @@ def run_formatter(questionlibrary):
         # IF TITLE IS FOUND IT WILL REPLACE THE TITLE THAT WAS CAPTURED FROM FILENAME 
         titlepart = re.search(r'(.|\n)*(?=#.?section)', sectioninfo.text)
         if titlepart is not None:
-            questionlibrary.main_title = trim_text(titlepart.group())
+            questionlibrary.main_title = (trim_text(titlepart.group())).lstrip('# ')
         sectioninfopart = re.search(r'\n#.?section(.|\n)*', sectioninfo.text)
         if sectioninfopart is not None:
             sectioninfo_extracted = sectioninfopart.group()    

@@ -5,7 +5,7 @@
 from django.db import models
 
 # import pypandoc
-
+from datetime import datetime
 from api_v3.scorm.XmlWriter import XmlWriter
 from api_v3.scorm.manifest import ManifestEntity, ManifestResourceEntity
 
@@ -95,7 +95,11 @@ class QuestionLibrary(models.Model):
         # If the file name is illegal Windows string, replace with "Converted-Exam"
         filtered_main_title = filtered_main_title.replace('^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$', 'Converted-Exam', re.IGNORECASE)
 
-        # Limit the filename to 30 characters
+        # Limit the filename to 50 characters including the timestamp
+        current_time = datetime.now()
+        time_stamp = current_time.timestamp()
+        str_timestamp = str(time_stamp).replace('.', '')
+        filtered_main_title = str_timestamp + '_' + filtered_main_title
         filtered_main_title = (filtered_main_title[:50]) if len(filtered_main_title) > 50 else filtered_main_title
 
         self.filtered_main_title = filtered_main_title

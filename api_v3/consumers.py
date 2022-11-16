@@ -222,11 +222,19 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         # Add Images back
 ###########################################
+        # select all images for this QL
+        all_images = Image.objects.filter(question_library=process.questionlibrary)
+
+        # select all sections for this QL
+        all_sections = Section.objects.filter(question_library=process.questionlibrary)
+        for image in all_images:
+            for section in all_sections:
+                substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
+                section.text = re.sub(substring, lambda x: image.image, section.text)
+                section.save()
 
         # select all questions for this QL
         all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
-        # select all images for this QL
-        all_images = Image.objects.filter(question_library=process.questionlibrary)
 
         for image in all_images:
             for question in all_questions:
