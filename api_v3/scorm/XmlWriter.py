@@ -83,8 +83,9 @@ class XmlWriter:
         sec_pres_mat_flo = ET.SubElement(sec_pres_mat, "flow_mat")
         sec_pres_mat_flo_flo = ET.SubElement(sec_pres_mat_flo, "flow_mat")
         sec_pres_mat_flo_flo_mat = ET.SubElement(sec_pres_mat_flo_flo, "material")
-        sec_pres_mat_flo_flo_mat_text = ET.SubElement(sec_pres_mat_flo_flo, "mattext", {"texttype": "text/html"})
-        sec_pres_mat_flo_flo_mat_text.text = section_text if section_text else ""
+        sec_pres_mat_flo_flo_mat_text = ET.SubElement(sec_pres_mat_flo_flo_mat, "mattext", {"texttype": "text/html"})
+        if section_text:
+            sec_pres_mat_flo_flo_mat_text.append(CDATA(section_text))
 
 
     def create_sectionproc_extension(self, section_el, section_obj):
