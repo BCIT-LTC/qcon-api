@@ -40,19 +40,19 @@ public class formatter {
    public static class formatterVisitor extends
          formatterBaseVisitor<Void> {
 
-      public Void visitUnused_content(formatterParser.Unused_contentContext ctx){
-         Element unused_content = document.createElement("unused_content");
+      public Void visitMaincontent_title(formatterParser.Maincontent_titleContext ctx){
+         Element unused_content = document.createElement("maincontent_title");
          unused_content.appendChild(document.createTextNode(ctx.getText()));
          root.appendChild(unused_content);
          return null;
       }
 
-      public Void visitSectioninfo(formatterParser.SectioninfoContext ctx){
-         Element sectioninfo = document.createElement("sectioninfo");
-         sectioninfo.appendChild(document.createTextNode(ctx.getText()));
-         root.appendChild(sectioninfo);
-         return null;
-      }
+      // public Void visitSectioninfo(formatterParser.SectioninfoContext ctx){
+      //    Element sectioninfo = document.createElement("sectioninfo");
+      //    sectioninfo.appendChild(document.createTextNode(ctx.getText()));
+      //    root.appendChild(sectioninfo);
+      //    return null;
+      // }
 
       public Void visitBody(formatterParser.BodyContext ctx) {
          Element body = document.createElement("body");

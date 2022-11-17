@@ -12,7 +12,6 @@ from api_v3.logging.logging_adapter import FilenameLoggingAdapter
 
 def run_formatter(questionlibrary):
     logger = FilenameLoggingAdapter(newlogger, {'filename': os.path.basename(questionlibrary.temp_file.name)})
-    
     root = None
 
     try:
@@ -24,34 +23,27 @@ def run_formatter(questionlibrary):
         os.chdir('/code')
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        FormatterError("File Not valid")
-        return
-
+        raise FormatterError("File Not valid")
+    
+    logger.debug("starting formatter extraction")
 # ==================================== UNUSED CONTENT
 
-    unused_content = root.find('unused_content')
-    if unused_content is not None:
-        questionlibrary.formatter_error = "unused content found in document header. Please review"
+    # unused_content = root.find('unused_content')
+    # if unused_content is not None:
+    #     questionlibrary.formatter_error = "unused content found in document header. Please review"
 
 # ==================================== SECTION INFO
 
-    sectioninfo_extracted = '' 
-    sectioninfo = root.find('sectioninfo')
-    if sectioninfo is not None:
-        # IF TITLE IS FOUND IT WILL REPLACE THE TITLE THAT WAS CAPTURED FROM FILENAME 
-        titlepart = re.search(r'(.|\n)*(?=#.?section)', sectioninfo.text)
-        if titlepart is not None:
-            questionlibrary.main_title = (trim_text(titlepart.group())).lstrip('# ')
-        sectioninfopart = re.search(r'\n#.?section(.|\n)*', sectioninfo.text)
-        if sectioninfopart is not None:
-            sectioninfo_extracted = sectioninfopart.group()    
+    maincontenttitle = root.find('maincontent_title')
+    if maincontenttitle is not None:
+        questionlibrary.main_title = trim_text(maincontenttitle.text)
         questionlibrary.save()
 
 # ==================================== BODY
 
     body = root.find('body')
     if body is not None:
-        questionlibrary.formatter_output = sectioninfo_extracted + body.text
+        questionlibrary.formatter_output = body.text
         questionlibrary.save()
     else:
         raise FormatterError("Body not found")

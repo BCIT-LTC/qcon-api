@@ -4,22 +4,22 @@
 
 grammar formatter;
 
-formatter: unused_content? sectioninfo? body end_answers? EOF;
+formatter: maincontent_title? body end_answers? EOF;
 
-unused_content: (ALL_CHARACTER+);
-
-sectioninfo:
-	sectioninfo (HEADING_1 | HEADING_2) (ALL_CHARACTER+)
-	| (HEADING_1 | HEADING_2) (ALL_CHARACTER+);
+maincontent_title: (ALL_CHARACTER+);
 
 body:
-	body sectioninfo? question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ | question_header_parameter*)
-	| question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) sectioninfo? body sectioninfo?
-    | sectioninfo? question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) sectioninfo?
-    | sectioninfo? (HEADING_1 | HEADING_2) (ALL_CHARACTER+ question_header_parameter*) sectioninfo? body sectioninfo?;
+    sectioninfo? question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*)
+	| body sectioninfo? question_header_parameter* (ALL_CHARACTER+ question_header_parameter*)
+    | question_header_parameter* START_NUMBER_ONE (ALL_CHARACTER+ question_header_parameter*) sectioninfo? body sectioninfo?;
+    // | sectioninfo? (ALL_CHARACTER+ question_header_parameter*) sectioninfo? body sectioninfo?;
+    // | sectioninfo? question_header_parameter* START_NUMBER_ONE? (ALL_CHARACTER+ | question_header_parameter*) body;
+
+sectioninfo:
+     SECTION_START (ALL_CHARACTER+);
 
 question_header_parameter:
-	TITLE ALL_CHARACTER+ | POINTS ALL_CHARACTER+ | TYPE ALL_CHARACTER+ | RANDOMIZE ALL_CHARACTER+;
+    TITLE ALL_CHARACTER+ | POINTS ALL_CHARACTER+ | TYPE ALL_CHARACTER+ | RANDOMIZE ALL_CHARACTER+;
 
 end_answers: END_ANSWER_BLOCK ALL_CHARACTER+ START_NUMBER_ONE ALL_CHARACTER+;
 
@@ -58,16 +58,19 @@ fragment ANSWER: A N S W E R (S)?;
 
 fragment HASH: '#';
 fragment DOUBLE_HASH: '##';
+fragment HEADING_1: NEWLINE (ASTERISK|DOUBLE_ASTERISK)? HASH WHITESPACE;
+fragment HEADING_2: NEWLINE (ASTERISK|DOUBLE_ASTERISK)? DOUBLE_HASH WHITESPACE;
 
-START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->') -> skip;
-END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->') -> skip;
+// SECTION_START: NEWLINE HASH S E C T I O N WHITESPACE* NEWLINE (HEADING_1 | HEADING_2)?;
+SECTION_START:
+	NEWLINE ((HASH | DOUBLE_HASH)? WHITESPACE)? (ASTERISK|DOUBLE_ASTERISK)? HASH S E C T I O N WHITESPACE* (ASTERISK|DOUBLE_ASTERISK)? NEWLINE+ (HEADING_1 | HEADING_2)?;
 
-HEADING_1: NEWLINE (ASTERISK|DOUBLE_ASTERISK)? '#' WHITESPACE;
-HEADING_2: NEWLINE (ASTERISK|DOUBLE_ASTERISK)? '##' WHITESPACE;
+// START_OL: (NEWLINE WHITESPACE* '<!-- START OF OL -->') -> skip;
+// END_OL: (NEWLINE WHITESPACE* '<!-- END OF OL -->') -> skip;
 START_NUMBER_ONE: NEWLINE '1' WHITESPACE* DELIMITER;
 
 END_ANSWER_BLOCK:
-	NEWLINE WHITESPACE* ANSWER WHITESPACE* COLON WHITESPACE*;
+    NEWLINE WHITESPACE* ANSWER WHITESPACE* COLON WHITESPACE*;
 
 TITLE:  NEWLINE WHITESPACE* WHITESPACE* T I T L E S? WHITESPACE*;
 POINTS:   NEWLINE WHITESPACE* WHITESPACE* P O I N T S? WHITESPACE*;
