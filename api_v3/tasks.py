@@ -605,21 +605,24 @@ def run_pandoc_task(questionlibrary_id):
         import pypandoc
         mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
         emptyparaPath = "./api_v3/pandoc-filters/emptypara.lua"
-        # listsPath = "./api_v3/pandoc-filters/lists.lua"
+        imageFilterPath = "./api_v3/pandoc-filters/image.lua"
         tables = "./api_v3/pandoc-filters/tables.lua"
+        # listsPath = "./api_v3/pandoc-filters/lists.lua"
+
         pandoc_word_to_html = pypandoc.convert_file(
             questionlibrary.temp_file.path,
             format='docx+empty_paragraphs',
             to='html+empty_paragraphs+tex_math_single_backslash',
-            extra_args=['--no-highlight', 
-                        '--self-contained', 
-                        '--markdown-headings=atx', 
-                        '--preserve-tabs', 
-                        '--wrap=preserve', 
-                        '--indent=false', 
-                        '--mathml',
-                        '--ascii'
-                        ])
+            extra_args=['--no-highlight',
+            '--embed-resources',
+            '--markdown-headings=atx',
+            '--preserve-tabs',
+            '--wrap=preserve',
+            '--indent=false',
+            '--mathml',
+            '--ascii',
+            # '--lua-filter=' + imageFilterPath
+            ])
         pandoc_word_to_html = re.sub(r"(?!\s)<math>", " <math>", pandoc_word_to_html)
         pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
         pandoc_html_to_md = pypandoc.convert_text(
@@ -627,7 +630,7 @@ def run_pandoc_task(questionlibrary_id):
             'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
             format='html+empty_paragraphs',
             extra_args=['--no-highlight', 
-                        '--self-contained', 
+                        '--embed-resources',
                         '--markdown-headings=atx', 
                         '--preserve-tabs', 
                         '--wrap=preserve', 

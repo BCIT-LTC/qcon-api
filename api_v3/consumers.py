@@ -13,7 +13,8 @@ newlogger = logging.getLogger(__name__)
 from .logging.logging_adapter import FilenameLoggingAdapter
 # from .logging.contextfilter import QuestionlibraryFilenameFilter
 # logger.addFilter(QuestionlibraryFilenameFilter())
-
+from api_v3.logging.ErrorTypes import EMFImageError
+from .process.process_helper import add_error_message
 from .serializers import JsonResponseSerializer
 from .process.process import Process
 
@@ -228,75 +229,107 @@ class TextConsumer(JsonWebsocketConsumer):
         # select all sections for this QL
         all_sections = Section.objects.filter(question_library=process.questionlibrary)
         for image in all_images:
+            section_img_src = image.image
+            section_emf_image = False
+
+            if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,section_img_src):
+                section_emf_image = True
+            
             for section in all_sections:
                 substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
-                section.text = re.sub(substring, lambda x: image.image, section.text)
-                section.save()
 
+                try:
+                    if section_emf_image:
+                        error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
+                        img_src = f'<img src="media/broken-image.emf" alt="{error_message}" style="color:red; font-size:2em;">'
+                        add_error_message(section, error_message)
+                        raise EMFImageError(question.error)
+                    section.text = re.sub(substring, lambda x: section_img_src, section.text)
+                    section.save()
+                except Exception as e:
+                    logger.error("Add Images back Error")
+                    # raise Exception(e)
+        
+        
         # select all questions for this QL
         all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
 
         for image in all_images:
+            img_src = image.image
+            emf_image = False
+
+            if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,img_src):
+                emf_image = True
+
             for question in all_questions:
                 substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
-                question.text = re.sub(substring, lambda x: image.image, question.text)
-                question.save()
+                try:
+                    if emf_image:
+                        error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
+                        img_src = f'<img src="media/broken-image.emf" alt="{error_message}" style="color:red; font-size:2em;">'
+                        add_error_message(question, error_message)
+                        raise EMFImageError(question.error)
+                    question.text = re.sub(substring, lambda x: img_src, question.text)
+                    question.save()
+                except Exception as e:
+                    logger.error("Add Images back Error")
+                    # raise Exception(e)
 
                 #Check MC
                 MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)   
                 for answer in MC_answer_objects:
-                    answer.answer = re.sub(substring, lambda x: image.image, answer.answer)
+                    answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
                     if answer.answer_feedback is not None:
-                        answer.answer_feedback = re.sub(substring, lambda x: image.image, answer.answer_feedback)
+                        answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
                     answer.save()
                 #Check TF
                 TF_object = TrueFalse.objects.filter(question=question)
                 for tf in TF_object:
                     if tf.true_feedback is not None:
-                        tf.true_feedback = re.sub(substring, lambda x: image.image, tf.true_feedback)
+                        tf.true_feedback = re.sub(substring, lambda x: img_src, tf.true_feedback)
                         tf.save()
                     if tf.false_feedback is not None:
-                        tf.false_feedback = re.sub(substring, lambda x: image.image, tf.false_feedback)
+                        tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
                         tf.save()
                 #Check FIB
                 FIB_object = Fib.objects.filter(question=question)
                 for fib_question in FIB_object:
-                    fib_question.text = re.sub(substring, lambda x: image.image, fib_question.text)
+                    fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
                     fib_question.save()
                 #Check MS
                 MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)   
                 for answer in MS_answer_objects:                
-                    answer.answer = re.sub(substring, lambda x: image.image, answer.answer)
+                    answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
                     if answer.answer_feedback is not None:
-                        answer.answer_feedback = re.sub(substring, lambda x: image.image, answer.answer_feedback)
+                        answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
                     answer.save()
                 #Check ORD
                 ORD_objects = Ordering.objects.filter(question=question) 
                 for ordering in ORD_objects:    
                     if ordering.text is not None:            
-                        ordering.text = re.sub(substring, lambda x: image.image, ordering.text)
+                        ordering.text = re.sub(substring, lambda x: img_src, ordering.text)
                     if ordering.ord_feedback is not None:
-                        ordering.ord_feedback = re.sub(substring, lambda x: image.image, ordering.ord_feedback)
+                        ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
                     ordering.save()
                 #Check MAT answer
                 MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
                 for mat_answer in MAT_answer_objects:
                     if mat_answer.answer_text is not None:            
-                        mat_answer.answer_text = re.sub(substring, lambda x: image.image, mat_answer.answer_text)
+                        mat_answer.answer_text = re.sub(substring, lambda x: img_src, mat_answer.answer_text)
                     mat_answer.save()
                 #Check MAT choice
                 MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
                 for mat_choice in MAT_choice_objects:
                     if mat_choice.choice_text is not None:            
-                        mat_choice.choice_text = re.sub(substring, lambda x: image.image, mat_choice.choice_text)
+                        mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
                     mat_choice.save()
                 #Check WR
                 WR_objects = WrittenResponse.objects.filter(question=question)
                 for wr in WR_objects:
                     if wr.initial_text is not None:        
-                        wr.initial_text = re.sub(substring, lambda x: image.image, wr.initial_text)
+                        wr.initial_text = re.sub(substring, lambda x: img_src, wr.initial_text)
                     if wr.answer_key is not None:  
-                        wr.answer_key = re.sub(substring, lambda x: image.image, wr.answer_key)
+                        wr.answer_key = re.sub(substring, lambda x: img_src, wr.answer_key)
                     wr.save()
 ###########################################
         # count all question level errors

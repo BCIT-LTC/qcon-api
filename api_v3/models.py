@@ -179,7 +179,7 @@ class QuestionLibrary(models.Model):
                 except IOError as e:
                     logger.error(f"Cannot proccess image with error: {e}")
 
-                new_img = '<img src="{0}" alt="{1}" />'.format('assessment-assets/' + self.filtered_main_title + '/' + new_image_name, new_image_name)
+                new_img = '<img src="{0}" alt="{1}" style="max-width:100%;" />'.format('assessment-assets/' + self.filtered_main_title + '/' + new_image_name, new_image_name)
                 questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
 
             self.questiondb_string = questiondb_string

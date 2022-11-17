@@ -202,7 +202,7 @@ class SectionSerializer(serializers.ModelSerializer):
         return serializer.data
     class Meta:
         model = Section
-        fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
+        fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
 
 
 class SectionPackageSerializer(serializers.ModelSerializer):
