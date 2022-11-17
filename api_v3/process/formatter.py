@@ -36,7 +36,7 @@ def run_formatter(questionlibrary):
 
     maincontenttitle = root.find('maincontent_title')
     if maincontenttitle is not None:
-        questionlibrary.main_title = trim_text(maincontenttitle.text)
+        questionlibrary.main_title = (trim_text(maincontenttitle.text)).lstrip('# ')
         questionlibrary.save()
 
 # ==================================== BODY
