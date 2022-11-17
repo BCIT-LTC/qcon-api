@@ -105,12 +105,17 @@ class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
 
 class MultipleChoiceSerializer(serializers.ModelSerializer):
-    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
+    # multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
+
+    multiple_choice_answers = serializers.SerializerMethodField()
+    def get_multiple_choice_answers(self, multiple_choice):
+        multiple_choice_answer_queryset = MultipleChoiceAnswer.objects.filter(multiple_choice=multiple_choice).order_by('index')
+        serializer = MultipleChoiceAnswerSerializer(instance=multiple_choice_answer_queryset, many=True)
+        return serializer.data
 
     class Meta:
         model = MultipleChoice
         fields = ['randomize', 'enumeration', 'multiple_choice_answers']
-
 
 class TrueFalseSerializer(serializers.ModelSerializer):
 
