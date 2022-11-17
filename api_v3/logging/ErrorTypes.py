@@ -28,6 +28,12 @@ class EndAnswerNoTypeError(Exception):
     def __str__(self):
         return f'{self.message} -> {self.reason}'
 
+class EMFImageError(Exception):
+    def __init__(self, reason, message="EMFImageError"):
+        self.reason = reason
+        self.message = message
+    def __str__(self):
+        return f'{self.message} -> {self.reason}'
 
 class MATEndStructureError(Exception):
     def __init__(self, reason, message="MATEndStructureError"):

@@ -21,15 +21,15 @@ def add_warning_message(question, warning_message):
         question.warning =  warning_message
         question.save()
 
-def add_error_message(question, error_message):
-    if question.error:
-        if error_message not in question.error:
-            question.error = question.error + "\n" + error_message
-            question.save()
+def add_error_message(obj, error_message):
+    if obj.error:
+        if error_message not in obj.error:
+            obj.error = obj.error + "\n" + error_message
+            obj.save()
 
     else:
-        question.error =  error_message
-        question.save()
+        obj.error =  error_message
+        obj.save()
 
 def trim_text(txt):
     text = txt.strip()
