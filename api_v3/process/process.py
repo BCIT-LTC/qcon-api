@@ -72,6 +72,11 @@ class Process:
         self.images_extracted = extract_images(self.questionlibrary)
 
     def run_formatter(self):
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
+        logger.debug("starting formatter antlr process")
         run_formatter(self.questionlibrary)
 
     # This is to split sections into separate objects

@@ -61,7 +61,9 @@ class Splitter:
             # logger.debug("lines original")
             # logger.debug(lines_original)
 
+            # TODO for sections that do not start with question 1 set this to True.
             number_1_found = False
+
             tracklist = 0
             newline_detected = False
             # letterlist_enumvalue = ''
