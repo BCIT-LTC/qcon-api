@@ -1,5 +1,5 @@
 from ...models import WrittenResponse
-from ..process_helper import trim_md_to_html
+from ..process_helper import add_warning_message, trim_md_to_html
 from api_v3.logging.WarningTypes import WREndAnswerExistWarning
 
 def build_inline_WR_with_keyword(question, wr_answer):

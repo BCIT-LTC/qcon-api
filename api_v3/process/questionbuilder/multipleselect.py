@@ -1,5 +1,6 @@
+import re
 from ...models import MultipleSelect, MultipleSelectAnswer
-from ..process_helper import trim_text, trim_md_to_html, trim_md_to_plain
+from ..process_helper import add_warning_message, trim_text, trim_md_to_html, trim_md_to_plain
 from api_v3.logging.WarningTypes import MSEndAnswerExistWarning
 
 def build_inline_MS(question, answers, is_random):
@@ -14,8 +15,9 @@ def build_inline_MS(question, answers, is_random):
     # grab all answers
     for answer_item in answers:
         ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
+        answer_index = trim_text(answer_item.find('index').text)
+        ms_answerobject.index = re.sub(r'[\W_]', '', answer_index)
         ms_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
-        ms_answerobject.index = trim_md_to_plain(answer_item.find('index').text).strip("*.) \n")
         answer_feedback = answer_item.find('feedback')
         is_correct = answer_item.attrib['correct']
 
@@ -47,8 +49,9 @@ def build_endanswer_MS(question, answers, endanswer, is_random):
     # grab all answers
     for idx, answer_item in enumerate(answers):
         ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
+        answer_index = trim_text(answer_item.find('index').text)
+        ms_answerobject.index = re.sub(r'[\W_]', '', answer_index)
         ms_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
-        ms_answerobject.index = trim_md_to_plain(answer_item.find('index').text).strip("*.) \n")
         answer_feedback = answer_item.find('feedback')
         is_correct = answer_item.attrib['correct']
 
