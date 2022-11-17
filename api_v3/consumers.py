@@ -171,7 +171,7 @@ class TextConsumer(JsonWebsocketConsumer):
             logger.error("SectionerError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "Sections can not be identified", "")))
             # close connection
-            self.send(text_data=json.dumps(process.sendformat("Close", "", "")))         
+            self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
             return
         else:
             self.send(text_data=json.dumps(process.sendformat("Busy", "Section found: " + str(process.subsection_count), "")))
@@ -234,23 +234,22 @@ class TextConsumer(JsonWebsocketConsumer):
 
             if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,section_img_src):
                 section_emf_image = True
-            
             for section in all_sections:
-                substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
+                if section.text :
+                    substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
 
-                try:
-                    if section_emf_image:
-                        error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                        img_src = f'<img src="media/broken-image.emf" alt="{error_message}" style="color:red; font-size:2em;">'
-                        add_error_message(section, error_message)
-                        raise EMFImageError(question.error)
-                    section.text = re.sub(substring, lambda x: section_img_src, section.text)
-                    section.save()
-                except Exception as e:
-                    logger.error("Add Images back Error")
-                    # raise Exception(e)
-        
-        
+                    try:
+                        if section_emf_image:
+                            error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
+                            section_img_src = f'<img src="media/broken-image.emf" alt="{error_message}" style="color:red; font-size:2em;">'
+                            add_error_message(section, error_message)
+                            raise EMFImageError(question.error)
+                        section.text = re.sub(substring, lambda x: section_img_src, section.text)
+                        section.save()
+                    except Exception as e:
+                        logger.error(e)
+                        # raise Exception(e)
+
         # select all questions for this QL
         all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
 
@@ -272,65 +271,74 @@ class TextConsumer(JsonWebsocketConsumer):
                     question.text = re.sub(substring, lambda x: img_src, question.text)
                     question.save()
                 except Exception as e:
-                    logger.error("Add Images back Error")
+                    logger.error(e)
                     # raise Exception(e)
 
-                #Check MC
-                MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)   
-                for answer in MC_answer_objects:
-                    answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
-                    if answer.answer_feedback is not None:
-                        answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
-                    answer.save()
-                #Check TF
-                TF_object = TrueFalse.objects.filter(question=question)
-                for tf in TF_object:
-                    if tf.true_feedback is not None:
-                        tf.true_feedback = re.sub(substring, lambda x: img_src, tf.true_feedback)
-                        tf.save()
-                    if tf.false_feedback is not None:
-                        tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
-                        tf.save()
-                #Check FIB
-                FIB_object = Fib.objects.filter(question=question)
-                for fib_question in FIB_object:
-                    fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
-                    fib_question.save()
-                #Check MS
-                MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)   
-                for answer in MS_answer_objects:                
-                    answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
-                    if answer.answer_feedback is not None:
-                        answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
-                    answer.save()
-                #Check ORD
-                ORD_objects = Ordering.objects.filter(question=question) 
-                for ordering in ORD_objects:    
-                    if ordering.text is not None:            
-                        ordering.text = re.sub(substring, lambda x: img_src, ordering.text)
-                    if ordering.ord_feedback is not None:
-                        ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
-                    ordering.save()
-                #Check MAT answer
-                MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
-                for mat_answer in MAT_answer_objects:
-                    if mat_answer.answer_text is not None:            
-                        mat_answer.answer_text = re.sub(substring, lambda x: img_src, mat_answer.answer_text)
-                    mat_answer.save()
-                #Check MAT choice
-                MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
-                for mat_choice in MAT_choice_objects:
-                    if mat_choice.choice_text is not None:            
-                        mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
-                    mat_choice.save()
-                #Check WR
-                WR_objects = WrittenResponse.objects.filter(question=question)
-                for wr in WR_objects:
-                    if wr.initial_text is not None:        
-                        wr.initial_text = re.sub(substring, lambda x: img_src, wr.initial_text)
-                    if wr.answer_key is not None:  
-                        wr.answer_key = re.sub(substring, lambda x: img_src, wr.answer_key)
-                    wr.save()
+                match(question.questiontype):
+                    case 'MC':
+                        #Check MC
+                        MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)
+                        for answer in MC_answer_objects:
+                            answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
+                            if answer.answer_feedback is not None:
+                                answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
+                            answer.save()
+                    case 'TF':
+                        #Check TF
+                        TF_object = TrueFalse.objects.filter(question=question)
+                        for tf in TF_object:
+                            if tf.true_feedback is not None:
+                                tf.true_feedback = re.sub(substring, lambda x: img_src, tf.true_feedback)
+                                tf.save()
+                            if tf.false_feedback is not None:
+                                tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
+                                tf.save()
+                    case 'FIB':
+                        #Check FIB
+                        FIB_object = Fib.objects.filter(question=question)
+                        for fib_question in FIB_object:
+                            fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
+                            fib_question.save()
+                    case 'MS':
+                        #Check MS
+                        MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)
+                        for answer in MS_answer_objects:
+                            answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
+                            if answer.answer_feedback is not None:
+                                answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
+                            answer.save()
+                    case 'ORD':
+                        #Check ORD
+                        ORD_objects = Ordering.objects.filter(question=question)
+                        for ordering in ORD_objects:
+                            if ordering.text is not None:
+                                ordering.text = re.sub(substring, lambda x: img_src, ordering.text)
+                            if ordering.ord_feedback is not None:
+                                ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
+                            ordering.save()
+                    case 'MAT':
+                        #Check MAT answer
+                        MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
+                        for mat_answer in MAT_answer_objects:
+                            if mat_answer.answer_text is not None:
+                                mat_answer.answer_text = re.sub(substring, lambda x: img_src, mat_answer.answer_text)
+                            mat_answer.save()
+                        #Check MAT choice
+                        MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
+                        for mat_choice in MAT_choice_objects:
+                            if mat_choice.choice_text is not None:
+                                mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
+                            mat_choice.save()
+                    case 'WR':
+                        #Check WR
+                        WR_objects = WrittenResponse.objects.filter(question=question)
+                        for wr in WR_objects:
+                            if wr.initial_text is not None:
+                                wr.initial_text = re.sub(substring, lambda x: img_src, wr.initial_text)
+                            if wr.answer_key is not None:
+                                wr.answer_key = re.sub(substring, lambda x: img_src, wr.answer_key)
+                            wr.save()
+
 ###########################################
         # count all question level errors
 ###########################################
@@ -361,7 +369,7 @@ class TextConsumer(JsonWebsocketConsumer):
                                 process.question_error_count += 1
                 except:
                     pass
-                
+
                 ###### TF ERROR COUNT
                 try:
                     tf = TrueFalse.objects.filter(question=question)
@@ -387,7 +395,7 @@ class TextConsumer(JsonWebsocketConsumer):
                     if msas is not None:
                         for msa in msas:
                             if msa.error is not None:
-                                process.question_error_count += 1    
+                                process.question_error_count += 1
                 except:
                     pass
                 ###### MAT ERROR COUNT
@@ -395,32 +403,31 @@ class TextConsumer(JsonWebsocketConsumer):
                     mat = Matching.objects.filter(question=question)
                     if mat is not None:
                         process.question_error_count += 1
-                    
+
                     mat_choices = mat.get_matching_choices()
                     if mat_choices is not None:
                         for mat_choice in mat_choices:
                             if mat_choice.error is not None:
-                                process.question_error_count += 1    
-
+                                process.question_error_count += 1
                     mat_answers = mat.get_unique_matching_answers()
                     if mat_answers is not None:
                         for mat_answer in mat_answers:
                             if mat_answer.error is not None:
-                                process.question_error_count += 1    
+                                process.question_error_count += 1
                 except:
                     pass
                 ###### ORD ERROR COUNT
                 try:
                     ord = Ordering.objects.filter(question=question)
                     if ord.error is not None:
-                        process.question_error_count += 1    
+                        process.question_error_count += 1
                 except:
                     pass
                 ###### WR ERROR COUNT
                 try:
                     wr = WrittenResponse.objects.filter(question=question)
                     if wr.error is not None:
-                        process.question_error_count += 1  
+                        process.question_error_count += 1
                 except:
                     pass """
 
