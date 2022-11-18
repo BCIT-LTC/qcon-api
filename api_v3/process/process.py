@@ -81,9 +81,19 @@ class Process:
 
     # This is to split sections into separate objects
     def run_sectioner(self):
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
+        logger.debug("starting sectioner antlr process")
         self.subsection_count = run_sectioner(self.questionlibrary)
 
     def run_splitter(self):
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
+        logger.debug("starting splitter antlr process")
         splitter = Splitter(self.questionlibrary)
         self.questions_expected = splitter.run_splitter()
 
@@ -91,6 +101,11 @@ class Process:
         self.endanswers_count = get_endanswers(self.questionlibrary)
 
     def run_parser(self):
+        logger = FilenameLoggingAdapter(newlogger, {
+            'filename': self.questionlibrary.temp_file.name,
+            'user_ip': self.questionlibrary.user_ip
+            })
+        logger.debug("starting questionparser antlr process")
         run_parser(self.questionlibrary)
 
     def sendformat(self, status, statustext, data):

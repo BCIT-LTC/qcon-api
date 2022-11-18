@@ -6,14 +6,12 @@ grammar sectioner;
 
 sectioner: section+ EOF;
 
-
 section:
 	SECTION_START title? sectiontext? sectioncontent SECTION_END 
 	| maincontent;
 
 title: HEADING;
 
-// unused_content: ALL_CHARACTER+;
 sectiontext: 
 	ALL_CHARACTER+;
 
@@ -24,9 +22,6 @@ sectioncontent:
 maincontent: 
 	QUESTION_HEADER? QUESTION_PREFIX ALL_CHARACTER+
 	| maincontent QUESTION_HEADER? QUESTION_PREFIX ALL_CHARACTER+;
-
-// question_header_parameter:
-// 	TITLE ALL_CHARACTER+ | POINTS ALL_CHARACTER+ | TYPE ALL_CHARACTER+ | RANDOMIZE ALL_CHARACTER+;
 
 // ================================ TOKENS
 fragment NEWLINE: ('\r'? '\n' | '\r');
