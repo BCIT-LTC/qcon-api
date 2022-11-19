@@ -61,9 +61,17 @@ class Splitter:
             # logger.debug("lines original")
             # logger.debug(lines_original)
 
-            # TODO for sections that do not start with question 1 set this to True.
+            # check if the first question was found already
             number_1_found = False
-
+            for line in lines_original:
+                number_prefix = re.search(r"^ *(\d+)[\\]{0,2}[.|)]", line)
+                if number_prefix:
+                    numbered_line = int(number_prefix.group(1))
+                    if numbered_line != 1:
+                        #this section doesn't start with 1 so we dont need to check for it further
+                        number_1_found = True
+                        break
+                    
             tracklist = 0
             newline_detected = False
             # letterlist_enumvalue = ''
