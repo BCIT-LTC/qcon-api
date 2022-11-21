@@ -6,14 +6,12 @@ grammar sectioner;
 
 sectioner: section+ EOF;
 
-
 section:
 	SECTION_START title? sectiontext? sectioncontent SECTION_END 
 	| maincontent;
 
 title: HEADING;
 
-// unused_content: ALL_CHARACTER+;
 sectiontext: 
 	ALL_CHARACTER+;
 
