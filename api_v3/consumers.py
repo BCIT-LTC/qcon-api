@@ -241,15 +241,16 @@ class TextConsumer(JsonWebsocketConsumer):
                     try:
                         if section_emf_image:
                             error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                            section_img_src = f'<img src="media/broken-image.emf" alt="{error_message}" style="color:red; font-size:2em;">'
+                            section_img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
                             add_error_message(section, error_message)
-                            raise EMFImageError(question.error)
-                        section.text = re.sub(substring, lambda x: section_img_src, section.text)
-                        section.save()
+                            raise EMFImageError(section.error)
                     except Exception as e:
                         logger.error(e)
                         # raise Exception(e)
 
+                    section.text = re.sub(substring, lambda x: section_img_src, section.text)
+                    section.save()
+        
         # select all questions for this QL
         all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
 
@@ -265,14 +266,15 @@ class TextConsumer(JsonWebsocketConsumer):
                 try:
                     if emf_image:
                         error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                        img_src = f'<img src="media/broken-image.emf" alt="{error_message}" style="color:red; font-size:2em;">'
+                        img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
                         add_error_message(question, error_message)
                         raise EMFImageError(question.error)
-                    question.text = re.sub(substring, lambda x: img_src, question.text)
-                    question.save()
                 except Exception as e:
                     logger.error(e)
                     # raise Exception(e)
+
+                question.text = re.sub(substring, lambda x: img_src, question.text)
+                question.save()
 
                 match(question.questiontype):
                     case 'MC':
