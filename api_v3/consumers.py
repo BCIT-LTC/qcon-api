@@ -295,13 +295,13 @@ class TextConsumer(JsonWebsocketConsumer):
                             if tf.false_feedback is not None:
                                 tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
                                 tf.save()
-                    case 'FIB':
+                    case 'FIB' | 'FMB':
                         #Check FIB
                         FIB_object = Fib.objects.filter(question=question)
                         for fib_question in FIB_object:
                             fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
                             fib_question.save()
-                    case 'MS':
+                    case 'MS' | 'MR':
                         #Check MS
                         MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)
                         for answer in MS_answer_objects:
@@ -318,7 +318,7 @@ class TextConsumer(JsonWebsocketConsumer):
                             if ordering.ord_feedback is not None:
                                 ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
                             ordering.save()
-                    case 'MAT':
+                    case 'MAT' | 'MT':
                         #Check MAT answer
                         MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
                         for mat_answer in MAT_answer_objects:
@@ -331,7 +331,7 @@ class TextConsumer(JsonWebsocketConsumer):
                             if mat_choice.choice_text is not None:
                                 mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
                             mat_choice.save()
-                    case 'WR':
+                    case 'WR' | 'E':
                         #Check WR
                         WR_objects = WrittenResponse.objects.filter(question=question)
                         for wr in WR_objects:
