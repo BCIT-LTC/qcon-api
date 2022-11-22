@@ -13,7 +13,7 @@ from api_v3.logging.WarningTypes import (RespondusTypeEWarning, RespondusTypeMRW
 
 from .logging.logging_adapter import FilenameLoggingAdapter
 from .models import EndAnswer, Question, QuestionLibrary
-from .process.process_helper import (add_error_message, add_warning_message, markdown_to_plain, markdown_to_html, trim_md_to_html, trim_text)
+from .process.process_helper import (add_error_message, add_warning_message, html_to_plain, markdown_to_plain, markdown_to_html, trim_md_to_html, trim_text)
 from .process.questionbuilder.fib import build_endanswer_FIB, build_inline_FIB
 from .process.questionbuilder.matching import (build_endanswer_MAT, build_inline_MAT)
 from .process.questionbuilder.multiplechoice import (build_endanswer_MC, build_inline_MC)
@@ -287,13 +287,26 @@ def parse_question(randomize_answer, question_id, endanswer=None):
  
     try:
         if question_from_xml is not None:
-            question.text = trim_md_to_html(question_from_xml.text)
+            question_text = trim_md_to_html(question_from_xml.text)
+            question.text = question_text
 
             if question.title is None:
-                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", question_from_xml.text)
-                title_text = markdown_to_plain(title_text)
+                title_text = re.sub(r"<table(.|\n)+?</table>", "[TABLE]", question_text)
+                title_text = html_to_plain(title_text)
+                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", title_text)
                 title_text = title_text.replace('\n', ' ')
                 title_text = trim_text(title_text)
+                prefix = ''
+                if '[TABLE]' in title_text:
+                    prefix = '[TABLE]' + prefix
+                if '[IMG]' in title_text:
+                    prefix = '[IMG]' + prefix
+                if prefix:
+                    prefix = prefix + ' '
+                    title_text = re.sub("\s*\[IMG\]", "", title_text).strip()
+                    title_text = re.sub("\s*\[TABLE\]", "", title_text).strip()
+                    
+                title_text = prefix + title_text
                 question.title = title_text[0:127]
             question.save()
     except Exception as e:
@@ -627,7 +640,7 @@ def run_pandoc_task(questionlibrary_id):
         pandoc_word_to_html = re.sub(r"</math>(?!\s)", "</math> ", pandoc_word_to_html)
         pandoc_html_to_md = pypandoc.convert_text(
             pandoc_word_to_html,
-            'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+grid_tables+startnum+tex_math_dollars',
+            'markdown_github+fancy_lists+emoji+hard_line_breaks+all_symbols_escapable+escaped_line_breaks+pipe_tables+startnum+tex_math_dollars',
             format='html+empty_paragraphs',
             extra_args=['--no-highlight', 
                         '--embed-resources',
