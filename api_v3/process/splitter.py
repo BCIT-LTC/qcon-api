@@ -71,7 +71,9 @@ class Splitter:
                         #this section doesn't start with 1 so we dont need to check for it further
                         number_1_found = True
                         break
-                    
+                    else:
+                        number_1_found = False
+                        break
             tracklist = 0
             newline_detected = False
             # letterlist_enumvalue = ''
@@ -118,8 +120,7 @@ class Splitter:
                                 else:
                                     # this means we have exited the list, and is safe to assume this is a new question
                                     lines_altered.append('<!-- NewLine -->\n')
-                                    tracklist = 0
-                                    
+                                    tracklist = 0                                    
                 else:
                     # look for first question          
                     if re.search(r"^ *1[\\]{0,2}[.|)]", line):

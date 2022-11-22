@@ -35,12 +35,12 @@ def fix_numbering(questionlibrary):
 
         ref_index = 0
         highest_score = 0
-        for pandoc_index, pandoc_comp in enumerate(pandoc_array):
+        for pandoc_index, pandoc_ref in enumerate(pandoc_array):
             # check if a list item
-            number_pandoc = re.search(r"^ *([0-9]+)\\?[)|.]", pandoc_comp)
+            number_pandoc = re.search(r"^ *([0-9]+)\\?[)|.]", pandoc_ref)
             if number_pandoc:   
                 # unescape html characters like &rsquo; etc 
-                pandoc_comp = html.unescape(pandoc_comp)
+                pandoc_comp = html.unescape(pandoc_ref)
                 # remove all non-letter characters
                 pandoc_comp = re.findall(r'[a-zA-Z0-9]+', pandoc_comp)
                 pandoc_comp = ''.join(pandoc_comp)
@@ -49,7 +49,20 @@ def fix_numbering(questionlibrary):
                     ref_comp = re.findall(r'[a-zA-Z0-9]+', ref_element)
                     ref_comp = ''.join(ref_comp)
 
+                    number_ref = re.search(r"^ *([0-9]+)\\?[)|.]", ref_element)
+                    number_ref_alt = re.search(r"^ *([0-9]+)", ref_element)
+
                     jaro_score = jaro.jaro_metric(ref_comp,pandoc_comp)
+               
+                    #check if reference is a number and skip if not a number
+                    if not number_ref:
+                        if number_ref_alt:
+                            if jaro_score > 0.9:
+                                error_question = number_pandoc.group(1)
+                                if number_ref_alt:
+                                    error_question = number_ref_alt.group(1)
+                                raise QuestionEnumerationError(f'did not match the supported qcon numberlist pattern "." or ") at question: {error_question}')
+                        continue
 
                     ### FOR DEBUGGING specific line
                     # debug_line = '47'
@@ -62,28 +75,18 @@ def fix_numbering(questionlibrary):
 
                     if jaro_score > 0.9:
                         # matched by similarity
-                        number_ref = re.search(r"^ *([0-9]+)\\?[)|.]", ref_element)
-                        number_ref_alt = re.search(r"^ *([0-9]+)", ref_element)
-
-                        # the reference is a number
-                        if number_ref:
-                            if number_ref.group(1) != number_pandoc.group(1):    
-                                logger.debug(f"mismatch found [ref]:[pandoc]-[{number_ref.group(1)}:{number_pandoc.group(1)}]")
-                                subbed = re.sub(r"[0-9]+", number_ref.group(1), pandoc_array[pandoc_index])
-                                pandoc_array[pandoc_index] = subbed
-                                logger.debug(f"mismatch fixed [ref]:[pandoc]-[{number_ref.group(1)}:{number_pandoc.group(1)}]->[{number_ref.group(1)}:{number_ref.group(1)}]")
-                                ref_index = ref_index_it+1
-                                break
-                            else:
-                                # number is the same and doesn't need fixing
-                                ref_index = ref_index_it+1
-                                break
+                        # if number_ref:
+                        if number_ref.group(1) != number_pandoc.group(1):    
+                            logger.debug(f"mismatch found [ref]:[pandoc]-[{number_ref.group(1)}:{number_pandoc.group(1)}]")
+                            subbed = re.sub(r"[0-9]+", number_ref.group(1), pandoc_array[pandoc_index])
+                            pandoc_array[pandoc_index] = subbed
+                            logger.debug(f"mismatch fixed [ref]:[pandoc]-[{number_ref.group(1)}:{number_pandoc.group(1)}]->[{number_ref.group(1)}:{number_ref.group(1)}]")
+                            ref_index = ref_index_it+1
+                            break
                         else:
-                            # did not match the supported qcon numberlist pattern "." or ")"
-                            error_question = number_pandoc.group(1)
-                            if number_ref_alt:
-                                error_question = number_ref_alt.group(1)
-                            raise QuestionEnumerationError(f'did not match the supported qcon numberlist pattern "." or ") at question: {error_question}')
+                            # number is the same and doesn't need fixing
+                            ref_index = ref_index_it+1
+                            break
                     else:
                         # no match; continue searching
                         if jaro_score > highest_score:
