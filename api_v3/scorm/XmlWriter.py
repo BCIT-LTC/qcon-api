@@ -113,15 +113,15 @@ class XmlWriter:
                     self.generate_multiple_choice(item_el, question_ident, question)
                 case "TF":
                     self.generate_true_false(item_el, question_ident, question)
-                case "FIB":
+                case "FIB" | "FMB":
                     self.generate_fill_in_the_blanks(item_el, question_ident, question)
-                case "MS":
+                case "MS" | "MR":
                     self.generate_multi_select(item_el, question_ident, question)
-                case "MAT":
+                case "MAT" | "MT":
                     self.generate_matching(item_el, question_ident, question)
                 case "ORD":
                     self.generate_ordering(item_el, question_ident, question)
-                case "WR":
+                case "WR" | "E":
                     self.generate_written_response(item_el, question_ident, question)
 
             section_el.append(item_el)

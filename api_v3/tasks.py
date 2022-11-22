@@ -72,11 +72,11 @@ def check_inline_questiontype(question, answers, wr_answer):
         # ====================  TF confirmed  ====================
         return 'inline_TF'
 
-    if marked_answers_count == 1 and question.questiontype != 'MS':
+    if marked_answers_count == 1 and (question.questiontype != 'MS' and question.questiontype != 'MR'):
         # ====================  MC confirmed  ====================
         return 'inline_MC'
 
-    if marked_answers_count > 1 or question.questiontype == 'MS':
+    if marked_answers_count > 1 or (question.questiontype == 'MS' or question.questiontype == 'MR'):
         # ====================  MS confirmed  ====================
         return 'inline_MS'
 
@@ -84,7 +84,7 @@ def check_inline_questiontype(question, answers, wr_answer):
         # ====================  MAT confirmed  ====================
         return 'inline_MAT'
 
-    if (unmarked_answers_count == 1 and answers_length == 1) or question.questiontype == 'WR':
+    if (unmarked_answers_count == 1 and answers_length == 1) or (question.questiontype == 'WR' or question.questiontype == 'E'):
         # ====================  WR confirmed  ====================
         return 'inline_WR_list'
 
@@ -131,11 +131,11 @@ def check_endanswer_questiontype(question, answers, endanswer):
             # ====================  TF confirmed  ====================
             return 'endanswer_TF'
             
-        if answer_key_length == 1 and question.questiontype != 'MS':
+        if answer_key_length == 1 and (question.questiontype != 'MS' and question.questiontype != 'MR'):
             # ====================  MC confirmed  ====================
             return 'endanswer_MC'
 
-        if question.questiontype == 'MS' or answer_key_length > 1:
+        if (question.questiontype == 'MS' or question.questiontype == 'MR') or answer_key_length > 1:
             # ====================  MS confirmed  ====================
             return 'endanswer_MS'
     
@@ -312,7 +312,11 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     warning_message = 'Respondus format "Type: E" was found on the file. Please use "Type: WR" instead.'
                     add_warning_message(question, warning_message)
                     raise RespondusTypeEWarning(question.warning)
-                
+            except Exception as e:
+                logger.error(e)
+                # raise Exception(e)
+            
+            try:
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
 
@@ -323,7 +327,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to WR type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"WRInlineStructureError -> {question.error}")
                         raise WRInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -333,11 +336,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to WR type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"WREndStructureError -> {question.error}")
                         raise WREndStructureError(question.error)
             except Exception as e:
-                logger.error("WRError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   Multi Select
@@ -350,7 +352,11 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     warning_message = 'Respondus format "Type: MR" was found on the file. Please use "Type: MS" instead.'
                     add_warning_message(question, warning_message)
                     raise RespondusTypeMRWarning(question.warning)
-                
+            except Exception as e:
+                logger.error(e)
+                # raise Exception(e)
+
+            try:
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_MS':
@@ -358,7 +364,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to MS type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"MSInlineStructureError -> {question.error}")
                         raise MSInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -368,11 +373,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to MS type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"MSEndStructureError -> {question.error}")
                         raise MSEndStructureError(question.error)
             except Exception as e:
-                logger.error("MSError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   ORDERING
@@ -387,7 +391,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to ORD type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"ORDInlineStructureError -> {question.error}")
                         raise ORDInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -397,11 +400,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to ORD type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"ORDEndStructureError -> {question.error}")
                         raise ORDEndStructureError(question.error)
             except Exception as e:
-                logger.error("ORDError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   MULTIPLE CHOICE
@@ -416,7 +418,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to MC type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"MCInlineStructureError -> {question.error}")
                         raise MCInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -426,11 +427,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to MC type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"MCEndStructureError -> {question.error}")
                         raise MCEndStructureError(question.error)
             except Exception as e:
-                logger.error("MCError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   TRUE-FALSE
@@ -445,7 +445,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to TF type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"TFInlineStructureError -> {question.error}")
                         raise TFInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -455,11 +454,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to TF type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"TFEndStructureError -> {question.error}")
                         raise TFEndStructureError(question.error)
             except Exception as e:
-                logger.error("TFError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   FILL IN BLANK
@@ -471,7 +469,11 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     warning_message = 'Respondus format "Type: FMB" was found on the file. Please use "Type: FIB" instead.'
                     add_warning_message(question, warning_message)
                     raise RespondusTypeFMBWarning(question.warning)
-                
+            except Exception as e:
+                logger.error(e)
+                # raise Exception(e)
+
+            try:
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_FIB':
@@ -479,7 +481,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to FIB type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"FIBInlineStructureError -> {question.error}")
                         raise FIBInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -489,11 +490,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to FIB type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"FIBEndStructureError -> {question.error}")
                         raise FIBEndStructureError(question.error)
             except Exception as e:
-                logger.error("FIBError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   MATCHING
@@ -505,7 +505,11 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     warning_message = 'Respondus format "Type: MT" was found on the file. Please use "Type: MAT" instead.'
                     add_warning_message(question, warning_message)
                     raise RespondusTypeMTWarning(question.warning)
+            except Exception as e:
+                logger.error(e)
+                # raise Exception(e)
                 
+            try:
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_MAT':
@@ -513,7 +517,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "Inline question structure doesn't conform to MAT type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"MATInlineStructureError -> {question.error}")
                         raise MATInlineStructureError(question.error)
                 else:
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
@@ -523,11 +526,10 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     else:
                         error_message = "End answer question structure doesn't conform to MAT type question format."
                         add_error_message(question, error_message)
-                        # logger.error(f"MATEndStructureError -> {question.error}")
                         raise MATEndStructureError(question.error)
             except Exception as e:
-                logger.error("MatchingError")
-                raise Exception(e)
+                logger.error(e)
+                # raise Exception(e)
 
 # ================================# ================================
 #   TYPE NOT GIVEN, TRY TO DETERMINE IT
@@ -574,17 +576,15 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     case 'endanswer_ORD':
                         build_endanswer_ORD(question, endanswer)
                     case 'inline_NO_TYPE':
-                        # logger.error(f"InlineNoTypeError -> Cannot determined the question type")
                         error_message = "Cannot determined the inline question type."
                         add_error_message(question, error_message)
                         raise InlineNoTypeError(error_message)
                     case 'endanswer_NO_TYPE':
-                        # logger.error(f"EndAnswerNoTypeError -> Cannot determined the question type")
                         error_message = "Cannot determined the end answer question type."
                         add_error_message(question, error_message)
                         raise EndAnswerNoTypeError(error_message)
             except Exception as e:
-                # logger.error("NoTypeDeterminedError")
+                logger.error(e)
                 raise NoTypeDeterminedError("Cannot determine the question type.")
     except Exception as e:
         logger.error(str(e))
