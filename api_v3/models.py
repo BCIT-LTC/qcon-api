@@ -309,7 +309,7 @@ class Question(models.Model):
     error = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.text)
+        return f"{str(self.number_provided)}-{self.text[0:60]}"
 
     def get_multiple_choice(self):
         return MultipleChoice.objects.filter(question=self.id).first()
