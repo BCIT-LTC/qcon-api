@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from .serializers import QuestionLibrarySerializer, WordToZipSerializer, WordToJsonSerializer, WordToJsonZipSerializer, QuestionLibraryErrorSummarySerializer
 from rest_framework import generics
@@ -46,18 +44,6 @@ class WordToZip(APIView):
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToZipSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description=
-        'Upload a Word document(.docx) and receive a zip(.zip) file',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         is_random = False
@@ -108,18 +94,6 @@ class WordToJsonZip(APIView):
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToJsonZipSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description=
-        'Upload a Word document(.docx) and receive a Zip package with Json included',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         file_obj2 = request.data['temp_file']
@@ -197,17 +171,6 @@ class WordToJson(APIView):
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToJsonSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description='Upload a Word document(.docx) and receive a JSON string',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
     def post(self, request, format=None):
         # file_obj = request.FILES.get('temp_file')
         file_obj2 = request.data['temp_file']
