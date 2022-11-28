@@ -3,8 +3,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from .serializers import JsonToScormSerializer, QuestionLibrarySerializer, WordToJsonSerializer
 from rest_framework import generics
@@ -40,17 +38,6 @@ class WordToJson(APIView):
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = WordToJsonSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description='Upload a Word document(.docx) and return a JSON file (.json)',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
     def post(self, request, format=None):
 
         is_random = False
@@ -207,18 +194,6 @@ class JsonToScorm(APIView):
     authentication_classes = [TokenAuthenticationWithBearer]
     serializer_class = JsonToScormSerializer
 
-    @extend_schema(
-        # override default docstring extraction
-        description=
-        'Upload a JSON object and receive a SCORM (.zip) file',
-        # provide Authentication class that deviates from the views default
-        auth=None,
-        # change the auto-generated operation name
-        operation_id=None,
-        # or even completely override what AutoSchema would generate. Provide raw Open API spec as Dict.
-        operation=None,
-        # attach request/response examples to the operation.
-    )
     def post(self, request, format=None):
 
         json_data = request.data

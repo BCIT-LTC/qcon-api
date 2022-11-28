@@ -74,8 +74,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'channels',
-    # 'django_q',
-    'drf_spectacular',
 
     # Local Apps
     'api_v3'
@@ -292,37 +290,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
         # 'api_v2.authentication.ExampleAuthentication',
-    ],
-    'DEFAULT_SCHEMA_CLASS':
-    'drf_spectacular.openapi.AutoSchema',
-}
-
-# Q_CLUSTER = {
-#     'name': 'myproject',
-#     'workers': 8,
-#     'recycle': 500,
-#     'timeout': 300,
-#     'retry': 301,
-#     'max_attempts': 1,
-#     'compress': True,
-#     'save_limit': 250,
-#     'queue_limit': 500,
-#     'cpu_affinity': 1,
-#     'label': 'Django Q',
-#     'orm': 'default'
-# }
-
-SPECTACULAR_SETTINGS = {
-    # 'VERSION': '1.0.0',
-    'TITLE': 'Qcon API',
-    'DESCRIPTION':
-    'RESTful API to convert word documents to LMS compliant format',
-    "COMPONENT_SPLIT_REQUEST": True,
-    "SWAGGER_UI_SETTINGS": {
-        "deepLinking": True,
-        "persistAuthorization": True,
-        "displayOperationId": True
-    }
+    ]
 }
 
 CHANNEL_LAYERS = {
