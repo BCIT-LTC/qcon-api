@@ -101,17 +101,12 @@ class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MultipleChoiceAnswer
-        fields = ['index', 'answer', 'answer_feedback', 'weight']
+        fields = ['index', 'order', 'answer', 'answer_feedback', 'weight']
 
 
 class MultipleChoiceSerializer(serializers.ModelSerializer):
-    # multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
+    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
 
-    multiple_choice_answers = serializers.SerializerMethodField()
-    def get_multiple_choice_answers(self, multiple_choice):
-        multiple_choice_answer_queryset = MultipleChoiceAnswer.objects.filter(multiple_choice=multiple_choice).order_by('index')
-        serializer = MultipleChoiceAnswerSerializer(instance=multiple_choice_answer_queryset, many=True)
-        return serializer.data
 
     class Meta:
         model = MultipleChoice
@@ -142,7 +137,7 @@ class MultipleSelectAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MultipleSelectAnswer
-        fields = ['answer', 'answer_feedback', 'is_correct']
+        fields = ['index', 'order', 'answer', 'answer_feedback', 'is_correct']
 
 
 class MultipleSelectSerializer(serializers.ModelSerializer):
@@ -207,7 +202,7 @@ class SectionSerializer(serializers.ModelSerializer):
         return serializer.data
     class Meta:
         model = Section
-        fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
+        fields = ['is_main_content', 'order', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
 
 
 class SectionPackageSerializer(serializers.ModelSerializer):
@@ -215,7 +210,7 @@ class SectionPackageSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Section
-        fields = ['is_main_content', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions']
+        fields = ['is_main_content', 'order', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
 
 
 class JsonResponseSerializer(serializers.ModelSerializer):

@@ -13,10 +13,11 @@ def build_inline_MC(question, answers, is_random):
     mc_object.save()
 
     # grab all answers
-    for answer_item in answers:
+    for answer_order, answer_item in enumerate(answers):
         mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
         answer_index = trim_text(answer_item.find('index').text)
         mc_answerobject.index = re.sub(r'[\W_]', '', answer_index)
+        mc_answerobject.order = answer_order + 1
         mc_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
         answer_feedback = answer_item.find('feedback')
         is_correct = answer_item.attrib['correct']
@@ -47,6 +48,7 @@ def build_endanswer_MC(question, answers, endanswer, is_random):
         mc_answerobject = MultipleChoiceAnswer.objects.create(multiple_choice=mc_object)
         answer_index = trim_text(answer_item.find('index').text)
         mc_answerobject.index = re.sub(r'[\W_]', '', answer_index)
+        mc_answerobject.order = idx + 1
         mc_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
         answer_feedback = answer_item.find('feedback')
         is_correct = answer_item.attrib['correct']

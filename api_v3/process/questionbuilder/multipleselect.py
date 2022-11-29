@@ -13,10 +13,11 @@ def build_inline_MS(question, answers, is_random):
     ms_object.save()
 
     # grab all answers
-    for answer_item in answers:
+    for answer_order, answer_item in enumerate(answers):
         ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
         answer_index = trim_text(answer_item.find('index').text)
         ms_answerobject.index = re.sub(r'[\W_]', '', answer_index)
+        ms_answerobject.order = answer_order + 1
         ms_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
         answer_feedback = answer_item.find('feedback')
         is_correct = answer_item.attrib['correct']
@@ -51,6 +52,7 @@ def build_endanswer_MS(question, answers, endanswer, is_random):
         ms_answerobject = MultipleSelectAnswer.objects.create(multiple_select=ms_object)
         answer_index = trim_text(answer_item.find('index').text)
         ms_answerobject.index = re.sub(r'[\W_]', '', answer_index)
+        ms_answerobject.order = idx + 1
         ms_answerobject.answer = trim_md_to_html(answer_item.find('content').text)
         answer_feedback = answer_item.find('feedback')
         is_correct = answer_item.attrib['correct']

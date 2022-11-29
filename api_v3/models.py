@@ -362,13 +362,14 @@ class MultipleChoice(models.Model):
         return str(self.id)
 
     def get_multiple_choice_answers(self):
-        return MultipleChoiceAnswer.objects.filter(multiple_choice=self.id).order_by('id')
+        return MultipleChoiceAnswer.objects.filter(multiple_choice=self.id).order_by('order')
 
 
 class MultipleChoiceAnswer(models.Model):
     id = models.AutoField(primary_key=True)
     multiple_choice = models.ForeignKey(MultipleChoice, related_name='multiple_choice_answers', on_delete=models.CASCADE)
     index = models.TextField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     weight = models.DecimalField(unique=False, max_digits=8, decimal_places=4, null=True)
@@ -415,13 +416,14 @@ class MultipleSelect(models.Model):
         return str(self.id)
 
     def get_multiple_select_answers(self):
-        return MultipleSelectAnswer.objects.filter(multiple_select=self.id).order_by('id')
+        return MultipleSelectAnswer.objects.filter(multiple_select=self.id).order_by('order')
 
 
 class MultipleSelectAnswer(models.Model):
     id = models.AutoField(primary_key=True)
     multiple_select = models.ForeignKey(MultipleSelect, related_name='multiple_select_answers', on_delete=models.CASCADE)
     index = models.TextField(blank=True, null=True)
+    order = models.PositiveSmallIntegerField(blank=True, null=True)
     answer = models.TextField(blank=True, null=True)
     answer_feedback = models.TextField(blank=True, null=True)
     is_correct = models.BooleanField(blank=True, null=True)
