@@ -18,7 +18,7 @@ def run_parser(questionlibrary):
         })
 
     import time
-    sections = Section.objects.filter(question_library=questionlibrary)
+    sections = questionlibrary.get_sections()
     if len(sections) == 0:
         raise ParserError("No sections found for the parser to work on")
     endanswers = EndAnswer.objects.filter(question_library=questionlibrary)    

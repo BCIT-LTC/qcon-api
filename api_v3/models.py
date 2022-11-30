@@ -285,7 +285,7 @@ class Section(models.Model):
         return str(self.order)
 
     def get_questions(self):
-        return Question.objects.filter(section=self.id).order_by('id')
+        return Question.objects.filter(section=self.id).order_by('index')
 
 
 class Question(models.Model):
@@ -309,7 +309,13 @@ class Question(models.Model):
     error = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{str(self.number_provided)}-{self.text[0:60]}"
+        text = ''
+        number_provided = ''
+        if self.text is not None:
+            text = self.text
+        if self.number_provided is not None:
+            number_provided = str(self.number_provided)
+        return f"{number_provided}-{text[0:60]}"
 
     def get_multiple_choice(self):
         return MultipleChoice.objects.filter(question=self.id).first()

@@ -35,7 +35,7 @@ def run_sectioner(questionlibrary):
             sectionobject = Section.objects.create(
                 question_library=questionlibrary)
             sectionobject.save()
-            sectionobject.order = section.attrib.get("id")
+            sectionobject.order = int(section.attrib.get("id")) + 1
             sectiontitle = section.find('title')
             if sectiontitle is not None:
                 section_title_text = markdown_to_plain(sectiontitle.text)

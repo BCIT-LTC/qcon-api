@@ -45,7 +45,7 @@ def run_formatter(questionlibrary):
 
     body = root.find('body')
     if body is not None:
-        questionlibrary.formatter_output = body.text
+        questionlibrary.formatter_output = body.text.rstrip() + "\n"
         questionlibrary.save()
     else:
         raise FormatterError("Body not found")
