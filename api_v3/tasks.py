@@ -654,7 +654,8 @@ def run_pandoc_task(questionlibrary_id):
                         '--lua-filter=' + emptyparaPath,
                         # '--lua-filter=' + tables
                         ])
-        return "\n" + pandoc_html_to_md
+        pandoc_html_to_md = pandoc_html_to_md.rstrip()
+        return "\n" + pandoc_html_to_md + "\n"
     except Exception as e:
         logger.debug(e)
         raise MarkDownConversionError(e)

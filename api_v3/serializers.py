@@ -218,7 +218,7 @@ class JsonResponseSerializer(serializers.ModelSerializer):
     sections = serializers.SerializerMethodField()
 
     def get_sections(self, questionlibrary):
-        section_queryset = Section.objects.filter(question_library=questionlibrary).order_by('order')
+        section_queryset = questionlibrary.get_sections()
         serializer = SectionSerializer(instance=section_queryset, many=True)
         return serializer.data
     class Meta:

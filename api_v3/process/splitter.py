@@ -16,7 +16,6 @@ class Splitter:
     def __init__(self, questionlibrary) -> None:
         self.questionlibrary = questionlibrary
         self.total_questions_found = 0
-        self.section_order = 1
 
     def run_splitter(self):
         logger = FilenameLoggingAdapter(newlogger, {
@@ -30,12 +29,10 @@ class Splitter:
         except Exception as e:
             logger.info(str(e))
 
-        sections = Section.objects.filter(question_library=self.questionlibrary)        
+        sections = self.questionlibrary.get_sections()    
         for section in sections:
             try:
                 section.questions_expected = self.__split_questions(section)
-                section.order = self.section_order
-                self.section_order += 1
                 section.save()
             except SplitterError as e:
                 logger.debug("No questions detected. Discarding empty section")
@@ -51,7 +48,7 @@ class Splitter:
             'filename': self.questionlibrary.temp_file.name,
             'user_ip': self.questionlibrary.user_ip
             })      
-        sections = Section.objects.filter(question_library=self.questionlibrary)
+        sections = self.questionlibrary.get_sections()  
 
         for section in sections:            
             lines_altered = []

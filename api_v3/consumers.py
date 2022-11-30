@@ -147,7 +147,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ##########################################
         # run_formatter
 ##########################################
-
+        logger.debug("Formatting ...")
         try:
             process.run_formatter()
             logger.info("Formatter Done")
@@ -163,7 +163,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ##########################################
         # run_sectioner
 ##########################################
-
+        logger.debug("Sectioning ...")
         try:
             process.run_sectioner()
             logger.info("Sectioner Done")
@@ -179,7 +179,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ##########################################
         # run_splitter
 ##########################################
-
+        logger.debug("Splitting Questions ...")
         try:
             process.run_splitter()
             logger.info("Splitter Done")
@@ -194,7 +194,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         # Grab end answers
 ###########################################
-
+        logger.debug("Checking Endanswer ...")
         try:
             process.get_endanswers()
             logger.info("Check Endanswer Done")
@@ -208,7 +208,7 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         # run_parser
 ###########################################
-
+        logger.debug("Starting Parser ...")
         try:
             process.run_parser()
             logger.info("Parser Done")
@@ -223,129 +223,131 @@ class TextConsumer(JsonWebsocketConsumer):
 ###########################################
         # Add Images back
 ###########################################
-        # select all images for this QL
-        all_images = Image.objects.filter(question_library=process.questionlibrary)
+        try:
+            logger.debug("Adding Images Back: Select all Images ...")
+            # select all images for this QL
+            all_images = Image.objects.filter(question_library=process.questionlibrary)
+            logger.debug("Adding Images Back: Select all Sections ...")
+            # select all sections for this QL
+            all_sections = Section.objects.filter(question_library=process.questionlibrary)
+            logger.debug("Adding Images Back: Check each image for EMF ...")
+            for image in all_images:
+                section_img_src = image.image
+                section_emf_image = False
 
-        # select all sections for this QL
-        all_sections = Section.objects.filter(question_library=process.questionlibrary)
-        for image in all_images:
-            section_img_src = image.image
-            section_emf_image = False
+                if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,section_img_src):
+                    section_emf_image = True
+                for section in all_sections:
+                    if section.text :
+                        substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
 
-            if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,section_img_src):
-                section_emf_image = True
-            for section in all_sections:
-                if section.text :
+                        try:
+                            if section_emf_image:
+                                error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
+                                section_img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
+                                add_error_message(section, error_message)
+                                raise EMFImageError(section.error)
+                        except Exception as e:
+                            logger.error(e)
+                            # raise Exception(e)
+
+                        section.text = re.sub(substring, lambda x: section_img_src, section.text)
+                        section.save()
+            
+            # select all questions for this QL
+            all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
+            for image in all_images:
+                img_src = image.image
+                emf_image = False
+
+                if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,img_src):
+                    emf_image = True
+                for question in all_questions:
                     substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
-
                     try:
-                        if section_emf_image:
+                        if emf_image:
                             error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                            section_img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
-                            add_error_message(section, error_message)
-                            raise EMFImageError(section.error)
+                            img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
+                            add_error_message(question, error_message)
+                            raise EMFImageError(question.error)
                     except Exception as e:
                         logger.error(e)
                         # raise Exception(e)
 
-                    section.text = re.sub(substring, lambda x: section_img_src, section.text)
-                    section.save()
-        
-        # select all questions for this QL
-        all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
-
-        for image in all_images:
-            img_src = image.image
-            emf_image = False
-
-            if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,img_src):
-                emf_image = True
-
-            for question in all_questions:
-                substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
-                try:
-                    if emf_image:
-                        error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                        img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
-                        add_error_message(question, error_message)
-                        raise EMFImageError(question.error)
-                except Exception as e:
-                    logger.error(e)
-                    # raise Exception(e)
-
-                question.text = re.sub(substring, lambda x: img_src, question.text)
-                question.save()
-
-                match(question.questiontype):
-                    case 'MC':
-                        #Check MC
-                        MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)
-                        for answer in MC_answer_objects:
-                            answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
-                            if answer.answer_feedback is not None:
-                                answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
-                            answer.save()
-                    case 'TF':
-                        #Check TF
-                        TF_object = TrueFalse.objects.filter(question=question)
-                        for tf in TF_object:
-                            if tf.true_feedback is not None:
-                                tf.true_feedback = re.sub(substring, lambda x: img_src, tf.true_feedback)
-                                tf.save()
-                            if tf.false_feedback is not None:
-                                tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
-                                tf.save()
-                    case 'FIB' | 'FMB':
-                        #Check FIB
-                        FIB_object = Fib.objects.filter(question=question)
-                        for fib_question in FIB_object:
-                            fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
-                            fib_question.save()
-                    case 'MS' | 'MR':
-                        #Check MS
-                        MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)
-                        for answer in MS_answer_objects:
-                            answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
-                            if answer.answer_feedback is not None:
-                                answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
-                            answer.save()
-                    case 'ORD':
-                        #Check ORD
-                        ORD_objects = Ordering.objects.filter(question=question)
-                        for ordering in ORD_objects:
-                            if ordering.text is not None:
-                                ordering.text = re.sub(substring, lambda x: img_src, ordering.text)
-                            if ordering.ord_feedback is not None:
-                                ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
-                            ordering.save()
-                    case 'MAT' | 'MT':
-                        #Check MAT answer
-                        MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
-                        for mat_answer in MAT_answer_objects:
-                            if mat_answer.answer_text is not None:
-                                mat_answer.answer_text = re.sub(substring, lambda x: img_src, mat_answer.answer_text)
-                            mat_answer.save()
-                        #Check MAT choice
-                        MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
-                        for mat_choice in MAT_choice_objects:
-                            if mat_choice.choice_text is not None:
-                                mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
-                            mat_choice.save()
-                    case 'WR' | 'E':
-                        #Check WR
-                        WR_objects = WrittenResponse.objects.filter(question=question)
-                        for wr in WR_objects:
-                            if wr.initial_text is not None:
-                                wr.initial_text = re.sub(substring, lambda x: img_src, wr.initial_text)
-                            if wr.answer_key is not None:
-                                wr.answer_key = re.sub(substring, lambda x: img_src, wr.answer_key)
-                            wr.save()
-
+                    question.text = re.sub(substring, lambda x: img_src, question.text)
+                    question.save()
+                    match(question.questiontype):
+                        case 'MC':
+                            #Check MC
+                            MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)
+                            for answer in MC_answer_objects:
+                                answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
+                                if answer.answer_feedback is not None:
+                                    answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
+                                answer.save()
+                        case 'TF':
+                            #Check TF
+                            TF_object = TrueFalse.objects.filter(question=question)
+                            for tf in TF_object:
+                                if tf.true_feedback is not None:
+                                    tf.true_feedback = re.sub(substring, lambda x: img_src, tf.true_feedback)
+                                    tf.save()
+                                if tf.false_feedback is not None:
+                                    tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
+                                    tf.save()
+                        case 'FIB' | 'FMB':
+                            #Check FIB
+                            FIB_object = Fib.objects.filter(question=question)
+                            for fib_question in FIB_object:
+                                fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
+                                fib_question.save()
+                        case 'MS' | 'MR':
+                            #Check MS
+                            MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)
+                            for answer in MS_answer_objects:
+                                answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
+                                if answer.answer_feedback is not None:
+                                    answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
+                                answer.save()
+                        case 'ORD':
+                            #Check ORD
+                            ORD_objects = Ordering.objects.filter(question=question)
+                            for ordering in ORD_objects:
+                                if ordering.text is not None:
+                                    ordering.text = re.sub(substring, lambda x: img_src, ordering.text)
+                                if ordering.ord_feedback is not None:
+                                    ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
+                                ordering.save()
+                        case 'MAT' | 'MT':
+                            #Check MAT answer
+                            MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
+                            for mat_answer in MAT_answer_objects:
+                                if mat_answer.answer_text is not None:
+                                    mat_answer.answer_text = re.sub(substring, lambda x: img_src, mat_answer.answer_text)
+                                mat_answer.save()
+                            #Check MAT choice
+                            MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
+                            for mat_choice in MAT_choice_objects:
+                                if mat_choice.choice_text is not None:
+                                    mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
+                                mat_choice.save()
+                        case 'WR' | 'E':
+                            #Check WR
+                            WR_objects = WrittenResponse.objects.filter(question=question)
+                            for wr in WR_objects:
+                                if wr.initial_text is not None:
+                                    wr.initial_text = re.sub(substring, lambda x: img_src, wr.initial_text)
+                                if wr.answer_key is not None:
+                                    wr.answer_key = re.sub(substring, lambda x: img_src, wr.answer_key)
+                                wr.save()
+                    logger.debug("Adding Images Back: Done Replacing images ...")
+        except Exception as e:
+            logger.error(e)
 ###########################################
         # count all question level errors
 ###########################################
-
-        sections = Section.objects.filter(question_library=process.questionlibrary)
+        logger.debug("count all question level errors ...")
+        sections = process.questionlibrary.get_sections()
         for section in sections:
             questions = Question.objects.filter(section=section)
             for question in questions:
