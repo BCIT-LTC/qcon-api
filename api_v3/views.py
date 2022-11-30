@@ -4,7 +4,7 @@
 
 import json
 from rest_framework import viewsets
-from .serializers import JsonToScormSerializer, QuestionLibrarySerializer, WordToJsonSerializer
+from .serializers import JsonToScormSerializer, QuestionLibraryPackageSerializer, WordToJsonSerializer
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -62,7 +62,7 @@ class WordToJson(APIView):
             from .process.process import process
             process(instance)
 
-            # question_library_serializer = QuestionLibrarySerializer(question_library)
+            # question_library_serializer = QuestionLibraryPackageSerializer(question_library)
 
             
             json_string = '{"main_title":"Exam Title","randomize_answer":false,"total_question_errors":"1","total_document_errors":"0","sections":[{"is_main_content":true,"title":"Section title","is_title_displayed":false,"text":null,"is_text_displayed":false,"shuffle":false,"questions":[{"title":"MC title","text":"Question text","points":3.5,"difficulty":3,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":[{"randomize":true,"enumeration":1,"multiple_choice_answers":[{"answer":"MC first answer text","answer_feedback":"MC first answer feedback","weight":100},{"answer":"MC second answer text","answer_feedback":"MC second answer feedback","weight":0}]}],"true_false":null,"fib":null,"multiple_select":null,"ordering":null,"matching":null,"written_response":null},{"title":"TF title","text":"Question text","points":1,"difficulty":1,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":null,"true_false":[{"true_weight":100,"true_feedback":"true feedback","false_weight":0,"false_feedback":"true feedback","enumeration":2}],"fib":null,"multiple_select":null,"ordering":null,"matching":null,"written_response":null},{"title":"MS title","text":"Question text","points":1,"difficulty":1,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":null,"true_false":null,"fib":null,"multiple_select":[{"randomize":true,"enumeration":1,"style":2,"multiple_select_answers":[{"answer":"MS first answer text","answer_feedback":"MS first answer feedback","is_correct":true},{"answer":"MS second answer text","answer_feedback":"MS second answer feedback","is_correct":true}]}],"ordering":null,"matching":null,"written_response":null},{"title":"WR title","text":"Question text","points":5,"difficulty":5,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":null,"true_false":null,"fib":null,"multiple_select":null,"ordering":null,"matching":null,"written_response":[{"enable_student_editor":false,"initial_text":null,"answer_key":"WR answer key","enable_attachments":false}]},{"title":"FIB title","text":"Question text","points":4,"difficulty":3,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":null,"true_false":null,"fib":[{"type":"fibquestion","text":"1+15?","order":1,"size":null,"weight":null},{"type":"fibanswer","text":"16","order":2,"size":3,"weight":100}],"multiple_select":null,"ordering":null,"matching":null,"written_response":null},{"title":"Ordering title","text":"Question text","points":6,"difficulty":2,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":null,"true_false":null,"fib":null,"multiple_select":null,"ordering":[{"text":"Order 1","order":1,"ord_feedback":"Ordering 1 feedback"},{"text":"Order 1","order":2,"ord_feedback":"Ordering 2 feedback"},{"text":"Order 1","order":3,"ord_feedback":"Ordering 3 feedback"}],"matching":null,"written_response":null},{"title":"Matching title","text":"Question text","points":6,"difficulty":2,"mandatory":false,"hint":"Question hint","feedback":"Question feedback","multiple_choice":null,"true_false":null,"fib":null,"multiple_select":null,"ordering":null,"matching":[{"grading_type":1,"matching_choices":[{"choice_text":"Choice 1","matching_answers":[{"answer_text":"Choice 1 answer a"},{"answer_text":"Choice 1 answer b"}]},{"choice_text":"Choice 2","matching_answers":[{"answer_text":"Choice 2 answer a"},{"answer_text":"Choice 2 answer b"}]}]}],"written_response":null}]}]}'
@@ -197,7 +197,7 @@ class JsonToScorm(APIView):
     def post(self, request, format=None):
 
         json_data = request.data
-        ql_serializer = QuestionLibrarySerializer(data=json_data['data'])
+        ql_serializer = QuestionLibraryPackageSerializer(data=json_data['data'])
         if ql_serializer.is_valid():
             ql_instance = ql_serializer.save()
             ql_instance.filter_main_title()
