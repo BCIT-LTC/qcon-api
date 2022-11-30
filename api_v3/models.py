@@ -327,7 +327,7 @@ class Question(models.Model):
         return Fib.objects.filter(question=self.id).order_by('order')
 
     def get_fib_answers(self):
-        return Fib.objects.filter(question=self.id, type='fibanswer').order_by('id')
+        return Fib.objects.filter(question=self.id, type='fibanswer').order_by('order')
 
     def get_multiple_select(self):
         return MultipleSelect.objects.filter(question=self.id).first()

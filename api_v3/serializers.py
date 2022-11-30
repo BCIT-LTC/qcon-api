@@ -105,12 +105,17 @@ class MultipleChoiceAnswerSerializer(serializers.ModelSerializer):
 
 
 class MultipleChoiceSerializer(serializers.ModelSerializer):
-    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
+    multiple_choice_answers = serializers.SerializerMethodField()
 
+    def get_multiple_choice_answers(self, multiple_choice):
+        multiple_choice_answer_queryset = multiple_choice.get_multiple_choice_answers()
+        serializer = MultipleChoiceAnswerSerializer(instance=multiple_choice_answer_queryset, many=True, allow_null=True)
+        return serializer.data
 
     class Meta:
         model = MultipleChoice
         fields = ['randomize', 'enumeration', 'multiple_choice_answers']
+
 
 class TrueFalseSerializer(serializers.ModelSerializer):
 
@@ -141,7 +146,12 @@ class MultipleSelectAnswerSerializer(serializers.ModelSerializer):
 
 
 class MultipleSelectSerializer(serializers.ModelSerializer):
-    multiple_select_answers = MultipleSelectAnswerSerializer(many=True, allow_null=True)
+    multiple_select_answers = serializers.SerializerMethodField()
+
+    def get_multiple_select_answers(self, multiple_select):
+        multiple_select_answer_queryset = multiple_select.get_multiple_select_answers()
+        serializer = MultipleSelectAnswerSerializer(instance=multiple_select_answer_queryset, many=True, allow_null=True)
+        return serializer.data
 
     class Meta:
         model = MultipleSelect
@@ -181,11 +191,21 @@ class WrittenResponseSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     multiple_choice = MultipleChoiceSerializer(many=True, allow_null=True)
     true_false = TrueFalseSerializer(many=True, allow_null=True)
-    fib = FibSerializer(many=True, allow_null=True)
+    fib = serializers.SerializerMethodField()
     multiple_select = MultipleSelectSerializer(many=True, allow_null=True)
     matching = MatchingSerializer(many=True, allow_null=True)
-    ordering = OrderingSerializer(many=True, allow_null=True)
+    ordering = serializers.SerializerMethodField()
     written_response = WrittenResponseSerializer(many=True, allow_null=True)
+
+    def get_fib(self, question):
+        ordering_queryset = question.get_fibs()
+        serializer = FibSerializer(instance=ordering_queryset, many=True, allow_null=True)
+        return serializer.data
+    
+    def get_ordering(self, question):
+        ordering_queryset = question.get_orderings()
+        serializer = OrderingSerializer(instance=ordering_queryset, many=True, allow_null=True)
+        return serializer.data
 
     class Meta:
         model = Question
@@ -196,18 +216,9 @@ class SectionSerializer(serializers.ModelSerializer):
     questions = serializers.SerializerMethodField()
 
     def get_questions(self, section):
-        question_queryset = Question.objects.filter(section=section).order_by('index')
+        question_queryset = section.get_questions()
         serializer = QuestionSerializer(instance=question_queryset, many=True)
-        
         return serializer.data
-    class Meta:
-        model = Section
-        fields = ['is_main_content', 'order', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
-
-
-class SectionPackageSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, allow_null=True)
-    
     class Meta:
         model = Section
         fields = ['is_main_content', 'order', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
@@ -225,7 +236,48 @@ class JsonResponseSerializer(serializers.ModelSerializer):
         model = QuestionLibrary
         fields = ['main_title', 'sections']
 
-class QuestionLibrarySerializer(serializers.ModelSerializer):
+
+##############################   `/package` serializers   ##############################
+
+class MultipleChoicePackageSerializer(serializers.ModelSerializer):
+    multiple_choice_answers = MultipleChoiceAnswerSerializer(many=True, allow_null=True)
+
+    class Meta:
+        model = MultipleChoice
+        fields = ['randomize', 'enumeration', 'multiple_choice_answers']
+
+
+class MultipleSelectPackageSerializer(serializers.ModelSerializer):
+    multiple_select_answers = MultipleSelectAnswerSerializer(many=True, allow_null=True)
+
+    class Meta:
+        model = MultipleSelect
+        fields = ['randomize', 'enumeration', 'style', 'grading_type', 'multiple_select_answers']
+
+
+class QuestionPackageSerializer(serializers.ModelSerializer):
+    multiple_choice = MultipleChoicePackageSerializer(many=True, allow_null=True)
+    true_false = TrueFalseSerializer(many=True, allow_null=True)
+    fib = FibSerializer(many=True, allow_null=True)
+    multiple_select = MultipleSelectPackageSerializer(many=True, allow_null=True)
+    matching = MatchingSerializer(many=True, allow_null=True)
+    ordering = OrderingSerializer(many=True, allow_null=True)
+    written_response = WrittenResponseSerializer(many=True, allow_null=True)
+
+    class Meta:
+        model = Question
+        fields = ['title', 'questiontype', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content', 'warning', 'error']
+
+
+class SectionPackageSerializer(serializers.ModelSerializer):
+    questions = QuestionPackageSerializer(many=True, allow_null=True)
+    
+    class Meta:
+        model = Section
+        fields = ['is_main_content', 'order', 'title', 'is_title_displayed', 'text', 'is_text_displayed', 'shuffle', 'questions', 'error']
+
+
+class QuestionLibraryPackageSerializer(serializers.ModelSerializer):
     sections = SectionPackageSerializer(many=True, allow_null=True)
 
     class Meta:
