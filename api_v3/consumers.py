@@ -2,8 +2,7 @@ import json
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.core.files.base import ContentFile
 import base64
-import os
-
+from os.path import normpath
 from .models import Question, Section, QuestionLibrary, \
     Image, MultipleChoice, MultipleChoiceAnswer, TrueFalse, Fib, MultipleSelect, MultipleSelectAnswer, \
         Matching, MatchingAnswer, MatchingChoice, Ordering, WrittenResponse
@@ -69,6 +68,11 @@ class TextConsumer(JsonWebsocketConsumer):
             # new_questionlibrary.session_id = self.sessionid
             new_questionlibrary.main_title = content.get('filename').split(".")[0]
             new_questionlibrary.randomize_answer = content.get('randomize_answer')
+            media_folder = content.get('media_folder')
+            if media_folder != None:
+                media_folder = normpath(media_folder).lstrip('/')
+                new_questionlibrary.media_folder = media_folder
+                
             new_questionlibrary.user_ip = content.get('user_ip')
             new_questionlibrary.save()
             process = Process(new_questionlibrary)

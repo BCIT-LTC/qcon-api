@@ -41,8 +41,7 @@ class WordToJsonSerializer(serializers.Serializer):
 
         newconversion.main_title = newconversion.temp_file.name.split(".")[0]
         newconversion.filter_main_title()
-        newconversion.folder_path = settings.MEDIA_ROOT + \
-            str(newconversion.id)
+        newconversion.folder_path = settings.MEDIA_ROOT + str(newconversion.id)
         newconversion.image_path = newconversion.folder_path + settings.MEDIA_URL
         newconversion.create_directory()
         newconversion.save()
@@ -234,7 +233,7 @@ class JsonResponseSerializer(serializers.ModelSerializer):
         return serializer.data
     class Meta:
         model = QuestionLibrary
-        fields = ['main_title', 'sections']
+        fields = ['main_title', 'media_folder', 'sections']
 
 
 ##############################   `/package` serializers   ##############################
@@ -282,7 +281,7 @@ class QuestionLibraryPackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionLibrary
-        fields = ['main_title', 'formatter_output', 'sectioner_output', 'sections']
+        fields = ['main_title', 'media_folder', 'formatter_output', 'sectioner_output', 'sections']
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections')
