@@ -16,7 +16,6 @@ from os import makedirs, path, walk, rmdir, remove, urandom
 
 import re
 import base64
-from os.path import basename
 from django.core.files.base import ContentFile
 
 # from django.contrib.auth.models import User
@@ -54,6 +53,7 @@ class QuestionLibrary(models.Model):
     user_ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=False, blank=True, null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
     image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
+    media_folder = models.TextField(blank=True, null=True)
     main_title = models.TextField(blank=True, null=True)
     filtered_main_title = models.TextField(blank=True, null=True)
     end_answers_raw = models.TextField(blank=True, null=True)
@@ -159,6 +159,7 @@ class QuestionLibrary(models.Model):
 
         try:
             questiondb_string = parsed_xml.questiondb_string
+            media_folder = self.media_folder if self.media_folder != None else f'/assessment-assets/{self.filtered_main_title}/'
             img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
             for idx, img in enumerate(img_elements):
@@ -179,7 +180,8 @@ class QuestionLibrary(models.Model):
                 except IOError as e:
                     logger.error(f"Cannot proccess image with error: {e}")
 
-                new_img = '<img src="{0}" alt="{1}" style="max-width:100%;" />'.format('assessment-assets/' + self.filtered_main_title + '/' + new_image_name, new_image_name)
+                new_img_src = path.join(media_folder, new_image_name)
+                new_img = f'<img src="{new_img_src}" alt="{new_image_name}" style="max-width:100%;" />'
                 questiondb_string = questiondb_string.replace(img_elements[idx], new_img)
 
             self.questiondb_string = questiondb_string
@@ -215,9 +217,11 @@ class QuestionLibrary(models.Model):
             with ZipFile(self.folder_path + "/" + self.filtered_main_title + '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
+                media_folder = self.media_folder if self.media_folder != None else f'/assessment-assets/{self.filtered_main_title}/'
+
                 for root, dirs, files in walk(self.image_path):
                     for filename in files:
-                        myzip.write(path.join(root, filename), '/assessment-assets/' + self.filtered_main_title + '/' + filename)
+                        myzip.write(path.join(root, filename), path.join(media_folder, filename))
 
             self.zip_file.name = str(self.id) + "/" + self.filtered_main_title + '.zip'
             self.save()
