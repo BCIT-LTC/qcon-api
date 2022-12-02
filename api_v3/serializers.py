@@ -233,7 +233,7 @@ class JsonResponseSerializer(serializers.ModelSerializer):
         return serializer.data
     class Meta:
         model = QuestionLibrary
-        fields = ['main_title', 'media_folder', 'sections']
+        fields = ['main_title', 'randomize_answer', 'enumeration', 'media_folder', 'sections']
 
 
 ##############################   `/package` serializers   ##############################
@@ -281,7 +281,7 @@ class QuestionLibraryPackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionLibrary
-        fields = ['main_title', 'media_folder', 'formatter_output', 'sectioner_output', 'sections']
+        fields = ['main_title', 'randomize_answer', 'enumeration', 'media_folder', 'formatter_output', 'sectioner_output', 'sections']
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections')

@@ -2,11 +2,14 @@ from ...models import TrueFalse
 from ..process_helper import add_error_message, trim_text, trim_md_to_html, markdown_to_plain
 from api_v3.logging.ErrorTypes import TFNoAnswerError, TFSelectedAnswerError
 
-def build_inline_TF(question, answers):
+def build_inline_TF(question, answers, enumeration):
     question.questiontype = 'TF'
     question.save()
 
     tf_object = TrueFalse.objects.create(question=question)
+    if enumeration:
+        tf_object.enumeration = enumeration
+    
     correctanswer_count = 0
 
     for answer in answers:
@@ -45,11 +48,14 @@ def build_inline_TF(question, answers):
     
 
 
-def build_endanswer_TF(question, answers, endanswer):
+def build_endanswer_TF(question, answers, endanswer, enumeration):
     question.questiontype = 'TF'
     question.save()
 
     tf_object = TrueFalse.objects.create(question=question)
+    if enumeration:
+        tf_object.enumeration = enumeration
+    
     correctanswer_count = 0
 
     endanswer_text = markdown_to_plain(endanswer.answer)

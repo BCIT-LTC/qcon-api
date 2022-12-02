@@ -52,8 +52,10 @@ class QuestionLibrary(models.Model):
     session_id = models.TextField(blank=True, null=True)
     user_ip = models.GenericIPAddressField(protocol='both', unpack_ipv4=False, blank=True, null=True)
     randomize_answer = models.BooleanField(blank=True, null=True, default=None)
-    image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
     media_folder = models.TextField(blank=True, null=True)
+    enumeration = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(6)])
+    image_path = models.FilePathField(path=None, match=None, recursive=False, max_length=None)
+    shuffle = models.BooleanField(blank=True, null=True)
     main_title = models.TextField(blank=True, null=True)
     filtered_main_title = models.TextField(blank=True, null=True)
     end_answers_raw = models.TextField(blank=True, null=True)
@@ -159,7 +161,7 @@ class QuestionLibrary(models.Model):
 
         try:
             questiondb_string = parsed_xml.questiondb_string
-            media_folder = self.media_folder if self.media_folder != None else f'/assessment-assets/{self.filtered_main_title}/'
+            media_folder = self.media_folder if self.media_folder != None else f'./assessment-assets/{self.filtered_main_title}/'
             img_elements = re.findall(r"\<img.*?\>", questiondb_string, re.MULTILINE)
 
             for idx, img in enumerate(img_elements):
@@ -217,7 +219,7 @@ class QuestionLibrary(models.Model):
             with ZipFile(self.folder_path + "/" + self.filtered_main_title + '.zip', 'w') as myzip:
                 myzip.write(self.questiondb_file.path, "questiondb.xml")
                 myzip.write(self.imsmanifest_file.path, "imsmanifest.xml")
-                media_folder = self.media_folder if self.media_folder != None else f'/assessment-assets/{self.filtered_main_title}/'
+                media_folder = self.media_folder if self.media_folder != None else f'./assessment-assets/{self.filtered_main_title}/'
 
                 for root, dirs, files in walk(self.image_path):
                     for filename in files:
@@ -270,7 +272,6 @@ class Section(models.Model):
     id = models.AutoField(primary_key=True)
     question_library = models.ForeignKey(QuestionLibrary, related_name='sections', on_delete=models.CASCADE)
     is_main_content = models.BooleanField(blank=True, null=True, default=False)
-    # order = models.DecimalField(max_digits=3, decimal_places=0, null=True)
     order = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
     validated = models.BooleanField(blank=True, null=True, default=False)
     finished_processing = models.BooleanField(blank=True, null=True, default=False)

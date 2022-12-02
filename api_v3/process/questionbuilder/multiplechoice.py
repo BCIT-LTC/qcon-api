@@ -3,13 +3,16 @@ from ...models import MultipleChoice, MultipleChoiceAnswer
 from ..process_helper import add_warning_message, trim_text, trim_md_to_plain, trim_md_to_html
 from api_v3.logging.WarningTypes import MCEndAnswerExistWarning
 
-def build_inline_MC(question, answers, is_random):
+def build_inline_MC(question, answers, is_random, enumeration):
     question.questiontype = 'MC'
     question.save()
 
     mc_object = MultipleChoice.objects.create(question=question)
     if is_random == True:
         mc_object.randomize = True
+
+    if enumeration:
+        mc_object.enumeration = enumeration
     mc_object.save()
 
     # grab all answers
@@ -31,13 +34,16 @@ def build_inline_MC(question, answers, is_random):
 
 
 
-def build_endanswer_MC(question, answers, endanswer, is_random):
+def build_endanswer_MC(question, answers, endanswer, is_random, enumeration):
     question.questiontype = 'MC'
     question.save()
 
     mc_object = MultipleChoice.objects.create(question=question)
     if is_random == True:
         mc_object.randomize = True
+    
+    if enumeration:
+        mc_object.enumeration = enumeration
     mc_object.save()
 
     endanswer_text = trim_md_to_plain(endanswer.answer)
