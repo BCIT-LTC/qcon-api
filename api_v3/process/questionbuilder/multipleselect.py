@@ -3,13 +3,16 @@ from ...models import MultipleSelect, MultipleSelectAnswer
 from ..process_helper import add_warning_message, trim_text, trim_md_to_html, trim_md_to_plain
 from api_v3.logging.WarningTypes import MSEndAnswerExistWarning
 
-def build_inline_MS(question, answers, is_random):
+def build_inline_MS(question, answers, is_random, enumeration):
     question.questiontype = 'MS'
     question.save()
     
     ms_object = MultipleSelect.objects.create(question=question)
     if is_random == True:
         ms_object.randomize = True
+
+    if enumeration:
+        ms_object.enumeration = enumeration
     ms_object.save()
 
     # grab all answers
@@ -34,13 +37,16 @@ def build_inline_MS(question, answers, is_random):
 
 
 
-def build_endanswer_MS(question, answers, endanswer, is_random):
+def build_endanswer_MS(question, answers, endanswer, is_random, enumeration):
     question.questiontype = 'MS'
     question.save()
 
     ms_object = MultipleSelect.objects.create(question=question)
     if is_random == True:
         ms_object.randomize = True
+    
+    if enumeration:
+        ms_object.enumeration = enumeration
     ms_object.save()
 
     endanswer_text = trim_md_to_plain(endanswer.answer)

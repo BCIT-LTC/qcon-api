@@ -72,7 +72,10 @@ class TextConsumer(JsonWebsocketConsumer):
             if media_folder != None:
                 media_folder = normpath(media_folder).lstrip('/')
                 new_questionlibrary.media_folder = media_folder
-                
+            enumeration = content.get('enumeration')
+            if enumeration and enumeration > 0 and enumeration < 7:
+                new_questionlibrary.enumeration = enumeration
+
             new_questionlibrary.user_ip = content.get('user_ip')
             new_questionlibrary.save()
             process = Process(new_questionlibrary)

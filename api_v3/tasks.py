@@ -170,12 +170,13 @@ def check_endanswer_questiontype(question, answers, endanswer):
     return 'endanswer_NO_TYPE'
 
 @shared_task()
-def parse_question(randomize_answer, question_id, endanswer=None):
+def parse_question(question_id, endanswer=None):
     elastic_client.begin_transaction('parse')
 
     question = Question.objects.get(pk=question_id)
     questionlibrary = question.section.question_library
-
+    is_random = questionlibrary.randomize_answer
+    enumeration = questionlibrary.enumeration 
     logger = FilenameLoggingAdapter(loggercelery, {
         'filename': questionlibrary.temp_file.name,
         'user_ip': questionlibrary.user_ip
@@ -242,7 +243,6 @@ def parse_question(randomize_answer, question_id, endanswer=None):
         question_from_xml = root.find('question')
         answers = root.findall("answer")
         wr_answer = root.find("wr_answer")
-        is_random = randomize_answer
 
         # Filter out the last letter enumerated list so that it can be set as the answerlist
         start_of_list_found = False
@@ -373,7 +373,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_MS':
-                        build_inline_MS(question, answers, is_random)
+                        build_inline_MS(question, answers, is_random, enumeration)
                     else:
                         error_message = "Inline question structure doesn't conform to MS type question format."
                         add_error_message(question, error_message)
@@ -382,7 +382,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
 
                     if question_type == 'endanswer_MS':
-                        build_endanswer_MS(question, answers, endanswer, is_random)
+                        build_endanswer_MS(question, answers, endanswer, is_random, enumeration)
                     else:
                         error_message = "End answer question structure doesn't conform to MS type question format."
                         add_error_message(question, error_message)
@@ -427,7 +427,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_MC':
-                        build_inline_MC(question, answers, is_random)
+                        build_inline_MC(question, answers, is_random, enumeration)
                     else:
                         error_message = "Inline question structure doesn't conform to MC type question format."
                         add_error_message(question, error_message)
@@ -436,7 +436,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
 
                     if question_type == 'endanswer_MC':
-                        build_endanswer_MC(question, answers, endanswer, is_random)
+                        build_endanswer_MC(question, answers, endanswer, is_random, enumeration)
                     else:
                         error_message = "End answer question structure doesn't conform to MC type question format."
                         add_error_message(question, error_message)
@@ -454,7 +454,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_TF':
-                        build_inline_TF(question, answers)
+                        build_inline_TF(question, answers, enumeration)
                     else:
                         error_message = "Inline question structure doesn't conform to TF type question format."
                         add_error_message(question, error_message)
@@ -463,7 +463,7 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
 
                     if question_type == 'endanswer_TF':
-                        build_endanswer_TF(question, answers, endanswer)
+                        build_endanswer_TF(question, answers, endanswer, enumeration)
                     else:
                         error_message = "End answer question structure doesn't conform to TF type question format."
                         add_error_message(question, error_message)
@@ -559,17 +559,17 @@ def parse_question(randomize_answer, question_id, endanswer=None):
                 # print("question_type:", question_type)
                 match question_type:
                     case 'inline_MC':
-                        build_inline_MC(question, answers, is_random)
+                        build_inline_MC(question, answers, is_random, enumeration)
                     case 'endanswer_MC':
-                        build_endanswer_MC(question, answers, endanswer, is_random)
+                        build_endanswer_MC(question, answers, endanswer, is_random, enumeration)
                     case 'inline_TF':
-                        build_inline_TF(question, answers)
+                        build_inline_TF(question, answers, enumeration)
                     case 'endanswer_TF':
-                        build_endanswer_TF(question, answers, endanswer)
+                        build_endanswer_TF(question, answers, endanswer, enumeration)
                     case 'inline_MS':
-                        build_inline_MS(question, answers, is_random)
+                        build_inline_MS(question, answers, is_random, enumeration)
                     case 'endanswer_MS':
-                        build_endanswer_MS(question, answers, endanswer, is_random)
+                        build_endanswer_MS(question, answers, endanswer, is_random, enumeration)
                     case 'inline_WR_keyword':
                         build_inline_WR_with_keyword(question, wr_answer)
                     case 'inline_WR_list':

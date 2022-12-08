@@ -32,7 +32,7 @@ class XmlWriter:
 
         base_ident = "SECT_" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + str(int(UUID(int=0x12345678123456781234567812345678)))
         base_section_el = ET.SubElement(objectbank_el, "section", {"ident": base_ident, "title": question_library.main_title})
-        if question_library.randomize_answer is True:
+        if question_library.shuffle is True:
             self.create_section_shuffle(base_section_el)
 
         self.create_presentation_material(base_section_el, "") # we currently not catching any base section text and it's ignored in ANTLR
@@ -294,7 +294,7 @@ class XmlWriter:
         it_pre_flow_res_display_style = ET.SubElement(it_pre_flow_res, "d2l_2p0:display_style")
         it_pre_flow_res_display_style.text = "2"
         it_pre_flow_res_enumeration = ET.SubElement(it_pre_flow_res, "d2l_2p0:enumeration")
-        it_pre_flow_res_enumeration.text = str(true_false.enumeration) if true_false.enumeration else "6"
+        it_pre_flow_res_enumeration.text = str(true_false.enumeration) if true_false.enumeration else "4"
         it_pre_flow_res_grading_type = ET.SubElement(it_pre_flow_res, "d2l_2p0:grading_type")
         it_pre_flow_res_grading_type.text = "0"
 
@@ -426,7 +426,7 @@ class XmlWriter:
         it_pre_flow_res_display_style = ET.SubElement(it_pre_flow_res, "d2l_2p0:display_style")
         it_pre_flow_res_display_style.text = "2"
         it_pre_flow_res_enumeration = ET.SubElement(it_pre_flow_res, "d2l_2p0:enumeration")
-        it_pre_flow_res_enumeration.text = str(multiple_select.enumeration) if multiple_select.enumeration else "6"
+        it_pre_flow_res_enumeration.text = str(multiple_select.enumeration) if multiple_select.enumeration else "4"
         it_pre_flow_res_grading_type = ET.SubElement(it_pre_flow_res, "d2l_2p0:grading_type")
         it_pre_flow_res_grading_type.text = "2"
 
