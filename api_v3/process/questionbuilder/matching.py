@@ -11,7 +11,7 @@ def build_inline_MAT(question, answers):
     mat_object.save()
         
     for answer in answers:
-        answercontent = trim_text(answer.find('content').text)
+        answercontent = trim_text(answer.get('answer_content'))
         regpattern = r"(\\`(.+)\\`\s*=\s*\\`(.+)\\`)|((.+)==(.+))|((.+)=(.+))"
         choice_answer_groups_regex = re.search(regpattern, answercontent)
         

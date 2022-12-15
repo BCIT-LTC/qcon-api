@@ -65,130 +65,73 @@ public class questionparser {
       }
 
       public Void visitQuestion_wrapper(questionparserParser.Question_wrapperContext ctx) {
-         // Check QUESTION NUMBER for first question
-         try {
-            // System.out.println(ctx.NUMLIST_PREFIX_ONE().getText());
-            ctx.NUMLIST_PREFIX_ONE().getText();
-            Element question_number = document.createElement("question_number");
-            question_number.appendChild(document.createTextNode(ctx.NUMLIST_PREFIX_ONE().getText()));
-            root.appendChild(question_number);
-         } catch (Exception e) {
-         }
+         
+         int NumberofObjects = ctx.object().size();
+         Element question_body = document.createElement("question_body");
 
-         // Check QUESTION NUMBER for NOT the first question
-         try {
-            // System.out.println(ctx.NUMLIST_PREFIX_NOT_ONE().getText());
-            ctx.NUMLIST_PREFIX_NOT_ONE().getText();
-            Element question_number = document.createElement("question_number");
-            question_number.appendChild(document.createTextNode(ctx.NUMLIST_PREFIX_NOT_ONE().getText()));
-            root.appendChild(question_number);
-         } catch (Exception e) {
-         }
-
-         // Check QUESTION content including optional feedback
-         try {
-            // System.out.println(ctx.question().getText());
-            ctx.question().getText();
-            Element question = document.createElement("question");
-            question.appendChild(document.createTextNode(ctx.question().question_part().getText()));
-            root.appendChild(question);
-
-            // grab all feedback if multiple were added in question content
-
-            ctx.question().feedback().get(0).content().getText();
-            String questionfeedback = "";
-            for (int i = 0; i < ctx.question().feedback().size(); i++) {
-               questionfeedback = ctx.question().feedback().get(i).content().getText();
-            }
-            Element question_feedback = document.createElement("question_feedback");
-            question_feedback.appendChild(document.createTextNode(questionfeedback));
-            root.appendChild(question_feedback);
-         } catch (Exception e) {
-         }
-
-         return null;
-      }
-
-      public Void visitAnswer_part(questionparserParser.Answer_partContext ctx) {
-         try {
-            Element index = document.createElement("index");
-            index.appendChild(document.createTextNode(ctx.LETTERLIST_PREFIX().getText()));
-
+         for (int i = 0; i < NumberofObjects; i++) {
+            Element question_body_part = document.createElement("question_body_part");
+            Element prefix = document.createElement("prefix");
             Element content = document.createElement("content");
-            content.appendChild(document.createTextNode(ctx.content().getText()));
-
-            Element answer = document.createElement("answer");
-            answer.appendChild(index);
-            answer.appendChild(content);
-            answer.setAttribute("correct", "false");
-            try {
-               ctx.feedback().get(0).getText();
-               String answerfeedback = "";
-               for (int i = 0; i < ctx.feedback().size(); i++) {
-                  answerfeedback = ctx.feedback().get(i).content().getText();
-               }
-               Element feedback = document.createElement("feedback");
-               feedback.appendChild(document.createTextNode(answerfeedback));
-               answer.appendChild(feedback);
+            
+            // Add NUMLIST_PREFIX
+            try{
+               prefix.appendChild(document.createTextNode(ctx.object().get(i).NUMLIST_PREFIX().getText()));
+               question_body_part.setAttribute("prefix_type", "NUMLIST_PREFIX");
             } catch (Exception e) {
             }
-            root.appendChild(answer);
-         } catch (Exception e) {
-         }
-         return null;
-      }
 
-      public Void visitCorrect_answer_part(questionparserParser.Correct_answer_partContext ctx) {
-         try {
-            Element index = document.createElement("index");
-            index.appendChild(document.createTextNode(ctx.CORRECT_ANSWER().getText()));
-
-            Element content = document.createElement("content");
-            content.appendChild(document.createTextNode(ctx.content().getText()));
-
-            Element answer = document.createElement("answer");
-            answer.appendChild(index);
-            answer.appendChild(content);
-            answer.setAttribute("correct", "true");
-            try {
-               ctx.feedback().get(0).getText();
-               String answerfeedback = "";
-               for (int i = 0; i < ctx.feedback().size(); i++) {
-                  answerfeedback = ctx.feedback().get(i).content().getText();
-               }
-               Element feedback = document.createElement("feedback");
-               feedback.appendChild(document.createTextNode(answerfeedback));
-               answer.appendChild(feedback);
+            // Add LETTERLIST_PREFIX
+            try{
+               prefix.appendChild(document.createTextNode(ctx.object().get(i).LETTERLIST_PREFIX().getText()));
+               question_body_part.setAttribute("prefix_type", "LETTERLIST_PREFIX");
             } catch (Exception e) {
             }
-            root.appendChild(answer);
-         } catch (Exception e) {
+
+            // Add CORRECT_ANSWER
+            try{
+               prefix.appendChild(document.createTextNode(ctx.object().get(i).CORRECT_ANSWER().getText()));
+               question_body_part.setAttribute("prefix_type", "CORRECT_ANSWER");
+            } catch (Exception e) {
+            }
+
+            // Add HINT
+            try{
+               prefix.appendChild(document.createTextNode(ctx.object().get(i).HINT().getText()));
+               question_body_part.setAttribute("prefix_type", "HINT");
+            } catch (Exception e) {
+            }
+
+            // Add FEEDBACK
+            try{
+               prefix.appendChild(document.createTextNode(ctx.object().get(i).FEEDBACK().getText()));
+               question_body_part.setAttribute("prefix_type", "FEEDBACK");
+            } catch (Exception e) {
+            }
+
+            // Add content
+            try{
+               // System.out.println(ctx.object().get(i).getText()); 
+               content.appendChild(document.createTextNode(ctx.object().get(i).content().getText()));
+            } catch (Exception e) {
+            }
+
+            question_body_part.appendChild(prefix);
+            question_body_part.appendChild(content);
+            question_body.appendChild(question_body_part);
          }
+         root.appendChild(question_body);
          return null;
       }
 
       public Void visitWr_answer(questionparserParser.Wr_answerContext ctx) {
          try {
             Element content = document.createElement("content");
-            String wr_answer_text = ctx.content().getText();            
-            try {
-               wr_answer_text += ctx.answers().getText();
-            } catch (Exception e) {
-            }
-            content.appendChild(document.createTextNode(wr_answer_text));
+            String wr_answer_content = ctx.wr_answer_content().getText();            
+            content.appendChild(document.createTextNode(wr_answer_content));
             Element wr_answer = document.createElement("wr_answer");
             wr_answer.appendChild(content);
             root.appendChild(wr_answer);
-         } catch (Exception e) {
-         }
-         return null;
-      }
-
-      public Void visitHint(questionparserParser.HintContext ctx) {
-         try {
-            Element hint = document.createElement("hint");
-            hint.appendChild(document.createTextNode(ctx.content().getText()));
-            root.appendChild(hint);
          } catch (Exception e) {
          }
          return null;

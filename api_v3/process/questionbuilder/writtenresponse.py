@@ -23,8 +23,8 @@ def build_inline_WR_with_list(question, answers):
 
     answer_texts = []
     for answer in answers:
-        answer_key = answer.find('content')
-        answer_texts.append(answer_key.text)
+        answer_key = answer.get('answer_content')
+        answer_texts.append(answer_key)
 
         if answer_texts:
             wr_object.answer_key = trim_md_to_html(' '.join(answer_texts))

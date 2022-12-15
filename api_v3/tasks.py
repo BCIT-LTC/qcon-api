@@ -27,6 +27,11 @@ loggercelery = get_task_logger(__name__)
 elastic_client = elasticapm.get_client()
 
 def check_inline_questiontype(question, answers, wr_answer):
+    questionlibrary = question.section.question_library
+    logger = FilenameLoggingAdapter(loggercelery, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip
+        })
     answers_length = len(answers)
     marked_answers_count = 0
     unmarked_answers_count = 0
@@ -35,63 +40,68 @@ def check_inline_questiontype(question, answers, wr_answer):
     KeywordFalseFound = False
 
     is_fib = re.search(r"\[(.*?)\]", question.text)
-    
+
     if answers_length == 0:
         if is_fib:
             # ====================  FIB confirmed  ====================
+            logger.debug("Question Type determined: inline_FIB")   
             return 'inline_FIB'
         
         if wr_answer != None:
             # ====================  WR confirmed  ====================
+            logger.debug("Question Type determined: inline_WR_keyword")   
             return 'inline_WR_keyword'
 
     for answer in answers:
-        answer_text = markdown_to_plain(answer.find('content').text.lower())
+        # answer_text = markdown_to_plain(answer.find('content').text.lower())
+        answer_text = markdown_to_plain(answer.get("answer_content").lower())
         answer_text = trim_text(answer_text)
-        is_correct = answer.attrib['correct']
-
-        if is_correct == 'true':
+        is_correct = answer.get('correct')
+        if is_correct:
             marked_answers_count += 1
-        if is_correct == 'false':
+        if not is_correct:
             unmarked_answers_count += 1
-
 
         if answer_text == 'true':
             KeywordTrueFound = True
 
         if answer_text == 'false':
             KeywordFalseFound = True
-
         matching_answers = re.search(r"(.*)=(.*)", answer_text)
 
         if matching_answers is not None:
             matching_answers_count += 1
         
-
     if answers_length == 2 and KeywordTrueFound == True and KeywordFalseFound == True:
         # ====================  TF confirmed  ====================
+        logger.debug("Question Type determined: inline_TF")   
         return 'inline_TF'
 
     if marked_answers_count == 1 and (question.questiontype != 'MS' and question.questiontype != 'MR'):
         # ====================  MC confirmed  ====================
+        logger.debug("Question Type determined: inline_MC")   
         return 'inline_MC'
 
     if marked_answers_count > 1 or (question.questiontype == 'MS' or question.questiontype == 'MR'):
         # ====================  MS confirmed  ====================
+        logger.debug("Question Type determined: inline_MS")   
         return 'inline_MS'
 
     if matching_answers_count == answers_length and matching_answers_count > 1 :
         # ====================  MAT confirmed  ====================
+        logger.debug("Question Type determined: inline_MAT")   
         return 'inline_MAT'
 
     if (unmarked_answers_count == 1 and answers_length == 1) or (question.questiontype == 'WR' or question.questiontype == 'E'):
         # ====================  WR confirmed  ====================
+        logger.debug("Question Type determined: inline_WR_list")   
         return 'inline_WR_list'
 
     if answers_length > 0 and unmarked_answers_count == answers_length:
         # ====================  ORD confirmed  ====================
+        logger.debug("Question Type determined: inline_ORD")   
         return 'inline_ORD'
-    
+    logger.debug("Question Type determined: inline_NO_TYPE")   
     return 'inline_NO_TYPE'
 
 
@@ -201,6 +211,7 @@ def parse_question(question_id, endanswer=None):
     os.chdir('/code')
 
     # print(result.stdout.decode("utf-8"))
+    # logger.debug(result.decode("utf-8"))
     question.parser_output_xml = result.decode("utf-8")
     question.save()
 
@@ -231,47 +242,143 @@ def parse_question(question_id, endanswer=None):
             filterpoint = re.search("\d+((.|,)\d+)?", points.text)
             question.points = float(filterpoint.group())
 
-        question_number = root.find('question_number')
+        question_body = root.find("question_body")
+        if question_body is None:
+            raise Exception("Question_body empty")
+
+        question_body_part_list = question_body.findall("question_body_part")
+        if question_body_part_list is None:
+            raise Exception("Question_body empty")
+    except Exception as e:  
+        logger.error(f"Failed to get question data from xml > {str(e)}") 
+        return "#" + str(question.number_provided) + " " + str(e)
+
+    try:
+        # save question number that was provided
+        question_number = question_body_part_list[0].find('prefix')
         if question_number is not None:
             filter_question_number = re.search("\d+", question_number.text)
             question.number_provided = filter_question_number.group()
-
-        question_feedback = root.find('question_feedback')
-        if question_feedback is not None:
-            question.feedback = trim_md_to_html(question_feedback.text)
-
-        question_from_xml = root.find('question')
-        answers = root.findall("answer")
-        wr_answer = root.find("wr_answer")
-
-        # Filter out the last letter enumerated list so that it can be set as the answerlist
-        start_of_list_found = False
-        answer_list = []
-        part_of_question_list = []
-        # Start iterating from the last item going up untill the index "a" is found and continue adding the rest of the lists as question content
-        for answer in reversed(answers):
-            if not start_of_list_found:
-                answer_list.append(answer)
-            else:
-                part_of_question_list.append(answer)
-            check_index = ''.join(filter(str.isalpha, answer.find('index').text.lower()))
-            if check_index == "a":
-                start_of_list_found = True
-
-        # because we started from the last item we need to reverse the list to bring in correct order
-        answers = answer_list[::-1]
-        part_of_question_list = part_of_question_list[::-1]
-
-        # add the remaining lists as content by appending the the question content
-        add_to_question_content = ""
-        for question_list_item in part_of_question_list:
-            add_to_question_content += f"{question_list_item.find('index').text}{question_list_item.find('content').text}"
-        question_from_xml.text += add_to_question_content
-
-
-    except Exception as e:  
-        logger.error(f"Failed to get question data from xml {str(e)}") 
+            question.save()
+        # logger.debug("Finished getting question number")
+    except Exception as e:
+        logger.error(f"getting question number > {str(e)}")
         return "#" + str(question.number_provided) + " " + str(e)
+
+    answer_list = []
+    part_of_question_list = []
+    try:
+        # logger.debug( f"#{str(question.number_provided)} Starting splitting body_part into question_content and answers block")
+        # only if there are multiple question_body parts then proceed to splitting
+        if (len(question_body_part_list) == 1) and (question_body_part_list[0].get('prefix_type') == 'NUMLIST_PREFIX'):
+            part_of_question_list.append(question_body_part_list[0])
+        else:
+            # Filter out the last letter enumerated list so that it can be set as the answerlist
+            start_of_list_found = False
+            # Start iterating from the last item going up untill the index "a" is found and continue adding the rest of the lists as question content
+            for question_body_part in reversed(question_body_part_list):
+                if not start_of_list_found:
+                    answer_list.append(question_body_part)
+                else:
+                    part_of_question_list.append(question_body_part)
+                if question_body_part.get('prefix_type') == "LETTERLIST_PREFIX" or question_body_part.get('prefix_type') == "CORRECT_ANSWER":
+                    check_index = ''.join(filter(str.isalpha, question_body_part.find('prefix').text.lower()))
+                    if check_index == "a":
+                        start_of_list_found = True
+            # because we started from the last item we need to reverse the list to bring in correct order
+            answer_list = answer_list[::-1]
+            part_of_question_list = part_of_question_list[::-1]
+        # logger.debug( f"#{str(question.number_provided)} Finished plitting body_part into question_content and answers block")
+    except Exception as e:
+        logger.error(f"splitting body_part into question_content and answers block > {str(e)}")
+        return "#" + str(question.number_provided) + " " + str(e)
+
+    answers = []
+    try:
+        # Combine feedback and answers 
+        # Check if first item is LETTERLIST_PREFIX or CORRECT_ANSWER
+        if (answer_list[0].get('prefix_type') == "LETTERLIST_PREFIX" or answer_list[0].get('prefix_type') == "CORRECT_ANSWER"):
+            # raise Exception("First item in Answer list is not a Letterlist item")
+            for answer in answer_list:
+                if answer.get('prefix_type') == "LETTERLIST_PREFIX":
+                    current_answer = {
+                        "answer_prefix": answer.find('prefix').text,
+                        "answer_content": answer.find('content').text,
+                        "correct": False,
+                        "feedback": None
+                        }
+                    answers.append(current_answer)
+                elif answer.get('prefix_type') == "CORRECT_ANSWER":
+                    current_answer = {
+                        "answer_prefix": answer.find('prefix').text,
+                        "answer_content": answer.find('content').text,
+                        "correct": True,
+                        "feedback": None
+                        }
+                    answers.append(current_answer)
+                elif answer.get('prefix_type') == "NUMLIST_PREFIX":
+                    current_answer = answers.pop()
+                    current_answer.update({"content": current_answer.get("content") + answer.find('content').text})
+                    answers.append(current_answer)
+                elif answer.get('prefix_type') == "FEEDBACK":
+                    current_answer = answers.pop()
+                    current_answer.update({"feedback": answer.find('content').text})
+                    answers.append(current_answer)
+                elif answer.get('prefix_type') == "HINT":
+                    continue
+        # logger.debug( f"#{str(question.number_provided)} Finished combining answer block elements items into answers")
+    except Exception as e:
+        logger.error(f"#{str(question.number_provided)} Combining answer block elements items into answers > {str(e)}")
+
+    try:
+        # logger.debug( f"#{str(question.number_provided)} Start combining question content, any lists, feedback and hint in one dict")
+        # Combine question content, any lists, feedback and hint in one dict 
+        question_from_xml = {
+            "question_content": "",
+            "feedback": "",
+            "hint": ""
+            }        
+        for index, question_content_item in enumerate(part_of_question_list):
+            if question_content_item.get('prefix_type') == "FEEDBACK":
+                question_from_xml.update({"feedback": question_content_item.find('content').text})
+            elif question_content_item.get('prefix_type') == "HINT":
+                question_from_xml.update({"hint": question_content_item.find('content').text})
+            else:
+                question_content = question_from_xml.get("question_content")
+                question_content_to_append = ""
+                if index > 0:
+                    question_content_to_append = question_content_item.find('prefix').text
+                question_content_to_append = question_content_to_append + question_content_item.find('content').text
+                question_from_xml.update({"question_content": question_content + question_content_to_append})
+
+        # logger.debug( f"#{str(question.number_provided)} Finished combining question content, any lists, feedback and hint in one dict")
+    except Exception as e:
+        logger.error(f"#{str(question.number_provided)} Combining question content, any lists, feedback and hint in one dict {str(e)}")
+
+    wr_answer = root.find("wr_answer")
+    question_feedback = trim_md_to_html(question_from_xml.get("feedback"))
+    if question_feedback is not None:
+        question.feedback = trim_md_to_html(question_feedback)
+    question_hint = trim_md_to_html(question_from_xml.get("hint"))
+    if question_hint is not None:
+        question.hint = trim_md_to_html(question_hint)
+    
+    logger.debug(question_from_xml)
+
+
+        # test questionlib
+
+        # logger.debug("testing question lib")
+
+        # ql = question.section.question_library
+        # logger.debug(ql.temp_file)
+
+
+
+
+
+
+
 
     # Re-init logging adapter with available question number 
 
@@ -287,7 +394,7 @@ def parse_question(question_id, endanswer=None):
  
     try:
         if question_from_xml is not None:
-            question_text = trim_md_to_html(question_from_xml.text)
+            question_text = trim_md_to_html(question_from_xml.get("question_content"))
             question.text = question_text
 
             if question.title is None:
@@ -485,12 +592,11 @@ def parse_question(question_id, endanswer=None):
             except Exception as e:
                 logger.error(e)
                 # raise Exception(e)
-
             try:
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_FIB':
-                        build_inline_FIB(question, question_from_xml.text)
+                        build_inline_FIB(question, question_from_xml.get("question_content"))
                     else:
                         error_message = "Inline question structure doesn't conform to FIB type question format."
                         add_error_message(question, error_message)
@@ -499,7 +605,7 @@ def parse_question(question_id, endanswer=None):
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
 
                     if question_type == 'endanswer_FIB':
-                        build_endanswer_FIB(question, endanswer, question_from_xml.text)
+                        build_endanswer_FIB(question, endanswer, question_from_xml.get("question_content"))
                     else:
                         error_message = "End answer question structure doesn't conform to FIB type question format."
                         add_error_message(question, error_message)
@@ -577,9 +683,9 @@ def parse_question(question_id, endanswer=None):
                     case 'endanswer_WR':
                         build_endanswer_WR_with_list(question, endanswer, wr_answer)
                     case 'inline_FIB':
-                        build_inline_FIB(question, question_from_xml.text)
+                        build_inline_FIB(question, question_from_xml.get("question_content"))
                     case 'endanswer_FIB':
-                        build_endanswer_FIB(question, endanswer, question_from_xml.text)
+                        build_endanswer_FIB(question, endanswer, question_from_xml.get("question_content"))
                     case 'inline_MAT':
                         build_inline_MAT(question, answers)
                     case 'endanswer_MAT':
