@@ -11,11 +11,11 @@ def build_inline_ORD(question, answers):
         ord_object = Ordering.objects.create(question=question)
         ord_object.order = iterator
         iterator += 1
-        ord_object.text = trim_md_to_html(answer.find('content').text)
-        answer_feedback = answer.find('feedback')
+        ord_object.text = trim_md_to_html(answer.get('answer_content'))
+        answer_feedback = answer.get('feedback')
 
         if answer_feedback != None:
-            ord_object.ord_feedback = trim_md_to_html(answer_feedback.text)
+            ord_object.ord_feedback = trim_md_to_html(answer_feedback)
 
         ord_object.save()
 

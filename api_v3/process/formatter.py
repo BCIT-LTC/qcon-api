@@ -23,18 +23,14 @@ def run_formatter(questionlibrary):
         os.chdir('/code')
         root = ET.fromstring(result.stdout.decode("utf-8"))
     except:
-        raise FormatterError("File Not valid")
+        raise FormatterError("Internal error while converting file")
     
     logger.debug("starting formatter extraction")
-# ==================================== UNUSED CONTENT
-
-    # unused_content = root.find('unused_content')
-    # if unused_content is not None:
-    #     questionlibrary.formatter_error = "unused content found in document header. Please review"
 
 # ==================================== SECTION INFO
 
     maincontenttitle = root.find('maincontent_title')
+    logger.debug("checking maincontent title")
     if maincontenttitle is not None:
         main_title = (maincontenttitle.text).strip()
         if main_title:
@@ -48,16 +44,18 @@ def run_formatter(questionlibrary):
         questionlibrary.formatter_output = body.text.rstrip() + "\n"
         questionlibrary.save()
     else:
-        raise FormatterError("Body not found")
+        raise FormatterError("document body not found")
 
 # ==================================== END ANSWERS
 
     end_answers = root.find('end_answers')
+    logger.debug("checking for endanswers block")
     if end_answers is not None:
+        logger.debug("endanswers block found")
         questionlibrary.end_answers_raw = end_answers.text
         questionlibrary.save()
     else:
-        logger.info("No endanswers found")
+        logger.info("No endanswers block found")
 
 class FormatterError(Exception):
     def __init__(self, reason, message="Formatter Error"):

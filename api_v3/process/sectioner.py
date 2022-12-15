@@ -5,20 +5,33 @@ import xml.etree.ElementTree as ET
 from api_v3.tasks import markdown_to_plain, trim_text, markdown_to_html
 from ..models import Section
 
+import logging
+newlogger = logging.getLogger(__name__)
+from api_v3.logging.logging_adapter import FilenameLoggingAdapter
+
 # This is to split sections into separate objects
 def run_sectioner(questionlibrary):
+    logger = FilenameLoggingAdapter(newlogger, {
+        'filename': questionlibrary.temp_file.name,
+        'user_ip': questionlibrary.user_ip
+        })
 
-    os.chdir('/sectioner/jarfile')
-    result = subprocess.run(
-        'java -cp sectioner.jar:* sectioner',
-        shell=True,
-        input=questionlibrary.formatter_output.encode("utf-8"),
-        capture_output=True)
-    os.chdir('/code')
+    try:
+        os.chdir('/sectioner/jarfile')
+        result = subprocess.run(
+            'java -cp sectioner.jar:* sectioner',
+            shell=True,
+            input=questionlibrary.formatter_output.encode("utf-8"),
+            capture_output=True)
+        os.chdir('/code')
+    except:
+        raise SectionerError("error while reading sections")
 
     # print(result.stdout.decode("utf-8"))
     questionlibrary.sectioner_output = result.stdout.decode("utf-8")
     questionlibrary.save()
+
+    logger.debug("starting sections extraction")
 
     root = None
     try:
