@@ -34,8 +34,8 @@ def add_error_message(obj, error_message):
 def trim_text(txt):
     text = txt.strip()
     text = re.sub('<!-- -->', '', text)
-    text = re.sub('<!-- NewLine -->', '\n', text)
-    text = text.strip("\n")
+    text = re.sub('<!-- NewLine -->', '\n', text, flags=re.IGNORECASE)
+    text = text.strip(" \n")
     return text
 
 def markdown_to_plain(text):
