@@ -1,9 +1,9 @@
-    import pypandoc
+import pypandoc
 
 def convert(path_to_file):
 
     try:
-        mdblockquotePath = "./api_v3/pandoc-filters/mdblockquote.lua"
+        mdblockquotePath = "./api_v3/pandoc/pandoc-filters/mdblockquote.lua"
         pandocstring = pypandoc.convert_file(
             path_to_file,
             format='docx',
