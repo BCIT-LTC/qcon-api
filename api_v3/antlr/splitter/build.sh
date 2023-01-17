@@ -10,5 +10,7 @@ java -jar $ANTLR $FILE.g4 -visitor -no-listener
 javac $FILE*.java
 
 # grun splitter splitter -gui test.txt -tokens
+# antlr4 splitter.g4 -visitor -no-listener
+# antlr4-parse splitter.g4 splitter -gui test.txt -tokens
 
 # antlr4 -Dlanguage=Python3 -visitor sectioner.g4
