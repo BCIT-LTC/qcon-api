@@ -4,7 +4,7 @@
 
 grammar splitter;
 
-splitter: first_question questions+ EOF;
+splitter: first_question questions* EOF;
 first_question: content;
 questions: QUESTION content;
 content: ALL_CHARACTER+;

@@ -43,79 +43,14 @@ public class splitter {
          try {
             Element question = document.createElement("question");
             question.setAttribute("id", Integer.toString(0));
-
-            // CHECK IF QUESTION HEADER EXISTS FOR FIRST QUESTION
-            // try {
-               
-               // System.out.println(ctx.first_question().question_header().question_header_parameter().get(1).getText());
-               
-            //    int questionheader_elements_count = ctx.first_question().question_header().question_header_parameter().size();
-               
-            //    for (int i = 0; i < questionheader_elements_count; i++) {
-               
-            //       try{
-            //          ctx.first_question().question_header().question_header_parameter().get(i).title().getText();     
-            //          Element title = document.createElement("title");
-            //          title.appendChild(document.createTextNode(ctx.first_question().question_header().question_header_parameter().get(i).content().getText()));
-            //          question.appendChild(title);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-                  
-            //       try{
-            //          ctx.first_question().question_header().question_header_parameter().get(i).questiontype().getText();     
-            //          Element type = document.createElement("type");
-            //          type.appendChild(document.createTextNode(ctx.first_question().question_header().question_header_parameter().get(i).content().getText()));
-            //          question.appendChild(type);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-
-            //       try{
-            //          ctx.first_question().question_header().question_header_parameter().get(i).points().getText();     
-            //          Element points = document.createElement("points");
-            //          points.appendChild(document.createTextNode(ctx.first_question().question_header().question_header_parameter().get(i).content().getText()));
-            //          question.appendChild(points);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-                  
-            //       try{
-            //          ctx.first_question().question_header().question_header_parameter().get(i).randomize().getText();     
-            //          Element randomize = document.createElement("randomize");
-            //          randomize.appendChild(document.createTextNode(ctx.first_question().question_header().question_header_parameter().get(i).content().getText()));
-            //          question.appendChild(randomize);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-               
-            //    }
-               
-
-            // } catch (Exception e) {
-            // }
-
-            // GET FIRST QUESTION NUMBER
-
-            // try {
-            //    Element question_start = document.createElement("question_start");
-            //    question_start.appendChild(document.createTextNode(ctx.first_question().content().getText()));
-            //    question.appendChild(question_start);
-
-            // } catch (Exception e) {
-            // }
-
-            // GET FIRST QUESTION CONTENT
+              
             try {
                Element content = document.createElement("content");
                content.appendChild(document.createTextNode(ctx.first_question().content().getText()));
                question.appendChild(content);
-
+               root.appendChild(question);
             } catch (Exception e) {
             }
-
-
-            root.appendChild(question);
 
          } catch (Exception e) {
          }
@@ -123,69 +58,6 @@ public class splitter {
          for (int i = 0; i < numberofquestions; i++) {
             Element question = document.createElement("question");
             question.setAttribute("id", Integer.toString(i + 1));
-
-            // CHECK IF QUESTION HEADER EXISTS FOR OTHER QUESTIONS
-            // try {
-             
-            //    int questionheader_elements_count = ctx.questions().get(i).question_header().question_header_parameter().size();
-
-            //    for (int q = 0; q < questionheader_elements_count; q++) {
-            
-            //       try{
-            //          ctx.questions().get(i).question_header().question_header_parameter().get(q).title().getText();     
-            //          Element title = document.createElement("title");
-            //          title.appendChild(document.createTextNode(ctx.questions().get(i).question_header().question_header_parameter().get(q).content().getText()));
-            //          question.appendChild(title);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-                  
-            //       try{
-            //          ctx.questions().get(i).question_header().question_header_parameter().get(q).questiontype().getText();     
-            //          Element type = document.createElement("type");
-            //          type.appendChild(document.createTextNode(ctx.questions().get(i).question_header().question_header_parameter().get(q).content().getText()));
-            //          question.appendChild(type);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-
-            //       try{
-            //          ctx.questions().get(i).question_header().question_header_parameter().get(q).points().getText();     
-            //          Element points = document.createElement("points");
-            //          points.appendChild(document.createTextNode(ctx.questions().get(i).question_header().question_header_parameter().get(q).content().getText()));
-            //          question.appendChild(points);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-                  
-            //       try{
-            //          ctx.questions().get(i).question_header().question_header_parameter().get(q).randomize().getText();     
-            //          Element randomize = document.createElement("randomize");
-            //          randomize.appendChild(document.createTextNode(ctx.questions().get(i).question_header().question_header_parameter().get(q).content().getText()));
-            //          question.appendChild(randomize);
-            //       }
-            //       catch (Exception e) {                     
-            //       }
-
-            //    }
-
-            // } catch (Exception e) {
-            // }
-
-
-
-            // GET QUESTION NUMBER FOR OTHER QUESTIONS
-            // System.out.println("Hello world!");
-
-            // try {
-            //    Element question_start = document.createElement("question_start");
-            //    question_start.appendChild(document.createTextNode(ctx.questions().get(i).QUESTION().getText()));
-            //    question.appendChild(question_start);
-
-            // } catch (Exception e) {
-            // }
-
-            // GET QUESTION CONTENT FOR OTHER QUESTIONS
 
             try {
                Element content = document.createElement("content");
