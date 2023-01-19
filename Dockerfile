@@ -23,7 +23,7 @@ RUN set -ex; \
 ### Build Formatter
 WORKDIR /usr/src/formatter
 
-COPY /api_v3/antlr/formatter/formatter.g4 /api_v3/antlr/formatter/formatter.java ./
+COPY /api/antlr/formatter/formatter.g4 /api/antlr/formatter/formatter.java ./
 
 RUN set -ex; \
         cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
@@ -36,7 +36,7 @@ RUN set -ex; \
 ### Build Sectioner
 WORKDIR /usr/src/sectioner
 
-COPY /api_v3/antlr/sectioner/sectioner.g4 /api_v3/antlr/sectioner/sectioner.java ./
+COPY /api/antlr/sectioner/sectioner.g4 /api/antlr/sectioner/sectioner.java ./
 
 RUN set -ex; \
         cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
@@ -49,7 +49,7 @@ RUN set -ex; \
 ### Build Splitter
 WORKDIR /usr/src/splitter
 
-COPY /api_v3/antlr/splitter/splitter.g4 /api_v3/antlr/splitter/splitter.java ./
+COPY /api/antlr/splitter/splitter.g4 /api/antlr/splitter/splitter.java ./
 
 RUN set -ex; \
         cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
@@ -62,7 +62,7 @@ RUN set -ex; \
 ### Build Questionparser
 WORKDIR /usr/src/questionparser
 
-COPY /api_v3/antlr/questionparser/questionparser.g4 /api_v3/antlr/questionparser/questionparser.java ./
+COPY /api/antlr/questionparser/questionparser.g4 /api/antlr/questionparser/questionparser.java ./
 
 RUN set -ex; \
         cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
@@ -75,7 +75,7 @@ RUN set -ex; \
 ### Build Endanswers
 WORKDIR /usr/src/endanswers
 
-COPY /api_v3/antlr/endanswers/endanswers.g4 /api_v3/antlr/endanswers/endanswers.java ./
+COPY /api/antlr/endanswers/endanswers.g4 /api/antlr/endanswers/endanswers.java ./
 
 RUN set -ex; \
         cp /usr/local/lib/antlr-4.9.3-complete.jar ./antlr.jar; \
@@ -118,8 +118,7 @@ COPY --from=antlr-builder /usr/src/questionparser /questionparser/jarfile
 COPY --from=antlr-builder /usr/src/endanswers /endanswers/jarfile
 
 COPY qcon qcon
-COPY api_v2 api_v2
-COPY api_v3 api_v3
+COPY api api
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

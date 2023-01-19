@@ -21,13 +21,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'qcon.settings')
 
 django_asgi_app = get_asgi_application()
 
-import api_v3.routing
+import api.routing
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            api_v3.routing.websocket_urlpatterns
+            api.routing.websocket_urlpatterns
         )
     ),
     # Just HTTP for now. (We can add other protocols later.)

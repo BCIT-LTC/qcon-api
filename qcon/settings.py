@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'channels',
 
     # Local Apps
-    'api_v3'
+    'api'
 ]
 
 ELASTIC_APM = {
@@ -260,7 +260,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'api_v3': {
+        'api': {
             'handlers': ['console','console_dev','elasticapm'],
             'level': LOGGING_LEVEL,
             'propagate': True,
