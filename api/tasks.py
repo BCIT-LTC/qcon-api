@@ -396,25 +396,6 @@ def parse_question(question_id, endanswer=None):
         if question_from_xml is not None:
             question_text = trim_md_to_html(question_from_xml.get("question_content"))
             question.text = question_text
-
-            if question.title is None:
-                title_text = re.sub(r"<table(.|\n)+?</table>", "[TABLE]", question_text)
-                title_text = html_to_plain(title_text)
-                title_text = re.sub(r"<<<<\d+>>>>", "[IMG]", title_text)
-                title_text = title_text.replace('\n', ' ')
-                title_text = trim_text(title_text)
-                prefix = ''
-                if '[TABLE]' in title_text:
-                    prefix = '[TABLE]' + prefix
-                if '[IMG]' in title_text:
-                    prefix = '[IMG]' + prefix
-                if prefix:
-                    prefix = prefix + ' '
-                    title_text = re.sub("\s*\[IMG\]", "", title_text).strip()
-                    title_text = re.sub("\s*\[TABLE\]", "", title_text).strip()
-                    
-                title_text = prefix + title_text
-                question.title = title_text[0:127]
             question.save()
     except Exception as e:
         return str(question.number_provided) + " " + str(e) 
@@ -596,7 +577,7 @@ def parse_question(question_id, endanswer=None):
                 if endanswer == None:
                     question_type = check_inline_questiontype(question, answers, wr_answer)
                     if question_type == 'inline_FIB':
-                        build_inline_FIB(question, question_from_xml.get("question_content"))
+                        build_inline_FIB(question)
                     else:
                         error_message = "Inline question structure doesn't conform to FIB type question format."
                         add_error_message(question, error_message)
@@ -605,7 +586,7 @@ def parse_question(question_id, endanswer=None):
                     question_type = check_endanswer_questiontype(question, answers, endanswer)
 
                     if question_type == 'endanswer_FIB':
-                        build_endanswer_FIB(question, endanswer, question_from_xml.get("question_content"))
+                        build_endanswer_FIB(question, endanswer)
                     else:
                         error_message = "End answer question structure doesn't conform to FIB type question format."
                         add_error_message(question, error_message)
@@ -683,9 +664,9 @@ def parse_question(question_id, endanswer=None):
                     case 'endanswer_WR':
                         build_endanswer_WR_with_list(question, endanswer, wr_answer)
                     case 'inline_FIB':
-                        build_inline_FIB(question, question_from_xml.get("question_content"))
+                        build_inline_FIB(question)
                     case 'endanswer_FIB':
-                        build_endanswer_FIB(question, endanswer, question_from_xml.get("question_content"))
+                        build_endanswer_FIB(question, endanswer)
                     case 'inline_MAT':
                         build_inline_MAT(question, answers)
                     case 'endanswer_MAT':
