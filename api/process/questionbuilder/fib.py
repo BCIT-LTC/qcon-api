@@ -2,8 +2,9 @@ from ...models import Fib
 import re 
 from ..process_helper import markdown_to_plain
 
-def build_inline_FIB(question, question_xml_text):
+def build_inline_FIB(question):
     question.questiontype = 'FIB'
+    question.save()
     
     is_fib = re.search(r"\[(.*?)\]", question.text)
     answer_at_start = False
@@ -12,15 +13,9 @@ def build_inline_FIB(question, question_xml_text):
         answer_at_start = True
     
     list_of_answers = re.findall(r"\[(.*?)\]", question.text)
-
     replaced_answers = re.sub(r"\[(.*?)\]", "_______", question.text)
-    fib_title = re.sub(r"\\\[(.*?)\\\]", "_______", question_xml_text)
-    fib_title = re.sub('<!-- NewLine -->', '', fib_title)
-    fib_title = re.sub(r"<<<<\d+>>>>", "[IMG]", fib_title)
-    question.title = fib_title
-    question.save()
-    
     list_of_text = replaced_answers.split("_______")
+
     if answer_at_start:
         list_of_text.pop(0)
 
@@ -81,8 +76,9 @@ def build_inline_FIB(question, question_xml_text):
                 pass
 
 
-def build_endanswer_FIB(question, endanswer, question_xml_text):
+def build_endanswer_FIB(question, endanswer):
     question.questiontype = 'FIB'
+    question.save()
     is_fib = re.search(r"\[(.*?)\]", question.text)
     answer_at_start = False
 
@@ -90,15 +86,9 @@ def build_endanswer_FIB(question, endanswer, question_xml_text):
         answer_at_start = True
     
     list_of_answers = list(map(str.strip, endanswer.answer.split(";")))
-    
     replaced_answers = re.sub(r"\[(.*?)\]", "_______", question.text)
-    fib_title = re.sub(r"\\\[(.*?)\\\]", "_______", question_xml_text)
-    fib_title = re.sub('<!-- NewLine -->', '', fib_title)
-    fib_title = re.sub(r"<<<<\d+>>>>", "[IMG]", fib_title)
-    question.title = fib_title
-    question.save()
-    
     list_of_text = replaced_answers.split("_______")
+    
     if answer_at_start:
         list_of_text.pop(0)
 

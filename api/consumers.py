@@ -13,7 +13,7 @@ from .logging.logging_adapter import FilenameLoggingAdapter
 # from .logging.contextfilter import QuestionlibraryFilenameFilter
 # logger.addFilter(QuestionlibraryFilenameFilter())
 from .logging.ErrorTypes import EMFImageError
-from .process.process_helper import add_error_message
+from .process.process_helper import add_error_message, html_to_plain, trim_text
 from .serializers import JsonResponseSerializer
 from .process.process import Process
 
@@ -50,6 +50,47 @@ class TextConsumer(JsonWebsocketConsumer):
         self.close()
         newlogger.info("Closing Connection")
         # self.channel_layer.group_discard(self.sessionid, self.channel_name)
+
+    # Replace image marker  with actual img element and return a boolean
+    def replace_image(self, obj, key, process, logger):
+        regex = r"(?<=&lt;&lt;&lt;&lt;)\d+(?=&gt;&gt;&gt;&gt;)"
+        obj_text = getattr(obj, key)
+        is_image = None
+        if obj_text:
+            is_image = re.search(regex, obj_text)
+        
+        if is_image != None:
+            obj_name = obj._meta.model.__name__
+            if obj_name == "Question":
+                logger.debug(f'Adding Image(s) to Question #{obj.number_provided}')
+            elif obj_name == "Section":
+                logger.debug(f'Adding Image(s) to Section "{obj.title}"')
+            else:
+                logger.debug(f'Adding Image(s) to a {obj_name}')
+                
+            image_ids = list(set(re.findall(regex, obj_text)))
+            for image_id in image_ids:
+                image = process.questionlibrary.get_image(int(image_id))
+                img_src = image.image
+                placeholder = "&lt;&lt;&lt;&lt;" + image_id + "&gt;&gt;&gt;&gt;"
+
+                if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;", img_src):
+                    try:
+                        error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
+                        img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
+                        add_error_message(obj, error_message)
+                        raise EMFImageError(obj.error)
+                    except Exception as e:
+                        logger.error(e)
+
+                obj_text = re.sub(placeholder, lambda x: image.image, obj_text)
+
+            setattr(obj, key, obj_text)
+            obj.save()
+            return True
+        return False
+
+
 
     def receive_json(self, content, **kwargs):
         elastic_client.begin_transaction('main')
@@ -98,7 +139,7 @@ class TextConsumer(JsonWebsocketConsumer):
         try:
             # process.questionlibrary.create_pandocstring()
             process.run_pandoc()
-            logger.info("Pandoc Done")
+            logger.info("Pandoc DONE")
         except Exception as e:
             logger.error(str(e))
             self.send(
@@ -132,7 +173,7 @@ class TextConsumer(JsonWebsocketConsumer):
 
         try:
             process.convert_txt()
-            logger.info("convert txt done")
+            logger.info("convert txt DONE")
         except Exception as e:
             logger.error(e)
 
@@ -142,7 +183,7 @@ class TextConsumer(JsonWebsocketConsumer):
 
         try:
             process.fix_numbering()
-            logger.info("numbering fix done")
+            logger.info("numbering fix DONE")
         except Exception as e:
             logger.error(e)
             self.send(
@@ -157,7 +198,7 @@ class TextConsumer(JsonWebsocketConsumer):
         logger.debug("Formatting ...")
         try:
             process.run_formatter()
-            logger.info("Formatter Done")
+            logger.info("Formatter DONE")
         except FormatterError as e:
             logger.error("FormatterError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "No contents found in the body of the file", "")))
@@ -173,7 +214,7 @@ class TextConsumer(JsonWebsocketConsumer):
         logger.debug("Sectioning ...")
         try:
             process.run_sectioner()
-            logger.info("Sectioner Done")
+            logger.info("Sectioner DONE")
         except SectionerError as e:
             logger.error("SectionerError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "Sections can not be identified", "")))
@@ -189,7 +230,7 @@ class TextConsumer(JsonWebsocketConsumer):
         logger.debug("Splitting Questions ...")
         try:
             process.run_splitter()
-            logger.info("Splitter Done")
+            logger.info("Splitter DONE")
         except Exception as e:
             logger.error("SplitterError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "Splitter failed", "")))
@@ -204,7 +245,7 @@ class TextConsumer(JsonWebsocketConsumer):
         logger.debug("Checking Endanswer ...")
         try:
             process.get_endanswers()
-            logger.info("Check Endanswer Done")
+            logger.info("Check Endanswer DONE")
         except EndAnswerError as e:
             logger.error("EndAnswerError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Busy", "Endanswers not found", "")))
@@ -218,229 +259,166 @@ class TextConsumer(JsonWebsocketConsumer):
         logger.debug("Starting Parser ...")
         try:
             process.run_parser()
-            logger.info("Parser Done")
+            logger.info("Parser DONE")
         except Exception as e:
             logger.error("ParserError: " + str(e))
             self.send(text_data=json.dumps(process.sendformat("Error", "Parser failed", "")))
                 # close connection
             self.send(text_data=json.dumps(process.sendformat("Close", "", "")))
         else:
-            self.send(text_data=json.dumps(process.sendformat("Busy", "Parsing complete", "")))
+            self.send(text_data=json.dumps(process.sendformat("Busy", "Parser complete", "")))
 
 ###########################################
-        # Add Images back
+        # Loop All Sections and Questions to count error, add/replace images, and add question.title 
 ###########################################
+        logger.debug("Start Adding Images back ...")
         try:
-            logger.debug("Adding Images Back: Select all Images ...")
-            # select all images for this QL
-            all_images = Image.objects.filter(question_library=process.questionlibrary)
-            logger.debug("Adding Images Back: Select all Sections ...")
             # select all sections for this QL
-            all_sections = Section.objects.filter(question_library=process.questionlibrary)
-            logger.debug("Adding Images Back: Check each image for EMF ...")
-            for image in all_images:
-                section_img_src = image.image
-                section_emf_image = False
+            sections = process.questionlibrary.get_sections()
+            for section in sections:
+                
+                # DO NOT DELETE: replace images in section.text
+                section_replace_image = self.replace_image(section, "text", process, logger)
 
-                if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,section_img_src):
-                    section_emf_image = True
-                for section in all_sections:
-                    if section.text :
-                        substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
+                # select all questions for this QL
+                questions = Question.objects.filter(section=section)
 
-                        try:
-                            if section_emf_image:
-                                error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                                section_img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
-                                add_error_message(section, error_message)
-                                raise EMFImageError(section.error)
-                        except Exception as e:
-                            logger.error(e)
-                            # raise Exception(e)
+                for question in questions:
+                    is_table = False
+                    img_replaced = False
 
-                        section.text = re.sub(substring, lambda x: section_img_src, section.text)
-                        section.save()
-            
-            # select all questions for this QL
-            all_questions = Question.objects.filter(section__question_library=process.questionlibrary)
-            for image in all_images:
-                img_src = image.image
-                emf_image = False
+###########################################
+    # count all question level errors
+###########################################
+                    # logger.debug("count all question level errors ...")
+                    if question.info is not None:
+                        process.question_info_count += 1
 
-                if re.match(r"\<img\s+src\=\"data\:image\/x\-emf\;" ,img_src):
-                    emf_image = True
-                for question in all_questions:
-                    substring = "&lt;&lt;&lt;&lt;" + str(image.id) + "&gt;&gt;&gt;&gt;"
-                    try:
-                        if emf_image:
-                            error_message = "EMF image format is NOT supported. Please replace this image with JPG or PNG format."
-                            img_src = f'<img src="media/broken-image.emf" alt="BROKEN IMAGE" style="color:red; font-size:2em;">'
-                            add_error_message(question, error_message)
-                            raise EMFImageError(question.error)
-                    except Exception as e:
-                        logger.error(e)
-                        # raise Exception(e)
+                    if question.warning is not None:
+                        process.question_warning_count += 1
 
-                    question.text = re.sub(substring, lambda x: img_src, question.text)
-                    question.save()
+                    if question.error is not None:
+                        process.question_error_count += 1
+
+
+                    is_table = re.search(r"<table(.|\n)+?</table>", question.text) or is_table
+
+###########################################
+    # replace Image placeholder for questions
+###########################################
+
+                    # replace image in question.text if exist
+                    img_replaced = self.replace_image(question, 'text', process, logger) or img_replaced
+
                     match(question.questiontype):
                         case 'MC':
                             #Check MC
                             MC_answer_objects = MultipleChoiceAnswer.objects.filter(multiple_choice__question=question)
                             for answer in MC_answer_objects:
-                                answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
+                                img_replaced = self.replace_image(answer, 'answer', process, logger) or img_replaced
+                                is_table = re.search(r"<table(.|\n)+?</table>", answer.answer) or is_table
                                 if answer.answer_feedback is not None:
-                                    answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
-                                answer.save()
+                                    img_replaced = self.replace_image(answer, 'answer_feedback', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", answer.answer_feedback) or is_table
                         case 'TF':
                             #Check TF
                             TF_object = TrueFalse.objects.filter(question=question)
                             for tf in TF_object:
                                 if tf.true_feedback is not None:
-                                    tf.true_feedback = re.sub(substring, lambda x: img_src, tf.true_feedback)
-                                    tf.save()
+                                    img_replaced = self.replace_image(tf, 'true_feedback', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", tf.true_feedback) or is_table
                                 if tf.false_feedback is not None:
-                                    tf.false_feedback = re.sub(substring, lambda x: img_src, tf.false_feedback)
-                                    tf.save()
+                                    img_replaced = self.replace_image(tf, 'false_feedback', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", tf.false_feedback) or is_table
                         case 'FIB' | 'FMB':
                             #Check FIB
                             FIB_object = Fib.objects.filter(question=question)
                             for fib_question in FIB_object:
-                                fib_question.text = re.sub(substring, lambda x: img_src, fib_question.text)
-                                fib_question.save()
+                                img_replaced = self.replace_image(fib_question, 'text', process, logger) or img_replaced
+                                is_table = re.search(r"<table(.|\n)+?</table>", fib_question.text) or is_table
                         case 'MS' | 'MR':
                             #Check MS
                             MS_answer_objects = MultipleSelectAnswer.objects.filter(multiple_select__question=question)
                             for answer in MS_answer_objects:
-                                answer.answer = re.sub(substring, lambda x: img_src, answer.answer)
+                                img_replaced = self.replace_image(answer, 'answer', process, logger) or img_replaced
+                                is_table = re.search(r"<table(.|\n)+?</table>", answer.answer) or is_table
                                 if answer.answer_feedback is not None:
-                                    answer.answer_feedback = re.sub(substring, lambda x: img_src, answer.answer_feedback)
-                                answer.save()
+                                    img_replaced = self.replace_image(answer, 'answer_feedback', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", answer.answer_feedback) or is_table
                         case 'ORD':
                             #Check ORD
                             ORD_objects = Ordering.objects.filter(question=question)
                             for ordering in ORD_objects:
                                 if ordering.text is not None:
-                                    ordering.text = re.sub(substring, lambda x: img_src, ordering.text)
+                                    img_replaced = self.replace_image(ordering, 'text', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", ordering.text) or is_table
                                 if ordering.ord_feedback is not None:
-                                    ordering.ord_feedback = re.sub(substring, lambda x: img_src, ordering.ord_feedback)
-                                ordering.save()
+                                    img_replaced = self.replace_image(ordering, 'ord_feedback', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", ordering.ord_feedback) or is_table
                         case 'MAT' | 'MT':
                             #Check MAT answer
                             MAT_answer_objects = MatchingAnswer.objects.filter(matching_choice__matching__question=question)
                             for mat_answer in MAT_answer_objects:
                                 if mat_answer.answer_text is not None:
-                                    mat_answer.answer_text = re.sub(substring, lambda x: img_src, mat_answer.answer_text)
-                                mat_answer.save()
+                                    img_replaced = self.replace_image(mat_answer, 'answer_text', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", mat_answer.answer_text) or is_table
                             #Check MAT choice
                             MAT_choice_objects = MatchingChoice.objects.filter(matching__question=question)
                             for mat_choice in MAT_choice_objects:
                                 if mat_choice.choice_text is not None:
-                                    mat_choice.choice_text = re.sub(substring, lambda x: img_src, mat_choice.choice_text)
-                                mat_choice.save()
+                                    img_replaced = self.replace_image(mat_choice, 'choice_text', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", mat_choice.choice_text) or is_table
                         case 'WR' | 'E':
                             #Check WR
                             WR_objects = WrittenResponse.objects.filter(question=question)
                             for wr in WR_objects:
                                 if wr.initial_text is not None:
-                                    wr.initial_text = re.sub(substring, lambda x: img_src, wr.initial_text)
+                                    img_replaced = self.replace_image(wr, 'initial_text', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", wr.initial_text) or is_table
                                 if wr.answer_key is not None:
-                                    wr.answer_key = re.sub(substring, lambda x: img_src, wr.answer_key)
-                                wr.save()
-                    logger.debug("Adding Images Back: Done Replacing images ...")
+                                    img_replaced = self.replace_image(wr, 'answer_key', process, logger) or img_replaced
+                                    is_table = re.search(r"<table(.|\n)+?</table>", wr.answer_key) or is_table
+
+
+###########################################
+    # Add question.title
+###########################################                   
+                    prefix = ''
+
+                    if is_table:
+                        prefix = '[TABLE]' + prefix
+                    if img_replaced:
+                        prefix = '[IMG]' + prefix
+                    
+                    # Save question.title
+                    if question.title is None:
+                        title_text = question.text
+                        title_text = title_text.replace('\n', ' ')
+                        title_text = re.sub(r"<img\s+(.)+?\s+\/>", "[IMG]", title_text)
+                        title_text = re.sub(r"<table(.|\n)+?</table>", "[TABLE]", title_text)
+                        title_text = re.sub(r"&lt;&lt;&lt;&lt;\d+&gt;&gt;&gt;&gt;", "[IMG]", title_text)
+                        
+                        if question.questiontype == 'FIB' or question.questiontype == 'FMB':
+                            title_text = re.sub(r"\[(.*?)\]", "_______", title_text)
+
+                        title_text = html_to_plain(title_text)
+                        title_text = trim_text(title_text)
+                        
+                        if prefix != '':
+                            prefix = prefix + ' '
+                            title_text = re.sub(r"\s*\[IMG\]", "", title_text).strip()
+                            title_text = re.sub(r"\s*\[TABLE\]", "", title_text).strip()
+                            
+                        title_text = prefix + title_text
+                        question.title = title_text[0:127]
+                        question.save()
+                        
         except Exception as e:
             logger.error(e)
-###########################################
-        # count all question level errors
-###########################################
-        logger.debug("count all question level errors ...")
-        sections = process.questionlibrary.get_sections()
-        for section in sections:
-            questions = Question.objects.filter(section=section)
-            for question in questions:
-                if question.info is not None:
-                    process.question_info_count += 1
 
-                if question.warning is not None:
-                    process.question_warning_count += 1
+        logger.debug("Adding Images back DONE")
 
-                if question.error is not None:
-                    process.question_error_count += 1
 
-                """ ###### MC ERROR COUNT
-                mc = MultipleChoice.objects.filter(question=question)
-                try:
-                    if mc.error is not None:
-                        process.question_error_count += 1
-
-                    mcas = mc.get_multiple_choice_answers()
-                    if mca is not None:
-                        for mca in mcas:
-                            if mca.error is not None:
-                                process.question_error_count += 1
-                except:
-                    pass
-
-                ###### TF ERROR COUNT
-                try:
-                    tf = TrueFalse.objects.filter(question=question)
-                    if tf.error is not None:
-                        process.question_error_count += 1
-                except:
-                    pass
-
-                ###### FIB ERROR COUNT
-                try:
-                    fib = Fib.objects.filter(question=question)
-                    if fib.error is not None:
-                        process.question_error_count += 1
-                except:
-                    pass
-                ###### MS ERROR COUNT
-                try:
-                    ms = MultipleSelect.objects.filter(question=question)
-                    if ms.error is not None:
-                        process.question_error_count += 1
-
-                    msas = ms.get_multiple_select_answers()
-                    if msas is not None:
-                        for msa in msas:
-                            if msa.error is not None:
-                                process.question_error_count += 1
-                except:
-                    pass
-                ###### MAT ERROR COUNT
-                try:
-                    mat = Matching.objects.filter(question=question)
-                    if mat is not None:
-                        process.question_error_count += 1
-
-                    mat_choices = mat.get_matching_choices()
-                    if mat_choices is not None:
-                        for mat_choice in mat_choices:
-                            if mat_choice.error is not None:
-                                process.question_error_count += 1
-                    mat_answers = mat.get_unique_matching_answers()
-                    if mat_answers is not None:
-                        for mat_answer in mat_answers:
-                            if mat_answer.error is not None:
-                                process.question_error_count += 1
-                except:
-                    pass
-                ###### ORD ERROR COUNT
-                try:
-                    ord = Ordering.objects.filter(question=question)
-                    if ord.error is not None:
-                        process.question_error_count += 1
-                except:
-                    pass
-                ###### WR ERROR COUNT
-                try:
-                    wr = WrittenResponse.objects.filter(question=question)
-                    if wr.error is not None:
-                        process.question_error_count += 1
-                except:
-                    pass """
 
 ###########################################
         # serialize and send response

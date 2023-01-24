@@ -77,6 +77,9 @@ class QuestionLibrary(models.Model):
     def get_sections(self):
         return Section.objects.filter(question_library=self.id).order_by('order')
 
+    def get_image(self, id):
+        return Image.objects.get(pk=id)
+
 # Prevents illegal characters for the filename
 
     def filter_main_title(self):
