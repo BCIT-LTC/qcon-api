@@ -15,7 +15,7 @@ def run_formatter(questionlibrary):
     root = None
 
     try:
-        os.chdir('/formatter/jarfile')
+        os.chdir('/antlr_build/formatter')
         result = subprocess.run('java -cp formatter.jar:* formatter',
                                 shell=True,
                                 input=questionlibrary.pandoc_output.encode("utf-8"),

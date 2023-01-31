@@ -197,7 +197,7 @@ def parse_question(question_id, endanswer=None):
     except EndAnswer.DoesNotExist:
         logger.info("No End answer found")
 
-    os.chdir('/questionparser/jarfile')
+    os.chdir('/antlr_build/questionparser')
     popen = subprocess.Popen(
         'java -cp questionparser.jar:* questionparser', 
         shell=True,

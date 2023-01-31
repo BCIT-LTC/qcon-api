@@ -7,7 +7,7 @@ import re
 def get_endanswers(questionlibrary):
     if questionlibrary.end_answers_raw == None:
         return 0
-    os.chdir('/endanswers/jarfile')
+    os.chdir('/antlr_build/endanswers')
     result = subprocess.run(
         'java -cp endanswers.jar:* endanswers',
         shell=True,

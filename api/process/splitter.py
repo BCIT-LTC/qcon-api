@@ -138,7 +138,7 @@ class Splitter:
             })
         root = None
         try:
-            os.chdir('/splitter/jarfile')
+            os.chdir('/antlr_build/splitter')
             result = subprocess.run(
                 'java -cp splitter.jar:* splitter',
                 shell=True,

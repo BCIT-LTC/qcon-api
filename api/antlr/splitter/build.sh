@@ -2,15 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# ====== PREREQUISITE ======
+# install antlr4-tools locally with:
+# > pip install antlr4-tools
+
 #!/bin/bash
 
 FILE="splitter"
-ANTLR=$(echo $CLASSPATH | tr ':' '\n' | grep -m 1 "antlr-4.9.3-complete.jar")
-java -jar $ANTLR $FILE.g4 -visitor -no-listener
-javac $FILE*.java
+antlr4 $FILE.g4 -visitor -no-listener
 
-# grun splitter splitter -gui test.txt -tokens
-# antlr4 splitter.g4 -visitor -no-listener
-# antlr4-parse splitter.g4 splitter -gui test.txt -tokens
+# for debugging locally
+# antlr4-parse $FILE.g4 $FILE -gui test.txt -tokens
 
-# antlr4 -Dlanguage=Python3 -visitor sectioner.g4
+# Not used anymore
+# antlr4 -Dlanguage=Python3 -visitor $FILE.g4
