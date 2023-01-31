@@ -17,7 +17,7 @@ def run_sectioner(questionlibrary):
         })
 
     try:
-        os.chdir('/sectioner/jarfile')
+        os.chdir('/antlr_build/sectioner')
         result = subprocess.run(
             'java -cp sectioner.jar:* sectioner',
             shell=True,
