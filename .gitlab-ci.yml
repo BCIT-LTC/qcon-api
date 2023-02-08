@@ -9,7 +9,7 @@
 #   1. Gather info
 #   2. Build Image
 #   3. Deploy to a cluster
-#     - main branch deploys to staging/production; other branches deploy to a dev cluster for review
+#     - main branch deploys to latest/production; other branches deploy to a dev cluster for review
 
 stages:
   - get info
@@ -48,21 +48,21 @@ deploy review:
     - ".deploy_review"
     - ".deploy_review_rules"
 
-## Deploy staging/production packages
-#   - must have a deployment package with `staging` and `production` overlays
+## Deploy latest/production packages
+#   - must have a deployment package with `latest` and `production` overlays
 #   - triggers pipelines in GitLab "Deployments/{projectName}" project
-deploy to staging:
+deploy to latest:
   stage: publish
   variables:
-    TARGET_ENV: staging
+    TARGET_ENV: latest
   extends:
     - ".deploy"
-    - ".deploy_staging_rules"
+    - ".deploy_latest_rules"
   environment:
-    name: staging
-    url: https://${STAGING_HOST}/$CI_PROJECT_NAME
+    name: latest
+    url: https://${LATEST_HOST}/$CI_PROJECT_NAME
   tags:
-    - staging
+    - latest
 
 deploy to production:
   stage: publish
