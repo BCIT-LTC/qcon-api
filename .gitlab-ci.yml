@@ -47,6 +47,8 @@ deploy review:
   extends:
     - ".deploy_review"
     - ".deploy_review_rules"
+  tags:
+    - dev
 
 ## Deploy latest/production packages
 #   - must have a deployment package with `latest` and `production` overlays
