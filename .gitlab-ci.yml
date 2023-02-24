@@ -64,18 +64,18 @@ deploy to latest:
   tags:
     - latest
 
-deploy to production:
+deploy to stable:
   stage: publish
   variables:
-    TARGET_ENV: production
+    TARGET_ENV: stable
   extends:
     - ".deploy"
     - ".deploy_prod_rules"
   environment:
-    name: production
+    name: stable
     url: https://${PROD_HOST}/${CI_PROJECT_NAME}
   tags:
-    - production
+    - stable
 
 ## Removes dev cluster review (and all assets in the review branch namespace)
 stop review:
@@ -88,7 +88,6 @@ stop review:
 ## ---------- Pipeline configuration ----------
 #
 variables: # other global variables are set in GitLab Admin
-  CLUSTER_NAME: dev-cp # options: dev-cp, dev-vsm
   # GENERIC_DEPLOYMENT: "true"
   #
   #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
@@ -121,7 +120,7 @@ include:
 ## Specify which runner should pick up pipeline jobs
 default:
   tags:
-    - "${CLUSTER_NAME}"
+    - utility
 
 cache:
   key: $CI_COMMIT_REF_SLUG
