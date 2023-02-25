@@ -63,7 +63,7 @@ deploy to latest:
     - ".deploy_latest_rules"
   environment:
     name: latest
-    url: https://${LATEST_HOST}/$CI_PROJECT_NAME
+    url: https://${HOST_LATEST}/$CI_PROJECT_NAME
   tags:
     - latest
 
@@ -76,7 +76,7 @@ deploy to stable:
     - ".deploy_stable_rules"
   environment:
     name: stable
-    url: https://${STABLE_HOST}/${CI_PROJECT_NAME}
+    url: https://${HOST_STABLE}/${CI_PROJECT_NAME}
   tags:
     - stable
 
@@ -125,6 +125,7 @@ default:
   tags:
     - utility
 
+## Cache jobs based on branch
 cache:
   key: $CI_COMMIT_REF_SLUG
 
