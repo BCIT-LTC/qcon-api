@@ -12,7 +12,6 @@
 #   3. Deploy to a cluster
 #     - main branch deploys to latest/stable; other branches deploy to a dev cluster for review
 
-
 stages:
   - get info
   - test
@@ -40,7 +39,7 @@ build image:
     - ".build_image"
     - ".build_image_rules"
 
-## Deploy feat/fix branch package to dev cluster for review
+## Deploy a dev branch for review
 #   - uses a deployment package with a `dev` overlay (generic-dev is used if one hasn't been initialized)
 deploy review:
   stage: publish
@@ -105,7 +104,11 @@ variables: # other global variables are set in GitLab Admin
   COMMON_NAMESPACE: "qcon" # combine apps into one namespace
   PIPELINE_DEBUG: "true"
 #
+#
+#
 ## ---------- It's generally bad to change anything below here ----------
+#
+#
 #
 ## Include common scripts
 include:
@@ -127,10 +130,8 @@ default:
     - utility
 
 ## Cache jobs based on branch
-# cache:
-#   key: $CI_COMMIT_REF_SLUG
-#   paths:
-#   - ~/.cache/pip/
+cache:
+  key: $CI_COMMIT_REF_SLUG
 
 ## Configure security scanning
 sast:
