@@ -1,15 +1,16 @@
 # LTC GitLab CI/CD Source Project Pipeline
 #
 ## Requirements
-#   - this file, with "CLUSTER_NAME" set (bottom of script)
+#   - this file
 #   - a working `Dockerfile` in this project's root
-#   - a deployment package for cluster deployment (see docs)
+#   - a deployment package
+#     (see https://infrastructure-documentation.ltc.bcit.ca/0_for-developers/getting-started/)
 #
 ## General Pipeline Steps
 #   1. Gather info
 #   2. Build Image
 #   3. Deploy to a cluster
-#     - main branch deploys to latest/production; other branches deploy to a dev cluster for review
+#     - main branch deploys to latest/stable; other branches deploy to a dev cluster for review
 
 stages:
   - get info
@@ -50,8 +51,8 @@ deploy review:
   tags:
     - dev
 
-## Deploy latest/production packages
-#   - must have a deployment package with `latest` and `production` overlays
+## Deploy latest/stable packages
+#   - must have a deployment package with `latest` and `stable` overlays
 #   - triggers pipelines in GitLab "Deployments/{projectName}" project
 deploy to latest:
   stage: publish
@@ -72,10 +73,10 @@ deploy to stable:
     TARGET_ENV: stable
   extends:
     - ".deploy"
-    - ".deploy_prod_rules"
+    - ".deploy_stable_rules"
   environment:
     name: stable
-    url: https://${PROD_HOST}/${CI_PROJECT_NAME}
+    url: https://${STABLE_HOST}/${CI_PROJECT_NAME}
   tags:
     - stable
 
@@ -131,7 +132,7 @@ cache:
 sast:
   stage: test
   extends:
-    - ".deploy_prod_rules"
+    - ".deploy_stable_rules"
 
 ## Configure merge request pipelines
 workflow:
