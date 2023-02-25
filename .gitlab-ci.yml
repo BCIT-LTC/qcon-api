@@ -8,7 +8,7 @@
 #
 ## General Pipeline Steps
 #   1. Gather info
-#   2. Build Image
+#   2. Build image
 #   3. Deploy to a cluster
 #     - main branch deploys to latest/stable; other branches deploy to a dev cluster for review
 
