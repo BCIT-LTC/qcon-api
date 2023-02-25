@@ -47,15 +47,16 @@ RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION questionparser.g4 -visitor -no-listener \
     && javac *.java \
+    && jar cvfe questionparser.jar questionparser  *.class ./antlr.jar;
 
 ### Build Endanswers
 WORKDIR /usr/src/endanswers
 COPY /api/antlr/endanswers/endanswers.g4 /api/antlr/endanswers/endanswers.java ./
-RUN set -ex; \
-        cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar; \
-        antlr4 -v $ANTLR_VERSION endanswers.g4 -visitor -no-listener; \
-        javac *.java; \
-        jar cvfe endanswers.jar endanswers  *.class ./antlr.jar;
+RUN set -ex \
+    && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
+    && antlr4 -v $ANTLR_VERSION endanswers.g4 -visitor -no-listener \
+    && javac *.java \
+    && jar cvfe endanswers.jar endanswers  *.class ./antlr.jar;
 
 ## Release
 # FROM python:3.10-alpine AS release
@@ -68,25 +69,25 @@ ENV PATH /code:/opt/venv/bin:$PATH
 
 WORKDIR /code
 
-RUN set -ex; \
-        apt-get update; \
-        apt-get install -y --no-install-recommends \
-            redis \
-            libreoffice-writer \
-            openjdk-17-jdk-headless; \
-        mkdir -p /run/daphne;
+RUN set -ex \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        redis \
+        libreoffice-writer \
+        openjdk-17-jdk-headless \
+    && mkdir -p /run/daphne;
 
 COPY .env manage.py ./
-COPY docker-entrypoint.sh /usr/local/bin
+COPY docker-entrypoint.sh /usr/local/bin/
 
-COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin
+COPY --from=qcon-api-base /usr/bin/pandoc /usr/local/bin/
 COPY --from=qcon-api-base /root/.cache /root/.cache
-COPY --from=qcon-api-base /opt/venv /opt/venv
+COPY --from=qcon-api-base /opt/venv /opt/venv/
 
-COPY --from=qcon-api-base /usr/src /antlr_build
+COPY --from=qcon-api-base /usr/src /antlr_build/
 
-COPY qcon qcon
-COPY api api
+COPY qcon qcon/
+COPY api api/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
