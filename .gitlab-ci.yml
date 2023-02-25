@@ -1,4 +1,4 @@
-# LTC GitLab CI/CD Source Project Pipeline
+# LTC CI/CD Source Project Pipeline
 #
 ## Requirements
 #   - this file
@@ -120,6 +120,7 @@ include:
       - deploy.yml
       - ".deploy-hydrate.yml"
       - ".vault.yml"
+      - ".tls.yml"
       - ".rules.yml"
       - SAST.gitlab-ci.yml
       - Secret-Detection.gitlab-ci.yml
