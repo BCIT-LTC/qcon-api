@@ -127,10 +127,10 @@ default:
     - utility
 
 ## Cache jobs based on branch
-cache:
-  key: $CI_COMMIT_REF_SLUG
-  paths:
-  - ~/.cache/pip/
+# cache:
+#   key: $CI_COMMIT_REF_SLUG
+#   paths:
+#   - ~/.cache/pip/
 
 ## Configure security scanning
 sast:
