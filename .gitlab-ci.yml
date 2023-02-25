@@ -2,7 +2,7 @@
 #
 ## Requirements
 #   - this file
-#   - a working `Dockerfile` in this project's root
+#   - a working `Dockerfile`
 #   - a deployment package
 #     (see https://infrastructure-documentation.ltc.bcit.ca/0_for-developers/getting-started/)
 #
