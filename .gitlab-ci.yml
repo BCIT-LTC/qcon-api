@@ -132,7 +132,6 @@ cache:
   paths:
   - ~/.cache/pip/
 
-
 ## Configure security scanning
 sast:
   stage: test
