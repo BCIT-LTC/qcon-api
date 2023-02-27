@@ -14,7 +14,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     image: qcon-api
     environment:
-      DEBUG: True
+      DEBUG: true
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: admin
       POSTGRES_PASSWORD: postgres
@@ -30,7 +30,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - 8000:8000
     hostname: api.local
     networks:
       qcon-network:
@@ -38,6 +38,7 @@ services:
           - api.local
     depends_on:
       - postgres
+
 networks:
   qcon-network:
     driver: bridge

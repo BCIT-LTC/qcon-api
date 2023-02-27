@@ -95,11 +95,12 @@ variables: # other global variables are set in GitLab Admin
   #     to exist in the "Deployments" GitLab group. Create a deployment package following the
   #     guide in "Deployments/CI Config".
   #
-  #   - see https://infrastructure-documentation.dev.ltc.bcit.ca/ for additional info.
+  #   - see https://infrastructure-documentation.ltc.bcit.ca/ for additional info.
   #
   # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
   DEPLOY_PKG_PROJECT_ID: "405"
-  COMMON_NAMESPACE: "qcon" # combine apps into one namespace
+  # combine apps into one namespace... be sure to remove `Kind: Namspace` from the deployment package
+  COMMON_NAMESPACE: "qcon"
   PIPELINE_DEBUG: "true"
 #
 #
@@ -116,10 +117,10 @@ include:
       - get-info.yml
       - build.yml
       - deploy.yml
-      - ".deploy-hydrate.yml"
+      - ".common-utilities.yml"
       - ".vault.yml"
-      - ".tls.yml"
-      - ".rules.yml"
+      - ".source-utilities.yml"
+      - rules.yml
       - SAST.gitlab-ci.yml
       - Secret-Detection.gitlab-ci.yml
 
