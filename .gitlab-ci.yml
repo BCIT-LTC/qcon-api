@@ -89,6 +89,7 @@ stop review:
 ## ---------- Pipeline configuration ----------
 #
 variables: # other global variables are set in GitLab Admin
+  #
   # GENERIC_DEPLOYMENT: "true"
   #
   #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
