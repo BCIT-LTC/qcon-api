@@ -4,13 +4,15 @@
 #   - this file
 #   - a working `Dockerfile`
 #   - a deployment package
-#     (see https://infrastructure-documentation.ltc.bcit.ca/0_for-developers/getting-started/)
+#     (see https://infrastructure-documentation.ltc.bcit.ca/)
 #
 ## General Pipeline Steps
 #   1. Gather info
 #   2. Build image
 #   3. Deploy to a cluster
-#     - main branch deploys to latest/stable; other branches deploy to a dev cluster for review
+#     - dev branches deploy to a https://{projectName}.dev.ltc.bcit.ca/{branchName}
+#     - main branch deploys to https://latest.dev.ltc.bcit.ca/{projectName}
+#     - tagged commits to main deploy to https://stable.ltc.bcit.ca/{projectName}
 
 stages:
   - get info
@@ -19,14 +21,13 @@ stages:
   - cleanup
 
 ## Project initialization
-#   - a project access token is required and created on the first run. If the pipeline fails,
-#     please wait 5 minutes and re-try after a token has been created.
+#   - a project access token is required; if it doesn't exist it is created on the first run
 project init:
   stage: get info
   extends:
     - ".project_init"
 
-## Determine if there are existing git tags or a new tag is required
+## Are there existing git tags? Is a new tag required?
 get info:
   stage: get info
   extends:
@@ -39,8 +40,9 @@ build image:
     - ".build_image"
     - ".build_image_rules"
 
-## Deploy a dev branch for review
-#   - uses a deployment package with a `dev` overlay (generic-dev is used if one hasn't been initialized)
+## Deploy to a dev branch for review
+#   - uses a deployment package with a `dev` overlay
+#   - `generic-dev` deployment package is used if one hasn't been initialized
 deploy review:
   stage: publish
   variables:
@@ -88,20 +90,26 @@ stop review:
 #
 ## ---------- Pipeline configuration ----------
 #
-variables: # other global variables are set in GitLab Admin
+variables:
+  #
+  # other global variables are set in GitLab Admin
   #
   # GENERIC_DEPLOYMENT: "true"
   #
   #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects a deployment package
-  #     to exist in the "Deployments" GitLab group. Create a deployment package following the
-  #     guide in "Deployments/CI Config".
+  #     to exist in the GitLab "Deployments" group. Create a deployment package following the
+  #     guide at https://infrastructure-documentation.ltc.bcit.ca/.
   #
-  #   - see https://infrastructure-documentation.ltc.bcit.ca/ for additional info.
   #
-  # DEPLOY_PKG_INIT: "true"       # to create an initial project deployment package
+  # Set DEPLOY_PKG_INIT=true to create an initial project deployment package. Then unset GENERIC_DEPLOYMENT and
+  # add the deployment package project ID below
+  #
+  # DEPLOY_PKG_INIT: "true"
   DEPLOY_PKG_PROJECT_ID: "405"
-  # combine apps into one namespace... be sure to remove `Kind: Namspace` from the deployment package
+  #
+  # Set COMMON_NAMESPACE to combine apps into one namespace. Be sure to remove `Kind: Namspace` from the deployment package.
   COMMON_NAMESPACE: "qcon"
+  #
   PIPELINE_DEBUG: "true"
 #
 #
