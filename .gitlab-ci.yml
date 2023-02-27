@@ -10,9 +10,9 @@
 #   1. Gather info
 #   2. Build image
 #   3. Deploy to a cluster
-#     - dev branches deploy to a https://{projectName}.dev.ltc.bcit.ca/{branchName}
-#     - main branch deploys to https://latest.dev.ltc.bcit.ca/{projectName}
-#     - tagged commits to main deploy to https://stable.ltc.bcit.ca/{projectName}
+#     - dev branches            => https://{projectName}.dev.ltc.bcit.ca/{branchName}
+#     - main branch             => https://latest.dev.ltc.bcit.ca/{projectName}
+#     - tagged commits on main  => https://stable.ltc.bcit.ca/{projectName}
 
 stages:
   - get info
@@ -106,7 +106,7 @@ variables:
   # Set COMMON_NAMESPACE to combine apps into one namespace. Be sure to remove `Kind: Namspace` from the deployment package.
   COMMON_NAMESPACE: "qcon"
   #
-  PIPELINE_DEBUG: "true"
+  # PIPELINE_DEBUG: "true"
 #
 #
 #
