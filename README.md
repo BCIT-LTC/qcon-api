@@ -10,7 +10,7 @@ Open your browser to [http://localhost:8000](http://localhost:8000).
 
 ## Using `qcon-api`
 
-See [Qcon Usage and Examples](https://qcon-user-guide.dev.ltc.bcit.ca) for documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS.
+See [Qcon Usage and Examples](https://qcon-guide.ltc.bcit.ca) for documentation about the Qcon service, including what to do after the conversion to get your questions into your LMS.
 
 ## Development
 
@@ -24,9 +24,9 @@ See [developing.md](docs/developing.md) for information about the technology sta
 
 ## Support
 
-If you need any help with `qcon`, please see the [Qcon User Guide](https://qcon-user-guide.dev.ltc.bcit.ca) or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+If you need any help with `qcon`, please see the [Qcon Guide](https://qcon-guide.ltc.bcit.ca) or fill-out our [contact form](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
 
-Please submit any `qcon-api` bugs, issues, and feature requests to...[courseproduction@bcit.ca](mailto:courseproduction@bcit.ca) or [bcit-ltc/qcon](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-user-guide).
+Please submit any `qcon-api` bugs, issues, and feature requests to...[courseproduction@bcit.ca](mailto:courseproduction@bcit.ca) or [bcit-ltc/qcon](https://issues.ltc.bcit.ca/web-apps/qcon/qcon-guide).
 
 ## License
 
@@ -35,4 +35,3 @@ Copyright (c) 2008-2022 [BCIT LTC](https://bcit.ca/ltc)
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at <https://mozilla.org/MPL/2.0/>.
-
