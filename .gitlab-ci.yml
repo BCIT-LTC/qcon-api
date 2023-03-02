@@ -1,9 +1,9 @@
-# LTC GitLab CI/CD Source Project Pipeline
+# LTC CI/CD Source Project Pipeline
 #
 ## Requirements
 #   - this file
 #   - a working `Dockerfile`
-#   - a deployment package
+#   - (for deployment) a deployment package
 #     (see https://infrastructure-documentation.ltc.bcit.ca/)
 #
 ## General Pipeline Steps
@@ -103,10 +103,16 @@ variables:
   # DEPLOY_PKG_INIT: "true"
   DEPLOY_PKG_PROJECT_ID: "405"
   #
-  # Set COMMON_NAMESPACE to combine apps into one namespace. Be sure to remove `Kind: Namspace` from the deployment package.
+  # Set COMMON_NAMESPACE to combine apps into one namespace.
   COMMON_NAMESPACE: "qcon"
   #
-  # PIPELINE_DEBUG: "true"
+  # Deploy DEV package to common namespace (default=branch name)
+  COMMON_NAMESPACE_OVERRIDE: "true"
+  #
+  # Set SKIP_BUILD to skip the build stage and deploy the latest image
+  SKIP_BUILD: "true"
+  #
+  PIPELINE_DEBUG: "true"
 #
 #
 #
