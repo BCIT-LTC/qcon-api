@@ -1,19 +1,6 @@
 ## Base
 FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
 
-ENV ANTLR_VERSION 4.11.0
-ENV ANTLR_HOME /root/.m2/repository/org/antlr/antlr4/
-ENV CLASSPATH=$CLASSPATH:$ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar
-
-RUN set -ex \
-    && pip install jaro-winkler antlr4-tools \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-            openjdk-17-jdk \
-            openjdk-17-jre \
-    && antlr4 -v $ANTLR_VERSION \
-    ;
-
 ### Build Formatter
 WORKDIR /usr/src/formatter
 COPY api/antlr/formatter/formatter.g4 api/antlr/formatter/formatter.java ./
@@ -64,8 +51,7 @@ RUN set -ex \
     ;
 
 ## Release
-# FROM python:3.10-alpine AS release
-FROM python:3.11-slim AS release
+FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-release AS release
 
 LABEL maintainer courseproduction@bcit.ca
 
@@ -73,15 +59,6 @@ ENV PYTHONUNBUFFERED 1
 ENV PATH /code:/opt/venv/bin:$PATH
 
 WORKDIR /code
-
-RUN set -ex \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        redis \
-        libreoffice-writer \
-        openjdk-17-jdk-headless \
-    && mkdir -p /run/daphne \
-    ;
 
 COPY .env manage.py ./
 COPY docker-entrypoint.sh /usr/local/bin/
