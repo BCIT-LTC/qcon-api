@@ -90,9 +90,6 @@ ELASTIC_APM = {
 
 # Set the custom APM Server URL (default: http://localhost:8200)
 'SERVER_URL': ELASTIC_APM_SERVER_URL,
-
-# Set the service environment
-'ENVIRONMENT': 'production',
 }
 
 MIDDLEWARE = [

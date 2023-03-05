@@ -1,18 +1,18 @@
-# LTC CI/CD Source Project Pipeline
+# LTC GitLab CI/CD Source Project Pipeline
 #
 ## Requirements
 #   - this file
 #   - a working `Dockerfile`
-#   - (for deployment) a deployment package
-#     (see https://infrastructure-documentation.ltc.bcit.ca/)
+#   - a deployment package (see https://infrastructure-documentation.ltc.bcit.ca/)
 #
 ## General Pipeline Steps
 #   1. Gather info
 #   2. Build image
 #   3. Deploy to a cluster
-#     - dev branches            => https://{projectName}.dev.ltc.bcit.ca/{branchName}
-#     - main branch             => https://latest.dev.ltc.bcit.ca/{projectName}
-#     - tagged commits on main  => https://stable.ltc.bcit.ca/{projectName}
+#     - development branches        => https://review.ltc.bcit.ca/{projectName}/{branchName}
+#     - main branch                 => https://latest.ltc.bcit.ca/{projectName}
+#     - tagged commits on main      => https://stable.ltc.bcit.ca/{projectName}
+#     - (optional public endpoint)  => https://{projectName}.ltc.bcit.ca/
 
 stages:
   - get info
@@ -40,13 +40,13 @@ build image:
     - ".build_image"
     - ".build_image_rules"
 
-## Deploy to a dev branch for review
-#   - uses a deployment package with a `dev` overlay
+## Deploy to a development branch for review
+#   - uses a deployment package with a `review` overlay
 #   - `generic-dev` deployment package is used if one hasn't been initialized
 deploy review:
   stage: publish
   variables:
-    TARGET_ENV: dev
+    TARGET_ENV: review
   extends:
     - ".deploy_review"
     - ".deploy_review_rules"
@@ -76,7 +76,7 @@ deploy to stable:
     name: stable
     url: https://${HOST_STABLE}/${CI_PROJECT_NAME}
 
-## Removes dev cluster review (and all assets in the review branch namespace)
+## Removes review branch (and all assets in the review branch namespace)
 stop review:
   stage: cleanup
   extends:
@@ -107,7 +107,7 @@ variables:
   COMMON_NAMESPACE: "qcon"
   #
   # Deploy DEV package to common namespace (default=branch name)
-  # COMMON_NAMESPACE_OVERRIDE: "true"
+  COMMON_NAMESPACE_OVERRIDE: "true"
   #
   # Set SKIP_BUILD to skip the build stage and deploy the latest image
   # SKIP_BUILD: "true"
