@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-    docker run -p 8000:8000 registry.dev.ltc.bcit.ca/web-apps/qcon/qcon-api
+    docker run -p 8000:8000 registry.ltc.bcit.ca/web-apps/qcon/qcon-api
 
 Open your browser to [http://localhost:8000](http://localhost:8000).
 
