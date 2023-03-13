@@ -38,6 +38,7 @@ RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION questionparser.g4 -visitor -no-listener \
     && javac *.java \
+    && jar cvfe questionparser.jar questionparser  *.class ./antlr.jar \
     ;
 
 ### Build Endanswers
