@@ -45,8 +45,8 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.getenv('DEBUG', False) == 'True'
-ADMIN_ENABLED = os.getenv('DEBUG', False) == 'True'
+DEBUG = os.getenv('DEBUG', False) == 'true'
+ADMIN_ENABLED = os.getenv('DEBUG', False) == 'true'
 LOGGING_LEVEL = 'INFO'
 
 if DEBUG:

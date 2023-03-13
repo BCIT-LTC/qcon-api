@@ -209,9 +209,6 @@ def parse_question(question_id, endanswer=None):
     popen.stdout.close()
     return_code = popen.wait()
     os.chdir('/code')
-
-    # print(result.stdout.decode("utf-8"))
-    # logger.debug(result.decode("utf-8"))
     question.parser_output_xml = result.decode("utf-8")
     question.save()
 
@@ -220,7 +217,7 @@ def parse_question(question_id, endanswer=None):
         root = ET.fromstring(result.decode("utf-8"))
     except Exception as e:
         logger.warning(f"Empty question: {question.id}")
-        return "Empty question: " + str(e) 
+        return "Empty question: " + str(e) + errors
 
 # ================================# ================================
 #   GET QUESTION DATA FROM XML
