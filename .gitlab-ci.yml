@@ -112,7 +112,7 @@ variables:
   # Set SKIP_BUILD to skip the build stage and deploy the latest image
   # SKIP_BUILD: "true"
   #
-  PIPELINE_DEBUG: "true"
+  PIPELINE_DEBUG: "false"
 #
 #
 #
