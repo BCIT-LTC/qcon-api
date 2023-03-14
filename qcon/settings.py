@@ -260,7 +260,7 @@ LOGGING = {
         'api': {
             'handlers': ['console','console_dev','elasticapm'],
             'level': LOGGING_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
         # 'celery': {
         #     'handlers': ['console'],
@@ -270,7 +270,7 @@ LOGGING = {
         'celery.task': {
             'handlers': ['console','console_dev','celery'],
             'level': 'DEBUG',
-            'propagate': True
+            'propagate': False
         }
     },
 }

@@ -9,7 +9,7 @@ from .convert_txt import convert_txt
 from .fix_numbering import fix_numbering
 import socket
 from api.tasks import run_pandoc_task
-
+from django.conf import settings
 import logging
 newlogger = logging.getLogger(__name__)
 # from api.logging.contextfilter import QuestionlibraryFilenameFilter
@@ -112,6 +112,7 @@ class Process:
 
         return {
                 'hostname': socket.gethostname(),
+                'version': settings.GIT_TAG,
                 'status': status,
                 'statustext': statustext,
                 'images_count': str(self.images_extracted),
