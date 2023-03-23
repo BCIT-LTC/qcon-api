@@ -1,5 +1,5 @@
 ## Base
-FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
+FROM registry.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-base
 
 ### Build Formatter
 WORKDIR /usr/src/formatter
@@ -52,7 +52,7 @@ RUN set -ex \
     ;
 
 ## Release
-FROM registry.dev.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-release AS release
+FROM registry.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-release AS release
 
 LABEL maintainer courseproduction@bcit.ca
 
