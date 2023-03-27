@@ -208,7 +208,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'questiontype', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content', 'warning', 'error']
+        fields = ['index', 'title', 'questiontype', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content', 'warning', 'error']
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -265,7 +265,7 @@ class QuestionPackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'questiontype', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content', 'warning', 'error']
+        fields = ['index', 'title', 'questiontype', 'text', 'points', 'difficulty', 'mandatory', 'hint', 'feedback', 'multiple_choice', 'true_false', 'fib', 'multiple_select', 'matching', 'ordering', 'written_response', 'raw_header', 'number_provided', 'raw_content', 'warning', 'error']
 
 
 class SectionPackageSerializer(serializers.ModelSerializer):
@@ -299,7 +299,6 @@ class QuestionLibraryPackageSerializer(serializers.ModelSerializer):
                 mat_data = question.pop('matching')
                 ord_data = question.pop('ordering')
                 wr_data = question.pop('written_response')
-
                 question_instance = Question.objects.create(section=section_instance, **question)
 
                 if mc_data:
