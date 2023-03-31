@@ -107,7 +107,7 @@ variables:
   COMMON_NAMESPACE: "qcon"
   #
   # Deploy DEV package to common namespace (default=branch name)
-  COMMON_NAMESPACE_OVERRIDE: "true"
+  # COMMON_NAMESPACE_OVERRIDE: "true"
   #
   # Set SKIP_BUILD to skip the build stage and deploy the latest image
   # SKIP_BUILD: "true"
