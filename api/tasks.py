@@ -222,7 +222,7 @@ def parse_question(question_id, endanswer=None):
 # ================================# ================================
 #   GET QUESTION DATA FROM XML
 # ================================# ================================
-
+    wr_answer = None
     try:
         questiontype = root.find('type')
         if questiontype is not None:
@@ -246,6 +246,9 @@ def parse_question(question_id, endanswer=None):
         question_body_part_list = question_body.findall("question_body_part")
         if question_body_part_list is None:
             raise Exception("Question_body empty")
+        
+        wr_answer = root.find("wr_answer")
+
     except Exception as e:  
         logger.error(f"Failed to get question data from xml > {str(e)}") 
         return "#" + str(question.number_provided) + " " + str(e)
@@ -274,7 +277,7 @@ def parse_question(question_id, endanswer=None):
             start_of_list_found = False
             # Start iterating from the last item going up untill the index "a" is found and continue adding the rest of the lists as question content
             for question_body_part in reversed(question_body_part_list):
-                if not start_of_list_found:
+                if not start_of_list_found and (wr_answer == None):
                     answer_list.append(question_body_part)
                 else:
                     part_of_question_list.append(question_body_part)
@@ -352,7 +355,6 @@ def parse_question(question_id, endanswer=None):
     except Exception as e:
         logger.error(f"#{str(question.number_provided)} Combining question content, any lists, feedback and hint in one dict {str(e)}")
 
-    wr_answer = root.find("wr_answer")
     question_feedback = trim_md_to_html(question_from_xml.get("feedback"))
     if question_feedback is not None:
         question.feedback = trim_md_to_html(question_feedback)
