@@ -702,10 +702,10 @@ def run_pandoc_task(questionlibrary_id):
         })
     try:
         import pypandoc
-        mdblockquotePath = "./api/pandoc/pandoc-filters/mdblockquote.lua"
-        emptyparaPath = "./api/pandoc/pandoc-filters/emptypara.lua"
-        imageFilterPath = "./api/pandoc/pandoc-filters/image.lua"
-        tables = "./api/pandoc/pandoc-filters/tables.lua"
+        mdblockquotePath = "./pandoc/pandoc-filters/mdblockquote.lua"
+        emptyparaPath = "./pandoc/pandoc-filters/emptypara.lua"
+        imageFilterPath = "./pandoc/pandoc-filters/image.lua"
+        tables = "./pandoc/pandoc-filters/tables.lua"
         # listsPath = "./api/pandoc/pandoc-filters/lists.lua"
 
         pandoc_word_to_html = pypandoc.convert_file(
