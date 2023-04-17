@@ -3,7 +3,7 @@ FROM registry.ltc.bcit.ca/ltc-infrastructure/images/qcon-api-base AS qcon-api-ba
 
 ### Build Formatter
 WORKDIR /usr/src/formatter
-COPY api/antlr/formatter/formatter.g4 api/antlr/formatter/formatter.java ./
+COPY antlr/formatter/formatter.g4 antlr/formatter/formatter.java ./
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION formatter.g4 -visitor -no-listener \
@@ -13,7 +13,7 @@ RUN set -ex \
 
 ### Build Sectioner
 WORKDIR /usr/src/sectioner
-COPY api/antlr/sectioner/sectioner.g4 api/antlr/sectioner/sectioner.java ./
+COPY antlr/sectioner/sectioner.g4 antlr/sectioner/sectioner.java ./
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION sectioner.g4 -visitor -no-listener \
@@ -23,7 +23,7 @@ RUN set -ex \
 
 ### Build Splitter
 WORKDIR /usr/src/splitter
-COPY api/antlr/splitter/splitter.g4 api/antlr/splitter/splitter.java ./
+COPY antlr/splitter/splitter.g4 antlr/splitter/splitter.java ./
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION splitter.g4 -visitor -no-listener \
@@ -33,7 +33,7 @@ RUN set -ex \
 
 ### Build Questionparser
 WORKDIR /usr/src/questionparser
-COPY api/antlr/questionparser/questionparser.g4 api/antlr/questionparser/questionparser.java ./
+COPY antlr/questionparser/questionparser.g4 antlr/questionparser/questionparser.java ./
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION questionparser.g4 -visitor -no-listener \
@@ -43,7 +43,7 @@ RUN set -ex \
 
 ### Build Endanswers
 WORKDIR /usr/src/endanswers
-COPY /api/antlr/endanswers/endanswers.g4 /api/antlr/endanswers/endanswers.java ./
+COPY antlr/endanswers/endanswers.g4 antlr/endanswers/endanswers.java ./
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION endanswers.g4 -visitor -no-listener \
