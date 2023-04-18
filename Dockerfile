@@ -72,6 +72,8 @@ COPY --from=qcon-api-base /usr/src /antlr_build/
 
 COPY qcon qcon/
 COPY api api/
+COPY pandoc pandoc/
+COPY restapi restapi/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
