@@ -22,23 +22,13 @@ from django.urls import path, include, re_path
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
 from api import views
+from restapi import views
 
 urlpatterns = [
-    # # path('admin/', admin.site.urls),
     path('', include('api.urls')),
-    # path('v2/', include('api_v2.urls')),
-    path('v3/', include('api.urls'))
+    path('api/', include('restapi.urls')),
+    path('', views.RootPath.as_view(), name='root')
 ]
-
-if settings.DEBUG:
-    # OPENAPI
-    # PATTERNS
-    # UI:
-    urlpatterns += [
-        path('v3/', include('api.urls'))
-    ]
-else:
-    urlpatterns += [path('', views.RootPath.as_view(), name='root')]
 
 handler404 = 'api.views.view_404'
 
