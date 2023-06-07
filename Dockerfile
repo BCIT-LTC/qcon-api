@@ -35,7 +35,9 @@ RUN set -ex \
 ## Build Formatter
 #
 WORKDIR /usr/src/formatter
+
 COPY antlr/formatter/formatter.g4 antlr/formatter/formatter.java ./
+
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION formatter.g4 -visitor -no-listener \
@@ -46,7 +48,9 @@ RUN set -ex \
 ## Build Sectioner
 #
 WORKDIR /usr/src/sectioner
+
 COPY antlr/sectioner/sectioner.g4 antlr/sectioner/sectioner.java ./
+
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION sectioner.g4 -visitor -no-listener \
@@ -57,7 +61,9 @@ RUN set -ex \
 ## Build Splitter
 #
 WORKDIR /usr/src/splitter
+
 COPY antlr/splitter/splitter.g4 antlr/splitter/splitter.java ./
+
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION splitter.g4 -visitor -no-listener \
@@ -68,7 +74,9 @@ RUN set -ex \
 ## Build Questionparser
 #
 WORKDIR /usr/src/questionparser
+
 COPY antlr/questionparser/questionparser.g4 antlr/questionparser/questionparser.java ./
+
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION questionparser.g4 -visitor -no-listener \
@@ -79,7 +87,9 @@ RUN set -ex \
 ## Build Endanswers
 #
 WORKDIR /usr/src/endanswers
+
 COPY antlr/endanswers/endanswers.g4 antlr/endanswers/endanswers.java ./
+
 RUN set -ex \
     && cp $ANTLR_HOME/$ANTLR_VERSION/antlr4-$ANTLR_VERSION-complete.jar ./antlr.jar \
     && antlr4 -v $ANTLR_VERSION endanswers.g4 -visitor -no-listener \
@@ -91,6 +101,8 @@ RUN set -ex \
 # Release
 #
 FROM python:3.11-slim AS release
+
+LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
 ENV PATH /code:/opt/venv/bin:$PATH
@@ -106,22 +118,23 @@ RUN set -ex \
     && mkdir -p /run/daphne \
     ;
 
-LABEL maintainer courseproduction@bcit.ca
-
-ENV PYTHONUNBUFFERED 1
-ENV PATH /code:/opt/venv/bin:$PATH
-
-WORKDIR /code
-
+# Copy env vars and init script
+#
 COPY .env manage.py ./
 COPY docker-entrypoint.sh /usr/local/bin/
 
+# Copy compiled pandoc app
+#
 COPY --from=builder /usr/bin/pandoc /usr/local/bin/
 COPY --from=builder /root/.cache /root/.cache
 COPY --from=builder /opt/venv /opt/venv
 
+# Copy compiled antlr libraries
+#
 COPY --from=builder /usr/src /antlr_build/
 
+# Copy app
+#
 COPY qcon qcon/
 COPY api api/
 COPY pandoc pandoc/
@@ -130,4 +143,5 @@ COPY restapi restapi/
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8000
+
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "qcon.asgi:application"]
