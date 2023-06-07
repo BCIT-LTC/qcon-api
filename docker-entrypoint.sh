@@ -2,7 +2,9 @@
 
 set -e
 # tail -f /dev/null
+
 # set secrets from Vault init container or from dev configmap
+#
 if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env; fi
 
 >&2 echo "make Database migrations"
@@ -13,7 +15,8 @@ echo "--------------------------------------------------------------------------
 python manage.py migrate
 echo "-------------------------------------------------------------------------------------------\n"
 
-#Collect static files
+# Collect static files
+#
 >&2 echo "Collect static"
 python manage.py collectstatic --noinput
 

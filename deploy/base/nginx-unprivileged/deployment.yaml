@@ -1,6 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: # kpt-merge: /nginx
+metadata:
   name: deployment
   labels:
     app: nginx
@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginxinc/nginx-unprivileged:1.21-alpine
+          image: nginxinc/nginx-unprivileged:1.25-alpine
           ports:
             - containerPort: 8080
               protocol: TCP
