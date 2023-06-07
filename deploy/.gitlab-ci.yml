@@ -137,7 +137,7 @@ variables:
  
   # Deploy this app into a common namespace
   #
-  # COMMON_NAMESPACE: ""
+  COMMON_NAMESPACE: "qcon"
 
   # Skip the build stage and deploy the latest image
   #
