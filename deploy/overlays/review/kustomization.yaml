@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+# Flux envsubst replaces variables found in `deploy-vars.env` or falls back to defaults
+#
+namespace: ${DEPLOY_NAMESPACE:=qcon-api}
+
+resources:
+- ../../base
+
+commonLabels:
+  environment: review
+
+commonAnnotations:
+  version: ${GIT_TAG:=stable}
+
+images:
+- name: qcon-api
+  newName: ${IMAGE_NAME:=registry.ltc.bcit.ca/web-apps/qcon/qcon-api}
+  newTag: ${IMAGE_TAG:=stable}
+
+patches:
+- target:
+    kind: Ingress
+  path: ingress-patch.yaml
+- target:
+    kind: Deployment
+  path: deployment-patch.yaml
+
+# # Create a .dockerconfig.json. Then uncomment this section for local cluster development.
+# #
+# - target:
+#     kind: Deployment
+#   patch: |-
+#     - op: add
+#       path: /spec/template/spec/imagePullSecrets
+#       value: [name: gitlab-registry-credentials]
+
+secretGenerator:
+  - name: vault-secrets-override
+    literals:
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=devadmin
+      - API_KEY=2222222222222222222222222222222222222222
+      - DJANGO_SECRET_KEY=d8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=(
+      - ELASTIC_APM_SECRET_TOKEN=bcitltctest
+  - name: postgres-credentials
+    literals:
+      - POSTGRES_PASSWORD=postgres
+  # # Uncomment for local cluster development
+  # #
+  # - name: gitlab-registry-credentials
+  #   type: kubernetes.io/dockerconfigjson
+  #   files:
+  #     - .dockerconfigjson=secrets/.dockerconfig.json

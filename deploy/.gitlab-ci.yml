@@ -1,0 +1,203 @@
+# LTC GitLab CI/CD Source Project Pipeline
+#
+## Requirements
+#
+#   - this file
+#   - a working `Dockerfile`
+#   - a `deploy/` folder with Kubernetes resources
+#
+## General Pipeline Steps
+#
+#   1. Gather info
+#   2. Build image
+#   3. FluxCD deploys resources to a cluster
+#     - dev branches          => https://review--{branchName}--{projectName}.ltc.bcit.ca/ => review cluster
+#     - main branch           => https://latest--{projectName}.ltc.bcit.ca/               => latest cluster
+#     - tagged commit on main => https://{projectName}.ltc.bcit.ca/                       => stable cluster
+#
+stages:
+  - test
+  - version
+  - get info
+  - build
+  - publish
+  - cleanup
+
+
+## Project initialization
+#
+#   - a project access token is required; if it doesn't exist it is created on the first run
+# project init:
+#   stage: get info
+#   extends:
+#     - ".project_init"
+
+
+## Determine if a new git tag and GitLab release should be created
+#
+determine version:
+  stage: version
+  extends:
+    - ".determine_version"
+    - ".determine_version_rules"
+
+
+## Determine target environment, deployment namespace, ingress/app url, and tags
+#
+get info:
+  stage: get info
+  extends:
+    - ".get_info"
+
+
+## For `review` environments only: verify the required namespace exists
+#
+verify namespace:
+  stage: get info
+  needs:
+    - job: "get info"
+  extends:
+    - ".verify_namespace"
+    - ".review_rules"
+
+
+## For `review` environments only: verify the required TLS Ingress secret exists
+#
+verify secrets:
+  stage: get info
+  needs:
+    - job: "get info"
+    - job: "verify namespace"
+  extends:
+    - ".verify_secrets"
+    - ".review_rules"
+
+
+## Build image and push to project registry
+#
+build image:
+  stage: build
+  extends:
+    - ".build_image"
+
+
+## For `review` environments only: build a kubernetes configuration image and push to the project registry
+#
+build review config image:
+  stage: build
+  extends:
+    - ".build_review_config_image"
+    - ".review_rules"
+
+
+## For `review` environments only: verify the required `deploy-vars` ConfigMap exists
+#
+apply review configmap :
+  stage: build
+  extends:
+    - ".apply_review_configmap"
+    - ".review_rules"
+
+
+## For `review` environments only: deploy project for review.
+#
+review:
+  stage: publish
+  extends:
+    - ".review"
+    - ".review_rules"
+
+
+## Configure environments for "latest" and "stable"
+#
+environment:latest:
+  extends:
+    - ".environment:latest"
+
+environment:stable:
+  extends:
+    - ".environment:stable"
+
+
+## For `review` environments only: gracefully remove `review` environment after 1 week.
+#
+stop review:
+  stage: cleanup
+  extends:
+    - ".stop_review"
+    - ".stop_review_rules"
+
+
+## Other default pipeline configuration values
+#
+variables:
+
+
+  # other global variables are set in GitLab Admin
+  #
+  # GENERIC_DEPLOYMENT: "true"
+  #
+  #   - if GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects this
+  #     project to have a `deploy/` folder. See https://qcon-api.ltc.bcit.ca/.
+
+
+  # Set COMMON_NAMESPACE to combine apps into one namespace
+  #
+  COMMON_NAMESPACE: "qcon"
+
+
+  # Set SKIP_BUILD to skip the build stage and deploy the latest image
+  #
+  # SKIP_BUILD: "true"
+
+
+  # Turn on verbose debugging console output
+  #
+  PIPELINE_DEBUG: "true"
+
+
+# Include common pipeline scripts
+#
+include:
+  - project: deployments/ci-config
+    file:
+      - build.yaml
+      - common.yaml
+      - get-info.yaml
+      # - project-init.yml
+      - review.yaml
+      - rules.yaml
+      - verify.yaml
+      - version.yaml
+  # - template: Jobs/Secret-Detection.gitlab-ci.yml
+  # - template: Jobs/SAST.gitlab-ci.yml
+
+
+# Specify which GitLab Runner should pick up pipeline jobs
+#
+default:
+  tags:
+    - review
+
+
+# Cache pipeline jobs based on branch
+#
+cache:
+  key: $CI_COMMIT_REF_SLUG
+
+
+# # Configure Static Application Security Test scanning
+# #
+# sast:
+#   stage: test
+#   extends:
+#     - ".sast_rules"
+
+
+# Configure jobs for GitLab merge request pipelines
+#
+workflow:
+  rules:
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH || $CI_COMMIT_TAG

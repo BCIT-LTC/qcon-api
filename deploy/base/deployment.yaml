@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qcon-api
+  template:
+    metadata:
+      labels:
+        app: qcon-api
+    spec:
+      serviceAccountName: qcon-api-serviceaccount
+      containers:
+        - name: nginx
+          volumeMounts:
+            - name: shared-data
+              mountPath: /var/www/html
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+        - name: qcon-api
+          image: qcon-api
+          # readinessProbe:
+          #   tcpSocket:
+          #     port: 8000
+          #   initialDelaySeconds: 20
+          #   periodSeconds: 30
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8000
+          #   initialDelaySeconds: 15
+          #   periodSeconds: 30
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: nginx-config
+      volumes:
+        - name: shared-data
+          emptyDir: {}

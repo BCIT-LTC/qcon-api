@@ -1,0 +1,25 @@
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: package
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    metadata.kpt/description: |
+      This config file is used by the CI/CD pipeline to update ingress resources to match the review branch namespace. `kpt eval ...` sets the values below, and then `kpt fn render` mutates the resources before they are applied to the cluster.
+info:
+  description: web overlay deployment package
+pipeline:
+  mutators:
+    - image: gcr.io/kpt-fn/search-replace:v0.2.0
+      configMap:
+        by-path: spec.**.host
+        put-value: web--branchname--projectname.ltc.bcit.ca # kpt-set: ${APP_URL_SLUG}.ltc.bcit.ca
+    - image: gcr.io/kpt-fn/search-replace:v0.2.0
+      configMap:
+        by-path: spec.**.hosts[*]
+        put-value: web--branchname--projectname.ltc.bcit.ca # kpt-set: ${APP_URL_SLUG}.ltc.bcit.ca
+  validators:
+    - image: gcr.io/kpt-fn/kubeval:v0.2.0
+      configMap:
+        skip_kinds: Kustomization,ResourceGroup,Kptfile
+        strict: "true"

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  selector:
+    matchLabels:
+      app: qcon-api
+  template:
+    spec:
+      containers:
+        - name: postgres
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
+        - name: qcon-api
+          envFrom:
+            - secretRef:
+                name: vault-secrets-override
+            - secretRef:
+                name: postgres-credentials

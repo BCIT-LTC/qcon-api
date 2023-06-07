@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namePrefix: qcon-api-
+
+resources:
+  - ./nginx-unprivileged
+  # - postgres-service.yaml
+  - ingress.yaml
+  - serviceaccount.yaml
+
+commonLabels:
+  app: qcon-api
+  app.kubernetes.io/name: qcon-api
+
+# Enables Kustomize to simplify the deployment name
+#
+patches:
+- target:
+    kind: Deployment
+    labelSelector: "app=nginx"
+  path: deployment.yaml
+  options:
+    allowNameChange: true
+
+# Generates postres config
+#
+configMapGenerator:
+  - name: postgres-config
+    literals:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+  - name: nginx-config
+    files:
+      - nginx.conf
+    behavior: replace
