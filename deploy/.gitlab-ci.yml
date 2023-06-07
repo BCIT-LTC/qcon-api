@@ -12,6 +12,7 @@
 #   tagged commit on main => https://{projectName}.ltc.bcit.ca/                       => stable cluster
 #
 stages:
+  - determine version
   - get info
   - build
   - review:publish
@@ -30,7 +31,7 @@ stages:
 # Determine if a new git tag and GitLab release should be created
 #
 determine version:
-  stage: get info
+  stage: determine version
   extends:
     - ".determine_version"
     - ".determine_version_rules"
@@ -40,8 +41,6 @@ determine version:
 #
 get info:
   stage: get info
-  needs:
-    - job: "determine version"
   extends:
     - ".get_info"
 
@@ -137,7 +136,7 @@ variables:
  
   # Deploy this app into a common namespace
   #
-  COMMON_NAMESPACE: "qcon"
+  # COMMON_NAMESPACE: ""
 
   # Skip the build stage and deploy the latest image
   #
