@@ -9,6 +9,7 @@ spec:
   template:
     metadata:
       annotations:
+        config.linkerd.io/skip-outbound-ports: "443"
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: "qcon-api-kubeauthbot-latest"
         vault.hashicorp.com/agent-inject-secret-config: "web-apps/data/qcon-api"
