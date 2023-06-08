@@ -5,16 +5,16 @@ metadata:
 spec:
   tls:
     - hosts:
-        - web--qcon-api.ltc.bcit.ca
+        - web--branchname--projectname.ltc.bcit.ca
       secretName: star-ltc-bcit-ca
   rules:
-    - host: web--qcon-api.ltc.bcit.ca
+    - host: web--branchname--projectname.ltc.bcit.ca
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: nginx-service
+                name: service
                 port:
                   number: 80
