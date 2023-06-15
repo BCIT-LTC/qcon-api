@@ -13,6 +13,7 @@ commonLabels:
   app: qcon-api
   app.kubernetes.io/name: qcon-api
 
+
 # Enables Kustomize to simplify the deployment name
 #
 patches:
@@ -22,6 +23,7 @@ patches:
   path: deployment.yaml
   options:
     allowNameChange: true
+
 
 # Generates postres config
 #
