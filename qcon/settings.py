@@ -16,9 +16,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 import sys
 from pathlib import Path
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 # mandatory vars
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
