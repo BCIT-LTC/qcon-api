@@ -12,7 +12,7 @@ class RestapiConfig(AppConfig):
         if 'runserver' in sys.argv or 'qcon.asgi:application' in sys.argv:        
             logger.info("GIT_TAG: " + settings.GIT_TAG)
             logger.info("IMAGE_TAG: " + settings.IMAGE_TAG)
-            logger.info("IMAGE_TITLE: " + settings.IMAGE_TITLE)
+            logger.info("IMAGE_NAME: " + settings.IMAGE_NAME)
             if 'runserver' in sys.argv:
                 logger.warning("qconapi has started in Dev Mode")
             else:

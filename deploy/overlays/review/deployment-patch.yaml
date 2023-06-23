@@ -19,3 +19,9 @@ spec:
                 name: vault-secrets-override
             - secretRef:
                 name: postgres-credentials
+          env:
+            - name: GIT_TAG
+              valueFrom:
+                configMapKeyRef:
+                  name: deploy-vars
+                  key: GIT_TAG

@@ -16,22 +16,23 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
+# mandatory vars
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
-POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+POSTGRES_HOST = "localhost"
+API_KEY = os.environ.get('API_KEY')
 
+# optional vars
+GIT_TAG = os.getenv('GIT_TAG', default='')
+IMAGE_TAG = os.getenv('IMAGE_TAG', default='')
+IMAGE_NAME = os.getenv('IMAGE_NAME', default='')
 ELASTIC_APM_SERVICE_NAME = os.getenv('ELASTIC_APM_SERVICE_NAME')
 ELASTIC_APM_SECRET_TOKEN = os.getenv('ELASTIC_APM_SECRET_TOKEN')
 ELASTIC_APM_SERVER_URL = os.getenv('ELASTIC_APM_SERVER_URL')
-
-API_KEY = os.environ.get('API_KEY')
-GIT_TAG = os.getenv('GIT_TAG')
-IMAGE_TAG = os.getenv('IMAGE_TAG')
-IMAGE_TITLE = os.getenv('IMAGE_TITLE')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,7 +53,7 @@ LOGGING_LEVEL = 'INFO'
 if DEBUG:
     POSTGRES_HOST = 'postgres'
     LOGGING_LEVEL = 'DEBUG'
-
+    
 ALLOWED_HOSTS = ['*']
 
 CSRF_USE_SESSIONS = True
