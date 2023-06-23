@@ -6,11 +6,11 @@ resources:
 commonLabels:
   environment: latest
 commonAnnotations:
-  version: 2.18.5-182eec60--2023-06-21.1687378316 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+  version: 2.18.7-5a1b1edb--2023-06-23.1687540921 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
-    newTag: "2.18.5-182eec60--2023-06-21.1687378316" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+    newTag: "2.18.7-5a1b1edb--2023-06-23.1687540921" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 # Adds elasticapm config to deployment
 #
 patches:
