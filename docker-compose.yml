@@ -22,7 +22,7 @@ services:
       DJANGO_SECRET_KEY: notveryS3cret
       GIT_TAG: 0.0.1
       IMAGE_TAG: 0.0.1
-      IMAGE_TITLE: qcon-api
+      IMAGE_NAME: qcon-api
       ELASTIC_APM_SECRET_TOKEN: test
       ELASTIC_APM_SERVICE_NAME: qcon-api
       ELASTIC_APM_SERVER_URL: http://localhost
