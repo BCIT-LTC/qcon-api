@@ -106,6 +106,8 @@ LABEL maintainer courseproduction@bcit.ca
 
 ENV PYTHONUNBUFFERED 1
 ENV PATH /code:/opt/venv/bin:$PATH
+ARG VERSION
+ENV VERSION=${VERSION:-0.0.0}
 
 WORKDIR /code
 
