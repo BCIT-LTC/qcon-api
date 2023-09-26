@@ -31,11 +31,19 @@ spec:
           envFrom:
             - configMapRef:
                 name: postgres-config
+            - secretRef:
+                name: postgres-credentials
         - name: qcon-api
           image: qcon-api
           envFrom:
-          - configMapRef:
-              name: elasticapm-config
+            - secretRef:
+                name: postgres-credentials
+            - configMapRef:
+                name: elasticapm-config
+            - secretRef:
+                name: tokens
+            - secretRef:
+                name: admin-credentials
           # readinessProbe:
           #   tcpSocket:
           #     port: 8000

@@ -13,20 +13,5 @@ spec:
         config.linkerd.io/skip-outbound-ports: "443"
     spec:
       containers:
-        - name: postgres
-          image: postgres
-          envFrom:
-            - configMapRef:
-                name: postgres-config
-            - secretRef:
-                name: postgres-credentials
         - name: qcon-api
-          envFrom:
-            - configMapRef:
-                name: elasticapm-config
-            - secretRef:
-                name: tokens
-            - secretRef:
-                name: postgres-credentials
-            - secretRef:
-                name: admin-credentials
+
