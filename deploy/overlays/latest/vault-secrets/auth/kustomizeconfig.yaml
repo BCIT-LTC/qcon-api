@@ -12,7 +12,12 @@ nameReference:
     - path: spec/kubernetes/serviceAccount
       kind: VaultAuth
 
-# - kind: VaultStaticSecret
-#   fieldSpecs:
-#     - path: spec/template/spec/containers/envFrom/secretRef/name
-#       kind: Deployment
+- kind: VaultStaticSecret
+  fieldSpecs:
+    - path: spec/template/spec/containers/envFrom/secretRef/name
+      kind: Deployment
+
+- kind: VaultStaticSecret
+  fieldSpecs:
+    - path: spec/destination/name
+      kind: VaultStaticSecret

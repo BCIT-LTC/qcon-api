@@ -1,4 +1,4 @@
-# This file is for teaching kustomize how to substitute names in the HelmRelease CRD
+# This file is for teaching kustomize how to substitute names in the CRD
 #
 nameReference:
 
@@ -16,3 +16,8 @@ nameReference:
   fieldSpecs:
     - path: spec/template/spec/containers/envFrom/secretRef/name
       kind: Deployment
+
+- kind: VaultStaticSecret
+  fieldSpecs:
+    - path: spec/destination/name
+      kind: VaultStaticSecret
