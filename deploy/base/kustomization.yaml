@@ -38,7 +38,7 @@ configMapGenerator:
     literals:
       - POSTGRES_HOST_AUTH_METHOD=trust
 
-# Generates nginx config
+# Replaces default nginx config
 #
   - name: nginx-config
     files:
