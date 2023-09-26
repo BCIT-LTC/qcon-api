@@ -38,7 +38,7 @@ patches:
 #       value: [name: gitlab-registry-credentials]
 
 
-# For review branches, generate secrets rather than import from Vault
+# For review branches, generate secrets here rather than import from Vault
 #
 secretGenerator:
   - name: postgres-credentials
