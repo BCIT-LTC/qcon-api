@@ -15,6 +15,9 @@ spec:
       serviceAccountName: qcon-api-serviceaccount
       containers:
         - name: nginx
+          envFrom:
+          - configMapRef:
+              name: elasticapm-config
           volumeMounts:
             - name: shared-data
               mountPath: /var/www/html
@@ -30,6 +33,9 @@ spec:
                 name: postgres-config
         - name: qcon-api
           image: qcon-api
+          envFrom:
+          - configMapRef:
+              name: elasticapm-config
           # readinessProbe:
           #   tcpSocket:
           #     port: 8000
@@ -43,9 +49,6 @@ spec:
           ports:
             - containerPort: 8000
               protocol: TCP
-          envFrom:
-            - configMapRef:
-                name: nginx-config
       volumes:
         - name: shared-data
           emptyDir: {}

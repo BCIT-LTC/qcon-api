@@ -10,15 +10,22 @@ spec:
     spec:
       containers:
         - name: postgres
+          image: postgres
           envFrom:
+            - configMapRef:
+                name: postgres-config
             - secretRef:
                 name: postgres-credentials
         - name: qcon-api
           envFrom:
+            - configMapRef:
+                name: elasticapm-config
             - secretRef:
-                name: vault-secrets-override
+                name: tokens
             - secretRef:
                 name: postgres-credentials
+            - secretRef:
+                name: admin-credentials
           env:
             - name: GIT_TAG
               valueFrom:

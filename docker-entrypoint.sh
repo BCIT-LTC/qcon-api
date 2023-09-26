@@ -1,11 +1,6 @@
 #!/usr/bin/env sh
 
 set -e
-# tail -f /dev/null
-
-# set secrets from Vault init container or from dev configmap
-#
-if [ -f "/vault/secrets/config" ]; then echo "$(cat /vault/secrets/config)" >> .env; fi
 
 >&2 echo "make Database migrations"
 python manage.py makemigrations api

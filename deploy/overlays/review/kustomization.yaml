@@ -37,20 +37,13 @@ patches:
 #       path: /spec/template/spec/imagePullSecrets
 #       value: [name: gitlab-registry-credentials]
 
-secretGenerator:
-  - name: vault-secrets-override
-    literals:
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=devadmin
-      - API_KEY=2222222222222222222222222222222222222222
-      - DJANGO_SECRET_KEY=d8&z=vqy5b#lu0=an1xx9b_7n480af=-gdnqwqvtrs&d6el9=(
-      - ELASTIC_APM_SECRET_TOKEN=bcitltctest
-  - name: postgres-credentials
-    literals:
-      - POSTGRES_PASSWORD=postgres
-  # # Uncomment for local cluster development
-  # #
+# # Uncomment for local cluster development
+# #
+# secretGenerator:
   # - name: gitlab-registry-credentials
   #   type: kubernetes.io/dockerconfigjson
   #   files:
   #     - .dockerconfigjson=secrets/.dockerconfig.json
+
+components:
+  - ./vault-secrets
