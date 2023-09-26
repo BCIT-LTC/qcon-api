@@ -9,11 +9,11 @@ namePrefix: qcon-api-
 commonLabels:
   environment: stable
 commonAnnotations:
-  version: 2.18.12 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+  version: 2.18.13 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
-    newTag: "2.18.12" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+    newTag: "2.18.13" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 # Adds elasticapm config and Vault agent annotations to deployment
 #
 patches:
