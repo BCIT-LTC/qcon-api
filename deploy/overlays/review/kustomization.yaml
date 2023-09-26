@@ -9,6 +9,10 @@ namespace: ${DEPLOY_NAMESPACE:=qcon-api}
 resources:
 - ../../base
 
+# Resource names in a shared namespace must be unique
+#
+namePrefix: qcon-api-
+
 commonLabels:
   environment: review
 
