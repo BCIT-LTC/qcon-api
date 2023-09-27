@@ -239,6 +239,11 @@ def parse_question(question_id, endanswer=None):
             filterpoint = re.search("\d+((.|,)\d+)?", points.text)
             question.points = float(filterpoint.group())
 
+        randomize = root.find('randomize')
+        if randomize is not None:
+            is_randomize = trim_text(randomize.text).lower() in ['yes', 'true']
+            question.randomize = is_randomize
+
         question_body = root.find("question_body")
         if question_body is None:
             raise Exception("Question_body empty")

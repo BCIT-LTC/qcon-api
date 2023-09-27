@@ -11,6 +11,9 @@ def build_inline_MS(question, answers, is_random, enumeration):
     if is_random == True:
         ms_object.randomize = True
 
+    if question.randomize == True:
+        ms_object.randomize = True
+
     if enumeration:
         ms_object.enumeration = enumeration
     ms_object.save()

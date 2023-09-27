@@ -20,6 +20,9 @@ def build_inline_MC(question, answers, is_random, enumeration):
     if is_random == True:
         mc_object.randomize = True
 
+    if question.randomize == True:
+        mc_object.randomize = True
+        
     if enumeration:
         mc_object.enumeration = enumeration
     mc_object.save()
