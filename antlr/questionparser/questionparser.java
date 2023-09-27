@@ -61,6 +61,14 @@ public class questionparser {
             root.appendChild(type);
          } catch (Exception e) {
          }
+         // Read Randomize if present
+         try {
+            ctx.RANDOMIZE().getText();
+            Element randomize = document.createElement("randomize");
+            randomize.appendChild(document.createTextNode(ctx.content().getText()));
+            root.appendChild(randomize);
+         } catch (Exception e) {
+         }
          return null;
       }
 
