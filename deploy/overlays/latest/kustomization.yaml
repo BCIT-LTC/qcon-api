@@ -9,11 +9,11 @@ namePrefix: qcon-api-
 commonLabels:
   environment: latest
 commonAnnotations:
-  version: 2.18.14-0df44eec--2023-09-27.1695773158 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+  version: 2.18.14-96c1268f--2023-09-27.1695792118 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
-    newTag: "2.18.14-0df44eec--2023-09-27.1695773158" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+    newTag: "2.18.14-96c1268f--2023-09-27.1695792118" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 # Patches ingress with "latest--" and deployment with annotations
 #
 patches:
