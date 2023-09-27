@@ -14,7 +14,7 @@ images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
     newTag: "2.18.14-0df44eec--2023-09-27.1695773158" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
-# Adds elasticapm config to deployment
+# Patches ingress with "latest--" and deployment with annotations
 #
 patches:
   - target:
