@@ -3,12 +3,6 @@
 ---
 nameReference:
 
-- kind: VaultAuth
-  name: vault-auth
-  fieldSpecs:
-    - kind: VaultStaticSecret
-      path: spec/vaultAuthRef
-
 - kind: ServiceAccount
   name: vault-auth
   fieldSpecs:
@@ -18,4 +12,10 @@ nameReference:
       path: spec/kubernetes/serviceAccount
     - kind: VaultAuth
       path: spec/kubernetes/role
+
+- kind: VaultAuth
+  name: vault-auth
+  fieldSpecs:
+    - kind: VaultStaticSecret
+      path: spec/vaultAuthRef
 
