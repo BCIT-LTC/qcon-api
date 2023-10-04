@@ -1,13 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: qcon
 resources:
   - ../../base
-# Resource names in a shared namespace must be unique
-#
-namePrefix: qcon-api-
 commonLabels:
   environment: latest
+# Prefix/Suffix required for VaultAuth configuration
+#
+namePrefix: qcon-api-
+nameSuffix: -latest
+# Teach kustomize how to update generated names
+#
+configurations:
+  - kustomizeconfig.yaml
 commonAnnotations:
   version: 2.18.15-44d4722a--2023-09-27.1695830530 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
 images:
@@ -23,6 +27,17 @@ patches:
   - target:
       kind: Deployment
     path: deployment-patch.yaml
+  # Incorporate vault-secrets
+  #
+  # adds `-latest` suffix to VaultAuth `spec.mount`
+  - target:
+      kind: VaultAuth
+    path: vault-secrets-latest/vault-auth-patch.yaml
+components:
+  # Include environment-specific secrets
+  - ./vault-secrets-latest
+  # Required for VaultAuth role and serviceaccounts
+  - ../../base/components/vault-auth
 # Generates elasticapm config
 #
 configMapGenerator:
@@ -30,5 +45,3 @@ configMapGenerator:
     literals:
       - ELASTIC_APM_SERVICE_NAME=qcon-api-latest
     behavior: merge
-components:
-  - ./vault-secrets
