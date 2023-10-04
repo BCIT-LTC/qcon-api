@@ -6,3 +6,4 @@ resources:
   - admin-credentials.yaml
   - postgres-credentials.yaml
   - tokens.yaml
+  - star-ltc-bcit-ca.yaml
