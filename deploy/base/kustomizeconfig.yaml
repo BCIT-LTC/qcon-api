@@ -3,14 +3,9 @@
 ---
 nameReference:
 
-  - kind: HelmRepository
-    fieldSpecs:
-      - kind: HelmRelease
-        path: spec/chart/spec/sourceRef/name
-
   - kind: VaultStaticSecret
     fieldSpecs:
       - kind: VaultStaticSecret
         path: spec/destination/name
-      - kind: HelmRelease
-        path: spec/values/config/secretName
+      - kind: Deployment
+        path: spec/template/spec/containers/envFrom/secretRef/name
