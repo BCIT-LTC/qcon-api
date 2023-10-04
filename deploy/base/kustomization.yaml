@@ -1,15 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# If workloads share a common namespace, set the `namePrefix` in the overlay
-#   `kustomization.yaml` to avoid name collisions.
-#
-# namePrefix: qcon-api-
-
 resources:
   - ./nginx-unprivileged
   - ingress.yaml
   - serviceaccount.yaml
+
+
+# Teach kustomize how to update generated names
+#
+configurations:
+  - kustomizeconfig.yaml
 
 commonLabels:
   app: qcon-api
