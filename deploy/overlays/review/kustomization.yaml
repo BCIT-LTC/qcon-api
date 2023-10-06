@@ -1,12 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+resources:
+  - ../../base
+
 # Flux envsubst replaces variables found in `deploy-vars.env` or falls back to defaults
 #
 namespace: ${DEPLOY_NAMESPACE:=qcon-api}
-
-resources:
-  - ../../base
 
 commonLabels:
   environment: review
@@ -33,6 +33,7 @@ patches:
   - target:
       kind: Ingress
     path: ingress-patch.yaml
+  # Adds GIT_TAG env var to deployment
   - target:
       kind: Deployment
     path: deployment-patch.yaml

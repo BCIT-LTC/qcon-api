@@ -13,11 +13,11 @@ nameSuffix: -stable
 configurations:
   - kustomizeconfig.yaml
 commonAnnotations:
-  version: 2.18.15 # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+  version: 2.18.15 # {"$imagepolicy": "qcon:qcon-api-image-policy-stable:tag"}
 images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
-    newTag: "2.18.15" # {"$imagepolicy": "qcon:qcon-api-image-policy:tag"}
+    newTag: "2.18.15" # {"$imagepolicy": "qcon:qcon-api-image-policy-stable:tag"}
 # Adds elasticapm config and Vault agent annotations to deployment
 #
 patches:
@@ -35,9 +35,8 @@ components:
   - ./vault-secrets-stable
   # Required for VaultAuth role and serviceaccounts
   - ../../base/components/vault-auth
-# Generates elasticapm config
-#
 configMapGenerator:
+  # Updates elasticapm config
   - name: elasticapm-config
     literals:
       - ELASTIC_APM_SERVICE_NAME=qcon-api-stable
