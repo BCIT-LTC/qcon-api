@@ -242,7 +242,7 @@ def parse_question(question_id, endanswer=None):
         randomize = root.find('randomize')
         if randomize is not None:
             is_randomize = trim_text(randomize.text).lower() in ['yes', 'true']
-            question.randomize = is_randomize
+            is_random = is_random or is_randomize
 
         question_body = root.find("question_body")
         if question_body is None:
