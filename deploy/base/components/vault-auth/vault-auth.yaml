@@ -1,11 +1,6 @@
 # Vault secrets operator VaultAuth configuration
 #
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: vault-auth
----
 apiVersion: secrets.hashicorp.com/v1beta1
 kind: VaultAuth
 metadata:
@@ -15,6 +10,6 @@ spec:
   mount: kubernetes
   kubernetes:
     role: vault-auth
-    serviceAccount: vault-auth
+    serviceAccount: serviceaccount
     audiences:
       - vault

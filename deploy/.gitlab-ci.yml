@@ -129,6 +129,9 @@ stop review:
 #
 variables:
 
+  # If the app URL is not the same as the project name, change this to the app URL. 
+  # APP_URL: "site.ltc.bcit.ca"
+
   # If GENERIC_DEPLOYMENT is set to anything but "true", the pipeline expects this
   #   project to have a `deploy/` folder. See https://infrastructure-documentation.ltc.bcit.ca/.
   #
@@ -144,7 +147,7 @@ variables:
 
   # Turn on verbose pipeline console output
   #
-  PIPELINE_DEBUG: "true"
+  PIPELINE_DEBUG: "false"
 
 
 # Include common pipeline scripts
