@@ -13,11 +13,11 @@ nameSuffix: -stable
 configurations:
   - kustomizeconfig.yaml
 commonAnnotations:
-  version: 2.18.16 # {"$imagepolicy": "qcon:qcon-api-image-policy-stable:tag"}
+  version: 2.18.17 # {"$imagepolicy": "qcon:qcon-api-image-policy-stable:tag"}
 images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
-    newTag: "2.18.16" # {"$imagepolicy": "qcon:qcon-api-image-policy-stable:tag"}
+    newTag: "2.18.17" # {"$imagepolicy": "qcon:qcon-api-image-policy-stable:tag"}
 # Adds elasticapm config and Vault agent annotations to deployment
 #
 patches:
