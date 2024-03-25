@@ -15,4 +15,4 @@ spec:
         - name: qcon-api
           env:
             - name: GIT_TAG
-              value: 2.18.17-32ebcbde--2023-10-19.1697759396 # {"$imagepolicy": "qcon:qcon-api-image-policy-latest:tag"}
+              value: 2.18.18-78578ce0--2024-03-25.1711386565 # {"$imagepolicy": "qcon:qcon-api-image-policy-latest:tag"}

@@ -13,11 +13,11 @@ nameSuffix: -latest
 configurations:
   - kustomizeconfig.yaml
 commonAnnotations:
-  version: 2.18.17-32ebcbde--2023-10-19.1697759396 # {"$imagepolicy": "qcon:qcon-api-image-policy-latest:tag"}
+  version: 2.18.18-78578ce0--2024-03-25.1711386565 # {"$imagepolicy": "qcon:qcon-api-image-policy-latest:tag"}
 images:
   - name: "qcon-api"
     newName: "registry.ltc.bcit.ca/web-apps/qcon/qcon-api"
-    newTag: "2.18.17-32ebcbde--2023-10-19.1697759396" # {"$imagepolicy": "qcon:qcon-api-image-policy-latest:tag"}
+    newTag: "2.18.18-78578ce0--2024-03-25.1711386565" # {"$imagepolicy": "qcon:qcon-api-image-policy-latest:tag"}
 # Patches ingress with "latest--" and deployment with annotations
 #
 patches:
