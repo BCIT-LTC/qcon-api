@@ -118,7 +118,7 @@ def check_endanswer_questiontype(question, answers, endanswer):
         KeywordFalseFound = False
     
         for answer in answers:
-            answer_text = markdown_to_plain(answer.find('content').text.lower())
+            answer_text = markdown_to_plain(answer['answer_content'].lower())
             answer_text = trim_text(answer_text)
 
             for choice_answer in answer_list:
@@ -277,6 +277,10 @@ def parse_question(question_id, endanswer=None):
         # only if there are multiple question_body parts then proceed to splitting
         if (len(question_body_part_list) == 1) and (question_body_part_list[0].get('prefix_type') == 'NUMLIST_PREFIX'):
             part_of_question_list.append(question_body_part_list[0])
+        elif (len(question_body_part_list) == 2) and (question_body_part_list[0].get('prefix_type') == 'NUMLIST_PREFIX') and (question_body_part_list[1].get('prefix_type') == 'FEEDBACK'):
+            # Case of WR or FIB question with feedback and using answer key
+            part_of_question_list.append(question_body_part_list[0])
+            part_of_question_list.append(question_body_part_list[1])
         else:
             # Filter out the last letter enumerated list so that it can be set as the answerlist
             start_of_list_found = False
