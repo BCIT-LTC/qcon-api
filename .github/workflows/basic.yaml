@@ -34,11 +34,8 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
           acrName: bcitltc
           containerAppName: qcon-api
           containerAppEnvironment: latest
           resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
           imageToBuild: bcitltc.azurecr.io/qcon-api:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
