@@ -35,7 +35,9 @@ jobs:
         with:
           appSourcePath: ${{ github.workspace }}
           acrName: bcitltc
-          containerAppName: qcon-api
+          acrUsername: ${{ secrets.ACR_USERNAME }}
+          acrPassword: ${{ secrets.ACR_PASSWORD }}
+          containerAppName: qcon-api-latest
           containerAppEnvironment: latest
           resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
           imageToBuild: bcitltc.azurecr.io/qcon-api:${{ github.sha }}
