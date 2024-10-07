@@ -42,5 +42,3 @@ jobs:
           imageToBuild: bcitltc.azurecr.io/qcon-api:${{ github.sha }}
           _buildArgumentsKey_: |
             _buildArgumentsValues_
-
-          
