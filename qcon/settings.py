@@ -23,7 +23,7 @@ load_dotenv()
 # mandatory vars
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
-POSTGRES_HOST = "localhost"
+POSTGRES_HOST = os.getenv('POSTGRES_HOST')
 API_KEY = os.environ.get('API_KEY')
 
 # optional vars
